@@ -579,7 +579,6 @@ def upgrade():
             # -------------------------------------------------------------
             # New columns
             # -------------------------------------------------------------
-
             if not _column_exists("contacts", "user_id"):
                 batch_op.add_column(
                     sa.Column(
@@ -603,8 +602,8 @@ def upgrade():
                     sa.Column(
                         "is_read",
                         sa.Boolean(),
-                        server_default=sa.text("0"),
                         nullable=False,
+                        server_default=sa.text("false"),
                     )
                 )
 
@@ -667,7 +666,7 @@ def upgrade():
                     sa.Column(
                         "is_archived",
                         sa.Boolean(),
-                        server_default=sa.text("0"),
+                        server_default=sa.text("false"),
                         nullable=False,
                     )
                 )
