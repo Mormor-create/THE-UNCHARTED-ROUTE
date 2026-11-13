@@ -1,0 +1,125 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Edit {{ packing_item.name }} · {{ experience.name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+    <header>
+        <nav class="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_experiences.index') }}" class="transition hover:text-[#1F5138]">Experiences</a>
+            <span>/</span>
+            <span>{{ experience.title }}</span>
+            <span>/</span>
+            <a href="{{ url_for('admin_experience_packing_items.index', experience_id=experience.id) }}" class="transition hover:text-[#1F5138]">Packing Items</a>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">Edit</span>
+        </nav>
+
+        <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#5C6B32]">Experience Preparation</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-[#12372A]">Edit Packing Item</h1>
+        <p class="mt-2 text-sm leading-6 text-[#66736B]">
+            Update <span class="font-semibold text-[#1C2822]">{{ packing_item.name }}</span> for {{ experience.title }}.
+        </p>
+    </header>
+
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+
+        <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-5">
+                <h2 class="font-semibold text-[#12372A]">Item Information</h2>
+                <p class="mt-1 text-sm text-[#66736B]">Keep the packing guidance clear and useful.</p>
+            </div>
+
+            <div class="grid gap-5 p-6 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    {{ form.name.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                    {{ form.name(class="w-full rounded-xl border border-[#D8D5CA] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/15") }}
+                    {% for error in form.name.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="sm:col-span-2">
+                    {{ form.description.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                    {{ form.description(class="w-full rounded-xl border border-[#D8D5CA] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/15", rows="4") }}
+                    {% for error in form.description.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div>
+                    {{ form.category.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                    {{ form.category(class="w-full rounded-xl border border-[#D8D5CA] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/15") }}
+                    {% for error in form.category.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div>
+                    {{ form.icon.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                    {{ form.icon(class="w-full rounded-xl border border-[#D8D5CA] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/15", placeholder="e.g. sun") }}
+                    {% for error in form.icon.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+                    <p class="mt-1 text-xs text-[#66736B]">Use an icon identifier supported by your frontend.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="font-semibold text-[#12372A]">Item Classification</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Control how this item is presented to guests.</p>
+
+            <div class="mt-5 space-y-4">
+                {% for field, heading, description in [
+                    (form.required, "Required item", "Mark this item as required for the experience."),
+                    (form.recommended, "Recommended item", "Identify items that improve comfort or convenience."),
+                    (form.active, "Active", "Inactive items remain stored but are hidden from the active packing list.")
+                ] %}
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] p-4 transition hover:bg-[#F7F1E5]/60">
+                    {{ field(class="mt-1 h-4 w-4 rounded border-[#C8C8BA] text-[#1F5138] focus:ring-[#1F5138]") }}
+                    <span>
+                        <span class="block text-sm font-semibold text-[#1C2822]">{{ heading }}</span>
+                        <span class="mt-1 block text-sm leading-5 text-[#66736B]">{{ description }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="font-semibold text-[#12372A]">Display Settings</h2>
+            <div class="mt-5 max-w-sm">
+                {{ form.display_order.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                {{ form.display_order(class="w-full rounded-xl border border-[#D8D5CA] bg-white px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/15") }}
+                <p class="mt-1 text-xs text-[#66736B]">Lower numbers appear first.</p>
+                {% for error in form.display_order.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+            </div>
+        </section>
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <a href="{{ url_for('admin_experience_packing_items.index', experience_id=experience.id) }}"
+               class="inline-flex items-center justify-center rounded-xl border border-[#D8D5CA] px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                Cancel
+            </a>
+
+            <div class="flex flex-col gap-3 sm:flex-row">
+                {{ form.submit(class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-[#1F5138] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2") }}
+            </div>
+        </div>
+    </form>
+
+    <section class="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+        <h2 class="font-semibold text-red-800">Danger Zone</h2>
+        <p class="mt-1 text-sm leading-6 text-[#66736B]">
+            Permanently delete this packing item. This action cannot be undone.
+        </p>
+
+        <form method="POST"
+              action="{{ url_for('admin_experience_packing_items.delete', experience_id=experience.id, item_id=packing_item.id) }}"
+              onsubmit="return confirm('Delete this packing item permanently?');"
+              class="mt-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="inline-flex items-center justify-center rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50">
+                Delete Packing Item
+            </button>
+        </form>
+    </section>
+
+</div>
+{% endblock %}

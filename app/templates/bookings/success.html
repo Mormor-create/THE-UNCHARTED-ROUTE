@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Booking Submitted | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-slate-50">
+
+    <section class="relative overflow-hidden bg-slate-950">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950"></div>
+
+        <div class="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
+
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-400/30">
+
+                <svg
+                    class="h-10 w-10 text-emerald-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+
+            </div>
+
+            <p class="mt-8 text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
+                The Uncharted Route
+            </p>
+
+            <h1 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                Your Booking Request Is In
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                Thank you, {{ booking.first_name }}.
+                We've received your booking request and our team will review
+                the details before confirming your journey.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <main class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+
+        <div class="space-y-8">
+
+
+            <!-- REFERENCE -->
+
+            <section class="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 sm:p-10">
+
+                <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                    Booking Reference
+                </p>
+
+                <p class="mt-3 break-all text-3xl font-bold tracking-wide text-slate-950 sm:text-4xl">
+                    {{ booking.booking_reference }}
+                </p>
+
+                <p class="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-500">
+                    Keep this reference safe. You'll need it when communicating
+                    with The Uncharted Route about this booking.
+                </p>
+
+            </section>
+
+
+            <!-- SUMMARY -->
+
+            <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                <div class="grid gap-6 sm:grid-cols-2">
+
+
+                    <div>
+
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Booking Type
+                        </p>
+
+                        <p class="mt-1 font-semibold text-slate-900">
+
+                            {% if booking.booking_type == "destination_journey" %}
+                                Destination Journey
+
+                            {% elif booking.booking_type == "stay" %}
+                                Stay
+
+                            {% else %}
+                                Experience
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Status
+                        </p>
+
+                        <p class="mt-1 font-semibold text-emerald-700">
+                            {{ booking.status }}
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Travellers / Guests
+                        </p>
+
+                        <p class="mt-1 font-semibold text-slate-900">
+                            {{ booking.total_guests or booking.total_travellers or 0 }}
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Currency
+                        </p>
+
+                        <p class="mt-1 font-semibold text-slate-900">
+                            {{ booking.currency or "KES" }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- NEXT STEPS -->
+
+            <section class="rounded-2xl bg-slate-950 p-6 shadow-xl sm:p-8">
+
+                <p class="text-sm font-semibold uppercase tracking-wider text-emerald-400">
+                    What Happens Next
+                </p>
+
+                <div class="mt-6 grid gap-6 sm:grid-cols-3">
+
+                    <div>
+
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
+                            1
+                        </span>
+
+                        <h2 class="mt-4 font-bold text-white">
+                            We review
+                        </h2>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            Our team checks availability, capacity and booking
+                            details.
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
+                            2
+                        </span>
+
+                        <h2 class="mt-4 font-bold text-white">
+                            We confirm
+                        </h2>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            We'll contact you with the next step and confirmation
+                            details.
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-bold text-white">
+                            3
+                        </span>
+
+                        <h2 class="mt-4 font-bold text-white">
+                            You get ready
+                        </h2>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            Then it's time to prepare for the experience ahead.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ACTIONS -->
+
+            <div class="flex flex-col justify-center gap-4 sm:flex-row">
+
+                <a
+                    href="{{ url_for('main.index') }}"
+                    class="
+                        inline-flex items-center justify-center rounded-xl
+                        border border-slate-300 bg-white px-6 py-3
+                        text-sm font-bold text-slate-700 shadow-sm
+                        transition hover:bg-slate-50
+                    "
+                >
+                    Return Home
+                </a>
+
+
+                <a
+                    href="{{ url_for('bookings.confirmation', booking_reference=booking.booking_reference) }}"
+                    class="
+                        inline-flex items-center justify-center rounded-xl
+                        bg-emerald-700 px-6 py-3 text-sm font-bold text-white
+                        shadow-sm transition hover:bg-emerald-800
+                    "
+                >
+                    View Booking
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}

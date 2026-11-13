@@ -1,0 +1,170 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Edit Inclusion — {{ experience.title }}
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F7F1E5]/50 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+
+        <!-- Back Navigation -->
+        <div class="mb-6">
+            <a
+                href="{{ url_for('experience_inclusions.index', experience_id=experience.id) }}"
+                class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#1F5138] transition hover:bg-[#E9DDC8]/60 hover:text-[#12372A]"
+            >
+                <span aria-hidden="true">&larr;</span>
+                Back to Inclusions
+            </a>
+        </div>
+
+        <!-- Page Header -->
+        <div class="mb-8 overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="bg-[#12372A] px-6 py-7 sm:px-8">
+                <div class="mb-3 flex flex-wrap items-center gap-3">
+                    <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-[#F7F1E5]">
+                        Experience Management
+                    </span>
+                    <span class="text-sm text-[#E9DDC8]">Inclusions</span>
+                </div>
+
+                <h1 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    Edit Experience Inclusion
+                </h1>
+
+                <p class="mt-2 text-sm leading-6 text-[#E9DDC8] sm:text-base">
+                    Update
+                    <span class="font-semibold text-white">{{ inclusion.title }}</span>
+                    for
+                    <span class="font-semibold text-white">{{ experience.title }}</span>.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3 bg-[#F7F1E5] px-6 py-4 sm:px-8">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#1F5138] shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+                    </svg>
+                </span>
+                <div>
+                    <p class="text-sm font-semibold text-[#1C2822]">Update inclusion details</p>
+                    <p class="mt-1 text-xs text-[#66736B]">Revise the description, icon, display order and status.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inclusion Form -->
+        <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+            <form method="POST">
+
+                {{ form.hidden_tag() }}
+
+                <div class="space-y-7 p-6 sm:p-8">
+
+                    <!-- Inclusion Details -->
+                    <div>
+                        <div class="mb-5 border-b border-[#E9DDC8] pb-3">
+                            <h2 class="text-base font-bold text-[#12372A]">Inclusion Details</h2>
+                            <p class="mt-1 text-sm text-[#66736B]">Review and update the included item.</p>
+                        </div>
+
+                        <div class="space-y-6">
+
+                            <div>
+                                {{ form.title.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                                {{ form.title(class="block w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] shadow-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+
+                                {% for error in form.title.errors %}
+                                    <p class="mt-2 text-sm font-medium text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.description.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                                {{ form.description(rows="5", class="block w-full resize-y rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] shadow-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+
+                                {% for error in form.description.errors %}
+                                    <p class="mt-2 text-sm font-medium text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.icon.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                                {{ form.icon(class="block w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] shadow-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+
+                                <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                                    Icon identifier used by the experience interface.
+                                </p>
+
+                                {% for error in form.icon.errors %}
+                                    <p class="mt-2 text-sm font-medium text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Display Settings -->
+                    <div>
+                        <div class="mb-5 border-b border-[#E9DDC8] pb-3">
+                            <h2 class="text-base font-bold text-[#12372A]">Display Settings</h2>
+                            <p class="mt-1 text-sm text-[#66736B]">Manage the item's position and availability.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+                            <div>
+                                {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                                {{ form.display_order(class="block w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] shadow-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+
+                                {% for error in form.display_order.errors %}
+                                    <p class="mt-2 text-sm font-medium text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="flex items-center rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 px-4 py-4 md:mt-7">
+                                <label class="inline-flex cursor-pointer items-center gap-3">
+                                    {{ form.active(class="h-4 w-4 rounded border-[#E9DDC8] text-[#1F5138] focus:ring-[#1F5138]") }}
+                                    <span>
+                                        <span class="block text-sm font-semibold text-[#1C2822]">Active</span>
+                                        <span class="mt-1 block text-xs text-[#66736B]">Control whether this inclusion is active.</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] bg-[#F7F1E5]/60 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+
+                    <a
+                        href="{{ url_for('experience_inclusions.index', experience_id=experience.id) }}"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]"
+                    >
+                        <span aria-hidden="true">&larr;</span>
+                        Cancel
+                    </a>
+
+                    {{ form.submit(class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#1F5138] bg-[#1F5138] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:border-[#12372A] hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30 focus:ring-offset-2") }}
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

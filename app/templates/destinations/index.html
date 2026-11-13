@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Destinations | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    Discover destinations across Kenya with The Uncharted Route. Explore remarkable places, landscapes, wildlife, culture, and unforgettable travel experiences.
+{% endblock %}
+
+{% block og_title %}
+    Destinations | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block og_description %}
+    Explore the destinations that make Kenya extraordinary with The Uncharted Route.
+{% endblock %}
+
+{% block content %}
+
+<!-- =====================================================================
+     Page Hero
+     ===================================================================== -->
+
+{% if page_hero %}
+
+<section class="relative isolate overflow-hidden bg-route-deep text-route-white">
+
+    {% if page_hero.desktop_image_url %}
+
+    <div class="absolute inset-0">
+
+        <picture>
+
+            {% if page_hero.mobile_image_url %}
+            <source
+                media="(max-width: 767px)"
+                srcset="{{ page_hero.mobile_image_url }}"
+            >
+            {% endif %}
+
+            <img
+                src="{{ page_hero.desktop_image_url }}"
+                alt="{{ page_hero.page_name or 'The Uncharted Route' }}"
+                class="h-full w-full object-cover"
+                style="object-position:
+                    {% if page_hero.image_position == 'center top' %}
+                        center top
+                    {% elif page_hero.image_position == 'center bottom' %}
+                        center bottom
+                    {% elif page_hero.image_position == 'left center' %}
+                        left center
+                    {% elif page_hero.image_position == 'right center' %}
+                        right center
+                    {% else %}
+                        center
+                    {% endif %}
+                ;"
+            >
+
+        </picture>
+
+    </div>
+
+    {% else %}
+
+    <div
+        class="absolute inset-0 bg-gradient-to-br from-route-deep via-route-forest to-route-safari"
+    ></div>
+
+    {% endif %}
+
+
+    {% if page_hero.overlay_style == "dark" %}
+
+    <div class="absolute inset-0 bg-route-deep/65"></div>
+
+    {% elif page_hero.overlay_style == "light" %}
+
+    <div class="absolute inset-0 bg-route-white/25"></div>
+
+    {% endif %}
+
+
+    <div
+        class="absolute -left-32 top-20 h-72 w-72 rounded-full bg-route-gold/15 blur-3xl"
+    ></div>
+
+    <div
+        class="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-route-terracotta/15 blur-3xl"
+    ></div>
+
+
+    <div
+        class="relative mx-auto max-w-7xl px-6 py-20 sm:px-8 lg:px-12 lg:py-28"
+    >
+
+        <div class="max-w-3xl">
+
+            {% if page_hero.eyebrow %}
+
+            <span
+                class="inline-flex items-center rounded-full border border-route-gold/30 bg-route-white/10 px-4 py-2 text-sm font-semibold tracking-wide text-route-gold backdrop-blur"
+            >
+                {{ page_hero.eyebrow }}
+            </span>
+
+            {% endif %}
+
+
+            {% if page_hero.heading %}
+
+            <h1
+                class="mt-6 font-display text-4xl font-semibold tracking-tight text-route-white sm:text-5xl lg:text-6xl"
+            >
+                {{ page_hero.heading }}
+            </h1>
+
+            {% endif %}
+
+
+            {% if page_hero.subheading %}
+
+            <p
+                class="mt-6 max-w-2xl text-lg leading-8 text-route-cream sm:text-xl"
+            >
+                {{ page_hero.subheading }}
+            </p>
+
+            {% endif %}
+
+
+            {% if page_hero.primary_cta_text or page_hero.secondary_cta_text %}
+
+            <div class="mt-8 flex flex-wrap gap-4">
+
+                {% if page_hero.primary_cta_text and page_hero.primary_cta_url %}
+
+                <a
+                    href="{{ page_hero.primary_cta_url }}"
+                    class="inline-flex items-center rounded-full bg-route-gold px-6 py-3 text-sm font-bold text-route-deep shadow-lg transition hover:-translate-y-0.5 hover:bg-route-cream"
+                >
+                    {{ page_hero.primary_cta_text }}
+
+                    <span class="ml-2">
+                        →
+                    </span>
+                </a>
+
+                {% endif %}
+
+
+                {% if page_hero.secondary_cta_text and page_hero.secondary_cta_url %}
+
+                <a
+                    href="{{ page_hero.secondary_cta_url }}"
+                    class="inline-flex items-center rounded-full border border-route-white/40 bg-route-white/10 px-6 py-3 text-sm font-bold text-route-white backdrop-blur transition hover:border-route-gold hover:bg-route-white/20"
+                >
+                    {{ page_hero.secondary_cta_text }}
+
+                    <span class="ml-2">
+                        →
+                    </span>
+                </a>
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% else %}
+
+<section class="bg-route-deep text-route-white">
+
+    <div class="route-container py-20 lg:py-24">
+
+        <div class="max-w-3xl">
+
+            <p
+                class="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-route-gold"
+            >
+                Discover Kenya
+            </p>
+
+            <h1
+                class="route-heading text-4xl font-semibold tracking-tight text-route-white sm:text-5xl lg:text-6xl"
+            >
+                Destinations
+            </h1>
+
+            <p
+                class="mt-6 max-w-2xl text-lg leading-8 text-white/75"
+            >
+                From wildlife-rich landscapes to coastal escapes and
+                mountain adventures, discover the places that shape
+                The Uncharted Route.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- ==========================================================================
+     THE UNCHARTED ROUTE — DESTINATION COLLECTION
+     Editorial luxury · Nature-led · Refined adventure
+     ========================================================================== -->
+
+<!-- DESTINATION SEARCH -->
+<section class="relative border-b border-[#D9D0BC] bg-[#F7F1E5]">
+    <div class="mx-auto max-w-7xl px-6 py-8 lg:px-10 lg:py-10">
+
+        <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+
+            <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#5C6B32]">
+                    Find your next escape
+                </p>
+
+                <p class="mt-2 font-serif text-xl text-[#12372A] sm:text-2xl">
+                    Where would you like to wander?
+                </p>
+            </div>
+
+            <form
+                method="GET"
+                action="{{ url_for('destinations.search') }}"
+                class="flex w-full max-w-xl items-center gap-3 rounded-full border border-[#D9D0BC] bg-white p-2 pl-5 shadow-sm transition focus-within:border-[#5C6B32] focus-within:shadow-md"
+            >
+                <label for="destination-search" class="sr-only">
+                    Search destinations
+                </label>
+
+                <svg
+                    class="h-5 w-5 shrink-0 text-[#66736B]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    aria-hidden="true"
+                >
+                    <circle cx="10.8" cy="10.8" r="6.8"/>
+                    <path d="m16 16 4.5 4.5"/>
+                </svg>
+
+                <input
+                    id="destination-search"
+                    type="search"
+                    name="q"
+                    value="{{ request.args.get('q', '') }}"
+                    placeholder="Search places, regions, experiences..."
+                    class="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm text-[#1C2822] outline-none placeholder:text-[#92978C] focus:ring-0"
+                >
+
+                <button
+                    type="submit"
+                    class="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#12372A] px-5 py-3 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-[#1F5138]"
+                >
+                    Search
+                    <span aria-hidden="true">↗</span>
+                </button>
+            </form>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- DESTINATION COLLECTION -->
+<section class="overflow-hidden bg-[#F7F1E5]">
+
+    <div class="mx-auto max-w-7xl px-6 py-16 sm:py-20 lg:px-10 lg:py-24">
+
+        <!-- Editorial section introduction -->
+        <div class="mb-12 grid gap-6 lg:mb-16 lg:grid-cols-[1fr_0.65fr] lg:items-end">
+
+            <div>
+                <div class="mb-5 flex items-center gap-3">
+                    <span class="h-px w-10 bg-[#D89B24]"></span>
+
+                    <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#5C6B32]">
+                        The Uncharted Collection
+                    </p>
+                </div>
+
+                <h1 class="max-w-3xl font-serif text-4xl font-medium leading-[1.12] tracking-tight text-[#12372A] sm:text-5xl lg:text-6xl">
+                    Places that stay
+                    <span class="italic text-[#5C6B32]">with you.</span>
+                </h1>
+            </div>
+
+            <div class="max-w-lg lg:justify-self-end">
+                <p class="text-sm leading-7 text-[#66736B] sm:text-base">
+                    Some places are more than destinations. They are moments
+                    of wonder, stories of the wild, and experiences that
+                    remind you why the world is worth exploring.
+                </p>
+
+                <div class="mt-5 flex items-center gap-3">
+                    <span class="h-px w-8 bg-[#D89B24]"></span>
+                    <span class="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#12372A]">
+                        Explore. Experience. Remember.
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Destination cards -->
+        {% if destinations %}
+
+            <div class="grid grid-cols-1 gap-x-7 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-14">
+
+                {% for destination in destinations %}
+
+                    <article class="group flex flex-col">
+
+                        <!-- Photography -->
+                        <a
+                            href="{{ url_for('destinations.detail', slug=destination.slug) }}"
+                            class="relative block overflow-hidden bg-[#E9DDC8]"
+                            aria-label="Discover {{ destination.name }}"
+                        >
+                            <div class="relative aspect-[4/5] overflow-hidden">
+
+                                {% set image_asset = destination.featured_image_asset %}
+
+                                {% if image_asset and image_asset.browser_url %}
+
+                                    <img
+                                        src="{{ image_asset.browser_url }}"
+                                        alt="{{ image_asset.alt_text or destination.name }}"
+                                        loading="lazy"
+                                        class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+                                    >
+
+                                {% else %}
+
+                                    <div class="flex h-full w-full items-center justify-center bg-[#E9DDC8]">
+                                        <div class="px-6 text-center">
+                                            <svg
+                                                class="mx-auto mb-4 h-10 w-10 text-[#5C6B32]/60"
+                                                viewBox="0 0 40 40"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.1"
+                                                aria-hidden="true"
+                                            >
+                                                <path d="M5 32 15 14l7 11 5-7 8 14H5Z"/>
+                                                <circle cx="28" cy="10" r="4"/>
+                                            </svg>
+
+                                            <span class="font-serif text-xl text-[#12372A]">
+                                                {{ destination.name }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                {% endif %}
+
+                                <!-- Image overlay -->
+                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#10251B]/65 via-transparent to-black/5 opacity-80 transition-opacity duration-500 group-hover:opacity-100"></div>
+
+                                <!-- Destination number -->
+                                <span class="absolute left-5 top-5 font-serif text-sm italic text-white/90">
+                                    {% if loop.index < 10 %}0{% endif %}{{ loop.index }}
+                                </span>
+
+                                <!-- Country label -->
+                                {% if destination.country %}
+                                    <span class="absolute bottom-5 left-5 text-[10px] font-semibold uppercase tracking-[0.24em] text-white">
+                                        {{ destination.country }}
+                                    </span>
+                                {% endif %}
+
+                                <!-- Discover indicator -->
+                                <span class="absolute bottom-4 right-5 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full border border-white/70 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                                    <svg
+                                        class="h-4 w-4"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M5 10a1 1 0 011-1h6.586L9.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L12.586 11H6a1 1 0 01-1-1z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </span>
+
+                                {% if destination.featured %}
+                                    <span class="absolute right-5 top-5 border border-white/50 bg-[#12372A]/75 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+                                        Featured
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                        </a>
+
+
+                        <!-- Destination story -->
+                        <div class="flex flex-1 flex-col pt-6">
+
+                            <div class="mb-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5C6B32]">
+
+                                {% if destination.region or destination.county %}
+                                    <span>
+                                        {{ destination.region or destination.county }}
+                                    </span>
+                                {% endif %}
+
+                                {% if destination.region and destination.county %}
+                                    <span class="text-[#D89B24]">/</span>
+                                    <span>{{ destination.county }}</span>
+                                {% endif %}
+
+                            </div>
+
+                            <h2 class="font-serif text-2xl font-medium leading-snug text-[#12372A] transition-colors duration-300 group-hover:text-[#5C6B32] sm:text-3xl">
+                                <a href="{{ url_for('destinations.detail', slug=destination.slug) }}">
+                                    {{ destination.name }}
+                                </a>
+                            </h2>
+
+                            {% if destination.short_description %}
+                                <p class="mt-3 line-clamp-3 text-sm leading-7 text-[#66736B]">
+                                    {{ destination.short_description }}
+                                </p>
+                            {% endif %}
+
+                            <!-- Refined card footer -->
+                            <div class="mt-auto flex items-center justify-between gap-4 border-t border-[#D9D0BC] pt-5 mt-6">
+
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-[0.16em] text-[#66736B]">
+                                        Discover what's here
+                                    </p>
+
+                                    <p class="mt-1 text-sm font-medium text-[#12372A]">
+                                        {% set experience_total = destination.experience_count or 0 %}
+
+                                        {% if experience_total == 1 %}
+                                            1 experience
+                                        {% else %}
+                                            {{ experience_total }} experiences
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                <a
+                                    href="{{ url_for('destinations.detail', slug=destination.slug) }}"
+                                    class="inline-flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#12372A] transition-colors hover:text-[#C96A2C]"
+                                >
+                                    Discover
+
+                                    <span
+                                        class="text-base transition-transform duration-300 group-hover:translate-x-1"
+                                        aria-hidden="true"
+                                    >
+                                        →
+                                    </span>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <!-- Empty collection state -->
+            <div class="border-y border-[#D9D0BC] py-20 text-center sm:py-28">
+
+                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#5C6B32]">
+                    A little more exploration
+                </p>
+
+                <h2 class="mt-5 font-serif text-3xl font-medium text-[#12372A] sm:text-4xl">
+                    Your next destination is on its way.
+                </h2>
+
+                <p class="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#66736B]">
+                    We're carefully preparing the collection.
+                    Return soon to discover the places and experiences
+                    waiting beyond the familiar.
+                </p>
+
+                <div class="mx-auto mt-7 h-px w-12 bg-[#D89B24]"></div>
+
+            </div>
+
+        {% endif %}
+
+        <!-- Closing brand signature -->
+        {% if destinations %}
+            <div class="mt-16 flex flex-col items-center justify-center gap-3 border-t border-[#D9D0BC] pt-8 text-center sm:mt-20 sm:flex-row sm:gap-5">
+
+                <span class="font-serif text-lg italic text-[#12372A]">
+                    The Uncharted Route
+                </span>
+
+                <span class="hidden h-1 w-1 rounded-full bg-[#D89B24] sm:block"></span>
+
+                <span class="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#66736B]">
+                    A world beyond the expected
+                </span>
+
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,2343 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ post.title }} — The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="tur-blog-detail">
+
+    <!-- =========================================================
+         EDITORIAL PAGE HEADER
+    ========================================================== -->
+    <section class="tur-editorial-header">
+        <div class="tur-header-pattern" aria-hidden="true"></div>
+
+        <div class="tur-header-inner">
+            <nav aria-label="breadcrumb" class="tur-breadcrumb">
+                <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+                <span>/</span>
+                <a href="{{ url_for('admin_blog.index') }}">Journal</a>
+                <span>/</span>
+                <span class="tur-breadcrumb-current">Article overview</span>
+            </nav>
+
+            <div class="tur-header-main">
+                <div class="tur-header-copy">
+                    <div class="tur-eyebrow">
+                        <span class="tur-eyebrow-line"></span>
+                        THE UNCHARTED ROUTE
+                        <span class="tur-eyebrow-dot"></span>
+                        JOURNAL MANAGEMENT
+                    </div>
+
+                    <h1>{{ post.title }}</h1>
+
+                    {% if post.subtitle %}
+                        <p class="tur-header-subtitle">{{ post.subtitle }}</p>
+                    {% endif %}
+
+                    <div class="tur-header-meta">
+                        {% if post.category %}
+                            <span class="tur-category-label">
+                                <i class="bi bi-journal-richtext"></i>
+                                {{ post.category.name }}
+                            </span>
+                        {% endif %}
+
+                        <span class="tur-status-pill
+                            {% if post.status == 'Published' %}is-published
+                            {% elif post.status == 'Review' %}is-review
+                            {% elif post.status == 'Scheduled' %}is-scheduled
+                            {% elif post.status == 'Archived' %}is-archived
+                            {% else %}is-draft{% endif %}">
+                            <span class="tur-status-dot"></span>
+                            {{ post.status }}
+                        </span>
+
+                        {% if post.featured %}
+                            <span class="tur-header-tag">
+                                <i class="bi bi-star-fill"></i> Featured
+                            </span>
+                        {% endif %}
+
+                        {% if post.pinned %}
+                            <span class="tur-header-tag">
+                                <i class="bi bi-pin-angle-fill"></i> Pinned
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tur-header-actions">
+                    {% if post.status == "Published" %}
+                        <a href="{{ url_for('blog.detail', slug=post.slug) }}"
+                           class="tur-btn tur-btn-light"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            View live
+                        </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                       class="tur-btn tur-btn-gold">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit article
+                    </a>
+
+                    <div class="dropdown">
+                        <button class="tur-btn tur-btn-outline-light dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            <i class="bi bi-three-dots"></i>
+                            More
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end tur-dropdown">
+
+                            {% if post.status != "Published" %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.publish', post_id=post.id) }}">
+                                        {{ publish_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-check-circle"></i>
+                                            Publish article
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+
+                            {% if post.status not in ["Archived", "Published"] %}
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="{{ url_for('admin_blog.schedule', post_id=post.id) }}">
+                                        <i class="bi bi-calendar-event"></i>
+                                        Schedule publication
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if post.status == "Draft" %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.submit_review', post_id=post.id) }}">
+                                        {{ review_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-send"></i>
+                                            Submit for review
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            {% if post.featured %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.unfeature', post_id=post.id) }}">
+                                        {{ feature_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-star"></i>
+                                            Remove featured status
+                                        </button>
+                                    </form>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.feature', post_id=post.id) }}">
+                                        {{ feature_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-star-fill"></i>
+                                            Mark as featured
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+
+                            {% if post.pinned %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.unpin', post_id=post.id) }}">
+                                        {{ pin_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-pin-angle"></i>
+                                            Unpin article
+                                        </button>
+                                    </form>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.pin', post_id=post.id) }}">
+                                        {{ pin_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-pin-angle-fill"></i>
+                                            Pin article
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            {% if post.status == "Archived" %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.restore', post_id=post.id) }}">
+                                        {{ restore_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                            Restore to draft
+                                        </button>
+                                    </form>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_blog.archive', post_id=post.id) }}">
+                                        {{ archive_form.csrf_token }}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-archive"></i>
+                                            Archive article
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li>
+                                <button type="button"
+                                        class="dropdown-item tur-danger-item"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deletePostModal">
+                                    <i class="bi bi-trash3"></i>
+                                    Delete article
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =========================================================
+         QUICK METRICS
+    ========================================================== -->
+    <section class="tur-metrics-grid" aria-label="Article metrics">
+
+        <div class="tur-metric">
+            <div class="tur-metric-icon">
+                <i class="bi bi-eye"></i>
+            </div>
+            <div class="tur-metric-copy">
+                <span class="tur-metric-label">Article views</span>
+                <strong>{{ "{:,}".format(post.views or 0) }}</strong>
+            </div>
+            <span class="tur-metric-caption">Total</span>
+        </div>
+
+        <div class="tur-metric">
+            <div class="tur-metric-icon olive">
+                <i class="bi bi-heart"></i>
+            </div>
+            <div class="tur-metric-copy">
+                <span class="tur-metric-label">Reader likes</span>
+                <strong>{{ "{:,}".format(post.likes or 0) }}</strong>
+            </div>
+            <span class="tur-metric-caption">Total</span>
+        </div>
+
+        <div class="tur-metric">
+            <div class="tur-metric-icon gold">
+                <i class="bi bi-share"></i>
+            </div>
+            <div class="tur-metric-copy">
+                <span class="tur-metric-label">Shares</span>
+                <strong>{{ "{:,}".format(post.shares or 0) }}</strong>
+            </div>
+            <span class="tur-metric-caption">Total</span>
+        </div>
+
+        <div class="tur-metric">
+            <div class="tur-metric-icon clay">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="tur-metric-copy">
+                <span class="tur-metric-label">Reading time</span>
+                <strong>{{ post.reading_time_text or "Not set" }}</strong>
+            </div>
+            <span class="tur-metric-caption">Estimate</span>
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         MAIN EDITORIAL LAYOUT
+    ========================================================== -->
+    <div class="tur-detail-layout">
+
+        <!-- LEFT: ARTICLE -->
+        <main class="tur-main-column">
+
+            <!-- Featured image -->
+            {% if post.featured_image %}
+                <section class="tur-featured-visual">
+                    <img src="{{ post.featured_image }}"
+                         alt="{{ post.featured_image_alt or post.title }}"
+                         loading="eager">
+                    <div class="tur-image-caption">
+                        <span><i class="bi bi-image"></i> Featured article image</span>
+                        {% if post.category %}
+                            <span>{{ post.category.name }}</span>
+                        {% endif %}
+                    </div>
+                </section>
+            {% else %}
+                <section class="tur-no-image">
+                    <div class="tur-no-image-icon">
+                        <i class="bi bi-image"></i>
+                    </div>
+                    <div>
+                        <strong>No featured image selected</strong>
+                        <p>Add a strong visual to give this article its editorial identity.</p>
+                    </div>
+                    <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}">
+                        Add image <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                </section>
+            {% endif %}
+
+
+            <!-- Article content -->
+            <section class="tur-panel tur-article-panel">
+                <div class="tur-panel-heading">
+                    <div>
+                        <span class="tur-section-kicker">THE STORY</span>
+                        <h2>Article overview</h2>
+                    </div>
+                    <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                       class="tur-icon-link"
+                       aria-label="Edit article">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </div>
+
+                {% if post.excerpt %}
+                    <div class="tur-excerpt">
+                        <span class="tur-excerpt-label">THE SHORT READ</span>
+                        <p>{{ post.excerpt }}</p>
+                    </div>
+                {% endif %}
+
+                <div class="tur-article-body">
+                    {% if post.content %}
+                        {{ post.content }}
+                    {% else %}
+                        <div class="tur-empty-content">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <strong>This article has no content yet.</strong>
+                            <span>Open the editor to begin shaping the story.</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="tur-article-footer">
+                    <div class="tur-author-mark">
+                        <span class="tur-author-monogram">TUR</span>
+                        <div>
+                            <strong>{{ post.author or "The Uncharted Route" }}</strong>
+                            <span>{{ post.author_title or "Travel & Experience Editorial Team" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="tur-word-count">
+                        <i class="bi bi-file-text"></i>
+                        {{ "{:,}".format(post.word_count or 0) }} words
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Call to action -->
+            {% if post.cta_title or post.cta_text or post.cta_button_text %}
+                <section class="tur-cta-panel">
+                    <div class="tur-cta-decoration" aria-hidden="true">
+                        <i class="bi bi-compass"></i>
+                    </div>
+
+                    <div class="tur-cta-content">
+                        <span class="tur-section-kicker">THE NEXT STEP</span>
+                        <h2>Call to action</h2>
+
+                        {% if post.cta_title %}
+                            <h3>{{ post.cta_title }}</h3>
+                        {% endif %}
+
+                        {% if post.cta_text %}
+                            <p>{{ post.cta_text }}</p>
+                        {% endif %}
+
+                        {% if post.cta_button_text %}
+                            {% if post.cta_button_url %}
+                                <a href="{{ post.cta_button_url }}"
+                                   class="tur-btn tur-btn-green"
+                                   {% if post.cta_button_url.startswith('http://') or post.cta_button_url.startswith('https://') %}
+                                   target="_blank" rel="noopener noreferrer"
+                                   {% endif %}>
+                                    {{ post.cta_button_text }}
+                                    <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                            {% else %}
+                                <button class="tur-btn tur-btn-green" disabled>
+                                    {{ post.cta_button_text }}
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <a href="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+                       class="tur-cta-edit"
+                       aria-label="Edit call to action"
+                       title="Edit call to action">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </section>
+            {% endif %}
+
+
+            <!-- Gallery -->
+            {% if post.gallery %}
+                <section class="tur-panel">
+                    <div class="tur-panel-heading">
+                        <div>
+                            <span class="tur-section-kicker">VISUAL STORYTELLING</span>
+                            <h2>Article gallery</h2>
+                        </div>
+                        <span class="tur-count-label">Gallery</span>
+                    </div>
+
+                    <div class="tur-gallery-grid">
+                        {% for image in post.gallery %}
+                            <div class="tur-gallery-item">
+                                <img src="{{ image }}"
+                                     alt="{{ post.title }} — gallery image {{ loop.index }}"
+                                     loading="lazy">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+
+            <!-- Cover video -->
+            {% if post.cover_video %}
+                <section class="tur-panel">
+                    <div class="tur-panel-heading">
+                        <div>
+                            <span class="tur-section-kicker">MOVING PICTURES</span>
+                            <h2>Cover video</h2>
+                        </div>
+                        <i class="bi bi-play-circle tur-heading-icon"></i>
+                    </div>
+
+                    <div class="tur-video-frame">
+                        <iframe src="{{ post.cover_video }}"
+                                title="{{ post.title }}"
+                                loading="lazy"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen></iframe>
+                    </div>
+                </section>
+            {% endif %}
+
+
+            <!-- SEO -->
+            <section class="tur-panel">
+                <div class="tur-panel-heading">
+                    <div>
+                        <span class="tur-section-kicker">BE DISCOVERED</span>
+                        <h2>Search optimisation</h2>
+                        <p class="tur-panel-subtitle">How this story appears to search engines.</p>
+                    </div>
+                    <a href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                       class="tur-btn tur-btn-soft">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit SEO
+                    </a>
+                </div>
+
+                <div class="tur-data-list">
+                    <div class="tur-data-row">
+                        <span>Meta title</span>
+                        <strong>{{ post.meta_title or "Not set" }}</strong>
+                    </div>
+
+                    <div class="tur-data-row">
+                        <span>Meta description</span>
+                        <div>{{ post.meta_description or "Not set" }}</div>
+                    </div>
+
+                    <div class="tur-data-row">
+                        <span>Keywords</span>
+                        <div>{{ post.meta_keywords or "Not set" }}</div>
+                    </div>
+
+                    <div class="tur-data-row">
+                        <span>Canonical URL</span>
+                        <div>
+                            {% if post.canonical_url %}
+                                <a href="{{ post.canonical_url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="tur-url-text">
+                                    {{ post.canonical_url }}
+                                </a>
+                            {% else %}
+                                <span class="tur-muted">Not set</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Social sharing -->
+            <section class="tur-panel">
+                <div class="tur-panel-heading">
+                    <div>
+                        <span class="tur-section-kicker">BE SHARED</span>
+                        <h2>Social presentation</h2>
+                        <p class="tur-panel-subtitle">The details used when this article is shared.</p>
+                    </div>
+                    <i class="bi bi-share tur-heading-icon"></i>
+                </div>
+
+                {% if post.social_image %}
+                    <div class="tur-social-preview-image">
+                        <img src="{{ post.social_image }}"
+                             alt="{{ post.social_title or post.title }}"
+                             loading="lazy">
+                    </div>
+                {% endif %}
+
+                <div class="tur-data-list">
+                    <div class="tur-data-row">
+                        <span>Social title</span>
+                        <strong>{{ post.social_title or post.title }}</strong>
+                    </div>
+
+                    <div class="tur-data-row">
+                        <span>Social description</span>
+                        <div>{{ post.social_description or post.excerpt or "Not set" }}</div>
+                    </div>
+
+                    <div class="tur-data-row">
+                        <span>Social image</span>
+                        <div>
+                            {% if post.social_image %}
+                                <span class="tur-inline-status is-good">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Configured
+                                </span>
+                            {% else %}
+                                <span class="tur-muted">Featured image fallback</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+
+        <!-- RIGHT: ARTICLE CONTROL RAIL -->
+        <aside class="tur-sidebar-column">
+
+            <!-- Article information -->
+            <section class="tur-panel tur-sidebar-panel">
+                <div class="tur-panel-heading compact">
+                    <div>
+                        <span class="tur-section-kicker">AT A GLANCE</span>
+                        <h2>Article details</h2>
+                    </div>
+                    <i class="bi bi-journal-bookmark tur-heading-icon"></i>
+                </div>
+
+                <div class="tur-sidebar-detail">
+                    <span>Category</span>
+                    {% if post.category %}
+                        <a href="{{ url_for('admin_blog.categories') }}"
+                           class="tur-value-link">
+                            <i class="bi bi-folder2-open"></i>
+                            {{ post.category.name }}
+                        </a>
+                    {% else %}
+                        <strong class="tur-warning-text">No category assigned</strong>
+                    {% endif %}
+                </div>
+
+                <div class="tur-sidebar-detail">
+                    <span>Author</span>
+                    <strong>{{ post.author or "Unknown" }}</strong>
+                    {% if post.author_title %}
+                        <small>{{ post.author_title }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="tur-sidebar-detail">
+                    <span>Article URL slug</span>
+                    <code class="tur-slug">/blog/{{ post.slug }}</code>
+                </div>
+
+                <div class="tur-sidebar-detail">
+                    <span>Reading time</span>
+                    <strong><i class="bi bi-clock"></i> {{ post.reading_time_text or "Not set" }}</strong>
+                </div>
+
+                <div class="tur-sidebar-detail">
+                    <span>Word count</span>
+                    <strong>{{ "{:,}".format(post.word_count or 0) }} words</strong>
+                </div>
+
+                <div class="tur-sidebar-detail">
+                    <span>Reader comments</span>
+                    {% if post.allow_comments %}
+                        <span class="tur-inline-status is-good">
+                            <i class="bi bi-check-circle-fill"></i> Enabled
+                        </span>
+                    {% else %}
+                        <span class="tur-inline-status is-neutral">
+                            <i class="bi bi-dash-circle-fill"></i> Disabled
+                        </span>
+                    {% endif %}
+                </div>
+            </section>
+
+
+            <!-- Timeline -->
+            <section class="tur-panel tur-sidebar-panel">
+                <div class="tur-panel-heading compact">
+                    <div>
+                        <span class="tur-section-kicker">THE JOURNEY</span>
+                        <h2>Publishing timeline</h2>
+                    </div>
+                    <i class="bi bi-calendar2-week tur-heading-icon"></i>
+                </div>
+
+                <div class="tur-timeline">
+                    {% if post.created_at %}
+                        <div class="tur-timeline-item">
+                            <span class="tur-timeline-marker"></span>
+                            <div>
+                                <span>Created</span>
+                                <strong>{{ post.created_at.strftime("%d %b %Y") }}</strong>
+                                <small>{{ post.created_at.strftime("%H:%M") }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if post.updated_at %}
+                        <div class="tur-timeline-item">
+                            <span class="tur-timeline-marker olive"></span>
+                            <div>
+                                <span>Last updated</span>
+                                <strong>{{ post.updated_at.strftime("%d %b %Y") }}</strong>
+                                <small>{{ post.updated_at.strftime("%H:%M") }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if post.scheduled_for %}
+                        <div class="tur-timeline-item">
+                            <span class="tur-timeline-marker gold"></span>
+                            <div>
+                                <span>Scheduled for</span>
+                                <strong>{{ post.scheduled_for.strftime("%d %b %Y") }}</strong>
+                                <small>{{ post.scheduled_for.strftime("%H:%M") }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if post.published_at %}
+                        <div class="tur-timeline-item">
+                            <span class="tur-timeline-marker published"></span>
+                            <div>
+                                <span>Published</span>
+                                <strong>{{ post.published_at.strftime("%d %b %Y") }}</strong>
+                                <small>{{ post.published_at.strftime("%H:%M") }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if not post.created_at and not post.updated_at and not post.scheduled_for and not post.published_at %}
+                        <p class="tur-empty-note">No timeline information is available yet.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+
+            <!-- Related content -->
+            <section class="tur-panel tur-sidebar-panel">
+                <div class="tur-panel-heading compact">
+                    <div>
+                        <span class="tur-section-kicker">EXPLORE FURTHER</span>
+                        <h2>Related content</h2>
+                    </div>
+                    <i class="bi bi-signpost-2 tur-heading-icon"></i>
+                </div>
+
+                <div class="tur-related-item">
+                    <span class="tur-related-icon">
+                        <i class="bi bi-compass"></i>
+                    </span>
+                    <div>
+                        <span>Experience</span>
+                        {% if post.experience %}
+                            <strong>{{ post.experience.name }}</strong>
+                        {% else %}
+                            <small>Nothing linked yet</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tur-related-item">
+                    <span class="tur-related-icon olive">
+                        <i class="bi bi-geo-alt"></i>
+                    </span>
+                    <div>
+                        <span>Destination</span>
+                        {% if post.destination %}
+                            <strong>{{ post.destination.name }}</strong>
+                        {% else %}
+                            <small>Nothing linked yet</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Content status -->
+            <section class="tur-panel tur-sidebar-panel">
+                <div class="tur-panel-heading compact">
+                    <div>
+                        <span class="tur-section-kicker">EDITORIAL CHECKLIST</span>
+                        <h2>Content status</h2>
+                    </div>
+                    <i class="bi bi-clipboard-check tur-heading-icon"></i>
+                </div>
+
+                <div class="tur-check-row">
+                    <span>
+                        <i class="bi bi-envelope-paper"></i>
+                        Newsletter sent
+                    </span>
+                    {% if post.newsletter_sent %}
+                        <i class="bi bi-check-circle-fill tur-check-good" title="Sent"></i>
+                    {% else %}
+                        <i class="bi bi-dash-circle tur-check-muted" title="Not sent"></i>
+                    {% endif %}
+                </div>
+
+                <div class="tur-check-row">
+                    <span>
+                        <i class="bi bi-search"></i>
+                        Search indexed
+                    </span>
+                    {% if post.search_indexed %}
+                        <i class="bi bi-check-circle-fill tur-check-good" title="Indexed"></i>
+                    {% else %}
+                        <i class="bi bi-dash-circle tur-check-muted" title="Not indexed"></i>
+                    {% endif %}
+                </div>
+            </section>
+
+
+            <!-- Quick actions -->
+            <section class="tur-action-panel">
+                <span class="tur-section-kicker">READY FOR THE NEXT STEP?</span>
+                <h2>Keep the story moving.</h2>
+                <p>Refine the details, strengthen discoverability, or prepare this article for publication.</p>
+
+                <div class="tur-action-stack">
+                    <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                       class="tur-btn tur-btn-green">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit article
+                    </a>
+
+                    {% if post.status != "Published" %}
+                        <form method="POST"
+                              action="{{ url_for('admin_blog.publish', post_id=post.id) }}">
+                            {{ publish_form.csrf_token }}
+                            <button type="submit" class="tur-btn tur-btn-gold w-100">
+                                <i class="bi bi-send-check"></i>
+                                Publish now
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <a href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                       class="tur-btn tur-btn-soft">
+                        <i class="bi bi-search"></i>
+                        Manage SEO
+                    </a>
+
+                    <a href="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+                       class="tur-btn tur-btn-soft">
+                        <i class="bi bi-megaphone"></i>
+                        Manage call to action
+                    </a>
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+
+    <!-- =========================================================
+         DELETE CONFIRMATION MODAL
+    ========================================================== -->
+    <div class="modal fade tur-delete-modal"
+         id="deletePostModal"
+         tabindex="-1"
+         aria-labelledby="deletePostModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="tur-delete-icon">
+                        <i class="bi bi-trash3"></i>
+                    </div>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <span class="tur-section-kicker">PERMANENT ACTION</span>
+                    <h2 id="deletePostModalLabel">Delete this article?</h2>
+
+                    <p class="tur-delete-intro">
+                        You are about to permanently delete:
+                    </p>
+
+                    <div class="tur-delete-article">
+                        <i class="bi bi-journal-text"></i>
+                        <strong>{{ post.title }}</strong>
+                    </div>
+
+                    <p class="tur-delete-warning">
+                        <i class="bi bi-exclamation-circle"></i>
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="tur-btn tur-btn-soft"
+                            data-bs-dismiss="modal">
+                        Keep article
+                    </button>
+
+                    <form method="POST"
+                          action="{{ url_for('admin_blog.delete', post_id=post.id) }}">
+                        {{ delete_form.csrf_token }}
+
+                        <button type="submit" class="tur-btn tur-btn-danger">
+                            <i class="bi bi-trash3"></i>
+                            Delete permanently
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     THE UNCHARTED ROUTE — EDITORIAL ADMIN DESIGN
+============================================================== -->
+<style>
+    .tur-blog-detail {
+        --tur-forest: #12372A;
+        --tur-forest-light: #1F5138;
+        --tur-olive: #5C6B32;
+        --tur-gold: #D89B24;
+        --tur-clay: #C96A2C;
+        --tur-ivory: #F7F1E5;
+        --tur-sand: #E9DDC8;
+        --tur-ink: #1C2822;
+        --tur-muted: #66736B;
+        --tur-white: #FFFFFF;
+        --tur-border: #E8E4DA;
+        --tur-shadow: 0 8px 30px rgba(28, 40, 34, .055);
+
+        color: var(--tur-ink);
+        padding: 0 0 2.5rem;
+    }
+
+    .tur-blog-detail,
+    .tur-blog-detail * {
+        box-sizing: border-box;
+    }
+
+    .tur-blog-detail a {
+        transition: color .2s ease, background-color .2s ease,
+                    border-color .2s ease, transform .2s ease;
+    }
+
+    /* Header */
+
+    .tur-editorial-header {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        margin: -1.5rem -0.75rem 1.75rem;
+        padding: 1.75rem clamp(1.25rem, 3vw, 2.5rem) 2.25rem;
+        color: var(--tur-white);
+        background: var(--tur-forest);
+        border-bottom: 4px solid var(--tur-gold);
+    }
+
+    .tur-header-pattern {
+        position: absolute;
+        z-index: -1;
+        top: -95px;
+        right: -50px;
+        width: 430px;
+        height: 430px;
+        border: 1px solid rgba(247, 241, 229, .11);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .tur-header-pattern::before,
+    .tur-header-pattern::after {
+        content: "";
+        position: absolute;
+        border: 1px solid rgba(247, 241, 229, .09);
+        border-radius: 50%;
+    }
+
+    .tur-header-pattern::before {
+        inset: 35px;
+    }
+
+    .tur-header-pattern::after {
+        inset: 75px;
+    }
+
+    .tur-breadcrumb {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .65rem;
+        margin-bottom: 2rem;
+        color: rgba(255, 255, 255, .62);
+        font-size: .79rem;
+    }
+
+    .tur-breadcrumb a {
+        color: rgba(255, 255, 255, .78);
+        text-decoration: none;
+    }
+
+    .tur-breadcrumb a:hover {
+        color: var(--tur-gold);
+    }
+
+    .tur-breadcrumb-current {
+        color: var(--tur-ivory);
+    }
+
+    .tur-header-main {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+
+    .tur-header-copy {
+        min-width: 0;
+        max-width: 850px;
+    }
+
+    .tur-eyebrow,
+    .tur-section-kicker {
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+        color: var(--tur-olive);
+        font-size: .66rem;
+        font-weight: 800;
+        letter-spacing: .15em;
+        line-height: 1.5;
+    }
+
+    .tur-eyebrow {
+        margin-bottom: 1rem;
+        color: #E8D6A8;
+    }
+
+    .tur-eyebrow-line {
+        width: 25px;
+        height: 2px;
+        background: var(--tur-gold);
+    }
+
+    .tur-eyebrow-dot {
+        width: 4px;
+        height: 4px;
+        margin-left: .2rem;
+        background: var(--tur-gold);
+        border-radius: 50%;
+    }
+
+    .tur-header-copy h1 {
+        max-width: 900px;
+        margin: 0;
+        color: var(--tur-ivory);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.9rem, 3vw, 3.15rem);
+        font-weight: 500;
+        letter-spacing: -.035em;
+        line-height: 1.13;
+        overflow-wrap: anywhere;
+    }
+
+    .tur-header-subtitle {
+        max-width: 700px;
+        margin: 1rem 0 0;
+        color: rgba(247, 241, 229, .77);
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .tur-header-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .65rem;
+        margin-top: 1.4rem;
+    }
+
+    .tur-category-label,
+    .tur-header-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        color: var(--tur-ivory);
+        font-size: .76rem;
+    }
+
+    .tur-category-label {
+        padding-right: .8rem;
+        border-right: 1px solid rgba(255, 255, 255, .2);
+    }
+
+    .tur-category-label i,
+    .tur-header-tag i {
+        color: var(--tur-gold);
+    }
+
+    .tur-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        padding: .38rem .7rem;
+        color: var(--tur-ivory);
+        background: rgba(255, 255, 255, .09);
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 100px;
+        font-size: .7rem;
+        font-weight: 700;
+    }
+
+    .tur-status-dot {
+        width: 6px;
+        height: 6px;
+        background: #B9C4A3;
+        border-radius: 50%;
+    }
+
+    .tur-status-pill.is-published .tur-status-dot {
+        background: #90C49D;
+    }
+
+    .tur-status-pill.is-review .tur-status-dot {
+        background: var(--tur-gold);
+    }
+
+    .tur-status-pill.is-scheduled .tur-status-dot {
+        background: #9AC6D5;
+    }
+
+    .tur-status-pill.is-archived .tur-status-dot {
+        background: #C7B9AA;
+    }
+
+    .tur-header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: center;
+        gap: .55rem;
+        flex-shrink: 0;
+    }
+
+    /* Buttons */
+
+    .tur-blog-detail .tur-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .55rem;
+        min-height: 42px;
+        padding: .7rem .95rem;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        font-size: .8rem;
+        font-weight: 750;
+        line-height: 1.2;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color .2s ease, color .2s ease,
+                    border-color .2s ease, transform .2s ease;
+    }
+
+    .tur-blog-detail .tur-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    .tur-btn-light {
+        color: var(--tur-forest) !important;
+        background: var(--tur-ivory);
+    }
+
+    .tur-btn-light:hover {
+        background: var(--tur-white);
+    }
+
+    .tur-btn-gold {
+        color: var(--tur-forest) !important;
+        background: var(--tur-gold);
+        border-color: var(--tur-gold) !important;
+    }
+
+    .tur-btn-gold:hover {
+        background: #E6AE3A;
+    }
+
+    .tur-btn-outline-light {
+        color: var(--tur-white) !important;
+        background: transparent;
+        border-color: rgba(255, 255, 255, .32) !important;
+    }
+
+    .tur-btn-outline-light:hover {
+        background: rgba(255, 255, 255, .1);
+    }
+
+    .tur-btn-green {
+        color: var(--tur-white) !important;
+        background: var(--tur-forest);
+        border-color: var(--tur-forest) !important;
+    }
+
+    .tur-btn-green:hover {
+        color: var(--tur-white) !important;
+        background: var(--tur-forest-light);
+    }
+
+    .tur-btn-soft {
+        color: var(--tur-forest) !important;
+        background: var(--tur-ivory);
+        border-color: var(--tur-border) !important;
+    }
+
+    .tur-btn-soft:hover {
+        background: var(--tur-sand);
+    }
+
+    .tur-btn-danger {
+        color: var(--tur-white) !important;
+        background: #963D32;
+        border-color: #963D32 !important;
+    }
+
+    .tur-btn-danger:hover {
+        background: #7C3028;
+    }
+
+    .tur-blog-detail .tur-btn:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+    .tur-dropdown {
+        min-width: 225px;
+        padding: .45rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 8px;
+        box-shadow: 0 14px 40px rgba(28, 40, 34, .15);
+    }
+
+    .tur-dropdown .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+        padding: .7rem .75rem;
+        color: var(--tur-ink);
+        border-radius: 4px;
+        font-size: .81rem;
+    }
+
+    .tur-dropdown .dropdown-item i {
+        width: 18px;
+        color: var(--tur-olive);
+    }
+
+    .tur-dropdown .dropdown-item:hover {
+        color: var(--tur-forest);
+        background: var(--tur-ivory);
+    }
+
+    .tur-dropdown .tur-danger-item,
+    .tur-dropdown .tur-danger-item i {
+        color: #963D32;
+    }
+
+    /* Metric strip */
+
+    .tur-metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tur-metric {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        min-width: 0;
+        padding: 1.15rem;
+        background: var(--tur-white);
+        border: 1px solid var(--tur-border);
+        border-radius: 7px;
+        box-shadow: 0 3px 15px rgba(28, 40, 34, .025);
+    }
+
+    .tur-metric-icon {
+        display: grid;
+        width: 43px;
+        height: 43px;
+        flex: 0 0 43px;
+        place-items: center;
+        color: var(--tur-white);
+        background: var(--tur-forest);
+        border-radius: 5px;
+        font-size: 1.05rem;
+    }
+
+    .tur-metric-icon.olive {
+        background: var(--tur-olive);
+    }
+
+    .tur-metric-icon.gold {
+        color: var(--tur-forest);
+        background: var(--tur-gold);
+    }
+
+    .tur-metric-icon.clay {
+        background: var(--tur-clay);
+    }
+
+    .tur-metric-copy {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        gap: .2rem;
+    }
+
+    .tur-metric-label {
+        color: var(--tur-muted);
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+    .tur-metric-copy strong {
+        color: var(--tur-forest);
+        font-size: 1.4rem;
+        font-weight: 800;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .tur-metric-caption {
+        align-self: flex-start;
+        margin-left: auto;
+        color: #8A938C;
+        font-size: .66rem;
+    }
+
+    /* Main layout */
+
+    .tur-detail-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.8fr) minmax(280px, .9fr);
+        align-items: start;
+        gap: 1.5rem;
+    }
+
+    .tur-main-column,
+    .tur-sidebar-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.35rem;
+        min-width: 0;
+    }
+
+    .tur-panel {
+        min-width: 0;
+        overflow: hidden;
+        background: var(--tur-white);
+        border: 1px solid var(--tur-border);
+        border-radius: 7px;
+        box-shadow: var(--tur-shadow);
+    }
+
+    .tur-panel-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.45rem 1.5rem;
+        border-bottom: 1px solid #F0EDE6;
+    }
+
+    .tur-panel-heading h2 {
+        margin: .35rem 0 0;
+        color: var(--tur-forest);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: -.02em;
+    }
+
+    .tur-panel-heading.compact {
+        padding: 1.25rem 1.25rem 1rem;
+        border-bottom: 0;
+    }
+
+    .tur-panel-subtitle {
+        margin: .4rem 0 0;
+        color: var(--tur-muted);
+        font-size: .8rem;
+        line-height: 1.6;
+    }
+
+    .tur-heading-icon {
+        color: var(--tur-olive);
+        font-size: 1.2rem;
+    }
+
+    .tur-icon-link {
+        display: grid;
+        width: 37px;
+        height: 37px;
+        flex: 0 0 37px;
+        place-items: center;
+        color: var(--tur-forest);
+        background: var(--tur-ivory);
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .tur-icon-link:hover {
+        color: var(--tur-white);
+        background: var(--tur-forest);
+    }
+
+    /* Featured visual */
+
+    .tur-featured-visual {
+        overflow: hidden;
+        margin: 0;
+        background: var(--tur-ivory);
+        border: 1px solid var(--tur-border);
+        border-radius: 7px;
+        box-shadow: var(--tur-shadow);
+    }
+
+    .tur-featured-visual > img {
+        display: block;
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+    }
+
+    .tur-image-caption {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .8rem 1rem;
+        color: var(--tur-muted);
+        background: var(--tur-white);
+        font-size: .73rem;
+    }
+
+    .tur-image-caption span {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+    .tur-image-caption i {
+        color: var(--tur-olive);
+    }
+
+    .tur-no-image {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.35rem;
+        background: var(--tur-ivory);
+        border: 1px dashed #CFC6B5;
+        border-radius: 7px;
+    }
+
+    .tur-no-image-icon {
+        display: grid;
+        width: 45px;
+        height: 45px;
+        flex: 0 0 45px;
+        place-items: center;
+        color: var(--tur-olive);
+        background: var(--tur-white);
+        border-radius: 5px;
+        font-size: 1.2rem;
+    }
+
+    .tur-no-image strong {
+        color: var(--tur-forest);
+        font-size: .87rem;
+    }
+
+    .tur-no-image p {
+        margin: .25rem 0 0;
+        color: var(--tur-muted);
+        font-size: .77rem;
+        line-height: 1.5;
+    }
+
+    .tur-no-image > a {
+        margin-left: auto;
+        color: var(--tur-forest);
+        font-size: .78rem;
+        font-weight: 750;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    /* Article */
+
+    .tur-excerpt {
+        margin: 1.5rem 1.5rem 0;
+        padding: 1.15rem 1.25rem;
+        background: var(--tur-ivory);
+        border-left: 3px solid var(--tur-gold);
+    }
+
+    .tur-excerpt-label {
+        color: var(--tur-olive);
+        font-size: .63rem;
+        font-weight: 800;
+        letter-spacing: .14em;
+    }
+
+    .tur-excerpt p {
+        margin: .6rem 0 0;
+        color: #39463D;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.05rem;
+        line-height: 1.75;
+    }
+
+    .tur-article-body {
+        padding: 1.6rem 1.5rem 2rem;
+        color: #354239;
+        font-size: .94rem;
+        line-height: 1.95;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+    }
+
+    .tur-article-body p {
+        margin-bottom: 1.2rem;
+    }
+
+    .tur-article-body h1,
+    .tur-article-body h2,
+    .tur-article-body h3,
+    .tur-article-body h4,
+    .tur-article-body h5,
+    .tur-article-body h6 {
+        margin: 1.8rem 0 .75rem;
+        color: var(--tur-forest);
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 600;
+        line-height: 1.35;
+    }
+
+    .tur-article-body h2 {
+        font-size: 1.6rem;
+    }
+
+    .tur-article-body h3 {
+        font-size: 1.3rem;
+    }
+
+    .tur-article-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .tur-empty-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .45rem;
+        color: var(--tur-muted);
+    }
+
+    .tur-empty-content i {
+        color: var(--tur-olive);
+        font-size: 1.8rem;
+    }
+
+    .tur-empty-content strong {
+        color: var(--tur-forest);
+    }
+
+    .tur-article-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.1rem 1.5rem;
+        background: #FCFBF8;
+        border-top: 1px solid var(--tur-border);
+    }
+
+    .tur-author-mark {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+    }
+
+    .tur-author-monogram {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        place-items: center;
+        color: var(--tur-ivory);
+        background: var(--tur-forest);
+        border-radius: 50%;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .tur-author-mark > div {
+        display: flex;
+        flex-direction: column;
+        gap: .2rem;
+    }
+
+    .tur-author-mark strong {
+        color: var(--tur-forest);
+        font-size: .8rem;
+    }
+
+    .tur-author-mark span:not(.tur-author-monogram) {
+        color: var(--tur-muted);
+        font-size: .72rem;
+    }
+
+    .tur-word-count {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        color: var(--tur-muted);
+        font-size: .75rem;
+    }
+
+    /* CTA */
+
+    .tur-cta-panel {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+        overflow: hidden;
+        padding: 1.7rem;
+        background: var(--tur-ivory);
+        border: 1px solid #E8DCC5;
+        border-radius: 7px;
+    }
+
+    .tur-cta-decoration {
+        display: grid;
+        width: 49px;
+        height: 49px;
+        flex: 0 0 49px;
+        place-items: center;
+        color: var(--tur-forest);
+        background: #E9DDC8;
+        border-radius: 50%;
+        font-size: 1.4rem;
+    }
+
+    .tur-cta-content {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .tur-cta-content h2 {
+        margin: .3rem 0 1rem;
+        color: var(--tur-forest);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.35rem;
+    }
+
+    .tur-cta-content h3 {
+        margin: 0 0 .55rem;
+        color: var(--tur-ink);
+        font-size: 1rem;
+        font-weight: 750;
+    }
+
+    .tur-cta-content p {
+        margin: 0 0 1.2rem;
+        color: #59645B;
+        font-size: .86rem;
+        line-height: 1.8;
+    }
+
+    .tur-cta-edit {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        place-items: center;
+        color: var(--tur-forest);
+        background: rgba(255, 255, 255, .7);
+        border: 1px solid #DED4C1;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .tur-cta-edit:hover {
+        color: var(--tur-white);
+        background: var(--tur-forest);
+    }
+
+    /* Gallery and video */
+
+    .tur-count-label {
+        padding: .35rem .6rem;
+        color: var(--tur-olive);
+        background: var(--tur-ivory);
+        border-radius: 3px;
+        font-size: .7rem;
+        font-weight: 750;
+    }
+
+    .tur-gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .7rem;
+        padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    .tur-gallery-item {
+        overflow: hidden;
+        aspect-ratio: 4 / 3;
+        background: var(--tur-ivory);
+        border-radius: 5px;
+    }
+
+    .tur-gallery-item img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .35s ease;
+    }
+
+    .tur-gallery-item:hover img {
+        transform: scale(1.045);
+    }
+
+    .tur-video-frame {
+        position: relative;
+        overflow: hidden;
+        margin: 0 1.5rem 1.5rem;
+        aspect-ratio: 16 / 9;
+        background: #0D2018;
+        border-radius: 5px;
+    }
+
+    .tur-video-frame iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    /* SEO and social data */
+
+    .tur-data-list {
+        padding: .2rem 1.5rem 1.25rem;
+    }
+
+    .tur-data-row {
+        display: grid;
+        grid-template-columns: minmax(110px, .65fr) minmax(0, 1.35fr);
+        gap: 1rem;
+        padding: .95rem 0;
+        border-bottom: 1px solid #F0EDE6;
+        font-size: .8rem;
+        line-height: 1.7;
+    }
+
+    .tur-data-row:last-child {
+        border-bottom: 0;
+    }
+
+    .tur-data-row > span {
+        color: var(--tur-muted);
+    }
+
+    .tur-data-row > strong,
+    .tur-data-row > div {
+        min-width: 0;
+        color: var(--tur-ink);
+        overflow-wrap: anywhere;
+    }
+
+    .tur-data-row > strong {
+        font-weight: 700;
+    }
+
+    .tur-url-text {
+        color: var(--tur-forest);
+        overflow-wrap: anywhere;
+    }
+
+    .tur-muted {
+        color: var(--tur-muted);
+    }
+
+    .tur-social-preview-image {
+        overflow: hidden;
+        margin: 0 1.5rem 1rem;
+        aspect-ratio: 1.91 / 1;
+        background: var(--tur-ivory);
+        border-radius: 5px;
+    }
+
+    .tur-social-preview-image img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Sidebar panels */
+
+    .tur-sidebar-panel {
+        padding-bottom: .4rem;
+    }
+
+    .tur-sidebar-detail {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .35rem;
+        padding: .85rem 1.25rem;
+        border-top: 1px solid #F0EDE6;
+    }
+
+    .tur-sidebar-detail > span:first-child {
+        color: var(--tur-muted);
+        font-size: .71rem;
+    }
+
+    .tur-sidebar-detail > strong,
+    .tur-sidebar-detail > small {
+        overflow-wrap: anywhere;
+    }
+
+    .tur-sidebar-detail > strong {
+        color: var(--tur-ink);
+        font-size: .82rem;
+        font-weight: 750;
+    }
+
+    .tur-sidebar-detail > strong i {
+        color: var(--tur-olive);
+    }
+
+    .tur-sidebar-detail > small {
+        color: var(--tur-muted);
+        font-size: .72rem;
+    }
+
+    .tur-value-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        color: var(--tur-forest);
+        font-size: .82rem;
+        font-weight: 750;
+        text-decoration: none;
+    }
+
+    .tur-value-link:hover {
+        color: var(--tur-olive);
+    }
+
+    .tur-value-link i {
+        color: var(--tur-olive);
+    }
+
+    .tur-slug {
+        display: block;
+        max-width: 100%;
+        padding: .4rem .55rem;
+        color: var(--tur-forest);
+        background: var(--tur-ivory);
+        border: 1px solid #ECE5D8;
+        border-radius: 4px;
+        font-size: .73rem;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .tur-warning-text {
+        color: #963D32 !important;
+    }
+
+    .tur-inline-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .75rem;
+        font-weight: 700;
+    }
+
+    .tur-inline-status.is-good {
+        color: var(--tur-olive);
+    }
+
+    .tur-inline-status.is-neutral {
+        color: var(--tur-muted);
+    }
+
+    /* Timeline */
+
+    .tur-timeline {
+        padding: .25rem 1.25rem 1.1rem;
+    }
+
+    .tur-timeline-item {
+        position: relative;
+        display: flex;
+        gap: .85rem;
+        padding: .4rem 0 1.25rem;
+    }
+
+    .tur-timeline-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 17px;
+        bottom: -1px;
+        left: 5px;
+        width: 1px;
+        background: #E6E3D9;
+    }
+
+    .tur-timeline-marker {
+        position: relative;
+        z-index: 1;
+        width: 11px;
+        height: 11px;
+        flex: 0 0 11px;
+        margin-top: 4px;
+        background: var(--tur-forest);
+        border: 2px solid var(--tur-white);
+        outline: 1px solid var(--tur-forest);
+        border-radius: 50%;
+    }
+
+    .tur-timeline-marker.olive {
+        background: var(--tur-olive);
+        outline-color: var(--tur-olive);
+    }
+
+    .tur-timeline-marker.gold {
+        background: var(--tur-gold);
+        outline-color: var(--tur-gold);
+    }
+
+    .tur-timeline-marker.published {
+        background: #62916B;
+        outline-color: #62916B;
+    }
+
+    .tur-timeline-item > div {
+        display: flex;
+        flex-direction: column;
+        gap: .22rem;
+    }
+
+    .tur-timeline-item span:not(.tur-timeline-marker) {
+        color: var(--tur-muted);
+        font-size: .71rem;
+    }
+
+    .tur-timeline-item strong {
+        color: var(--tur-ink);
+        font-size: .8rem;
+    }
+
+    .tur-timeline-item small {
+        color: var(--tur-muted);
+        font-size: .71rem;
+    }
+
+    .tur-empty-note {
+        color: var(--tur-muted);
+        font-size: .8rem;
+    }
+
+    /* Related content */
+
+    .tur-related-item {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        padding: .9rem 1.25rem;
+        border-top: 1px solid #F0EDE6;
+    }
+
+    .tur-related-icon {
+        display: grid;
+        width: 39px;
+        height: 39px;
+        flex: 0 0 39px;
+        place-items: center;
+        color: var(--tur-white);
+        background: var(--tur-forest);
+        border-radius: 5px;
+    }
+
+    .tur-related-icon.olive {
+        background: var(--tur-olive);
+    }
+
+    .tur-related-item > div {
+        display: flex;
+        flex-direction: column;
+        gap: .3rem;
+        min-width: 0;
+    }
+
+    .tur-related-item > div > span {
+        color: var(--tur-muted);
+        font-size: .7rem;
+    }
+
+    .tur-related-item strong {
+        color: var(--tur-forest);
+        font-size: .8rem;
+        overflow-wrap: anywhere;
+    }
+
+    .tur-related-item small {
+        color: var(--tur-muted);
+        font-size: .75rem;
+    }
+
+    /* Editorial checklist */
+
+    .tur-check-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .9rem 1.25rem;
+        border-top: 1px solid #F0EDE6;
+    }
+
+    .tur-check-row > span {
+        display: inline-flex;
+        align-items: center;
+        gap: .55rem;
+        color: #445148;
+        font-size: .78rem;
+    }
+
+    .tur-check-row > span i {
+        color: var(--tur-olive);
+    }
+
+    .tur-check-good {
+        color: var(--tur-olive);
+    }
+
+    .tur-check-muted {
+        color: #A2AAA3;
+    }
+
+    /* Quick action panel */
+
+    .tur-action-panel {
+        padding: 1.5rem;
+        color: var(--tur-ivory);
+        background: var(--tur-forest);
+        border-top: 4px solid var(--tur-gold);
+        border-radius: 7px;
+        box-shadow: var(--tur-shadow);
+    }
+
+    .tur-action-panel .tur-section-kicker {
+        color: #E8D6A8;
+    }
+
+    .tur-action-panel h2 {
+        margin: .7rem 0 .65rem;
+        color: var(--tur-ivory);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.55rem;
+        font-weight: 500;
+        line-height: 1.25;
+    }
+
+    .tur-action-panel > p {
+        margin: 0 0 1.25rem;
+        color: rgba(247, 241, 229, .72);
+        font-size: .8rem;
+        line-height: 1.8;
+    }
+
+    .tur-action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: .65rem;
+    }
+
+    .tur-action-stack > a,
+    .tur-action-stack > form {
+        width: 100%;
+    }
+
+    .tur-action-stack .tur-btn-soft {
+        color: var(--tur-ivory) !important;
+        background: transparent;
+        border-color: rgba(247, 241, 229, .23) !important;
+    }
+
+    .tur-action-stack .tur-btn-soft:hover {
+        background: rgba(255, 255, 255, .08);
+    }
+
+    /* Delete modal */
+
+    .tur-delete-modal .modal-content {
+        overflow: hidden;
+        border: 1px solid var(--tur-border);
+        border-radius: 9px;
+        box-shadow: 0 25px 80px rgba(15, 30, 22, .22);
+    }
+
+    .tur-delete-modal .modal-header {
+        align-items: flex-start;
+        padding: 1.5rem 1.5rem 0;
+        border-bottom: 0;
+    }
+
+    .tur-delete-icon {
+        display: grid;
+        width: 46px;
+        height: 46px;
+        place-items: center;
+        color: #963D32;
+        background: #F7EAE7;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+
+    .tur-delete-modal .modal-body {
+        padding: 1rem 1.5rem 1.5rem;
+    }
+
+    .tur-delete-modal .modal-body h2 {
+        margin: .5rem 0 .8rem;
+        color: var(--tur-forest);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.65rem;
+    }
+
+    .tur-delete-intro {
+        margin-bottom: .65rem;
+        color: var(--tur-muted);
+        font-size: .85rem;
+    }
+
+    .tur-delete-article {
+        display: flex;
+        align-items: flex-start;
+        gap: .7rem;
+        padding: .95rem;
+        color: var(--tur-forest);
+        background: var(--tur-ivory);
+        border: 1px solid var(--tur-border);
+        border-radius: 5px;
+        font-size: .85rem;
+        line-height: 1.55;
+    }
+
+    .tur-delete-article i {
+        margin-top: .15rem;
+        color: var(--tur-olive);
+    }
+
+    .tur-delete-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: .5rem;
+        margin: 1rem 0 0;
+        color: #963D32;
+        font-size: .79rem;
+        line-height: 1.6;
+    }
+
+    .tur-delete-modal .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+        padding: 1rem 1.5rem;
+        background: #FCFBF8;
+        border-top: 1px solid var(--tur-border);
+    }
+
+    .tur-delete-modal .modal-footer form {
+        margin: 0;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 1199.98px) {
+        .tur-header-main {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .tur-header-actions {
+            justify-content: flex-start;
+        }
+
+        .tur-detail-layout {
+            grid-template-columns: minmax(0, 1.5fr) minmax(260px, .9fr);
+            gap: 1rem;
+        }
+
+        .tur-metrics-grid {
+            gap: .7rem;
+        }
+
+        .tur-metric {
+            padding: .9rem;
+            gap: .65rem;
+        }
+
+        .tur-metric-caption {
+            display: none;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .tur-detail-layout {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .tur-sidebar-column {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: start;
+        }
+
+        .tur-action-panel {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .tur-editorial-header {
+            margin: -1rem -.5rem 1.25rem;
+            padding: 1.25rem 1rem 1.6rem;
+        }
+
+        .tur-breadcrumb {
+            margin-bottom: 1.5rem;
+        }
+
+        .tur-eyebrow {
+            flex-wrap: wrap;
+            font-size: .58rem;
+        }
+
+        .tur-header-copy h1 {
+            font-size: 2rem;
+        }
+
+        .tur-header-actions {
+            width: 100%;
+        }
+
+        .tur-header-actions > .tur-btn,
+        .tur-header-actions > .dropdown {
+            flex: 1 1 auto;
+        }
+
+        .tur-header-actions > .dropdown > button {
+            width: 100%;
+        }
+
+        .tur-metrics-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tur-sidebar-column {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .tur-action-panel {
+            grid-column: auto;
+        }
+
+        .tur-panel-heading {
+            padding: 1.15rem;
+        }
+
+        .tur-excerpt {
+            margin: 1rem 1rem 0;
+            padding: 1rem;
+        }
+
+        .tur-article-body {
+            padding: 1.25rem 1rem 1.5rem;
+        }
+
+        .tur-article-footer {
+            padding: 1rem;
+        }
+
+        .tur-cta-panel {
+            gap: .8rem;
+            padding: 1.15rem;
+        }
+
+        .tur-cta-decoration {
+            width: 38px;
+            height: 38px;
+            flex-basis: 38px;
+            font-size: 1.1rem;
+        }
+
+        .tur-cta-edit {
+            width: 31px;
+            height: 31px;
+            flex-basis: 31px;
+        }
+
+        .tur-gallery-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 1rem;
+        }
+
+        .tur-video-frame {
+            margin: 0 1rem 1rem;
+        }
+
+        .tur-data-list {
+            padding: 0 1rem 1rem;
+        }
+
+        .tur-data-row {
+            grid-template-columns: minmax(0, 1fr);
+            gap: .3rem;
+        }
+
+        .tur-social-preview-image {
+            margin: 0 1rem 1rem;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .tur-metric {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .tur-metric-copy strong {
+            font-size: 1.2rem;
+        }
+
+        .tur-no-image {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .tur-no-image > a {
+            margin-left: 3.8rem;
+        }
+
+        .tur-article-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .tur-delete-modal .modal-footer {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .tur-delete-modal .modal-footer .tur-btn,
+        .tur-delete-modal .modal-footer form {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

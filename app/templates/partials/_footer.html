@@ -1,0 +1,343 @@
+<footer class="mt-20 bg-route-deep text-route-cream">
+    {% set settings = site_settings if site_settings is defined else none %}
+
+    {% set footer_company_name =
+        (settings.business_name if settings and settings.business_name else
+        (settings.site_name if settings and settings.site_name else
+        (company_name|default('The Uncharted Route'))))
+    %}
+
+    {% set footer_tagline =
+        (settings.tagline if settings and settings.tagline else
+        'Explore. Experience. Remember.')
+    %}
+
+    {% set footer_description =
+        (settings.footer_text if settings and settings.footer_text else
+        (settings.description if settings and settings.description else
+        'Luxury safaris, wildlife adventures, coastal escapes, corporate travel and unforgettable experiences across Kenya.'))
+    %}
+
+    {% set footer_phone =
+        (settings.phone if settings and settings.phone else
+        (company_phone|default('')))
+    %}
+
+    {% set footer_email =
+        (settings.email if settings and settings.email else
+        (company_email|default('')))
+    %}
+
+    {% set footer_address =
+        (settings.address if settings and settings.address else
+        (company_address|default('')))
+    %}
+
+    {% set footer_city =
+        (settings.city if settings and settings.city else 'Nairobi')
+    %}
+
+    {% set footer_country =
+        (settings.country if settings and settings.country else 'Kenya')
+    %}
+
+    {% set display_phone = settings.show_phone if settings else true %}
+    {% set display_email = settings.show_email if settings else true %}
+    {% set display_social = settings.show_social_links if settings else true %}
+
+    <div class="route-container py-14">
+
+        <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
+
+            <!-- Brand -->
+
+            <div class="lg:col-span-2">
+                <a href="{{ url_for('main.home') }}"
+                   class="inline-flex items-center gap-3"
+                   aria-label="{{ footer_company_name }} home">
+
+                    {% if settings and settings.logo %}
+                        <img
+                            src="{{ settings.logo }}"
+                            alt="{{ footer_company_name }} logo"
+                            class="h-11 w-11 rounded-full object-contain"
+                        >
+                    {% else %}
+                        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-route-gold text-route-deep">
+                            <span class="font-display text-sm font-bold">TUR</span>
+                        </span>
+                    {% endif %}
+
+                    <span>
+                        <span class="block font-display text-2xl font-semibold text-route-cream">
+                            {{ footer_company_name }}
+                        </span>
+
+                        <span class="mt-1 block text-[10px] font-bold uppercase tracking-[0.22em] text-route-gold">
+                            {{ footer_tagline }}
+                        </span>
+                    </span>
+                </a>
+
+                <p class="mt-6 max-w-lg text-sm leading-7 text-route-sand">
+                    {{ footer_description }}
+                </p>
+
+                <p class="mt-5 font-display text-lg italic text-route-gold">
+                    Explore. Experience. Remember.
+                </p>
+            </div>
+
+            <!-- Explore -->
+
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-route-gold">
+                    Explore
+                </h3>
+
+                <ul class="mt-5 space-y-3">
+                    <li>
+                        <a href="{{ url_for('experiences.index') }}"
+                           class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Experiences
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('destinations.index') }}"
+                           class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Destinations
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('stays.index') }}"
+                           class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Stays
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('blog.index') }}"
+                           class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Travel Journal
+                        </a>
+                    </li>
+
+                    <li>
+                       <a href="{{ url_for('main.testimonials') }}"
+                          class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Testimonials
+                    </li>
+
+                    <li>
+                       <a href="{{ url_for('public_newsletter.signup') }}"
+                          class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Newsletter
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('main.contact') }}"
+                           class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-route-gold">
+                    Contact
+                </h3>
+
+                <ul class="mt-5 space-y-3 text-sm text-route-sand">
+
+                    {% if footer_address %}
+                        <li class="leading-6">
+                            {{ footer_address }}
+                            {% if footer_city %}, {{ footer_city }}{% endif %}
+                            {% if footer_country %}, {{ footer_country }}{% endif %}
+                        </li>
+                    {% elif footer_city or footer_country %}
+                        <li>
+                            {{ footer_city }}{% if footer_city and footer_country %}, {% endif %}{{ footer_country }}
+                        </li>
+                    {% endif %}
+
+                    {% if display_phone and footer_phone %}
+                        <li>
+                            <a href="tel:{{ footer_phone|replace(' ', '') }}"
+                               class="transition duration-200 hover:text-route-gold">
+                                {{ footer_phone }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if display_email and footer_email %}
+                        <li>
+                            <a href="mailto:{{ footer_email }}"
+                               class="break-words transition duration-200 hover:text-route-gold">
+                                {{ footer_email }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if settings and settings.whatsapp %}
+                        <li>
+                            <a
+                                href="https://wa.me/{{ settings.whatsapp|replace('+', '')|replace(' ', '')|replace('-', '') }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="transition duration-200 hover:text-route-gold"
+                            >
+                                WhatsApp
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+         <!-- Legal & Help -->
+
+<div>
+    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-route-gold">
+        Legal &amp; Help
+    </h3>
+
+    <ul class="mt-5 space-y-3">
+
+        <li>
+            <a href="{{ url_for('main.about') }}"
+               class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                About Us
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('main.faq') }}"
+               class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                FAQ
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('main.privacy') }}"
+               class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                Privacy Policy
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('main.terms') }}"
+               class="text-sm text-route-sand transition duration-200 hover:text-route-gold">
+                Terms &amp; Conditions
+            </a>
+        </li>
+
+    </ul>
+</div>
+        <!-- Social Media -->
+
+        {% if display_social %}
+            {% set social_links = [
+                ('Instagram', settings.instagram_url if settings else none),
+                ('TikTok', settings.tiktok_url if settings else none),
+                ('Facebook', settings.facebook_url if settings else none),
+                ('YouTube', settings.youtube_url if settings else none),
+                ('LinkedIn', settings.linkedin_url if settings else none),
+                ('X / Twitter', settings.twitter_url if settings else none)
+            ] %}
+
+            {% set has_social_links = namespace(value=false) %}
+
+            {% for label, social_url in social_links %}
+                {% if social_url %}
+                    {% set has_social_links.value = true %}
+                {% endif %}
+            {% endfor %}
+
+            {% if has_social_links.value %}
+                <div class="mt-12 border-t border-route-forest pt-10">
+                    <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-gold">
+                                Follow the Journey
+                            </p>
+
+                            <p class="mt-2 text-sm text-route-sand">
+                                Find us online for travel inspiration, stories,
+                                adventures and behind-the-scenes moments.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3">
+                            {% for label, social_url in social_links %}
+                                {% if social_url %}
+                                    <a
+                                        href="{{ social_url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Follow {{ footer_company_name }} on {{ label }}"
+                                        class="inline-flex items-center rounded-full border border-route-forest bg-route-white/5 px-5 py-2.5 text-sm font-semibold text-route-sand transition duration-200 hover:border-route-gold hover:bg-route-gold hover:text-route-deep"
+                                    >
+                                        {{ label }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Bottom Bar -->
+
+        <div class="mt-10 flex flex-col gap-4 border-t border-route-forest pt-8 text-sm text-route-muted sm:flex-row sm:items-center sm:justify-between">
+
+            <p>
+                {% if settings and settings.copyright_text %}
+                    {{ settings.copyright_text }}
+                {% else %}
+                    &copy; {{ now().year if now is defined else 2026 }}
+                    {{ footer_company_name }}. All rights reserved.
+                {% endif %}
+            </p>
+
+                <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+
+    <a href="{{ url_for('main.about') }}"
+       class="transition duration-200 hover:text-route-gold">
+        About
+    </a>
+
+    <a href="{{ url_for('main.faq') }}"
+       class="transition duration-200 hover:text-route-gold">
+        FAQ
+    </a>
+
+    <a href="{{ url_for('main.privacy') }}"
+       class="transition duration-200 hover:text-route-gold">
+        Privacy
+    </a>
+
+    <a href="{{ url_for('main.terms') }}"
+       class="transition duration-200 hover:text-route-gold">
+        Terms
+    </a>
+
+    <span class="hidden text-route-forest sm:inline">|</span>
+
+    <span class="font-medium text-route-sand">
+        {{ footer_city }}{% if footer_city and footer_country %}, {% endif %}{{ footer_country }}
+    </span>
+
+</div>
+
+        </div>
+
+    </div>
+</footer>

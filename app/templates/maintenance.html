@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="flex min-h-[70vh] items-center justify-center px-6 py-20">
+    <div class="mx-auto max-w-2xl text-center">
+
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-route-gold/15 text-route-gold">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    d="M12 6v6m0 4h.01M5.5 19h13a2 2 0 001.73-3L13.73 4a2 2 0 00-3.46 0L3.77 16A2 2 0 005.5 19z"
+                />
+            </svg>
+        </div>
+
+        <p class="mt-8 text-xs font-bold uppercase tracking-[0.25em] text-route-gold">
+            The Uncharted Route
+        </p>
+
+        <h1 class="mt-4 font-display text-4xl font-semibold text-route-deep md:text-6xl">
+            A little pause before the next adventure.
+        </h1>
+
+        <p class="mx-auto mt-6 max-w-xl text-base leading-8 text-route-muted">
+            {{ settings.maintenance_message or
+               "We're making a few improvements to bring you an even better experience. Please check back shortly." }}
+        </p>
+
+        <p class="mt-8 text-sm text-route-muted">
+            Thank you for your patience.
+        </p>
+
+    </div>
+</section>
+{% endblock %}

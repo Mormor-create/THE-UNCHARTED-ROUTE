@@ -1,0 +1,584 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ room.name }} | {{ stay.property_name }} | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+{# ============================================================
+   ROOM DETAIL — THE UNCHARTED ROUTE
+
+   Expected context:
+   stay, room, media, gallery, hero_media, amenities, booking_enabled, show_booking_button
+
+   Optional CTA context:
+   stay_booking_url, stay_enquiry_url
+============================================================ #}
+
+{% set booking_is_enabled = booking_enabled|default(false, true) %}
+{% set booking_button_visible = show_booking_button|default(true, true) %}
+
+
+<!-- ============================================================
+     BREADCRUMB
+============================================================ -->
+
+<section class="bg-route-deep text-white">
+    <div class="mx-auto max-w-7xl px-6 py-5 sm:px-8 lg:px-12">
+        <nav aria-label="Breadcrumb"
+             class="flex flex-wrap items-center gap-2 text-sm text-white/65">
+
+            <a href="{{ url_for('stays.index') }}"
+               class="transition hover:text-route-gold">
+                Stays
+            </a>
+
+            <span aria-hidden="true">/</span>
+
+            <a href="{{ url_for('stays.detail', slug=stay.slug) }}"
+               class="transition hover:text-route-gold">
+                {{ stay.property_name }}
+            </a>
+
+            <span aria-hidden="true">/</span>
+
+            <span class="font-medium text-white" aria-current="page">
+                {{ room.name }}
+            </span>
+
+        </nav>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     ROOM HERO
+============================================================ -->
+
+<section class="bg-route-cream py-10 sm:py-14 lg:py-16">
+    <div class="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+
+        <div class="grid items-start gap-9 lg:grid-cols-[minmax(0,1fr)_360px] xl:gap-12">
+
+            <!-- ROOM PHOTOGRAPHY -->
+
+            <div class="min-w-0">
+
+                {% set hero_url = none %}
+
+                {% if hero_media and hero_media.media_asset %}
+                    {% set hero_url = hero_media.media_asset.browser_url %}
+                {% endif %}
+
+                {% if not hero_url and gallery %}
+                    {% for item in gallery %}
+                        {% if not hero_url and item.media_asset %}
+                            {% set hero_url = item.media_asset.browser_url %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if not hero_url and stay.primary_image_url %}
+                    {% set hero_url = stay.primary_image_url %}
+                {% elif not hero_url and stay.featured_image %}
+                    {% set hero_url = stay.featured_image %}
+                {% endif %}
+
+                {% if hero_url %}
+                    <div class="overflow-hidden rounded-3xl bg-route-sand shadow-sm">
+                        <img
+                            src="{{ hero_url }}"
+                            alt="{{ room.name }} at {{ stay.property_name }}"
+                            class="aspect-[16/10] w-full object-cover"
+                            fetchpriority="high"
+                        >
+                    </div>
+                {% else %}
+                    <div class="flex aspect-[16/10] items-center justify-center rounded-3xl bg-route-sand text-route-muted">
+                        <div class="text-center">
+                            <span class="text-5xl" aria-hidden="true">⌂</span>
+                            <p class="mt-3 text-sm">
+                                Room photography coming soon
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                <!-- ROOM GALLERY -->
+
+                {% if gallery %}
+                    {% set gallery_count = namespace(value=0) %}
+
+                    {% for item in gallery %}
+                        {% if item.media_asset and item.media_asset.browser_url %}
+                            {% set gallery_count.value = gallery_count.value + 1 %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if gallery_count.value > 1 %}
+                        <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+
+                            {% for item in gallery %}
+                                {% if item.media_asset and item.media_asset.browser_url %}
+                                    <div class="overflow-hidden rounded-2xl bg-route-sand">
+                                        <img
+                                            src="{{ item.media_asset.browser_url }}"
+                                            alt="{{ item.alt_text or item.caption or room.name }}"
+                                            class="aspect-[4/3] w-full object-cover transition duration-500 hover:scale-105"
+                                            loading="lazy"
+                                        >
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+
+                <!-- PROPERTY LINK -->
+
+                <a
+                    href="{{ url_for('stays.detail', slug=stay.slug) }}"
+                    class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-route-forest transition hover:text-route-terracotta"
+                >
+                    <span aria-hidden="true">←</span>
+                    Explore {{ stay.property_name }}
+                </a>
+
+            </div>
+
+
+            <!-- ROOM SUMMARY -->
+
+            <aside class="rounded-3xl border border-route-sand bg-white p-6 shadow-sm sm:p-8">
+
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-route-terracotta">
+                    Your stay, your space
+                </p>
+
+                <h1 class="mt-3 text-3xl font-semibold leading-tight tracking-tight text-route-deep sm:text-4xl">
+                    {{ room.name }}
+                </h1>
+
+                <p class="mt-3 text-sm leading-6 text-route-muted">
+                    {{ stay.property_name }}
+
+                    {% if stay.location %}
+                        <span aria-hidden="true"> · </span>{{ stay.location }}
+                    {% endif %}
+                </p>
+
+                {% if room.short_description %}
+                    <p class="mt-5 text-sm leading-7 text-route-muted">
+                        {{ room.short_description }}
+                    </p>
+                {% endif %}
+
+
+                <!-- ROOM TYPE AND MEAL PLAN -->
+
+                {% if room.room_type or room.meal_plan %}
+                    <div class="mt-6 flex flex-wrap gap-2">
+
+                        {% if room.room_type %}
+                            <span class="rounded-full bg-route-cream px-3 py-1.5 text-xs font-semibold text-route-forest">
+                                {{ room.room_type }}
+                            </span>
+                        {% endif %}
+
+                        {% if room.meal_plan %}
+                            <span class="rounded-full bg-route-cream px-3 py-1.5 text-xs font-semibold text-route-forest">
+                                {{ room.meal_plan }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+
+
+                <!-- NIGHTLY RATE -->
+
+                {% if room.nightly_rate is not none %}
+                    <div class="mt-7 rounded-2xl bg-route-forest p-5 text-white">
+
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
+                            Nightly rate
+                        </p>
+
+                        <p class="mt-2 text-3xl font-semibold tracking-tight">
+                            <span class="text-lg">{{ room.currency or 'KES' }}</span>
+                            {{ "{:,.0f}".format(room.nightly_rate) }}
+                        </p>
+
+                        <p class="mt-2 text-xs text-white/65">
+                            Per room, per night. Final rates may vary by date.
+                        </p>
+
+                    </div>
+                {% else %}
+                    <div class="mt-7 rounded-2xl border border-route-sand bg-route-cream p-5">
+
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-route-muted">
+                            Room rate
+                        </p>
+
+                        <p class="mt-2 text-xl font-semibold text-route-deep">
+                            Available on request
+                        </p>
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            Ask us to confirm the rate for your travel dates.
+                        </p>
+
+                    </div>
+                {% endif %}
+
+
+                <!-- ROOM FACTS -->
+
+                {% set has_facts = room.maximum_guests or room.bed_configuration or room.size_description or room.floor %}
+
+                {% if has_facts %}
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+
+                        {% if room.maximum_guests %}
+                            <div class="rounded-2xl border border-route-sand p-4">
+                                <p class="text-xs text-route-muted">
+                                    Maximum guests
+                                </p>
+                                <p class="mt-1 font-semibold text-route-deep">
+                                    {{ room.maximum_guests }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if room.bed_configuration %}
+                            <div class="rounded-2xl border border-route-sand p-4">
+                                <p class="text-xs text-route-muted">
+                                    Bed arrangement
+                                </p>
+                                <p class="mt-1 font-semibold text-route-deep">
+                                    {{ room.bed_configuration }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if room.size_description %}
+                            <div class="rounded-2xl border border-route-sand p-4">
+                                <p class="text-xs text-route-muted">
+                                    Room size
+                                </p>
+                                <p class="mt-1 font-semibold text-route-deep">
+                                    {{ room.size_description }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if room.floor %}
+                            <div class="rounded-2xl border border-route-sand p-4">
+                                <p class="text-xs text-route-muted">
+                                    Floor
+                                </p>
+                                <p class="mt-1 font-semibold text-route-deep">
+                                    {{ room.floor }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+
+
+                <p class="mt-5 text-xs leading-5 text-route-muted">
+                    Availability and final pricing should be confirmed for your selected dates.
+                </p>
+
+
+                <!-- QUICK BOOKING / ENQUIRY ACTION -->
+
+                {% if booking_button_visible %}
+
+                    {% if booking_is_enabled and stay_booking_url %}
+                        <a
+                            href="{{ stay_booking_url }}"
+                            class="mt-6 inline-flex w-full items-center justify-center rounded-full bg-route-gold px-6 py-3.5 text-sm font-bold text-route-deep transition hover:bg-route-terracotta hover:text-white"
+                        >
+                            Request a Booking
+                        </a>
+
+                    {% elif not booking_is_enabled and stay_enquiry_url %}
+                        <a
+                            href="{{ stay_enquiry_url }}"
+                            class="mt-6 inline-flex w-full items-center justify-center rounded-full border border-route-forest px-6 py-3.5 text-sm font-bold text-route-forest transition hover:bg-route-forest hover:text-white"
+                        >
+                            Enquire About This Room
+                        </a>
+                    {% endif %}
+
+                {% endif %}
+
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     ROOM DESCRIPTION AND AMENITIES
+============================================================ -->
+
+<section class="bg-white py-14 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+
+        <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] xl:gap-16">
+
+            <!-- DESCRIPTION -->
+
+            <div>
+
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-route-terracotta">
+                    Inside your room
+                </p>
+
+                <h2 class="mt-3 text-3xl font-semibold tracking-tight text-route-deep sm:text-4xl">
+                    A space to settle in
+                </h2>
+
+                {% if room.description %}
+                    <div class="prose prose-stone mt-6 max-w-none text-sm leading-8 text-route-muted">
+                        {{ room.description|safe }}
+                    </div>
+                {% elif room.short_description %}
+                    <p class="mt-6 max-w-3xl text-sm leading-8 text-route-muted">
+                        {{ room.short_description }}
+                    </p>
+                {% else %}
+                    <p class="mt-6 max-w-3xl text-sm leading-8 text-route-muted">
+                        Discover the room at {{ stay.property_name }} and contact us to learn more about the facilities, arrangements and options available for your stay.
+                    </p>
+                {% endif %}
+
+
+                <!-- ROOM AT A GLANCE -->
+
+                {% if room.bed_configuration or room.maximum_guests or room.size_description %}
+                    <div class="mt-8 rounded-2xl bg-route-cream p-6 sm:p-7">
+
+                        <h3 class="text-lg font-semibold text-route-deep">
+                            Room at a glance
+                        </h3>
+
+                        <dl class="mt-4 divide-y divide-route-sand">
+
+                            {% if room.bed_configuration %}
+                                <div class="flex items-start justify-between gap-4 py-3">
+                                    <dt class="text-sm text-route-muted">
+                                        Bed arrangement
+                                    </dt>
+                                    <dd class="text-right text-sm font-semibold text-route-deep">
+                                        {{ room.bed_configuration }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if room.maximum_guests %}
+                                <div class="flex items-start justify-between gap-4 py-3">
+                                    <dt class="text-sm text-route-muted">
+                                        Maximum occupancy
+                                    </dt>
+                                    <dd class="text-right text-sm font-semibold text-route-deep">
+                                        {{ room.maximum_guests }} guests
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if room.size_description %}
+                                <div class="flex items-start justify-between gap-4 py-3">
+                                    <dt class="text-sm text-route-muted">
+                                        Room size
+                                    </dt>
+                                    <dd class="text-right text-sm font-semibold text-route-deep">
+                                        {{ room.size_description }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                        </dl>
+
+                    </div>
+                {% endif %}
+
+            </div>
+
+
+            <!-- AMENITIES -->
+
+            <aside>
+
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-route-terracotta">
+                    Thoughtful details
+                </p>
+
+                <h2 class="mt-3 text-2xl font-semibold tracking-tight text-route-deep">
+                    Room amenities
+                </h2>
+
+                {% if amenities %}
+                    <ul class="mt-6 space-y-3">
+
+                        {% for amenity in amenities %}
+                            <li class="flex items-start gap-3 rounded-2xl border border-route-sand bg-route-cream/60 p-4">
+
+                                <span
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-route-forest text-xs font-bold text-white"
+                                    aria-hidden="true"
+                                >
+                                    ✓
+                                </span>
+
+                                <div>
+                                    <p class="text-sm font-semibold text-route-deep">
+                                        {{ amenity.name }}
+                                    </p>
+
+                                    {% if amenity.description %}
+                                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                                            {{ amenity.description }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+
+                            </li>
+                        {% endfor %}
+
+                    </ul>
+                {% else %}
+                    <div class="mt-6 rounded-2xl border border-dashed border-route-sand p-6">
+
+                        <p class="text-sm font-semibold text-route-deep">
+                            Need more details?
+                        </p>
+
+                        <p class="mt-2 text-sm leading-6 text-route-muted">
+                            Contact us through the property's enquiry process to confirm the amenities available in this room.
+                        </p>
+
+                    </div>
+                {% endif %}
+
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FINAL BOOKING / ENQUIRY CTA
+============================================================ -->
+
+<section class="relative overflow-hidden bg-route-deep py-16 text-white sm:py-20">
+
+    <!-- Decorative background -->
+
+    <div class="absolute inset-0 opacity-10" aria-hidden="true">
+        <div class="absolute -right-20 -top-24 h-80 w-80 rounded-full border border-white"></div>
+        <div class="absolute -right-8 -top-12 h-56 w-56 rounded-full border border-white"></div>
+    </div>
+
+
+    <div class="relative mx-auto max-w-4xl px-6 text-center sm:px-8">
+
+        <p class="text-xs font-bold uppercase tracking-[0.3em] text-route-gold">
+            Continue your route
+        </p>
+
+        <h2 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+            Make {{ room.name }} part of your journey.
+        </h2>
+
+        {% if booking_is_enabled %}
+            <p class="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/70">
+                Ready to plan your stay at {{ stay.property_name }}?
+                Send us your preferred dates and details so the arrangements
+                can be confirmed.
+            </p>
+        {% else %}
+            <p class="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/70">
+                Have questions about {{ room.name }}? Contact us to discuss
+                your travel dates, room availability and rates.
+            </p>
+        {% endif %}
+
+
+        <!-- ACTION BUTTONS -->
+
+        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+
+            {% if booking_button_visible %}
+
+                {% if booking_is_enabled and stay_booking_url %}
+
+                    <a
+                        href="{{ stay_booking_url }}"
+                        class="inline-flex w-full items-center justify-center rounded-full bg-route-gold px-7 py-3.5 text-sm font-bold text-route-deep transition hover:bg-route-terracotta hover:text-white sm:w-auto"
+                    >
+                        Request a Booking
+                    </a>
+
+                {% elif not booking_is_enabled and stay_enquiry_url %}
+
+                    <a
+                        href="{{ stay_enquiry_url }}"
+                        class="inline-flex w-full items-center justify-center rounded-full bg-route-gold px-7 py-3.5 text-sm font-bold text-route-deep transition hover:bg-route-terracotta hover:text-white sm:w-auto"
+                    >
+                        Enquire About This Room
+                    </a>
+
+                {% endif %}
+
+            {% endif %}
+
+
+            <a
+                href="{{ url_for('stays.detail', slug=stay.slug) }}"
+                class="inline-flex w-full items-center justify-center rounded-full border border-white/30 px-7 py-3.5 text-sm font-semibold text-white transition hover:border-route-gold hover:text-route-gold sm:w-auto"
+            >
+                Return to {{ stay.property_name }}
+            </a>
+
+        </div>
+
+
+        <!-- CTA FALLBACK MESSAGES -->
+
+        {% if not booking_button_visible %}
+
+            <p class="mt-5 text-xs text-white/55">
+                Online booking actions are currently hidden.
+                You can still explore the property above.
+            </p>
+
+        {% elif booking_is_enabled and not stay_booking_url %}
+
+            <p class="mt-5 text-xs text-white/55">
+                Booking requests are enabled, but the stay booking destination
+                has not yet been connected to this page.
+            </p>
+
+        {% elif not booking_is_enabled and not stay_enquiry_url %}
+
+            <p class="mt-5 text-xs text-white/55">
+                Booking requests are disabled. The stay enquiry destination
+                still needs to be connected to this page.
+            </p>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

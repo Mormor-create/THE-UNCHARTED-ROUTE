@@ -1,0 +1,246 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Room Media{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <!-- Breadcrumbs -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+        <a href="{{ url_for('admin_stay.index') }}"
+           class="hover:text-purple-600">
+            Stays
+        </a>
+
+        <span>/</span>
+
+        <a href="{{ url_for('admin_stay_room.index') }}"
+           class="hover:text-purple-600">
+            Rooms
+        </a>
+
+        <span>/</span>
+
+        <span class="text-gray-700">
+            {{ room.name }}
+        </span>
+
+        <span>/</span>
+
+        <a href="{{ url_for('admin_stay_room_media.detail', media_id=room_media.id) }}"
+           class="hover:text-purple-600">
+            Room Media
+        </a>
+
+        <span>/</span>
+
+        <span class="text-gray-900 font-medium">
+            Edit
+        </span>
+    </div>
+
+
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-purple-600">
+                Room Media
+            </p>
+
+            <h1 class="text-2xl font-bold text-gray-900 mt-1">
+                Edit Room Media
+            </h1>
+
+            <p class="text-sm text-gray-500 mt-1">
+                Update this media assignment for
+                <span class="font-medium text-gray-700">
+                    {{ room.name }}
+                </span>.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_stay_room_media.detail', media_id=room_media.id) }}"
+           class="inline-flex items-center justify-center px-4 py-2.5
+                  rounded-lg border border-gray-300 bg-white
+                  text-sm font-medium text-gray-700
+                  hover:bg-gray-50 transition">
+            ← Back to Media
+        </a>
+
+    </div>
+
+
+    <!-- Form -->
+    <form method="POST"
+          class="space-y-6">
+
+        {{ form.hidden_tag() }}
+
+
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Media Assignment
+                </h2>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Update the media asset, presentation role, ordering,
+                    caption, or active state.
+                </p>
+            </div>
+
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Media Asset -->
+                <div class="md:col-span-2">
+
+                    {{ form.media_asset_id.label(
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    ) }}
+
+                    {{ form.media_asset_id(
+                        class="w-full rounded-lg border border-gray-300
+                               bg-white px-3 py-2.5 text-sm
+                               focus:border-purple-500 focus:ring-purple-500"
+                    ) }}
+
+                    {% for error in form.media_asset_id.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Usage -->
+                <div>
+
+                    {{ form.usage.label(
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    ) }}
+
+                    {{ form.usage(
+                        class="w-full rounded-lg border border-gray-300
+                               bg-white px-3 py-2.5 text-sm
+                               focus:border-purple-500 focus:ring-purple-500"
+                    ) }}
+
+                    {% for error in form.usage.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Display Order -->
+                <div>
+
+                    {{ form.display_order.label(
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    ) }}
+
+                    {{ form.display_order(
+                        class="w-full rounded-lg border border-gray-300
+                               px-3 py-2.5 text-sm
+                               focus:border-purple-500 focus:ring-purple-500"
+                    ) }}
+
+                    {% for error in form.display_order.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Caption -->
+                <div class="md:col-span-2">
+
+                    {{ form.caption.label(
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    ) }}
+
+                    {{ form.caption(
+                        class="w-full rounded-lg border border-gray-300
+                               px-3 py-2.5 text-sm
+                               focus:border-purple-500 focus:ring-purple-500",
+                        rows="4"
+                    ) }}
+
+                    {% for error in form.caption.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Active -->
+                <div class="md:col-span-2">
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+
+                        {{ form.active(
+                            class="mt-1 rounded border-gray-300
+                                   text-purple-600 focus:ring-purple-500"
+                        ) }}
+
+                        <span>
+                            <span class="block text-sm font-medium text-gray-700">
+                                Active
+                            </span>
+
+                            <span class="block text-xs text-gray-500 mt-1">
+                                Active assignments can be used by the room's
+                                media presentation.
+                            </span>
+                        </span>
+
+                    </label>
+
+                    {% for error in form.active.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center justify-end gap-3">
+
+            <a href="{{ url_for('admin_stay_room_media.detail', media_id=room_media.id) }}"
+               class="px-5 py-2.5 rounded-lg border border-gray-300
+                      bg-white text-sm font-medium text-gray-700
+                      hover:bg-gray-50 transition">
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="inline-flex items-center justify-center
+                       px-5 py-2.5 rounded-lg
+                       bg-purple-600 text-white text-sm font-medium
+                       hover:bg-purple-700 transition cursor-pointer"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

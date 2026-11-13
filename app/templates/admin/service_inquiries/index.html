@@ -1,0 +1,431 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Service Enquiries | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-route-cream px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl space-y-7">
+
+        <!-- Page heading -->
+        <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-route-terracotta">
+                    Customer enquiries
+                </p>
+
+                <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-deep">
+                    Service Enquiries
+                </h1>
+
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                    One inbox for safari, accommodation and experience enquiries.
+                    Review customer requests and manage their progress here.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ url_for('service_inquiries.archived') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-sand bg-white px-4 py-3 text-sm font-semibold text-route-forest shadow-sm transition hover:border-route-forest hover:bg-route-cream">
+                    <i class="bi bi-archive"></i>
+                    Archived Enquiries
+                </a>
+
+                <div class="flex items-center gap-2 text-sm text-route-muted">
+                    <span class="h-2.5 w-2.5 rounded-full bg-route-gold"></span>
+                    {{ counts.total }} active enquiries
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+
+            <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-route-muted">
+                        Active enquiries
+                    </p>
+                    <i class="bi bi-inbox text-lg text-route-forest"></i>
+                </div>
+                <p class="mt-3 text-3xl font-bold text-route-deep">
+                    {{ counts.total }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Excludes archived records
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-route-muted">
+                        New enquiries
+                    </p>
+                    <i class="bi bi-bell text-lg text-route-terracotta"></i>
+                </div>
+                <p class="mt-3 text-3xl font-bold text-route-terracotta">
+                    {{ counts.new }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Awaiting initial follow-up
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-route-muted">
+                        Safari
+                    </p>
+                    <i class="bi bi-compass text-lg text-route-forest"></i>
+                </div>
+                <p class="mt-3 text-3xl font-bold text-route-forest">
+                    {{ counts.safari }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Safari requests
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-route-muted">
+                        Stays
+                    </p>
+                    <i class="bi bi-house-heart text-lg text-route-forest"></i>
+                </div>
+                <p class="mt-3 text-3xl font-bold text-route-forest">
+                    {{ counts.stay }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Accommodation requests
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-route-muted">
+                        Experiences
+                    </p>
+                    <i class="bi bi-map text-lg text-route-forest"></i>
+                </div>
+                <p class="mt-3 text-3xl font-bold text-route-forest">
+                    {{ counts.experience }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Experience requests
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Inbox -->
+        <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+            <div class="border-b border-route-sand px-5 py-5 sm:px-6">
+
+                <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-route-deep">
+                            Active Inbox
+                        </h2>
+                        <p class="mt-1 text-sm text-route-muted">
+                            Search customers, references and requested services.
+                        </p>
+                    </div>
+
+                    <a href="{{ url_for('service_inquiries.archived') }}"
+                       class="inline-flex w-fit items-center gap-2 text-sm font-semibold text-route-forest transition hover:text-route-terracotta">
+                        View archived records
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                </div>
+
+                <!-- Filters -->
+                <form method="GET"
+                      action="{{ url_for('service_inquiries.index') }}"
+                      class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-4">
+
+                    <div class="relative md:col-span-2">
+                        <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-route-muted"></i>
+
+                        <input
+                            type="search"
+                            name="q"
+                            value="{{ search }}"
+                            placeholder="Search name, email, reference..."
+                            class="min-w-0 w-full rounded-xl border border-route-sand bg-white py-3 pl-11 pr-4 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                    </div>
+
+                    <select
+                        name="type"
+                        aria-label="Filter by service type"
+                        class="rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+
+                        <option value="">All service types</option>
+
+                        <option value="safari"
+                            {% if selected_type == "safari" %}selected{% endif %}>
+                            Safari
+                        </option>
+
+                        <option value="stay"
+                            {% if selected_type == "stay" %}selected{% endif %}>
+                            Stay
+                        </option>
+
+                        <option value="experience"
+                            {% if selected_type == "experience" %}selected{% endif %}>
+                            Experience
+                        </option>
+                    </select>
+
+                    <select
+                        name="status"
+                        aria-label="Filter by enquiry status"
+                        class="rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+
+                        <option value="">All statuses</option>
+
+                        {% for value in ["new", "contacted", "quoting", "quoted", "confirmed", "declined", "closed"] %}
+                            <option value="{{ value }}"
+                                {% if selected_status == value %}selected{% endif %}>
+                                {{ value|capitalize }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="flex flex-wrap gap-2 md:col-span-4">
+                        <button
+                            type="submit"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-route-deep">
+                            <i class="bi bi-funnel"></i>
+                            Apply Filters
+                        </button>
+
+                        <a
+                            href="{{ url_for('service_inquiries.index') }}"
+                            class="inline-flex items-center justify-center rounded-xl border border-route-sand px-5 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                            Clear Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Enquiry records -->
+            {% if inquiries %}
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-route-sand">
+
+                        <thead class="bg-route-cream/70">
+                            <tr>
+                                <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Enquiry
+                                </th>
+
+                                <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Customer
+                                </th>
+
+                                <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Requested Service
+                                </th>
+
+                                <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Dates / Guests
+                                </th>
+
+                                <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Status
+                                </th>
+
+                                <th class="px-5 py-4 text-right text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-route-sand">
+
+                            {% for inquiry in inquiries %}
+                                <tr class="transition hover:bg-route-cream/40">
+
+                                    <!-- Reference -->
+                                    <td class="whitespace-nowrap px-5 py-5 align-top">
+                                        <a href="{{ inquiry.url }}"
+                                           class="font-semibold text-route-deep transition hover:text-route-terracotta hover:underline">
+                                            {{ inquiry.reference }}
+                                        </a>
+
+                                        <span class="mt-2 inline-flex rounded-full bg-route-cream px-2.5 py-1 text-xs font-semibold text-route-forest">
+                                            {{ inquiry.service_label }}
+                                        </span>
+
+                                        <p class="mt-2 text-xs text-route-muted">
+                                            {% if inquiry.created_at and inquiry.created_at != none %}
+                                                {{ inquiry.created_at.strftime("%d %b %Y") if inquiry.created_at.strftime is defined else inquiry.created_at }}
+                                            {% else %}
+                                                Date unavailable
+                                            {% endif %}
+                                        </p>
+                                    </td>
+
+                                    <!-- Customer -->
+                                    <td class="px-5 py-5 align-top">
+                                        <p class="font-semibold text-route-deep">
+                                            {{ inquiry.customer }}
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-route-muted">
+                                            {{ inquiry.email or "No email" }}
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-route-muted">
+                                            {{ inquiry.phone or "No phone" }}
+                                        </p>
+                                    </td>
+
+                                    <!-- Requested service -->
+                                    <td class="px-5 py-5 align-top">
+                                        <p class="max-w-xs font-medium text-route-deep">
+                                            {{ inquiry.target }}
+                                        </p>
+
+                                        <p class="mt-1 text-xs text-route-muted">
+                                            Source: {{ inquiry.source or "Website" }}
+                                        </p>
+                                    </td>
+
+                                    <!-- Dates and guests -->
+                                    <td class="px-5 py-5 align-top">
+                                        <p class="text-sm text-route-deep">
+                                            {{ inquiry.requested_dates }}
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-route-muted">
+                                            {{ inquiry.guest_count }}
+                                            guest{{ "" if inquiry.guest_count == 1 else "s" }}
+                                        </p>
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td class="whitespace-nowrap px-5 py-5 align-top">
+                                        {% set status_key = inquiry.status|string|lower %}
+
+                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
+                                            {% if status_key == 'new' %}
+                                                bg-amber-100 text-amber-800
+                                            {% elif status_key in ['contacted', 'quoting', 'quoted'] %}
+                                                bg-blue-100 text-blue-800
+                                            {% elif status_key == 'confirmed' %}
+                                                bg-emerald-100 text-emerald-800
+                                            {% elif status_key == 'declined' %}
+                                                bg-red-100 text-red-800
+                                            {% elif status_key == 'closed' %}
+                                                bg-stone-100 text-stone-700
+                                            {% else %}
+                                                bg-route-cream text-route-deep
+                                            {% endif %}">
+                                            {{ inquiry.status|capitalize }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="px-5 py-5 align-top">
+                                        <div class="flex min-w-36 flex-col gap-2">
+
+                                            <a
+                                                href="{{ inquiry.url }}"
+                                                class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-route-deep">
+                                                <i class="bi bi-eye"></i>
+                                                View
+                                            </a>
+
+                                            <a
+                                                href="{{ url_for('service_inquiries.edit', service_type=inquiry.service_type, inquiry_id=inquiry.id) }}"
+                                                class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-sand bg-white px-4 py-2.5 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                                                <i class="bi bi-pencil-square"></i>
+                                                Edit
+                                            </a>
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('service_inquiries.archive', service_type=inquiry.service_type, inquiry_id=inquiry.id) }}"
+                                                onsubmit="return confirm('Archive enquiry {{ inquiry.reference|e }}? You can restore it later from Archived Enquiries.');">
+
+                                                <input
+                                                    type="hidden"
+                                                    name="csrf_token"
+                                                    value="{{ csrf_token() }}">
+
+                                                <button
+                                                    type="submit"
+                                                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-route-gold/50 bg-route-gold/10 px-4 py-2.5 text-sm font-semibold text-route-deep transition hover:bg-route-gold/20">
+                                                    <i class="bi bi-archive"></i>
+                                                    Archive
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+
+                <!-- Empty state -->
+                <div class="px-6 py-16 text-center">
+
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-route-cream text-route-forest">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-7 w-7"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.7">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.7A2.5 2.5 0 0 1 4 14.5z"/>
+                        </svg>
+                    </div>
+
+                    <h3 class="mt-4 text-lg font-bold text-route-deep">
+                        No enquiries found
+                    </h3>
+
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-route-muted">
+                        Try another search or clear the filters. New enquiries will appear here once submitted.
+                    </p>
+
+                    <div class="mt-5 flex flex-wrap justify-center gap-3">
+                        <a
+                            href="{{ url_for('service_inquiries.index') }}"
+                            class="inline-flex items-center justify-center rounded-xl border border-route-sand px-4 py-2.5 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                            View All Active Enquiries
+                        </a>
+
+                        <a
+                            href="{{ url_for('service_inquiries.archived') }}"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-route-deep">
+                            <i class="bi bi-archive"></i>
+                            View Archived
+                        </a>
+                    </div>
+
+                </div>
+
+            {% endif %}
+        </section>
+
+        <!-- Footer note -->
+        <p class="text-xs leading-5 text-route-muted">
+            Service enquiries are requests for information and follow-up. Managing an enquiry here does not create a booking or take payment. Archived records remain available from the Archived Enquiries page until permanently deleted.
+        </p>
+
+    </div>
+</div>
+{% endblock %}

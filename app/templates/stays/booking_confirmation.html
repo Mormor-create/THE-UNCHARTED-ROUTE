@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Booking Request Received | The Uncharted Route{% endblock %}
+{% block content %}
+
+<section class="min-h-screen bg-route-cream py-16 sm:py-24">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+        <div class="bg-white rounded-3xl border border-route-sand shadow-sm overflow-hidden">
+
+            <!-- Success Header -->
+            <div class="bg-route-forest px-6 sm:px-10 py-12 text-center text-white">
+
+                <div class="mx-auto w-20 h-20 rounded-full bg-white/10 flex items-center justify-center">
+                    <i class="bi bi-check-lg text-5xl text-route-gold"></i>
+                </div>
+
+                <p class="mt-6 text-xs uppercase tracking-[0.3em] text-route-gold font-semibold">
+                    Request received
+                </p>
+
+                <h1 class="mt-3 text-3xl sm:text-4xl font-serif">
+                    Thank You!
+                </h1>
+
+                <p class="mt-4 text-white/80 max-w-xl mx-auto leading-relaxed">
+                    Your stay booking request has been submitted successfully.
+                    Our team will review the details and contact you.
+                </p>
+            </div>
+
+            <div class="p-6 sm:p-10">
+
+                <!-- Booking Reference -->
+                <div class="text-center pb-8 border-b border-route-sand">
+                    <p class="text-sm text-route-muted">
+                        Your booking reference
+                    </p>
+
+                    <p class="mt-2 text-2xl sm:text-3xl font-semibold tracking-wider text-route-forest">
+                        {{ booking.booking_reference }}
+                    </p>
+
+                    <p class="mt-3 text-xs text-route-muted">
+                        Please keep this reference for future communication.
+                    </p>
+                </div>
+
+                <!-- Booking Details -->
+                <div class="py-8">
+                    <h2 class="text-xl font-serif text-route-forest mb-5">
+                        Booking Summary
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Accommodation
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.stay_name_snapshot or stay_booking.stay.property_name }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Room
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.room_name_snapshot or (stay_booking.room.name if stay_booking.room else "Selected room") }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Check-in
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.check_in.strftime('%d %B %Y') }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Check-out
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.check_out.strftime('%d %B %Y') }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Duration
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.nights }}
+                                {{ 'night' if stay_booking.nights == 1 else 'nights' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Rooms
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.rooms_count }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Guests
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.adults }} adults,
+                                {{ stay_booking.children }} children,
+                                {{ stay_booking.infants }} infants
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-route-muted">
+                                Meal Plan
+                            </p>
+                            <p class="mt-1 font-semibold text-route-deep">
+                                {{ stay_booking.meal_plan_snapshot or stay_booking.meal_plan or "To be confirmed" }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Customer Details -->
+                <div class="border-t border-route-sand pt-8">
+                    <h2 class="text-xl font-serif text-route-forest mb-5">
+                        Lead Guest
+                    </h2>
+
+                    <div class="space-y-3 text-sm">
+                        <p class="text-route-deep">
+                            <span class="text-route-muted">Name:</span>
+                            {{ booking.first_name }} {{ booking.last_name }}
+                        </p>
+
+                        <p class="text-route-deep">
+                            <span class="text-route-muted">Email:</span>
+                            {{ booking.email }}
+                        </p>
+
+                        {% if booking.phone %}
+                            <p class="text-route-deep">
+                                <span class="text-route-muted">Phone:</span>
+                                {{ booking.phone }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="mt-8 rounded-2xl bg-route-cream border border-route-sand p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="bi bi-info-circle text-route-gold text-xl mt-0.5"></i>
+                        <div>
+                            <h3 class="font-semibold text-route-forest">
+                                Awaiting confirmation
+                            </h3>
+                            <p class="mt-1 text-sm text-route-muted leading-relaxed">
+                                This is a booking request, not a confirmed reservation.
+                                Our team will verify availability and contact you with
+                                confirmation and payment instructions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-9 flex flex-col sm:flex-row gap-3">
+                    <a href="{{ url_for('main.home') }}"
+                       class="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-route-forest px-6 py-4 text-white font-semibold hover:bg-route-deep transition">
+                        Return Home
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+
+                    <a href="{{ url_for('stays.index') }}"
+                       class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-route-forest px-6 py-4 text-route-forest font-semibold hover:bg-route-cream transition">
+                        Explore More Stays
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <p class="mt-8 text-center text-sm text-route-muted">
+            Thank you for choosing
+            <span class="font-semibold text-route-forest">The Uncharted Route.</span>
+            Explore. Experience. Remember.
+        </p>
+
+    </div>
+</section>
+
+{% endblock %}

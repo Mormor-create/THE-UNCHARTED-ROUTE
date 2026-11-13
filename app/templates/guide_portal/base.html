@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Guide Portal | The Uncharted Route{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: "#12372A",
+                        leaf: "#1F5138",
+                        moss: "#5C6B32",
+                        gold: "#D89B24",
+                        clay: "#C96A2C",
+                        cream: "#F7F1E5",
+                        sand: "#E9DDC8",
+                        ink: "#1C2822",
+                        muted: "#66736B"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Playfair Display", "serif"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="min-h-screen bg-cream font-sans text-ink">
+{% set guide_name = guide.user.full_name if guide is defined and guide.user and guide.user.full_name else 'Guide' %}
+{% set current_endpoint = request.endpoint or '' %}
+
+<div class="min-h-screen lg:flex">
+
+    <!-- Mobile sidebar header -->
+    <header class="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-forest px-4 py-4 text-white lg:hidden">
+        <a href="{{ url_for('guide_portal.dashboard') }}" class="min-w-0">
+            <span class="block font-display text-lg font-semibold">The Uncharted Route</span>
+            <span class="text-xs uppercase tracking-[0.2em] text-white/60">Guide Portal</span>
+        </a>
+
+        <button
+            type="button"
+            id="sidebarToggle"
+            aria-controls="guideSidebar"
+            aria-expanded="false"
+            class="rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold hover:bg-white/10"
+        >
+            Menu
+        </button>
+    </header>
+
+    <!-- Shared sidebar -->
+    <aside
+        id="guideSidebar"
+        class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col overflow-y-auto bg-forest text-white transition-transform duration-200 lg:translate-x-0"
+    >
+        <div class="border-b border-white/10 px-6 py-7">
+            <a href="{{ url_for('guide_portal.dashboard') }}" class="block">
+                <p class="font-display text-2xl font-semibold tracking-wide">
+                    The Uncharted Route
+                </p>
+                <p class="mt-1 text-xs uppercase tracking-[0.25em] text-white/60">
+                    Guide Portal
+                </p>
+            </a>
+        </div>
+
+        <nav class="flex-1 space-y-2 px-4 py-5" aria-label="Guide navigation">
+
+            <a
+                href="{{ url_for('guide_portal.dashboard') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint == 'guide_portal.dashboard' %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint == 'guide_portal.dashboard' %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">⌂</span>
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('guide_portal.assignments') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint in ['guide_portal.assignments', 'guide_portal.assignment_detail'] %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint in ['guide_portal.assignments', 'guide_portal.assignment_detail'] %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">◇</span>
+                New assignments
+
+                {% if pending_assignments is defined and pending_assignments %}
+                    <span class="ml-auto rounded-full bg-gold px-2 py-1 text-xs font-bold text-ink">
+                        {{ pending_assignments|length }}
+                    </span>
+                {% endif %}
+            </a>
+
+            <a
+                href="{{ url_for('guide_portal.enquiries') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint in ['guide_portal.enquiries', 'guide_portal.enquiry_detail'] %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint in ['guide_portal.enquiries', 'guide_portal.enquiry_detail'] %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">✉</span>
+                Assigned enquiries
+
+                {% if assigned_contacts is defined and assigned_contacts %}
+                    <span class="ml-auto rounded-full bg-gold px-2 py-1 text-xs font-bold text-ink">
+                        {{ assigned_contacts|length }}
+                    </span>
+                {% endif %}
+            </a>
+
+            <a
+                href="{{ url_for('guide_portal.bookings') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint == 'guide_portal.bookings' %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint == 'guide_portal.bookings' %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">◷</span>
+                Bookings
+            </a>
+            <a
+                href="{{ url_for('guide_portal.upcoming_tours') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint == 'guide_portal.upcoming_tours' %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint == 'guide_portal.upcoming_tours' %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">◷</span>
+                Upcoming tours
+            </a>
+
+            <a
+                href="{{ url_for('guide_portal.schedule') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint == 'guide_portal.schedule' %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint == 'guide_portal.schedule' %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">▦</span>
+                My schedule
+            </a>
+
+            <a
+                href="{{ url_for('guide_portal.availability') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                {% if current_endpoint == 'guide_portal.availability' %}
+                    bg-white/15 font-semibold text-white
+                {% else %}
+                    text-white/75 hover:bg-white/10 hover:text-white
+                {% endif %}"
+                {% if current_endpoint == 'guide_portal.availability' %}aria-current="page"{% endif %}
+            >
+                <span class="w-5 text-center" aria-hidden="true">✓</span>
+                Availability
+            </a>
+
+        </nav>
+
+        <div class="border-t border-white/10 p-6">
+            <p class="text-sm font-semibold">{{ guide_name }}</p>
+
+            <p class="mt-1 text-xs text-white/60">
+                {{ guide.job_title if guide is defined and guide.job_title else 'Experience Guide' }}
+            </p>
+
+            <p class="mt-4 text-xs leading-5 text-white/55">
+                Explore. Experience. Remember.
+            </p>
+
+            {% block sidebar_footer %}{% endblock %}
+        </div>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <button
+        type="button"
+        id="sidebarOverlay"
+        aria-label="Close navigation menu"
+        class="fixed inset-0 z-40 hidden bg-black/40 lg:hidden"
+    ></button>
+
+    <!-- Main content remains aligned beside the fixed sidebar -->
+    <main class="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:ml-72 lg:px-10 lg:py-9">
+
+        {% block page_header %}
+            <header class="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-moss">
+                        Guide portal
+                    </p>
+                    <h1 class="mt-2 font-display text-3xl font-semibold text-forest sm:text-4xl">
+                        {% block page_heading %}Your field desk{% endblock %}
+                    </h1>
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
+                        {% block page_description %}Manage your assignments, tours, schedule, and availability.{% endblock %}
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-sand bg-white px-5 py-4 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-muted">Today</p>
+                    <p class="mt-1 font-semibold text-forest">
+                        {{ today.strftime('%A, %d %B %Y') if today is defined and today else '' }}
+                    </p>
+                </div>
+            </header>
+        {% endblock %}
+
+        <!-- Shared flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for category, message in messages %}
+                        <div class="rounded-xl border px-4 py-3 text-sm
+                            {% if category == 'success' %}
+                                border-green-200 bg-green-50 text-green-800
+                            {% elif category in ['danger', 'error'] %}
+                                border-red-200 bg-red-50 text-red-800
+                            {% else %}
+                                border-amber-200 bg-amber-50 text-amber-900
+                            {% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+        <footer class="mt-12 border-t border-sand py-6 text-center text-xs text-muted">
+            The Uncharted Route · Guide Portal · Explore. Experience. Remember.
+        </footer>
+    </main>
+</div>
+
+<script>
+    (() => {
+        const sidebar = document.getElementById("guideSidebar");
+        const toggle = document.getElementById("sidebarToggle");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (!sidebar || !toggle || !overlay) return;
+
+        const openSidebar = () => {
+            sidebar.classList.remove("-translate-x-full");
+            overlay.classList.remove("hidden");
+            toggle.setAttribute("aria-expanded", "true");
+            document.body.classList.add("overflow-hidden");
+        };
+
+        const closeSidebar = () => {
+            sidebar.classList.add("-translate-x-full");
+            overlay.classList.add("hidden");
+            toggle.setAttribute("aria-expanded", "false");
+            document.body.classList.remove("overflow-hidden");
+        };
+
+        toggle.addEventListener("click", () => {
+            const isOpen = toggle.getAttribute("aria-expanded") === "true";
+            isOpen ? closeSidebar() : openSidebar();
+        });
+
+        overlay.addEventListener("click", closeSidebar);
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeSidebar();
+        });
+
+        window.addEventListener("resize", () => {
+            if (window.innerWidth >= 1024) {
+                overlay.classList.add("hidden");
+                toggle.setAttribute("aria-expanded", "false");
+                document.body.classList.remove("overflow-hidden");
+                sidebar.classList.remove("-translate-x-full");
+            } else if (toggle.getAttribute("aria-expanded") !== "true") {
+                sidebar.classList.add("-translate-x-full");
+            }
+        });
+    })();
+</script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

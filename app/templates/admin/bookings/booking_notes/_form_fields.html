@@ -1,0 +1,90 @@
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div>
+    {{ form.booking_id.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+    {{ form.booking_id(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm focus:border-route-gold focus:outline-none") }}
+    {% for error in form.booking_id.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <div>
+    {{ form.note_type.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+    {{ form.note_type(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    {% for error in form.note_type.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <div>
+    {{ form.visibility.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+    {{ form.visibility(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    {% for error in form.visibility.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+    {% endfor %}
+    <p class="mt-1 text-xs text-route-muted">Internal notes are not intended for customers.</p>
+  </div>
+
+  <div>
+    {{ form.title.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+    {{ form.title(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="Optional short title") }}
+    {% for error in form.title.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <div class="lg:col-span-2">
+    {{ form.content.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+    {{ form.content(class="min-h-40 w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", rows="7", placeholder="Write the note or communication record...") }}
+    {% for error in form.content.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="mt-8 border-t border-route-sand pt-6">
+  <h3 class="mb-4 text-lg font-semibold text-route-deep">Communication Details</h3>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div>
+      {{ form.communication_channel.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.communication_channel(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    </div>
+    <div>
+      {{ form.direction.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.direction(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    </div>
+    <div>
+      {{ form.recipient.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.recipient(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="Email address, phone number, or recipient") }}
+    </div>
+    <div>
+      {{ form.subject.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.subject(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    </div>
+    <div>
+      {{ form.external_reference.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.external_reference(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="Message ID or external reference") }}
+    </div>
+    <div>
+      {{ form.delivery_status.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.delivery_status(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    </div>
+    <div>
+      {{ form.author_name_snapshot.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.author_name_snapshot(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="Defaults to current admin") }}
+    </div>
+    <div>
+      {{ form.author_role_snapshot.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.author_role_snapshot(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="Optional role at time of entry") }}
+    </div>
+    <div class="lg:col-span-2">
+      {{ form.delivery_error.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+      {{ form.delivery_error(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", rows="3", placeholder="Optional delivery failure details") }}
+    </div>
+  </div>
+</div>
+
+<div class="mt-8 flex flex-wrap gap-3">
+  {{ form.submit(class="rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white hover:bg-route-deep") }}
+  <a href="{{ url_for('admin_booking_notes.index') }}" class="rounded-xl border border-route-sand px-6 py-3 text-sm font-semibold text-route-deep hover:bg-route-cream">Cancel</a>
+</div>

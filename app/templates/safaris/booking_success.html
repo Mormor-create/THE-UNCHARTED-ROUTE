@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+{% block title %}Safari Request Received | The Uncharted Route{% endblock %}
+
+{% block content %}
+
+{% set safari = booking.safari_booking %}
+{% set lead_name = ((booking.first_name or '') ~ ' ' ~ (booking.last_name or '')) | trim %}
+
+<section class="min-h-screen bg-[#F7F1E5] px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+
+        <div class="overflow-hidden rounded-3xl border border-[#E9DDC8] bg-white shadow-xl">
+
+            <!-- Confirmation header -->
+            <div class="bg-[#12372A] px-6 py-10 text-center text-white sm:px-10">
+                <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-10 w-10 text-[#D89B24]"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         aria-hidden="true">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+
+                <p class="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#D89B24]">
+                    The Uncharted Route
+                </p>
+
+                <h1 class="text-3xl font-semibold sm:text-4xl">
+                    Your safari request is received
+                </h1>
+
+                <p class="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/80 sm:text-base">
+                    Thank you for choosing us. Your safari request has been recorded.
+                    Our team will review your selections and follow up regarding
+                    availability, final pricing and confirmation.
+                </p>
+            </div>
+
+            <div class="px-6 py-8 sm:px-10 sm:py-10">
+
+                <!-- Booking reference -->
+                <div class="rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5] p-5">
+                    <p class="text-xs font-semibold uppercase tracking-widest text-[#66736B]">
+                        Your booking reference
+                    </p>
+
+                    <p class="mt-2 break-words text-2xl font-bold tracking-wide text-[#12372A]">
+                        {{ booking.booking_reference or booking.id }}
+                    </p>
+
+                    <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                        Keep this reference for any follow-up about your safari.
+                    </p>
+                </div>
+
+                <!-- Lead traveller -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-[#12372A]">
+                        Lead traveller details
+                    </h2>
+
+                    <div class="mt-5 divide-y divide-[#E9DDC8] rounded-2xl border border-[#E9DDC8]">
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Full name</span>
+                            <span class="font-semibold text-[#1C2822] sm:text-right">
+                                {{ lead_name or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Email address</span>
+                            <span class="break-all font-medium text-[#1C2822] sm:text-right">
+                                {{ booking.email or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Phone number</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ booking.phone or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Nationality</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ booking.nationality or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Country of residence</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ booking.country_of_residence or "Not provided" }}
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Safari selection -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-[#12372A]">
+                        Your safari selection
+                    </h2>
+
+                    <div class="mt-5 divide-y divide-[#E9DDC8] rounded-2xl border border-[#E9DDC8]">
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Destination</span>
+                            <span class="font-semibold text-[#1C2822] sm:text-right">
+                                {{ safari.destination_name_snapshot or "Not available" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Property / Stay</span>
+                            <span class="font-semibold text-[#1C2822] sm:text-right">
+                                {{ safari.property_name_snapshot or "Not available" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Safari package</span>
+                            <span class="font-semibold text-[#1C2822] sm:text-right">
+                                {{ safari.package_name_snapshot or "Safari package" }}
+                            </span>
+                        </div>
+
+                        {% if safari.package_description_snapshot %}
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Package description</p>
+                            <p class="mt-2 text-sm leading-7 text-[#1C2822]">
+                                {{ safari.package_description_snapshot }}
+                            </p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <!-- Selected package rate -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-[#12372A]">
+                        Selected package rate
+                    </h2>
+
+                    <div class="mt-5 divide-y divide-[#E9DDC8] rounded-2xl border border-[#E9DDC8]">
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Selected rate</span>
+                            <span class="font-semibold text-[#1C2822] sm:text-right">
+                                {{ safari.rate_name_snapshot or "Not available" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Pricing basis</span>
+                            <span class="font-medium capitalize text-[#1C2822] sm:text-right">
+                                {{ (safari.rate_basis or "Not specified") | replace('_', ' ') }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Unit rate</span>
+                            <span class="font-semibold text-[#1C2822] sm:text-right">
+                                {{ safari.currency }}
+                                {{ "{:,.2f}".format(safari.unit_rate or 0) }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Rate quantity</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.quantity }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Booking currency</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ booking.currency or safari.currency }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 bg-[#F7F1E5] p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <span class="text-sm font-semibold text-[#12372A]">
+                                Booking amount
+                            </span>
+
+                            <span class="text-lg font-bold text-[#12372A] sm:text-right">
+                                {{ booking.currency or safari.currency }}
+                                {{ "{:,.2f}".format(booking.total_amount or 0) }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <p class="mt-3 text-xs leading-6 text-[#66736B]">
+                        The selected supplier rate is recorded above.
+                        The displayed booking amount is not a final quotation
+                        where pricing requires further review.
+                    </p>
+                </div>
+
+                <!-- Travel and room details -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-[#12372A]">
+                        Travel and room details
+                    </h2>
+
+                    <div class="mt-5 divide-y divide-[#E9DDC8] rounded-2xl border border-[#E9DDC8]">
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Travel start date</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.start_date.strftime('%d %B %Y') if safari.start_date else "To be confirmed" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Travel end date</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.end_date.strftime('%d %B %Y') if safari.end_date else "To be confirmed" }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Duration</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.duration_days }} day(s), {{ safari.duration_nights }} night(s)
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Adults</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.adults }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Children</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.children }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm text-[#66736B]">Infants</span>
+                            <span class="font-medium text-[#1C2822] sm:text-right">
+                                {{ safari.infants }}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 bg-[#F7F1E5] p-4 sm:flex-row sm:justify-between">
+                            <span class="text-sm font-semibold text-[#12372A]">Rooms required</span>
+                            <span class="font-semibold text-[#12372A] sm:text-right">
+                                {{ safari.rooms_required }}
+                            </span>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Rooming preferences</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-7 text-[#1C2822]">
+                                {{ safari.rooming_preferences or "No specific rooming preferences provided." }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Additional arrangements -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-[#12372A]">
+                        Additional arrangements
+                    </h2>
+
+                    <div class="mt-5 divide-y divide-[#E9DDC8] rounded-2xl border border-[#E9DDC8]">
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Pickup location</p>
+                            <p class="mt-2 text-sm leading-6 text-[#1C2822]">
+                                {{ safari.pickup_location or "Not provided" }}
+                            </p>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Transfer requirements</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#1C2822]">
+                                {{ safari.transfer_requirements or "Not provided" }}
+                            </p>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Wildlife interests</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#1C2822]">
+                                {{ safari.wildlife_interests or "Not provided" }}
+                            </p>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Special safari requirements</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#1C2822]">
+                                {{ safari.special_safari_requirements or "Not provided" }}
+                            </p>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Dietary requirements</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#1C2822]">
+                                {{ booking.dietary_requirements or "Not provided" }}
+                            </p>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Accessibility requirements</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#1C2822]">
+                                {{ booking.accessibility_requirements or "Not provided" }}
+                            </p>
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-sm text-[#66736B]">Other special requests</p>
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#1C2822]">
+                                {{ booking.special_requests or "Not provided" }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Request status -->
+                <div class="mt-8 rounded-2xl border border-[#E9DDC8] p-5">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="font-semibold text-[#12372A]">
+                                Request status
+                            </h2>
+                            <p class="mt-1 text-sm text-[#66736B]">
+                                Your request is awaiting review by our team.
+                            </p>
+                        </div>
+
+                        <span class="inline-flex w-fit items-center rounded-full bg-[#D89B24]/15 px-4 py-2 text-sm font-semibold capitalize text-[#8A5A12]">
+                            {{ booking.status | replace('_', ' ') }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- What happens next -->
+                <div class="mt-8 rounded-2xl border border-[#D89B24]/40 bg-[#D89B24]/10 p-5">
+                    <h2 class="font-semibold text-[#12372A]">
+                        What happens next?
+                    </h2>
+
+                    <ul class="mt-3 space-y-3 text-sm leading-6 text-[#1C2822]">
+                        <li class="flex gap-3">
+                            <span class="font-bold text-[#C96A2C]">01</span>
+                            <span>Our team reviews your package selection, rate, room requirements, travel dates and traveller details.</span>
+                        </li>
+
+                        <li class="flex gap-3">
+                            <span class="font-bold text-[#C96A2C]">02</span>
+                            <span>We follow up to verify supplier availability, pricing and any outstanding arrangements.</span>
+                        </li>
+
+                        <li class="flex gap-3">
+                            <span class="font-bold text-[#C96A2C]">03</span>
+                            <span>Once the arrangements and final price are agreed upon, we guide you through the confirmation and payment process, where applicable.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <p class="mt-6 text-sm leading-6 text-[#66736B]">
+                    <strong class="text-[#1C2822]">Please note:</strong>
+                    this is a booking request, not a confirmed reservation.
+                    Availability, supplier confirmation and final pricing may still be pending.
+                    No payment is taken by this page.
+                </p>
+
+                <!-- Actions -->
+                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <a href="{{ url_for('safaris.index') }}"
+                       class="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#12372A] px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                        Explore more safaris
+                    </a>
+
+                    <a href="{{ url_for('main.home') }}"
+                       class="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#12372A]/20 px-6 py-3 text-center text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                        Return home
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <p class="mt-6 text-center text-xs leading-6 text-[#66736B]">
+            Explore. Experience. Remember.
+        </p>
+
+    </div>
+</section>
+
+{% endblock %}

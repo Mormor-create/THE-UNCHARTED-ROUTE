@@ -1,0 +1,106 @@
+<div
+    id="cookie-notice"
+    class="
+        fixed
+        bottom-4
+        left-4
+        right-4
+        z-50
+        hidden
+        max-w-md
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        p-5
+        shadow-2xl
+        sm:left-auto
+        sm:right-6
+    "
+>
+
+    <div class="flex items-start gap-4">
+
+        <div class="flex-1">
+
+            <h3
+                class="
+                    text-sm
+                    font-semibold
+                    text-slate-900
+                "
+            >
+                Cookies
+            </h3>
+
+            <p
+                class="
+                    mt-2
+                    text-xs
+                    leading-5
+                    text-slate-500
+                "
+            >
+                We use cookies to help improve your experience on
+                The Uncharted Route.
+            </p>
+
+        </div>
+
+        <button
+            id="cookie-notice-close"
+            type="button"
+            class="
+                rounded-lg
+                px-3
+                py-2
+                text-xs
+                font-semibold
+                text-slate-700
+                hover:bg-slate-100
+            "
+        >
+            OK
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+    (function () {
+
+        const notice =
+            document.getElementById("cookie-notice");
+
+        const closeButton =
+            document.getElementById("cookie-notice-close");
+
+        if (!notice || !closeButton) {
+            return;
+        }
+
+        const accepted =
+            localStorage.getItem(
+                "tur_cookie_notice"
+            );
+
+        if (!accepted) {
+            notice.classList.remove("hidden");
+        }
+
+        closeButton.addEventListener(
+            "click",
+            function () {
+
+                localStorage.setItem(
+                    "tur_cookie_notice",
+                    "accepted"
+                );
+
+                notice.classList.add("hidden");
+            }
+        );
+
+    })();
+</script>

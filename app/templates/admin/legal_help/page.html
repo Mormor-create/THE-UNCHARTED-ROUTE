@@ -1,0 +1,529 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ page.title }} | Legal & Help
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <div
+        class="
+            flex
+            flex-col
+            gap-5
+            lg:flex-row
+            lg:items-start
+            lg:justify-between
+        "
+    >
+
+        <div>
+
+            <a
+                href="{{ url_for('admin_legal_help.index') }}"
+                class="
+                    text-sm
+                    font-semibold
+                    text-route-forest
+                    hover:text-route-terracotta
+                "
+            >
+                ← Back to Legal & Help
+            </a>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+
+                <h1 class="font-display text-4xl font-semibold text-route-ink">
+                    {{ page.title }}
+                </h1>
+
+                {% if page.active %}
+
+                    <span
+                        class="
+                            rounded-full
+                            bg-route-forest/10
+                            px-3
+                            py-1
+                            text-xs
+                            font-bold
+                            text-route-forest
+                        "
+                    >
+                        Active
+                    </span>
+
+                {% else %}
+
+                    <span
+                        class="
+                            rounded-full
+                            bg-route-sand
+                            px-3
+                            py-1
+                            text-xs
+                            font-bold
+                            text-route-muted
+                        "
+                    >
+                        Inactive
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            <p class="mt-2 text-sm text-route-muted">
+                {{ page.slug }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Page Settings -->
+
+    <section class="rounded-2xl bg-route-white p-6 shadow-route">
+
+        <div>
+
+            <h2 class="font-display text-2xl font-semibold text-route-ink">
+                Page Settings
+            </h2>
+
+            <p class="mt-1 text-sm text-route-muted">
+                Manage the page title, introduction, metadata, and publication status.
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="mt-6 space-y-6"
+        >
+
+            {{ form.hidden_tag() }}
+
+            <div class="grid gap-6 lg:grid-cols-2">
+
+                <div>
+                    {{ form.title.label(
+                        class="block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.title(
+                        class="
+                            mt-2
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-sand
+                            bg-route-cream/30
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            focus:border-route-forest
+                            focus:ring-2
+                            focus:ring-route-forest/10
+                        "
+                    ) }}
+
+                    {% for error in form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+
+
+                <div>
+                    {{ form.eyebrow.label(
+                        class="block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.eyebrow(
+                        class="
+                            mt-2
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-sand
+                            bg-route-cream/30
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            focus:border-route-forest
+                            focus:ring-2
+                            focus:ring-route-forest/10
+                        "
+                    ) }}
+                </div>
+
+            </div>
+
+
+            <div>
+                {{ form.intro.label(
+                    class="block text-sm font-semibold text-route-ink"
+                ) }}
+
+                {{ form.intro(
+                    rows="4",
+                    class="
+                        mt-2
+                        w-full
+                        rounded-xl
+                        border
+                        border-route-sand
+                        bg-route-cream/30
+                        px-4
+                        py-3
+                        text-sm
+                        leading-7
+                        text-route-ink
+                        outline-none
+                        focus:border-route-forest
+                        focus:ring-2
+                        focus:ring-route-forest/10
+                    "
+                ) }}
+            </div>
+
+
+            <div>
+                {{ form.meta_description.label(
+                    class="block text-sm font-semibold text-route-ink"
+                ) }}
+
+                {{ form.meta_description(
+                    class="
+                        mt-2
+                        w-full
+                        rounded-xl
+                        border
+                        border-route-sand
+                        bg-route-cream/30
+                        px-4
+                        py-3
+                        text-sm
+                        text-route-ink
+                        outline-none
+                        focus:border-route-forest
+                        focus:ring-2
+                        focus:ring-route-forest/10
+                    "
+                ) }}
+            </div>
+
+
+            <div class="flex items-center gap-3">
+
+                {{ form.active(
+                    class="
+                        h-4
+                        w-4
+                        rounded
+                        border-route-sand
+                        text-route-forest
+                        focus:ring-route-forest
+                    "
+                ) }}
+
+                {{ form.active.label(
+                    class="text-sm font-semibold text-route-ink"
+                ) }}
+
+            </div>
+
+
+            <div class="flex justify-end">
+
+                {{ form.submit(
+                    class="
+                        rounded-full
+                        bg-route-forest
+                        px-7
+                        py-3
+                        text-sm
+                        font-bold
+                        text-route-white
+                        transition
+                        hover:bg-route-deep
+                    "
+                ) }}
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- Sections -->
+
+    <section class="rounded-2xl bg-route-white p-6 shadow-route">
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+            "
+        >
+
+            <div>
+
+                <h2 class="font-display text-2xl font-semibold text-route-ink">
+                    Page Sections
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Manage the ordered content sections displayed on this page.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for(
+                    'admin_legal_help.create_section',
+                    slug=page.slug
+                ) }}"
+                class="
+                    inline-flex
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-route-gold
+                    px-5
+                    py-2.5
+                    text-sm
+                    font-bold
+                    text-route-deep
+                    transition
+                    hover:bg-route-terracotta
+                    hover:text-route-white
+                "
+            >
+                + Add Section
+            </a>
+
+        </div>
+
+
+        <div class="mt-6 space-y-4">
+
+            {% for section in sections %}
+
+                <article
+                    class="
+                        rounded-xl
+                        border
+                        border-route-sand
+                        bg-route-cream/30
+                        p-5
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            flex-col
+                            gap-4
+                            sm:flex-row
+                            sm:items-start
+                            sm:justify-between
+                        "
+                    >
+
+                        <div class="min-w-0">
+
+                            <div class="flex flex-wrap items-center gap-3">
+
+                                <span
+                                    class="
+                                        rounded-full
+                                        bg-route-deep
+                                        px-3
+                                        py-1
+                                        text-xs
+                                        font-bold
+                                        text-route-white
+                                    "
+                                >
+                                    {{ section.sort_order }}
+                                </span>
+
+                                <h3
+                                    class="
+                                        font-display
+                                        text-xl
+                                        font-semibold
+                                        text-route-ink
+                                    "
+                                >
+                                    {{ section.heading }}
+                                </h3>
+
+                                {% if section.active %}
+
+                                    <span
+                                        class="
+                                            rounded-full
+                                            bg-route-forest/10
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-bold
+                                            text-route-forest
+                                        "
+                                    >
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        class="
+                                            rounded-full
+                                            bg-route-sand
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-bold
+                                            text-route-muted
+                                        "
+                                    >
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <p
+                                class="
+                                    mt-3
+                                    whitespace-pre-line
+                                    text-sm
+                                    leading-7
+                                    text-route-muted
+                                "
+                            >
+                                {{ section.body }}
+                            </p>
+
+                        </div>
+
+
+                        <div
+                            class="
+                                flex
+                                shrink-0
+                                flex-wrap
+                                gap-2
+                            "
+                        >
+
+                            <a
+                                href="{{ url_for(
+                                    'admin_legal_help.edit_section',
+                                    slug=page.slug,
+                                    section_id=section.id
+                                ) }}"
+                                class="
+                                    rounded-full
+                                    border
+                                    border-route-forest
+                                    px-4
+                                    py-2
+                                    text-xs
+                                    font-bold
+                                    text-route-forest
+                                    transition
+                                    hover:bg-route-forest
+                                    hover:text-route-white
+                                "
+                            >
+                                Edit
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'admin_legal_help.delete_section',
+                                    slug=page.slug,
+                                    section_id=section.id
+                                ) }}"
+                                onsubmit="return confirm('Delete this section?');"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="
+                                        rounded-full
+                                        border
+                                        border-red-200
+                                        px-4
+                                        py-2
+                                        text-xs
+                                        font-bold
+                                        text-red-600
+                                        transition
+                                        hover:bg-red-50
+                                    "
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% else %}
+
+                <div
+                    class="
+                        rounded-xl
+                        border
+                        border-dashed
+                        border-route-sand
+                        p-8
+                        text-center
+                        text-sm
+                        text-route-muted
+                    "
+                >
+                    No sections have been created for this page yet.
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

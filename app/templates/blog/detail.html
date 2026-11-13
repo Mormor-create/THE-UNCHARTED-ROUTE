@@ -1,0 +1,685 @@
+ {% extends "base.html" %}
+
+{% block title %}
+    {{ post.meta_title or post.title }} | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ post.meta_description or post.excerpt or config.DEFAULT_META_DESCRIPTION }}
+{% endblock %}
+
+{% block og_title %}
+    {{ post.social_title or post.title }}
+{% endblock %}
+
+{% block og_description %}
+    {{ post.social_description or post.excerpt or config.DEFAULT_META_DESCRIPTION }}
+{% endblock %}
+
+{% block head %}
+    {{ super() }}
+
+    {% if post.canonical_url %}
+        <link rel="canonical" href="{{ post.canonical_url }}">
+    {% endif %}
+
+    {% if featured_image_url %}
+        <meta property="og:image" content="{{ featured_image_url }}">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<article>
+
+    {# ================================================================
+       Article Hero: CMS image background with text retained on top
+       ================================================================ #}
+
+    <header class="relative isolate overflow-hidden bg-route-deep text-white">
+
+        {% if featured_image_url %}
+            <div class="absolute inset-0 -z-20">
+                <img
+                    src="{{ featured_image_url }}"
+                    alt="{{ post.featured_image_alt or post.title }}"
+                    class="h-full w-full object-cover"
+                    fetchpriority="high"
+                >
+            </div>
+        {% endif %}
+
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-route-deep/95 via-route-deep/80 to-route-deep/45"></div>
+        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-route-deep/75 via-transparent to-route-deep/20"></div>
+
+        <div class="mx-auto flex min-h-[540px] max-w-7xl items-end px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+
+            <div class="max-w-4xl">
+
+                {% if post.category %}
+                    <a
+                        href="{{ url_for('blog.category', slug=post.category.slug) }}"
+                        class="inline-flex rounded-full border border-white/30 bg-black/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-route-sand backdrop-blur-sm transition hover:border-route-gold hover:text-route-gold"
+                    >
+                        {{ post.category.name }}
+                    </a>
+                {% endif %}
+
+                <h1 class="mt-6 font-display text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    {{ post.title }}
+                </h1>
+
+                {% if post.subtitle %}
+                    <p class="mt-5 max-w-3xl text-lg leading-8 text-white/85 sm:text-xl">
+                        {{ post.subtitle }}
+                    </p>
+                {% endif %}
+
+                <div class="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-white/85">
+
+                    <span class="font-semibold text-white">
+                        By {{ post.author }}
+                    </span>
+
+                    {% if post.author_title %}
+                        <span aria-hidden="true" class="text-route-gold">•</span>
+                        <span>{{ post.author_title }}</span>
+                    {% endif %}
+
+                    <span aria-hidden="true" class="text-route-gold">•</span>
+
+                    <span>{{ post.reading_time_text }}</span>
+
+                    {% if post.published_at %}
+                        <span aria-hidden="true" class="text-route-gold">•</span>
+                        <time datetime="{{ post.published_at.isoformat() }}">
+                            {{ post.published_at.strftime("%d %B %Y") }}
+                        </time>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+
+        {% if not featured_image_url %}
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-route-gold"></div>
+        {% endif %}
+
+    </header>
+
+
+
+<!-- =========================================================
+     JOURNAL ARTICLE CONTENT
+========================================================== -->
+<section class="bg-white py-12 sm:py-16 lg:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+
+            <!-- Main Article -->
+            <article class="min-w-0 lg:col-span-8">
+
+                <!-- Article Introduction -->
+                {% if post.excerpt %}
+                <div class="mb-10 border-l-4 border-route-gold bg-route-cream/60 px-5 py-5 sm:px-7 sm:py-6">
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-forest">
+                        The Story
+                    </p>
+
+                    <p class="mt-3 text-lg leading-8 text-route-deep sm:text-xl sm:leading-9">
+                        {{ post.excerpt }}
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Rich Article Body -->
+                <div class="journal-article-content">
+                    {{ post.content | safe }}
+                </div>
+
+                <!-- Article Closing -->
+                <div class="mt-12 border-t border-route-sand pt-8">
+                    <p class="font-display text-xl font-semibold text-route-deep sm:text-2xl">
+                        Every journey has a story.
+                    </p>
+
+                    <p class="mt-3 max-w-2xl text-base leading-7 text-route-muted">
+                        Continue exploring Kenya with The Uncharted Route, where
+                        remarkable places, meaningful experiences, and unforgettable
+                        memories come together.
+                    </p>
+
+                    <a
+                        href="{{ url_for('experiences.index') }}"
+                        class="mt-6 inline-flex items-center gap-3 rounded-full bg-route-deep px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-route-forest focus:outline-none focus:ring-2 focus:ring-route-gold/50"
+                    >
+                        Explore Our Experiences
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+
+            </article>
+
+            <!-- Article Sidebar -->
+            <aside class="space-y-8 lg:col-span-4">
+
+                <!-- Author Card -->
+                <section class="rounded-2xl border border-route-sand bg-route-cream/50 p-6">
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-forest">
+                        About the Author
+                    </p>
+
+                    <div class="mt-5 flex items-center gap-4">
+
+                        {% if author_photo_url %}
+                        <img
+                            src="{{ author_photo_url }}"
+                            alt="{{ post.author }}"
+                            class="h-16 w-16 shrink-0 rounded-full object-cover"
+                            loading="lazy"
+                        >
+                        {% else %}
+                        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-route-deep text-xl font-semibold text-white">
+                            {{ (post.author or 'T')[0]|upper }}
+                        </div>
+                        {% endif %}
+
+                        <div class="min-w-0">
+                            <h2 class="font-semibold text-route-deep">
+                                {{ post.author }}
+                            </h2>
+
+                            {% if post.author_title %}
+                            <p class="mt-1 text-sm leading-6 text-route-muted">
+                                {{ post.author_title }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Article Details -->
+                <section class="rounded-2xl border border-route-sand p-6">
+                    <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-route-forest">
+                        Article Details
+                    </h2>
+
+                    <dl class="mt-5 space-y-4">
+
+                        {% if post.category %}
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-route-muted">
+                                Category
+                            </dt>
+                            <dd class="mt-1 font-semibold text-route-deep">
+                                {{ post.category.name }}
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        {% if post.published_at %}
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-route-muted">
+                                Published
+                            </dt>
+                            <dd class="mt-1 text-sm text-route-deep">
+                                {{ post.published_at.strftime('%B %d, %Y') }}
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-route-muted">
+                                Reading Time
+                            </dt>
+                            <dd class="mt-1 text-sm text-route-deep">
+                                {{ post.reading_time_text }}
+                            </dd>
+                        </div>
+
+                    </dl>
+                </section>
+
+                <!-- Explore More -->
+                <section class="rounded-2xl bg-route-deep p-6 text-white">
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-gold">
+                        Your Next Chapter
+                    </p>
+
+                    <h2 class="mt-4 font-display text-2xl font-semibold leading-tight">
+                        Take the journey beyond the page.
+                    </h2>
+
+                    <p class="mt-3 text-sm leading-7 text-white/75">
+                        Discover extraordinary destinations, nature escapes,
+                        and experiences inspired by the places you read about.
+                    </p>
+
+                    <a
+                        href="{{ url_for('experiences.index') }}"
+                        class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-route-gold transition hover:text-white"
+                    >
+                        Discover Experiences
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </section>
+
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+            {# ========================================================
+               Author
+               ======================================================== #}
+
+            <div class="mt-14 border-t border-route-sand pt-8">
+
+                <div class="flex items-center gap-4">
+
+                    {% if author_photo_url %}
+                        <img
+                            src="{{ author_photo_url }}"
+                            alt="{{ post.author }}"
+                            class="h-14 w-14 rounded-full object-cover ring-2 ring-route-sand"
+                            loading="lazy"
+                        >
+                    {% else %}
+                        <div class="flex h-14 w-14 items-center justify-center rounded-full bg-route-forest text-lg font-bold text-white">
+                            {{ (post.author or "T")[:1]|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <p class="font-semibold text-route-ink">
+                            {{ post.author }}
+                        </p>
+
+                        {% if post.author_title %}
+                            <p class="mt-1 text-sm text-route-muted">
+                                {{ post.author_title }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# ========================================================
+               Related Destination / Experience
+               ======================================================== #}
+
+            {% if post.destination or post.experience %}
+
+                <div class="mt-10 grid gap-4 sm:grid-cols-2">
+
+                    {% if post.destination %}
+                        <a
+                            href="{{ url_for('destinations.detail', slug=post.destination.slug) }}"
+                            class="group rounded-route border border-route-sand bg-white p-6 transition hover:-translate-y-1 hover:border-route-forest hover:shadow-route"
+                        >
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-safari">
+                                Explore Destination
+                            </p>
+
+                            <h2 class="mt-3 font-display text-xl font-semibold text-route-ink group-hover:text-route-forest">
+                                {{ post.destination.name }}
+                            </h2>
+
+                            <span class="mt-4 inline-flex items-center text-sm font-semibold text-route-forest">
+                                Discover
+                                <span aria-hidden="true" class="ml-2">→</span>
+                            </span>
+                        </a>
+                    {% endif %}
+
+                    {% if post.experience %}
+                        <a
+                            href="{{ url_for('experiences.detail', slug=post.experience.slug) }}"
+                            class="group rounded-route border border-route-sand bg-white p-6 transition hover:-translate-y-1 hover:border-route-forest hover:shadow-route"
+                        >
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-safari">
+                                Explore Experience
+                            </p>
+
+                            <h2 class="mt-3 font-display text-xl font-semibold text-route-ink group-hover:text-route-forest">
+                                {{ post.experience.title }}
+                            </h2>
+
+                            <span class="mt-4 inline-flex items-center text-sm font-semibold text-route-forest">
+                                Explore
+                                <span aria-hidden="true" class="ml-2">→</span>
+                            </span>
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+
+            {# ========================================================
+               Call to Action
+               ======================================================== #}
+
+            {% if post.cta_title %}
+
+                <section class="mt-14 rounded-route bg-route-deep p-8 text-white shadow-route-lg sm:p-10">
+
+                    <p class="text-xs font-bold uppercase tracking-[0.25em] text-route-gold">
+                        The Uncharted Route
+                    </p>
+
+                    <h2 class="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
+                        {{ post.cta_title }}
+                    </h2>
+
+                    {% if post.cta_text %}
+                        <p class="mt-4 max-w-2xl leading-7 text-white/80">
+                            {{ post.cta_text }}
+                        </p>
+                    {% endif %}
+
+                    {% if post.cta_button_text and post.cta_button_url %}
+                        <a
+                            href="{{ post.cta_button_url }}"
+                            class="mt-6 inline-flex items-center rounded-full bg-route-gold px-6 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-sand focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2 focus:ring-offset-route-deep"
+                        >
+                            {{ post.cta_button_text }}
+                            <span aria-hidden="true" class="ml-2">→</span>
+                        </a>
+                    {% endif %}
+
+                </section>
+
+            {% endif %}
+
+
+            {# ========================================================
+               Article Statistics
+               ======================================================== #}
+
+            <div class="mt-12 flex flex-wrap items-center gap-5 border-t border-route-sand pt-6 text-xs text-route-muted">
+
+                <span>{{ post.views }} views</span>
+                <span>{{ post.likes }} likes</span>
+                <span>{{ post.shares }} shares</span>
+
+                <a
+                    href="{{ url_for('blog.index') }}"
+                    class="ml-auto font-semibold text-route-forest transition hover:text-route-safari"
+                >
+                    ← Back to Journal
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</article>
+<style>
+/* =========================================================
+   THE UNCHARTED JOURNAL — ARTICLE TYPOGRAPHY
+========================================================= */
+
+.journal-article-content {
+    color: #36453d;
+    font-size: 1.0625rem;
+    line-height: 1.95;
+    overflow-wrap: anywhere;
+}
+
+.journal-article-content > * + * {
+    margin-top: 1.5rem;
+}
+
+/* Paragraphs */
+.journal-article-content p {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #46564c;
+    line-height: 1.95;
+}
+
+/* Heading hierarchy */
+.journal-article-content h1,
+.journal-article-content h2,
+.journal-article-content h3,
+.journal-article-content h4 {
+    color: #17372c;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    line-height: 1.25;
+    scroll-margin-top: 6rem;
+}
+
+.journal-article-content h1 {
+    margin-top: 3rem;
+    margin-bottom: 1.25rem;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+.journal-article-content h2 {
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+}
+
+.journal-article-content h3 {
+    margin-top: 2.25rem;
+    margin-bottom: 0.875rem;
+    font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+}
+
+.journal-article-content h4 {
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    font-family: inherit;
+    font-size: 1.125rem;
+}
+
+/* Bulleted and numbered lists */
+.journal-article-content ul,
+.journal-article-content ol {
+    margin-top: 1.25rem;
+    margin-bottom: 1.75rem;
+    padding-left: 1.75rem;
+}
+
+.journal-article-content ul {
+    list-style-type: disc;
+}
+
+.journal-article-content ol {
+    list-style-type: decimal;
+}
+
+.journal-article-content li {
+    margin-top: 0.625rem;
+    padding-left: 0.35rem;
+    line-height: 1.85;
+}
+
+.journal-article-content li::marker {
+    color: #b88724;
+    font-weight: 700;
+}
+
+.journal-article-content li > ul,
+.journal-article-content li > ol {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Strong and emphasis */
+.journal-article-content strong,
+.journal-article-content b {
+    color: #17372c;
+    font-weight: 700;
+}
+
+.journal-article-content em,
+.journal-article-content i {
+    font-style: italic;
+}
+
+/* Links */
+.journal-article-content a {
+    color: #285b43;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: #d89b24;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: color 180ms ease;
+}
+
+.journal-article-content a:hover {
+    color: #9a6b12;
+}
+
+/* Editorial quotations */
+.journal-article-content blockquote {
+    margin: 2.5rem 0;
+    border-left: 4px solid #d89b24;
+    border-radius: 0 0.75rem 0.75rem 0;
+    background: #f7f1e5;
+    padding: 1.5rem 1.75rem;
+    color: #294637;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    line-height: 1.8;
+}
+
+.journal-article-content blockquote p {
+    margin: 0.5rem 0;
+    color: inherit;
+}
+
+.journal-article-content blockquote cite {
+    display: block;
+    margin-top: 1rem;
+    color: #66736b;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-style: normal;
+}
+
+/* Article images and captions */
+.journal-article-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 2.25rem auto;
+    border-radius: 1rem;
+}
+
+.journal-article-content figure {
+    margin: 2.5rem 0;
+}
+
+.journal-article-content figure img {
+    width: 100%;
+    margin: 0;
+}
+
+.journal-article-content figcaption {
+    margin-top: 0.75rem;
+    color: #66736b;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* Tables */
+.journal-article-content table {
+    width: 100%;
+    margin: 2rem 0;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.journal-article-content th,
+.journal-article-content td {
+    border: 1px solid #e9ddc8;
+    padding: 0.875rem 1rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.journal-article-content th {
+    background: #f7f1e5;
+    color: #17372c;
+    font-weight: 700;
+}
+
+/* Dividers */
+.journal-article-content hr {
+    margin: 3rem 0;
+    border: 0;
+    border-top: 1px solid #e9ddc8;
+}
+
+/* Inline code and preformatted content */
+.journal-article-content code {
+    border-radius: 0.25rem;
+    background: #f7f1e5;
+    padding: 0.15rem 0.35rem;
+    color: #17372c;
+    font-size: 0.9em;
+}
+
+.journal-article-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 2rem 0;
+    border-radius: 0.75rem;
+    background: #17372c;
+    padding: 1.25rem;
+    color: #fff;
+    line-height: 1.7;
+}
+
+.journal-article-content pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+/* Embedded video */
+.journal-article-content iframe {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 2.5rem 0;
+    border: 0;
+    border-radius: 1rem;
+}
+
+/* Mobile reading experience */
+@media (max-width: 640px) {
+    .journal-article-content {
+        font-size: 1rem;
+        line-height: 1.85;
+    }
+
+    .journal-article-content blockquote {
+        padding: 1.25rem;
+        font-size: 1.1rem;
+    }
+
+    .journal-article-content table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+</style>
+{% endblock %}

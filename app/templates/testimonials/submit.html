@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+{% block title %}Share Your Story | The Uncharted Route{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-[#F7F1E5] px-4 py-12 text-[#1C2822] md:px-8 md:py-20">
+    <div class="mx-auto max-w-3xl">
+
+        <!-- Intro -->
+        <div class="mb-10 text-center">
+            <a href="{{ url_for('main.testimonials') }}"
+               class="mb-7 inline-flex items-center gap-2 text-sm font-medium text-[#1F5138] transition hover:text-[#C96A2C]">
+                <span aria-hidden="true">←</span>
+                Back to guest stories
+            </a>
+
+            <p class="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-[#C96A2C]">
+                Your experience, your story
+            </p>
+
+            <h1 class="font-serif text-4xl leading-tight text-[#12372A] md:text-5xl">
+                Tell us about your journey.
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-xl leading-8 text-[#66736B]">
+                We'd love to hear what made your experience memorable.
+                Your feedback helps us grow and inspires future travellers.
+            </p>
+        </div>
+
+        <!-- Form card -->
+        <div class="rounded-3xl border border-[#E9DDC8] bg-white p-5 shadow-sm sm:p-8 md:p-10">
+
+            {% if form.errors %}
+                <div class="mb-7 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+                     role="alert">
+                    <p class="font-semibold">
+                        Please check the highlighted fields.
+                    </p>
+                    <p class="mt-1">
+                        Correct the errors below and submit your testimonial again.
+                    </p>
+                </div>
+            {% endif %}
+
+            <form method="POST"
+                  action="{{ url_for('main.submit_testimonial') }}"
+                  enctype="multipart/form-data"
+                  class="space-y-8">
+
+                {{ form.hidden_tag() }}
+
+                <!-- Customer information -->
+                <section>
+                    <div class="mb-5">
+                        <h2 class="font-serif text-2xl text-[#12372A]">
+                            About you
+                        </h2>
+                        <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                            Your email is used to confirm receipt of your submission.
+                            It will not be displayed with your public testimonial.
+                        </p>
+                    </div>
+
+                    <div class="grid gap-6 sm:grid-cols-2">
+
+                        <!-- Name -->
+                        <div>
+                            {{ form.customer_name.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.customer_name(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                                autocomplete="name",
+                                placeholder="Your full name"
+                            ) }}
+
+                            {% for error in form.customer_name.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            {{ form.customer_email.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.customer_email(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                                autocomplete="email",
+                                placeholder="you@example.com"
+                            ) }}
+
+                            {% for error in form.customer_email.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Country -->
+                        <div>
+                            {{ form.customer_country.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.customer_country(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                                autocomplete="country-name",
+                                placeholder="Your country"
+                            ) }}
+
+                            {% for error in form.customer_country.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- City -->
+                        <div>
+                            {{ form.customer_city.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.customer_city(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                                autocomplete="address-level2",
+                                placeholder="Your city"
+                            ) }}
+
+                            {% for error in form.customer_city.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </section>
+
+                <div class="border-t border-[#E9DDC8]"></div>
+
+                <!-- Listing association -->
+                <section>
+                    <div class="mb-5">
+                        <h2 class="font-serif text-2xl text-[#12372A]">
+                            What was your experience?
+                        </h2>
+                        <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                            You can connect your story to an experience, stay,
+                            or safari package. This is optional; please select
+                            no more than one.
+                        </p>
+                    </div>
+
+                    <div class="space-y-5">
+
+                        <!-- Experience -->
+                        <div>
+                            {{ form.experience_id.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.experience_id(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15"
+                            ) }}
+
+                            {% for error in form.experience_id.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Stay -->
+                        <div>
+                            {{ form.stay_id.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.stay_id(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15"
+                            ) }}
+
+                            {% for error in form.stay_id.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Safari package -->
+                        <div>
+                            {{ form.safari_package_option_id.label(
+                                class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form.safari_package_option_id(
+                                class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15"
+                            ) }}
+
+                            {% for error in form.safari_package_option_id.errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </section>
+
+                <div class="border-t border-[#E9DDC8]"></div>
+
+                <!-- Testimonial content -->
+                <section>
+                    <div class="mb-5">
+                        <h2 class="font-serif text-2xl text-[#12372A]">
+                            Your story
+                        </h2>
+                        <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                            Tell us what stood out, what you enjoyed,
+                            and what you would want another traveller to know.
+                        </p>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="mb-6">
+                        {{ form.title.label(
+                            class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                        ) }}
+
+                        {{ form.title(
+                            class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                            placeholder="Give your story a title (optional)"
+                        ) }}
+
+                        {% for error in form.title.errors %}
+                            <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Testimonial -->
+                    <div class="mb-6">
+                        {{ form.testimonial.label(
+                            class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                        ) }}
+
+                        {{ form.testimonial(
+                            class="w-full resize-y rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm leading-7 outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                            rows="7",
+                            placeholder="Share your experience with us..."
+                        ) }}
+
+                        <div class="mt-2 flex items-start justify-between gap-3">
+                            <div>
+                                {% for error in form.testimonial.errors %}
+                                    <p class="text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <p class="ml-auto shrink-0 text-xs text-[#66736B]">
+                                10–5000 characters
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div>
+                        {{ form.rating.label(
+                            class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                        ) }}
+
+                        {{ form.rating(
+                            class="w-full rounded-xl border border-[#D8C9AC] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15"
+                        ) }}
+
+                        {% for error in form.rating.errors %}
+                            <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <div class="border-t border-[#E9DDC8]"></div>
+
+
+<!-- Optional customer photo upload with live preview -->
+<section>
+    <h2 class="font-serif text-2xl text-[#12372A]">
+        Add a photo
+        <span class="font-sans text-sm font-normal text-[#66736B]">
+            (optional)
+        </span>
+    </h2>
+
+    <p class="mt-2 text-sm leading-6 text-[#66736B]">
+        You may upload a photo to accompany your story.
+        This uploads your own file and does not give you access to our
+        internal Media Library. Your photo will be reviewed before publication.
+    </p>
+
+    <label for="customer_photo_file"
+           class="mt-4 block cursor-pointer rounded-2xl border-2 border-dashed border-[#D8C9AC] bg-[#F7F1E5]/60 p-6 text-center transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+
+        <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#1F5138]">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.7"
+                 class="h-6 w-6"
+                 aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <path d="m21 15-5-5L5 21"></path>
+            </svg>
+        </span>
+
+        <span class="mt-3 block text-sm font-semibold text-[#12372A]">
+            Choose a photo from your device
+        </span>
+
+        <span class="mt-1 block text-xs text-[#66736B]">
+            JPG, JPEG, PNG or WEBP · Maximum 5 MB
+        </span>
+
+        <input
+            id="customer_photo_file"
+            name="customer_photo_file"
+            type="file"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            class="mt-4 block w-full cursor-pointer text-sm text-[#66736B] file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#12372A] file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-[#1F5138]"
+        >
+    </label>
+
+    <!-- Live preview: hidden until a valid image is selected -->
+    <div id="customerPhotoPreviewContainer"
+         class="mt-5 hidden rounded-2xl border border-[#E9DDC8] bg-white p-4">
+
+        <p class="mb-3 text-sm font-semibold text-[#12372A]">
+            Your photo preview
+        </p>
+
+        <div class="flex items-start gap-4">
+            <img
+                id="customerPhotoPreview"
+                src=""
+                alt="Preview of your selected testimonial photo"
+                class="h-28 w-28 shrink-0 rounded-xl border border-[#E9DDC8] object-cover shadow-sm"
+            >
+
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-[#1C2822]">
+                    Selected photo
+                </p>
+
+                <p id="customerPhotoFileName"
+                   class="mt-1 break-words text-xs leading-5 text-[#66736B]"></p>
+
+                <button
+                    type="button"
+                    id="removeCustomerPhoto"
+                    class="mt-3 inline-flex items-center rounded-full border border-[#E9DDC8] px-4 py-2 text-xs font-semibold text-[#C96A2C] transition hover:bg-[#F7F1E5]"
+                >
+                    Remove photo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload validation errors -->
+    <p id="customerPhotoError"
+       class="mt-3 hidden text-sm font-medium text-red-700"
+       role="alert"
+       aria-live="polite"></p>
+</section>
+
+                <!-- Moderation notice -->
+                <div class="rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] p-4">
+                    <p class="text-sm leading-6 text-[#66736B]">
+                        <strong class="text-[#12372A]">What happens next?</strong>
+                        Our team will review your testimonial before it appears
+                        on the website. Submission does not guarantee publication.
+                        Your email address will remain private.
+                    </p>
+                </div>
+
+                <!-- Submission -->
+                <div class="flex flex-col gap-4 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="max-w-sm text-xs leading-5 text-[#66736B]">
+                        By submitting, you confirm that your testimonial reflects
+                        your genuine experience and that you have permission to
+                        share any uploaded photo.
+                    </p>
+
+                    {{ form.submit(
+                        class="inline-flex cursor-pointer items-center justify-center rounded-full bg-[#12372A] px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2"
+                    ) }}
+                </div>
+
+            </form>
+        </div>
+
+        <p class="mt-6 text-center text-sm text-[#66736B]">
+            Questions?
+            <a href="{{ url_for('main.contact') }}"
+               class="font-semibold text-[#1F5138] underline underline-offset-4 transition hover:text-[#C96A2C]">
+                Contact our team
+            </a>
+        </p>
+
+    </div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const fileInput = document.getElementById("customer_photo_file");
+    const previewContainer = document.getElementById("customerPhotoPreviewContainer");
+    const previewImage = document.getElementById("customerPhotoPreview");
+    const fileName = document.getElementById("customerPhotoFileName");
+    const removeButton = document.getElementById("removeCustomerPhoto");
+    const errorMessage = document.getElementById("customerPhotoError");
+
+    if (
+    !fileInput ||
+    !previewContainer ||
+    !previewImage ||
+    !fileName ||
+    !removeButton ||
+    !errorMessage
+) {
+    return;
+}
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    const ALLOWED_TYPES = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    let previewUrl = null;
+
+    function clearPreview() {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+        }
+
+        previewImage.src = "";
+        previewContainer.classList.add("hidden");
+        fileName.textContent = "";
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+    }
+
+    function clearError() {
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
+    }
+
+    fileInput.addEventListener("change", function () {
+        clearError();
+        clearPreview();
+
+        const file = fileInput.files && fileInput.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            fileInput.value = "";
+            showError("Please choose a JPG, PNG or WebP image.");
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            fileInput.value = "";
+            showError("Your photo must be 5 MB or smaller.");
+            return;
+        }
+
+        previewUrl = URL.createObjectURL(file);
+        previewImage.src = previewUrl;
+        fileName.textContent = file.name;
+        previewContainer.classList.remove("hidden");
+
+        previewImage.onerror = function () {
+            clearPreview();
+            fileInput.value = "";
+            showError("This image could not be previewed. Please choose another image.");
+        };
+    });
+
+    removeButton.addEventListener("click", function () {
+        fileInput.value = "";
+        clearPreview();
+        clearError();
+    });
+
+    // Release the temporary browser URL when the page is left.
+    window.addEventListener("beforeunload", function () {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+    });
+});
+</script>
+{% endblock %}

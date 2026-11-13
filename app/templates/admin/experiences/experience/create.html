@@ -1,0 +1,658 @@
+{% extends "admin/base.html" %}
+{% block title %}Create Experience | The Uncharted Route{% endblock %}
+
+{% block content %}
+{% set field_class = "w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20" %}
+
+<div class="mx-auto max-w-7xl space-y-8">
+
+    <!-- Header -->
+    <header>
+        <a href="{{ url_for('admin_experiences.index') }}"
+           class="text-sm font-semibold text-route-forest transition hover:text-route-terracotta">
+            ← Back to Experiences
+        </a>
+
+        <p class="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-route-safari">
+            Experience Management
+        </p>
+
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-deep">
+            Create Experience
+        </h1>
+
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+            Create an experience with its essential details, pricing, media,
+            booking policy and publication settings.
+        </p>
+    </header>
+
+    <form method="POST" class="space-y-8">
+        {{ form.hidden_tag() }}
+
+        <!-- Validation errors -->
+        {% if form.errors %}
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
+            <p class="font-semibold">Please review the highlighted fields.</p>
+
+            <ul class="mt-2 list-inside list-disc space-y-1">
+                {% for field_name, errors in form.errors.items() %}
+                    {% for error in errors %}
+                    <li>
+                        {{ form[field_name].label.text }}: {{ error }}
+                    </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Experience identity -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-route-deep">
+                    Experience Identity
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Establish the experience's internal code and public-facing identity.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-3">
+                {% for field in [form.experience_code, form.title, form.slug] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ field(class=field_class, placeholder=field.label.text) }}
+
+                    {% for error in field.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Experience content -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-route-deep">
+                    Experience Content
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Explain what makes the experience worth discovering.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    {{ form.short_description.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+
+                    {{ form.short_description(
+                        class=field_class,
+                        rows="3",
+                        placeholder="A concise introduction for experience cards and previews"
+                    ) }}
+
+                    {% for error in form.short_description.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.description.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+
+                    {{ form.description(
+                        class=field_class,
+                        rows="7",
+                        placeholder="Describe the experience, atmosphere, highlights and what guests can expect"
+                    ) }}
+
+                    {% for error in form.description.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                    <p class="mt-2 text-xs text-route-muted">
+                        Follow your existing content-formatting conventions when preparing the description.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+ <!-- Destination and classification -->
+<section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+    <div class="mb-6">
+        <h2 class="text-lg font-bold text-route-deep">
+            Destination & Classification
+        </h2>
+        <p class="mt-1 text-sm text-route-muted">
+            Place the experience in the correct destination, category and themes.
+        </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-3">
+        {% for field in [form.category_id, form.destination_id, form.difficulty] %}
+        <div>
+            {{ field.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+            {{ field(class=field_class) }}
+
+            {% for error in field.errors %}
+            <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-6">
+        {{ form.tag_ids.label(
+            class="mb-2 block text-sm font-semibold text-route-ink"
+        ) }}
+
+        {{ form.tag_ids(
+            class=field_class + " min-h-40",
+            size="6"
+        ) }}
+
+        {% for error in form.tag_ids.errors %}
+        <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+        {% endfor %}
+
+        <p class="mt-2 text-xs leading-5 text-route-muted">
+            Select multiple themes that describe this experience.
+            Hold Ctrl (Windows) or Command (Mac) while selecting multiple tags.
+            Only active tags are available for new assignments.
+        </p>
+    </div>
+</section>
+
+            <div class="mt-6">
+        {{ form.moment_ids.label(
+            class="mb-2 block text-sm font-semibold text-route-ink"
+        ) }}
+
+        {{ form.moment_ids(
+            class=field_class + " min-h-40",
+            size="6"
+        ) }}
+
+        {% for error in form.moment_ids.errors %}
+        <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+        {% endfor %}
+
+        <p class="mt-2 text-xs leading-5 text-route-muted">
+            Select one or more Signature Moments to associate with this
+            experience. Signature Moments are reusable catalogue records
+            and can be assigned to multiple experiences. Hold Ctrl
+            (Windows) or Command (Mac) to select multiple moments.
+            Only active Signature Moments are available for new assignments.
+        </p>
+    </div>
+        <!-- Media Library -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-safari">
+                    Media Library
+                </p>
+
+                <h2 class="mt-2 text-lg font-bold text-route-deep">
+                    Experience Images
+                </h2>
+
+                <p class="mt-1 text-sm leading-6 text-route-muted">
+                    Select images from the active <strong>Experiences</strong>
+                    folder or its active subfolders. Your selections reference
+                    Media Library assets rather than local filesystem paths.
+                </p>
+            </div>
+
+            <div class="grid gap-8 md:grid-cols-2">
+
+                <!-- Featured image -->
+                <div>
+                    {{ form.featured_image.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.featured_image(
+                        class=field_class,
+                        id="featured_image",
+                        required=true
+                    ) }}
+
+                    {% for error in form.featured_image.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                    <p class="mt-2 text-xs text-route-muted">
+                        Required. Used as the primary image for the experience
+                        card and catalogue.
+                    </p>
+
+                    <div class="mt-5">
+                        <p class="mb-2 text-sm font-semibold text-route-ink">
+                            Featured image preview
+                        </p>
+
+                        <div
+                            id="featured-image-preview-container"
+                            class="hidden overflow-hidden rounded-xl border border-route-sand bg-route-cream"
+                        >
+                            <img
+                                id="featured-image-preview"
+                                src=""
+                                alt="Featured experience image preview"
+                                class="h-56 w-full object-cover"
+                            >
+                        </div>
+
+                        <p
+                            id="featured-image-preview-empty"
+                            class="rounded-xl border border-dashed border-route-sand bg-route-cream p-6 text-center text-sm text-route-muted"
+                        >
+                            Select an image to preview it here.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Banner image -->
+                <div>
+                    {{ form.banner_image.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.banner_image(
+                        class=field_class,
+                        id="banner_image"
+                    ) }}
+
+                    {% for error in form.banner_image.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                    <p class="mt-2 text-xs text-route-muted">
+                        Optional. Choose a separate wide image for the public
+                        experience page when required.
+                    </p>
+
+                    <div class="mt-5">
+                        <p class="mb-2 text-sm font-semibold text-route-ink">
+                            Banner image preview
+                        </p>
+
+                        <div
+                            id="banner-image-preview-container"
+                            class="hidden overflow-hidden rounded-xl border border-route-sand bg-route-cream"
+                        >
+                            <img
+                                id="banner-image-preview"
+                                src=""
+                                alt="Experience banner image preview"
+                                class="h-56 w-full object-cover"
+                            >
+                        </div>
+
+                        <p
+                            id="banner-image-preview-empty"
+                            class="rounded-xl border border-dashed border-route-sand bg-route-cream p-6 text-center text-sm text-route-muted"
+                        >
+                            A banner image is optional.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if form.featured_image.choices|length <= 1 %}
+            <div class="mt-6 rounded-xl border border-route-gold/40 bg-route-cream p-4 text-sm text-route-ink">
+                <p class="font-semibold">
+                    No eligible featured images are available.
+                </p>
+
+                <p class="mt-1 leading-6 text-route-muted">
+                    Add an active image to the Experiences folder or one of
+                    its active subfolders in the Media Library.
+                </p>
+
+                <a
+                    href="{{ url_for('admin_media.index') }}"
+                    class="mt-3 inline-flex font-semibold text-route-forest underline underline-offset-4"
+                >
+                    Open Media Library
+                </a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Pricing and logistics -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-route-deep">
+                    Pricing & Logistics
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Add the starting price, group size and practical meeting details.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {% for field in [
+                    form.price_from,
+                    form.currency,
+                    form.duration,
+                    form.minimum_people,
+                    form.maximum_people,
+                    form.minimum_age,
+                    form.meeting_point,
+                    form.location
+                ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ field(class=field_class) }}
+
+                    {% for error in field.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Policies and supporting information -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-route-deep">
+                    Policies & Supporting Information
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Choose the booking policy and any related conservation
+                    or accessibility information.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-3">
+                {% for field in [
+                    form.cancellation_policy_id,
+                    form.conservation_story_id,
+                    form.accessibility_profile_id
+                ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ field(class=field_class) }}
+
+                    {% for error in field.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <p class="mt-4 text-xs leading-5 text-route-muted">
+                A cancellation policy is required. A conservation story and
+                accessibility profile are optional.
+            </p>
+        </section>
+
+        <!-- SEO -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-route-deep">
+                    Search Engine Metadata
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Optional title and description for search engine results.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    {{ form.meta_title.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.meta_title(class=field_class) }}
+
+                    {% for error in form.meta_title.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.meta_description.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.meta_description(class=field_class, rows="3") }}
+
+                    {% for error in form.meta_description.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Publication settings -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-route-deep">
+                    Publication Settings
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Control catalogue visibility, homepage placement, publication
+                    status and display order.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+                <!-- Display order -->
+                <div>
+                    {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.display_order(class=field_class) }}
+
+                    {% for error in form.display_order.errors %}
+                    <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Lower numbers appear earlier in ordered listings.
+                    </p>
+                </div>
+
+                <!-- Featured -->
+                <label class="flex items-start gap-3 rounded-xl border border-route-sand p-4">
+                    {{ form.featured(
+                        id="featured",
+                        class="mt-1 h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-gold"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Featured
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Make this experience eligible for the featured
+                            Experiences catalogue.
+                        </span>
+
+                        {% for error in form.featured.errors %}
+                        <span class="mt-2 block text-xs text-red-600">
+                            {{ error }}
+                        </span>
+                        {% endfor %}
+                    </span>
+                </label>
+
+                <!-- Show on Homepage -->
+                <label class="flex items-start gap-3 rounded-xl border border-route-sand p-4 transition hover:border-route-gold">
+                    {{ form.show_on_homepage(
+                        id="show_on_homepage",
+                        class="mt-1 h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-gold"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Show on Homepage
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Display this experience in the homepage experience
+                            section. Featured must also be enabled.
+                        </span>
+
+                        {% for error in form.show_on_homepage.errors %}
+                        <span class="mt-2 block text-xs text-red-600">
+                            {{ error }}
+                        </span>
+                        {% endfor %}
+                    </span>
+                </label>
+
+                <!-- Active -->
+                <label class="flex items-start gap-3 rounded-xl border border-route-sand p-4">
+                    {{ form.active(
+                        id="active",
+                        class="mt-1 h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-gold"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Active
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Allow this experience to be available on the website.
+                        </span>
+
+                        {% for error in form.active.errors %}
+                        <span class="mt-2 block text-xs text-red-600">
+                            {{ error }}
+                        </span>
+                        {% endfor %}
+                    </span>
+                </label>
+
+            </div>
+
+            <p class="mt-4 text-xs leading-5 text-route-muted">
+                Homepage placement requires both Featured and Show on Homepage.
+                Inactive experiences should not appear in public listings.
+            </p>
+        </section>
+
+        <!-- Form actions -->
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <a
+                href="{{ url_for('admin_experiences.index') }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-sand bg-white px-6 py-3 text-sm font-semibold text-route-ink transition hover:bg-route-cream"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-route-deep px-6 py-3 text-sm font-bold text-white transition hover:bg-route-forest focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2"
+            ) }}
+        </div>
+
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // URLs are supplied by the create route using MediaAsset.browser_url.
+    const imageMap = {{ image_preview_map | default({}) | tojson }};
+
+    function setupImagePreview(config) {
+        const select = document.getElementById(config.selectId);
+        const image = document.getElementById(config.imageId);
+        const container = document.getElementById(config.containerId);
+        const emptyMessage = document.getElementById(config.emptyId);
+
+        if (!select || !image || !container || !emptyMessage) {
+            return;
+        }
+
+        function showEmpty(message) {
+            image.removeAttribute("src");
+            container.classList.add("hidden");
+            emptyMessage.textContent = message;
+            emptyMessage.classList.remove("hidden");
+        }
+
+        function updatePreview() {
+            const selectedId = select.value;
+            const imageUrl = imageMap[selectedId];
+
+            if (!selectedId) {
+                showEmpty(config.emptyText);
+                return;
+            }
+
+            if (!imageUrl) {
+                showEmpty("A preview is unavailable for this selection.");
+                return;
+            }
+
+            image.onload = function () {
+                container.classList.remove("hidden");
+                emptyMessage.classList.add("hidden");
+            };
+
+            image.onerror = function () {
+                showEmpty(
+                    "The selected image could not be loaded. Check its Media Library URL."
+                );
+            };
+
+            if (image.getAttribute("src") !== imageUrl) {
+                image.src = imageUrl;
+            } else if (image.complete && image.naturalWidth > 0) {
+                container.classList.remove("hidden");
+                emptyMessage.classList.add("hidden");
+            }
+        }
+
+        select.addEventListener("change", updatePreview);
+        updatePreview();
+    }
+
+    setupImagePreview({
+        selectId: "featured_image",
+        imageId: "featured-image-preview",
+        containerId: "featured-image-preview-container",
+        emptyId: "featured-image-preview-empty",
+        emptyText: "Select an image to preview it here."
+    });
+
+    setupImagePreview({
+        selectId: "banner_image",
+        imageId: "banner-image-preview",
+        containerId: "banner-image-preview-container",
+        emptyId: "banner-image-preview-empty",
+        emptyText: "A banner image is optional."
+    });
+
+    // Keep homepage visibility consistent with Featured.
+    const featuredCheckbox = document.getElementById("featured");
+    const homepageCheckbox = document.getElementById("show_on_homepage");
+
+    function synchronizeHomepageVisibility() {
+        if (!featuredCheckbox || !homepageCheckbox) {
+            return;
+        }
+
+        homepageCheckbox.disabled = !featuredCheckbox.checked;
+
+        if (!featuredCheckbox.checked) {
+            homepageCheckbox.checked = false;
+        }
+
+        homepageCheckbox.closest("label")?.classList.toggle(
+            "opacity-60",
+            !featuredCheckbox.checked
+        );
+    }
+
+    if (featuredCheckbox && homepageCheckbox) {
+        featuredCheckbox.addEventListener(
+            "change",
+            synchronizeHomepageVisibility
+        );
+
+        synchronizeHomepageVisibility();
+    }
+});
+</script>
+{% endblock %}

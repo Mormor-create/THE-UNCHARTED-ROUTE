@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}{{ destination.name }} Safari | The Uncharted Route{% endblock %}
+
+{% block content %}
+
+{# ============================================================
+   THE UNCHARTED ROUTE
+   Public Safari Destination — Editorial Layout
+   Palette: Forest / Ivory / Gold / Charcoal
+============================================================ #}
+
+{% set hero_asset = destination.hero_media_asset or destination.card_media_asset %}
+
+{# HERO #}
+<section class="relative isolate flex min-h-[620px] items-end overflow-hidden bg-[#12372A] sm:min-h-[680px] lg:min-h-[760px]">
+
+    {% if hero_asset and hero_asset.browser_url %}
+        <img
+            src="{{ hero_asset.browser_url }}"
+            alt="{{ destination.name }}"
+            fetchpriority="high"
+            class="absolute inset-0 h-full w-full object-cover"
+        >
+    {% endif %}
+
+    <div class="absolute inset-0 bg-gradient-to-t from-[#101C16]/95 via-[#101C16]/45 to-[#101C16]/10"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#101C16]/50 via-transparent to-transparent"></div>
+
+    <div class="relative z-10 mx-auto w-full max-w-[1600px] px-5 pb-14 pt-32 sm:px-8 sm:pb-20 lg:px-16 lg:pb-24">
+
+        <a href="{{ url_for('safaris.index') }}"
+           class="mb-12 inline-flex items-center gap-3 text-sm font-medium text-white/80 transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span>
+            All safari destinations
+        </a>
+
+        <div class="max-w-4xl">
+            <p class="mb-5 text-xs font-bold uppercase tracking-[0.28em] text-[#E8B84B] sm:text-sm">
+                The Uncharted Route
+                <span class="mx-2 text-white/50">/</span>
+                Discover Kenya
+            </p>
+
+            <h1 class="font-serif text-5xl font-medium leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl">
+                {{ destination.name }}
+            </h1>
+
+            {% if destination.introduction %}
+                <p class="mt-7 max-w-3xl text-base leading-8 text-white/85 sm:text-lg sm:leading-9 lg:text-xl">
+                    {{ destination.introduction }}
+                </p>
+            {% elif destination.description %}
+                <p class="mt-7 max-w-3xl text-base leading-8 text-white/85 sm:text-lg sm:leading-9 lg:text-xl">
+                    {{ destination.description }}
+                </p>
+            {% endif %}
+
+            <div class="mt-9 flex flex-wrap items-center gap-4">
+                <a href="#safari-stays"
+                   class="inline-flex items-center justify-center rounded-full bg-[#D89B24] px-7 py-3.5 text-sm font-bold text-[#1C2822] transition hover:bg-[#E9B94E]">
+                    Explore safari stays
+                    <span class="ml-3" aria-hidden="true">↗</span>
+                </a>
+
+                <a href="#destination-story"
+                   class="inline-flex items-center justify-center rounded-full border border-white/40 px-7 py-3.5 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10">
+                    Discover the destination
+                </a>
+            </div>
+        </div>
+
+        <div class="mt-16 flex items-center gap-4 text-xs uppercase tracking-[0.18em] text-white/65 sm:mt-20">
+            <span class="h-px w-12 bg-[#D89B24]"></span>
+            Explore. Experience. Remember.
+        </div>
+    </div>
+</section>
+
+
+{# INTRODUCTION / DESTINATION STORY #}
+<section id="destination-story" class="bg-[#F7F1E5] py-20 sm:py-24 lg:py-32">
+    <div class="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-16">
+
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+
+            <div class="lg:col-span-4">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-[#5C6B32]">
+                    Beyond the ordinary
+                </p>
+
+                <h2 class="mt-5 max-w-lg font-serif text-4xl font-medium leading-tight text-[#1C2822] sm:text-5xl lg:text-6xl">
+                    A place worth travelling for.
+                </h2>
+
+                <div class="mt-7 h-1 w-16 rounded-full bg-[#D89B24]"></div>
+
+                <p class="mt-7 max-w-md text-base leading-8 text-[#66736B]">
+                    Every destination has a character of its own.
+                    Discover the landscapes, stories and experiences that make
+                    this corner of Kenya unforgettable.
+                </p>
+            </div>
+
+            <div class="space-y-10 lg:col-span-8 lg:pt-2">
+
+                {% if destination.history %}
+                    <div class="border-b border-[#1C2822]/10 pb-9">
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#5C6B32]">
+                            01 / The story
+                        </p>
+                        <h3 class="mt-3 font-serif text-2xl text-[#1C2822] sm:text-3xl">
+                            A landscape with a past
+                        </h3>
+                        <div class="mt-5 whitespace-pre-line text-base leading-8 text-[#46534B] sm:text-lg sm:leading-9">{{ destination.history }}</div>
+                    </div>
+                {% endif %}
+
+                {% if destination.landscape_and_wildlife %}
+                    <div class="border-b border-[#1C2822]/10 pb-9">
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#5C6B32]">
+                            02 / The wilderness
+                        </p>
+                        <h3 class="mt-3 font-serif text-2xl text-[#1C2822] sm:text-3xl">
+                            Landscape & wildlife
+                        </h3>
+                        <div class="mt-5 whitespace-pre-line text-base leading-8 text-[#46534B] sm:text-lg sm:leading-9">{{ destination.landscape_and_wildlife }}</div>
+                    </div>
+                {% endif %}
+
+                {% if destination.travel_information %}
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#5C6B32]">
+                            03 / Before you go
+                        </p>
+                        <h3 class="mt-3 font-serif text-2xl text-[#1C2822] sm:text-3xl">
+                            Planning your visit
+                        </h3>
+                        <div class="mt-5 whitespace-pre-line text-base leading-8 text-[#46534B] sm:text-lg sm:leading-9">{{ destination.travel_information }}</div>
+                    </div>
+                {% endif %}
+
+                {% if not destination.history and not destination.landscape_and_wildlife and not destination.travel_information %}
+                    <div class="rounded-2xl border border-[#1C2822]/10 bg-white/70 p-7 sm:p-10">
+                        <h3 class="font-serif text-2xl text-[#1C2822]">
+                            Get to know {{ destination.name }}
+                        </h3>
+                        <p class="mt-4 text-base leading-8 text-[#66736B]">
+                            More destination stories and practical travel information
+                            will be added as this collection grows.
+                        </p>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# CONSERVATION #}
+{% if destination.conservation_story %}
+<section class="relative overflow-hidden bg-[#12372A] py-20 sm:py-24 lg:py-28">
+    <div class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full border border-white/10"></div>
+    <div class="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full border border-white/10"></div>
+
+    <div class="relative mx-auto grid w-full max-w-[1440px] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-start lg:gap-16 lg:px-16">
+
+        <div class="lg:col-span-4">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-[#E8B84B]">
+                Travel with awareness
+            </p>
+
+            <h2 class="mt-5 font-serif text-4xl font-medium leading-tight text-white sm:text-5xl">
+                The future of the wild matters.
+            </h2>
+
+            <p class="mt-6 max-w-md text-base leading-8 text-white/65">
+                The places we explore are part of something bigger.
+                Understanding their conservation story is part of experiencing them responsibly.
+            </p>
+
+            <div class="mt-8 h-1 w-16 rounded-full bg-[#D89B24]"></div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="rounded-3xl border border-white/10 bg-white/[0.05] p-7 sm:p-10 lg:p-12">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#E8B84B]">
+                    Conservation story
+                </p>
+
+                <h3 class="mt-4 font-serif text-2xl leading-snug text-white sm:text-3xl">
+                    Protecting what makes this place extraordinary
+                </h3>
+
+                <div class="mt-6 whitespace-pre-line text-base leading-8 text-white/75 sm:text-lg sm:leading-9">{{ destination.conservation_story }}</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endif %}
+
+
+{# SAFARI PROPERTIES #}
+<section id="safari-stays" class="bg-white py-20 sm:py-24 lg:py-32">
+    <div class="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-16">
+
+        <div class="mb-12 flex flex-col gap-6 lg:mb-16 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-3xl">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-[#5C6B32]">
+                    Stay a little closer to the wild
+                </p>
+
+                <h2 class="mt-5 font-serif text-4xl font-medium leading-tight text-[#1C2822] sm:text-5xl lg:text-6xl">
+                    Safari stays in {{ destination.name }}
+                </h2>
+
+                <p class="mt-5 max-w-2xl text-base leading-8 text-[#66736B] sm:text-lg">
+                    Find a stay that suits the way you want to explore.
+                    Discover the properties and safari experiences available in this destination.
+                </p>
+            </div>
+
+            <p class="text-sm font-medium text-[#66736B]">
+                {{ properties|length }} {% if properties|length == 1 %}stay{% else %}stays{% endif %} to explore
+            </p>
+        </div>
+
+        {% if properties %}
+            <div class="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
+
+                {% for property in properties %}
+                    {% set primary_media = property.media|selectattr('active')|sort(attribute='display_order')|first %}
+
+                    <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#1C2822]/10 bg-[#F7F1E5]/40 transition duration-300 hover:-translate-y-1 hover:border-[#D89B24]/60 hover:shadow-xl">
+
+                        <a href="{{ url_for('safaris.property_detail', slug=property.slug) }}"
+                           class="relative block overflow-hidden bg-[#E9DDC8]">
+
+                            <div class="aspect-[5/4] overflow-hidden">
+                                {% if primary_media and primary_media.media_asset and primary_media.media_asset.browser_url %}
+                                    <img
+                                        src="{{ primary_media.media_asset.browser_url }}"
+                                        alt="{{ primary_media.alt_text or property.name }}"
+                                        loading="lazy"
+                                        class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+                                    >
+                                {% else %}
+                                    <div class="flex h-full min-h-64 items-center justify-center bg-[#12372A] px-8 text-center">
+                                        <span class="font-serif text-3xl text-white">
+                                            {{ property.name }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <span class="absolute left-5 top-5 rounded-full border border-white/30 bg-[#12372A]/90 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+                                {{ property.property_type|replace('_', ' ')|title }}
+                            </span>
+                        </a>
+
+                        <div class="flex flex-1 flex-col p-6 sm:p-7">
+                            <h3 class="font-serif text-2xl leading-snug text-[#1C2822] sm:text-3xl">
+                                {{ property.name }}
+                            </h3>
+
+                            {% if property.short_description %}
+                                <p class="mt-4 line-clamp-3 text-sm leading-7 text-[#66736B] sm:text-base">
+                                    {{ property.short_description }}
+                                </p>
+                            {% endif %}
+
+                            <div class="mt-auto pt-7">
+                                <a href="{{ url_for('safaris.property_detail', slug=property.slug) }}"
+                                   class="inline-flex items-center gap-3 border-b border-[#D89B24] pb-2 text-sm font-bold text-[#12372A] transition hover:gap-5 hover:text-[#1F5138]">
+                                    Discover this stay
+                                    <span aria-hidden="true">→</span>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="rounded-3xl border border-dashed border-[#66736B]/40 bg-[#F7F1E5]/60 px-6 py-16 text-center sm:px-12 sm:py-20">
+                <p class="text-xs font-bold uppercase tracking-[0.22em] text-[#5C6B32]">
+                    New experiences are taking shape
+                </p>
+
+                <h3 class="mt-5 font-serif text-3xl text-[#1C2822] sm:text-4xl">
+                    More stays are on the way
+                </h3>
+
+                <p class="mx-auto mt-4 max-w-xl text-base leading-8 text-[#66736B]">
+                    We are preparing the property collection for this destination.
+                    Check back soon to discover more ways to experience the wild.
+                </p>
+
+                <a href="{{ url_for('safaris.index') }}"
+                   class="mt-8 inline-flex items-center gap-3 rounded-full bg-[#12372A] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                    Explore other destinations
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+
+
+{# CLOSING BRAND STRIP #}
+<section class="bg-[#E9DDC8] py-14 sm:py-16">
+    <div class="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-5 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-16">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-[#5C6B32]">
+                The Uncharted Route
+            </p>
+            <p class="mt-3 font-serif text-2xl leading-snug text-[#1C2822] sm:text-3xl">
+                Not just somewhere to go. Somewhere to remember.
+            </p>
+        </div>
+
+        <a href="{{ url_for('safaris.index') }}"
+           class="inline-flex w-fit shrink-0 items-center gap-3 rounded-full border border-[#12372A]/25 px-6 py-3.5 text-sm font-bold text-[#12372A] transition hover:border-[#12372A] hover:bg-[#12372A] hover:text-white">
+            More safari destinations
+            <span aria-hidden="true">→</span>
+        </a>
+    </div>
+</section>
+
+{% endblock %}

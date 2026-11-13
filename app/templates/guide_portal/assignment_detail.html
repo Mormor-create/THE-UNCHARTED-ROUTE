@@ -1,0 +1,149 @@
+{% extends "guide_portal/base.html" %}
+
+{% block title %}Assignment Details | The Uncharted Route{% endblock %}
+{% block page_heading %}Assignment details{% endblock %}
+{% block page_description %}
+Review the experience information and manage your assignment.
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('guide_portal.assignments') }}"
+       class="text-sm font-semibold text-forest underline decoration-gold decoration-2 underline-offset-4 hover:text-leaf">
+        ← Back to assignments
+    </a>
+</div>
+
+{% set booking = assignment.booking if assignment.booking is defined else none %}
+
+<section class="overflow-hidden rounded-2xl border border-sand bg-white shadow-sm">
+    <div class="bg-forest p-6 text-white sm:p-8">
+        <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+                    Assignment #{{ assignment.id }}
+                </p>
+                <h2 class="mt-2 font-display text-2xl font-semibold sm:text-3xl">
+                    {% if booking and booking.experience %}
+                        {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Assigned experience' }}
+                    {% elif booking %}
+                        Booking #{{ booking.id }}
+                    {% else %}
+                        Experience assignment
+                    {% endif %}
+                </h2>
+            </div>
+
+            <span class="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
+                {{ assignment.status or 'Assigned' }}
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 p-6 sm:p-8 lg:grid-cols-2">
+        <div>
+            <h3 class="font-display text-xl font-semibold text-forest">Assignment information</h3>
+
+            <dl class="mt-5 space-y-4 text-sm">
+                <div>
+                    <dt class="text-muted">Assignment reference</dt>
+                    <dd class="mt-1 font-semibold text-ink">#{{ assignment.id }}</dd>
+                </div>
+
+                {% if assignment.role %}
+                    <div>
+                        <dt class="text-muted">Your role</dt>
+                        <dd class="mt-1 font-semibold text-ink">{{ assignment.role }}</dd>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <dt class="text-muted">Status</dt>
+                    <dd class="mt-1 font-semibold text-ink">{{ assignment.status or 'Not specified' }}</dd>
+                </div>
+
+                {% if assignment.notes %}
+                    <div>
+                        <dt class="text-muted">Coordinator's notes</dt>
+                        <dd class="mt-1 leading-6 text-ink">{{ assignment.notes }}</dd>
+                    </div>
+                {% endif %}
+            </dl>
+        </div>
+
+        <div>
+            <h3 class="font-display text-xl font-semibold text-forest">Experience information</h3>
+
+            {% if booking %}
+                <dl class="mt-5 space-y-4 text-sm">
+                    <div>
+                        <dt class="text-muted">Booking reference</dt>
+                        <dd class="mt-1 font-semibold text-ink">#{{ booking.id }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-muted">Experience</dt>
+                        <dd class="mt-1 font-semibold text-ink">
+                            {% if booking.experience %}
+                                {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Experience' }}
+                            {% else %}
+                                Experience booking
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-muted">Experience date</dt>
+                        <dd class="mt-1 font-semibold text-ink">
+                            {{ booking.experience_date.strftime('%A, %d %B %Y') if booking.experience_date and booking.experience_date.strftime is defined else booking.experience_date or 'To be confirmed' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-muted">Booking status</dt>
+                        <dd class="mt-1 font-semibold text-ink">{{ booking.status or 'Not specified' }}</dd>
+                    </div>
+
+                    <div class="pt-2">
+                        <a href="{{ url_for('guide_portal.booking_detail', booking_id=booking.id) }}"
+                           class="font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+                            Open booking details →
+                        </a>
+                    </div>
+                </dl>
+            {% else %}
+                <p class="mt-5 text-sm leading-6 text-muted">
+                    No linked booking details are available for this assignment.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if assignment.status and assignment.status|lower in ['assigned', 'pending', 'offered'] %}
+        <div class="border-t border-sand bg-cream/50 p-6 sm:p-8">
+            <h3 class="font-display text-xl font-semibold text-forest">Respond to assignment</h3>
+            <p class="mt-2 text-sm text-muted">
+                Accept the assignment to confirm your availability, or decline if you cannot take it.
+            </p>
+
+            <div class="mt-5 flex flex-wrap gap-3">
+                <form method="POST" action="{{ url_for('guide_portal.accept', assignment_id=assignment.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white hover:bg-leaf">
+                        Accept assignment
+                    </button>
+                </form>
+
+                <form method="POST"
+                      action="{{ url_for('guide_portal.decline', assignment_id=assignment.id) }}"
+                      onsubmit="return confirm('Are you sure you want to decline this assignment?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-semibold text-red-700 hover:bg-red-50">
+                        Decline assignment
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

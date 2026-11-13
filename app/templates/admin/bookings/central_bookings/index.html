@@ -1,0 +1,588 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Central Booking Management | The Uncharted Route{% endblock %}
+
+{% block content %}
+{% set type_icons = {
+    "experience": "sparkles",
+    "safari": "paw-print",
+    "stay": "bed-double",
+    "destination_journey": "map"
+} %}
+
+{% set type_routes = {
+    "experience": "/admin/booking/experiences/",
+    "safari": "/admin/booking/safaris/",
+    "stay": "/admin/booking/stays/",
+    "destination_journey": "/admin/booking/destinations/"
+} %}
+
+{% set status_colors = {
+    "pending": "bg-amber-100 text-amber-800",
+    "awaiting_payment": "bg-orange-100 text-orange-800",
+    "confirmed": "bg-emerald-100 text-emerald-800",
+    "in_progress": "bg-sky-100 text-sky-800",
+    "completed": "bg-blue-100 text-blue-800",
+    "cancelled": "bg-red-100 text-red-800",
+    "refunded": "bg-purple-100 text-purple-800",
+    "archived": "bg-stone-100 text-stone-700"
+} %}
+
+<div class="min-h-screen bg-[#F7F1E5]/40">
+    <div class="mx-auto max-w-[1900px] space-y-3 p-3 sm:p-5">
+
+        {# ================================================================
+           HEADER
+           ================================================================ #}
+        <header class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div class="min-w-0">
+                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#C96A2C]">
+                    Operations centre
+                </p>
+
+                <h1 class="mt-1 text-2xl font-bold tracking-tight text-[#12372A] sm:text-3xl">
+                    Central Booking Management
+                </h1>
+
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Manage all bookings and shared records in one place.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-2 sm:flex-row xl:w-[560px] xl:shrink-0">
+                <form method="GET"
+                      action="/admin/booking/"
+                      class="relative min-w-0 flex-1">
+                    <i data-lucide="search"
+                       class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#66736B]"></i>
+
+                    <input type="search"
+                           name="q"
+                           value="{{ request.args.get('q', '') }}"
+                           placeholder="Search bookings, customers, reference..."
+                           class="w-full rounded-lg border border-[#E9DDC8] bg-white py-2.5 pl-9 pr-3 text-xs text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10">
+                </form>
+
+                <div class="flex shrink-0 gap-2">
+                    <a href="/admin/booking/"
+                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1F5138] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#12372A]">
+                        <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                        Bookings
+                    </a>
+
+                    <a href="/admin/booking-requests/"
+                       class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E9DDC8] bg-white px-3 py-2.5 text-xs font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                        <i data-lucide="inbox" class="h-4 w-4"></i>
+                        Booking Requests
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        {# ================================================================
+           SUMMARY CARDS
+           ================================================================ #}
+        <section class="rounded-xl border border-[#E9DDC8] bg-white p-3 sm:p-4">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+
+                {% set cards = [
+                    ("Total Bookings", dashboard.total_bookings|default(0), "calendar-days", "#1757A6", "#E7F1FC"),
+                    ("Awaiting Assignment", dashboard.awaiting_assignment|default(0), "clock-3", "#C58A16", "#FCF2D9"),
+                    ("Assigned", dashboard.assigned_count|default(0), "users", "#16845B", "#E3F5EC"),
+                    ("Open Requests", dashboard.open_requests|default(0), "inbox", "#8253C7", "#F1E9FC"),
+                    ("Staff Tasks", dashboard.staff_tasks|default(0), "list-checks", "#0D8279", "#E2F5F2")
+                ] %}
+
+                {% for label, value, icon, accent, tint in cards %}
+                <article class="min-w-0 rounded-lg p-3.5 transition hover:shadow-sm"
+                         style="background-color: {{ tint }};">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/80"
+                              style="color: {{ accent }};">
+                            <i data-lucide="{{ icon }}" class="h-5 w-5"></i>
+                        </span>
+
+                        <div class="min-w-0">
+                            <p class="text-2xl font-bold leading-none text-[#12372A]">
+                                {{ value }}
+                            </p>
+                            <p class="mt-2 text-[11px] font-medium text-[#66736B]">
+                                {{ label }}
+                            </p>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+
+            </div>
+        </section>
+
+        {# ================================================================
+           MAIN CONTENT + RIGHT OPERATIONS COLUMN
+           ================================================================ #}
+        <div class="grid grid-cols-1 items-start gap-3 2xl:grid-cols-[minmax(0,1fr)_294px]">
+
+            {# LEFT COLUMN: bookings and bottom statistics #}
+            <main class="min-w-0 space-y-3">
+
+                {# Booking types #}
+                <section class="rounded-xl border border-[#E9DDC8] bg-white p-4 sm:p-5">
+                    <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="text-sm font-bold text-[#12372A]">
+                                Bookings by Type
+                            </h2>
+                            <p class="mt-1 text-xs text-[#66736B]">
+                                Open the dedicated management area for each service.
+                            </p>
+                        </div>
+
+                        <span class="rounded-md bg-[#F7F1E5] px-2.5 py-1.5 text-[10px] font-semibold text-[#1F5138]">
+                            {{ dashboard.total_bookings|default(0) }} total bookings
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 divide-y divide-[#E9DDC8] sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4 xl:divide-x xl:divide-[#E9DDC8]">
+                        {% for item in dashboard.booking_types|default([], true) %}
+                        <a href="{{ type_routes.get(item.key, '/admin/booking/') }}"
+                           class="group flex min-w-0 items-center gap-3 rounded-lg p-3 transition hover:bg-[#F7F1E5]/60 focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30">
+
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
+                                {% if item.key == 'experience' %}bg-[#F0E5FC] text-[#8751C6]
+                                {% elif item.key == 'safari' %}bg-[#DDF3E8] text-[#16845B]
+                                {% elif item.key == 'stay' %}bg-[#E2EDFF] text-[#2466B8]
+                                {% else %}bg-[#FCE7D9] text-[#C96A2C]{% endif %}">
+                                <i data-lucide="{{ type_icons.get(item.key, 'calendar') }}"
+                                   class="h-5 w-5"></i>
+                            </span>
+
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-xs font-semibold text-[#12372A] group-hover:text-[#C96A2C]">
+                                    {{ item.label }}
+                                </span>
+
+                                <span class="mt-1 block text-xl font-bold text-[#12372A]">
+                                    {{ item.count }}
+                                </span>
+
+                                <span class="mt-1 block text-[10px] text-[#66736B]">
+                                    {{ ((item.count / dashboard.total_bookings) * 100)|round|int if dashboard.total_bookings else 0 }}% of total
+                                </span>
+                            </span>
+
+                            <i data-lucide="chevron-right"
+                               class="h-4 w-4 shrink-0 text-[#66736B] transition group-hover:text-[#C96A2C]"></i>
+                        </a>
+                        {% else %}
+                        <div class="col-span-full rounded-lg bg-[#F7F1E5]/60 p-5 text-center">
+                            <p class="text-sm font-semibold text-[#12372A]">
+                                Booking type statistics are not available yet.
+                            </p>
+                            <p class="mt-1 text-xs text-[#66736B]">
+                                The dashboard route should provide counts for experiences, safaris, stays and destination journeys.
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                {# Recent bookings #}
+                <section class="overflow-hidden rounded-xl border border-[#E9DDC8] bg-white">
+                    <div class="flex flex-col gap-2 border-b border-[#E9DDC8] p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-[#12372A]">
+                                Recent Bookings
+                            </h2>
+                            <p class="mt-1 text-xs text-[#66736B]">
+                                Latest records across all four service types.
+                            </p>
+                        </div>
+
+                        <a href="/admin/booking/"
+                           class="inline-flex items-center gap-1 text-xs font-semibold text-[#1F5138] hover:text-[#C96A2C]">
+                            View all bookings
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                        </a>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[1000px] text-left text-[11px]">
+                            <thead class="bg-[#F7F1E5]/70 text-[#66736B]">
+                                <tr>
+                                    <th class="px-3 py-3 font-semibold">Reference</th>
+                                    <th class="px-3 py-3 font-semibold">Type</th>
+                                    <th class="px-3 py-3 font-semibold">Customer</th>
+                                    <th class="px-3 py-3 font-semibold">Package / Property / Itinerary</th>
+                                    <th class="px-3 py-3 font-semibold">Dates</th>
+                                    <th class="px-3 py-3 font-semibold">Status</th>
+                                    <th class="px-3 py-3 font-semibold">Assignment</th>
+                                    <th class="px-3 py-3 font-semibold">Source</th>
+                                    <th class="px-3 py-3 font-semibold">Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-[#E9DDC8]">
+                                {% for booking in dashboard.recent_bookings|default([], true) %}
+                                <tr class="transition hover:bg-[#F7F1E5]/40">
+                                    <td class="whitespace-nowrap px-3 py-3.5 font-bold text-[#12372A]">
+                                        {{ booking.reference|default(booking.booking_reference, true) }}
+                                    </td>
+
+                                    <td class="px-3 py-3.5">
+                                        <span class="inline-flex rounded-md bg-[#F7F1E5] px-2 py-1 font-semibold text-[#1F5138]">
+                                            {{ booking.type_label|default(booking.booking_type|replace('_', ' ')|title, true) }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-3 py-3.5">
+                                        <p class="font-semibold text-[#12372A]">
+                                            {{ booking.customer|default(booking.full_name, true) }}
+                                        </p>
+                                        <p class="mt-1 text-[10px] text-[#66736B]">
+                                            {{ booking.traveller_count|default(booking.total_guests, true)|default(0, true) }}
+                                            traveller{{ 's' if (booking.traveller_count|default(booking.total_guests, true)|default(0, true)) != 1 else '' }}
+                                        </p>
+                                    </td>
+
+                                    <td class="max-w-[220px] px-3 py-3.5">
+                                        <p class="truncate font-medium text-[#1C2822]">
+                                            {{ booking.service_name|default('Service details pending', true) }}
+                                        </p>
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-3 py-3.5 text-[#66736B]">
+                                        {% set booking_start = booking.start_date|default(booking.experience_date, true) %}
+                                        {% set booking_end = booking.end_date %}
+
+                                        {% if booking_start %}
+                                            {{ booking_start.strftime("%d %b %Y") }}
+                                            {% if booking_end %}
+                                            <p class="mt-1">{{ booking_end.strftime("%d %b %Y") }}</p>
+                                            {% endif %}
+                                        {% else %}
+                                            Dates not set
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="px-3 py-3.5">
+                                        {% set current_status = booking.status|default('pending', true) %}
+                                        <span class="inline-flex whitespace-nowrap rounded-full px-2 py-1 text-[10px] font-bold {{ status_colors.get(current_status, 'bg-stone-100 text-stone-700') }}">
+                                            {{ current_status.replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-3 py-3.5">
+                                        {% if booking.assigned|default(false) %}
+                                        <span class="inline-flex items-center gap-1 text-[#1F5138]">
+                                            <i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>
+                                            Assigned
+                                        </span>
+                                        {% else %}
+                                        <span class="whitespace-nowrap text-[#C96A2C]">
+                                            Awaiting assignment
+                                        </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-3 py-3.5 text-[#66736B]">
+                                        {{ booking.source|default('website', true)|replace('_', ' ')|title }}
+                                    </td>
+
+                                    <td class="px-3 py-3.5">
+                                        <a href="/admin/booking/{{ booking.id }}"
+                                           aria-label="View booking {{ booking.reference|default(booking.booking_reference, true) }}"
+                                           class="inline-flex rounded-md p-1.5 text-[#1F5138] transition hover:bg-[#E9DDC8]">
+                                            <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="9" class="px-6 py-12 text-center">
+                                        <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#1F5138]">
+                                            <i data-lucide="calendar-days" class="h-5 w-5"></i>
+                                        </span>
+                                        <p class="mt-3 text-sm font-semibold text-[#12372A]">
+                                            No bookings to display yet
+                                        </p>
+                                        <p class="mt-1 text-xs text-[#66736B]">
+                                            Create a central booking to see it appear here.
+                                        </p>
+                                        <a href="/admin/booking/create"
+                                           class="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#1F5138] px-4 py-2 text-xs font-semibold text-white hover:bg-[#12372A]">
+                                            <i data-lucide="plus" class="h-4 w-4"></i>
+                                            Create booking
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                {# ========================================================
+                   STATISTICS AT THE BOTTOM OF THE MAIN COLUMN
+                   ======================================================== #}
+                <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
+
+                    {# Booking status #}
+                    <section class="rounded-xl border border-[#E9DDC8] bg-white p-4">
+                        <h2 class="text-xs font-bold text-[#12372A]">
+                            Booking Status Overview
+                        </h2>
+
+                        {% set status_items = dashboard.status_overview|default([], true) %}
+                        {% set status_total = dashboard.total_bookings|default(0) %}
+
+                        <div class="mt-4 space-y-3">
+                            {% for item in status_items %}
+                            <div>
+                                <div class="mb-1 flex items-center justify-between gap-2 text-[10px]">
+                                    <span class="text-[#66736B]">{{ item.label }}</span>
+                                    <span class="font-semibold text-[#12372A]">
+                                        {{ item.count }}
+                                        <span class="font-normal text-[#66736B]">
+                                            ({{ item.percentage }}%)
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="h-1.5 overflow-hidden rounded-full bg-[#F7F1E5]">
+                                    <div class="h-full rounded-full bg-[#1F5138]"
+                                         style="width: {{ [item.percentage|default(0)|float, 100]|min }}%">
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-[11px] leading-5 text-[#66736B]">
+                                Status statistics will appear when the dashboard route supplies status counts.
+                            </p>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    {# Booking source #}
+                    <section class="rounded-xl border border-[#E9DDC8] bg-white p-4">
+                        <h2 class="text-xs font-bold text-[#12372A]">
+                            Bookings by Source
+                        </h2>
+
+                        <div class="mt-4 space-y-4">
+                            {% for item in dashboard.source_overview|default([], true) %}
+                            <div>
+                                <div class="mb-1 flex items-center justify-between gap-2 text-[10px]">
+                                    <span class="text-[#66736B]">{{ item.label }}</span>
+                                    <span class="font-semibold text-[#12372A]">
+                                        {{ item.count }} ({{ item.percentage }}%)
+                                    </span>
+                                </div>
+                                <div class="h-1.5 overflow-hidden rounded-full bg-[#F7F1E5]">
+                                    <div class="h-full rounded-full bg-[#D89B24]"
+                                         style="width: {{ [item.percentage|default(0)|float, 100]|min }}%">
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-[11px] leading-5 text-[#66736B]">
+                                Source statistics will appear when source counts are supplied by the dashboard route.
+                            </p>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    {# Upcoming bookings #}
+                    <section class="rounded-xl border border-[#E9DDC8] bg-white p-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <h2 class="text-xs font-bold text-[#12372A]">
+                                Upcoming Follow-ups
+                            </h2>
+                            <i data-lucide="calendar-clock" class="h-4 w-4 text-[#1F5138]"></i>
+                        </div>
+
+                        <p class="mt-1 text-[10px] text-[#66736B]">
+                            Bookings with upcoming start dates.
+                        </p>
+
+                        <div class="mt-3 space-y-2">
+                            {% for booking in dashboard.upcoming_bookings|default([], true) %}
+                            <a href="/admin/booking/{{ booking.id }}"
+                               class="flex items-start gap-2 rounded-lg border border-[#E9DDC8] p-2.5 transition hover:bg-[#F7F1E5]/60">
+                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#E9DDC8] text-[#12372A]">
+                                    <i data-lucide="calendar-clock" class="h-4 w-4"></i>
+                                </span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block truncate text-[11px] font-semibold text-[#12372A]">
+                                        {{ booking.customer|default(booking.full_name, true) }}
+                                    </span>
+                                    {% if booking.start_date %}
+                                    <span class="mt-1 block text-[10px] text-[#66736B]">
+                                        {{ booking.start_date.strftime("%d %b %Y") }}
+                                    </span>
+                                    {% endif %}
+                                    <span class="mt-1 block text-[10px] text-[#66736B]">
+                                        {{ booking.type_label|default(booking.booking_type|replace('_', ' ')|title, true) }}
+                                    </span>
+                                </span>
+                                <i data-lucide="chevron-right" class="mt-1 h-3.5 w-3.5 shrink-0 text-[#66736B]"></i>
+                            </a>
+                            {% else %}
+                            <p class="rounded-lg bg-[#F7F1E5] p-3 text-[11px] leading-5 text-[#66736B]">
+                                No upcoming bookings found.
+                            </p>
+                            {% endfor %}
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            {# ============================================================
+               RIGHT COLUMN: ALL OPERATIONS STAY HERE
+               ============================================================ #}
+            <aside class="min-w-0 space-y-3">
+
+                {# Shared records #}
+                <section class="rounded-xl border border-[#E9DDC8] bg-white p-3.5">
+                    <h2 class="text-sm font-bold text-[#12372A]">
+                        Shared Records
+                    </h2>
+                    <p class="mt-1 text-[11px] leading-5 text-[#66736B]">
+                        Records shared across all booking types.
+                    </p>
+
+                    {% set shared = [
+                        ("Add-ons", "Package extras and upgrades", dashboard.shared_counts.addons|default(0), "/admin/addon-catalogue/", "puzzle", "#DDF3E8", "#16845B"),
+                        ("Payments", "Transactions and refunds", dashboard.shared_counts.payments|default(0), "/admin/booking-payments/", "wallet-cards", "#DDF3E8", "#16845B"),
+                        ("Documents", "Travel documents and receipts", dashboard.shared_counts.documents|default(0), "/admin/booking-documents/", "file-text", "#E2EDFF", "#2466B8"),
+                        ("Travellers", "Customer and traveller details", dashboard.shared_counts.travellers|default(0), "/admin/booking-travellers/", "users", "#E2EDFF", "#2466B8"),
+                        ("Notes & Audit Trail", "Internal notes and activity history", dashboard.shared_counts.notes|default(0), "/admin/booking-notes/", "clipboard-list", "#FCF2D9", "#C58A16")
+                    ] %}
+
+                    <div class="mt-3 space-y-1.5">
+                        {% for label, description, count, href, icon, tint, accent in shared %}
+                        <a href="{{ href }}"
+                           class="flex items-center gap-2 rounded-lg border border-[#E9DDC8] p-2.5 transition hover:border-[#1F5138]/40 hover:bg-[#F7F1E5]/50">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                                  style="background-color: {{ tint }}; color: {{ accent }};">
+                                <i data-lucide="{{ icon }}" class="h-4 w-4"></i>
+                            </span>
+
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-[11px] font-bold text-[#12372A]">
+                                    {{ label }}
+                                </span>
+                                <span class="mt-0.5 block text-[10px] leading-4 text-[#66736B]">
+                                    {{ description }}
+                                </span>
+                            </span>
+
+                            <span class="text-[11px] font-bold text-[#12372A]">
+                                {{ count }}
+                            </span>
+
+                            <i data-lucide="chevron-right"
+                               class="h-3.5 w-3.5 shrink-0 text-[#66736B]"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                {# Quick actions #}
+                <section class="rounded-xl border border-[#E9DDC8] bg-white p-3.5">
+                    <h2 class="text-sm font-bold text-[#12372A]">
+                        Quick Actions
+                    </h2>
+                    <p class="mt-1 text-[11px] text-[#66736B]">
+                        Shortcuts for everyday operations.
+                    </p>
+
+                    <div class="mt-3 space-y-2">
+                        <a href="/admin/booking/create"
+                           class="flex items-center justify-center gap-2 rounded-lg bg-[#1F5138] px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-[#12372A]">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            Create New Booking
+                        </a>
+
+                        <a href="/admin/booking-requests/"
+                           class="flex items-center justify-center gap-2 rounded-lg border border-[#E9DDC8] px-3 py-2.5 text-xs font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                            <i data-lucide="inbox" class="h-4 w-4"></i>
+                            Submit Booking Request
+                        </a>
+
+                        <a href="/admin/addon-catalogue/create"
+                           class="flex items-center justify-center gap-2 rounded-lg border border-[#E9DDC8] px-3 py-2.5 text-xs font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                            <i data-lucide="puzzle" class="h-4 w-4"></i>
+                            Add Add-on
+                        </a>
+
+                        <a href="/admin/booking-payments/create"
+                           class="flex items-center justify-center gap-2 rounded-lg border border-[#E9DDC8] px-3 py-2.5 text-xs font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                            <i data-lucide="wallet" class="h-4 w-4"></i>
+                            Record Payment
+                        </a>
+                    </div>
+                </section>
+
+                {# Recent activity #}
+                <section class="rounded-xl border border-[#E9DDC8] bg-white p-3.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-sm font-bold text-[#12372A]">
+                            Recent Activity
+                        </h2>
+                        <span class="text-[9px] font-semibold uppercase tracking-wide text-[#66736B]">
+                            Latest
+                        </span>
+                    </div>
+
+                    <p class="mt-1 text-[11px] text-[#66736B]">
+                        Recently created central bookings.
+                    </p>
+
+                    <div class="mt-3 space-y-3">
+                        {% for booking in dashboard.recent_bookings[:5] %}
+                        <a href="/admin/booking/{{ booking.id }}"
+                           class="flex items-start gap-2.5 border-b border-[#E9DDC8] pb-3 last:border-0 last:pb-0">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DDF3E8] text-[#1F5138]">
+                                <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                            </span>
+
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-[11px] font-semibold text-[#12372A]">
+                                    {{ booking.reference|default(booking.booking_reference, true) }}
+                                    ·
+                                    {{ booking.status|default('pending', true)|replace('_', ' ')|title }}
+                                </span>
+
+                                <span class="mt-1 block text-[10px] text-[#66736B]">
+                                    {{ booking.customer|default(booking.full_name, true) }}
+                                    ·
+                                    {{ booking.type_label|default(booking.booking_type|replace('_', ' ')|title, true) }}
+                                </span>
+
+                                {% if booking.created_at %}
+                                <span class="mt-1 block text-[10px] text-[#66736B]">
+                                    {{ booking.created_at.strftime("%d %b %Y, %H:%M") }}
+                                </span>
+                                {% endif %}
+                            </span>
+                        </a>
+                        {% else %}
+                        <p class="rounded-lg bg-[#F7F1E5] p-3 text-[11px] leading-5 text-[#66736B]">
+                            Activity will appear here when bookings are created.
+                        </p>
+                        {% endfor %}
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        {# Footer #}
+        <footer class="flex flex-col gap-2 border-t border-[#E9DDC8] py-3 text-[10px] text-[#66736B] sm:flex-row sm:items-center sm:justify-between">
+            <p class="flex items-center gap-2">
+                <i data-lucide="shield-check" class="h-4 w-4 shrink-0 text-[#1F5138]"></i>
+                One central booking architecture across Experiences, Safaris, Stays and Destination Journeys.
+            </p>
+            <p class="font-medium">Explore. Experience. Remember.</p>
+        </footer>
+    </div>
+</div>
+{% endblock %}

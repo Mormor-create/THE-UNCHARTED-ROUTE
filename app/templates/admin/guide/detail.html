@@ -1,0 +1,908 @@
+{# =============================================================================
+   The Uncharted Route
+   Admin — Guide Detail
+   templates/admin/guide/detail.html
+   ============================================================================= #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ guide.user.full_name if guide.user else 'Guide' }} | Guide Details
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    {# =========================================================================
+       PAGE HEADER
+       ========================================================================= #}
+
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+        <div class="flex items-start gap-4">
+
+            <a href="{{ url_for('admin_guide.index') }}"
+               class="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-900"
+               title="Back to Guides">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 19l-7-7 7-7"/>
+                </svg>
+
+            </a>
+
+            <div>
+
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+
+                    <a href="{{ url_for('admin.dashboard') }}"
+                       class="hover:text-gray-900">
+                        Admin
+                    </a>
+
+                    <span>/</span>
+
+                    <a href="{{ url_for('admin_guide.index') }}"
+                       class="hover:text-gray-900">
+                        Guides
+                    </a>
+
+                    <span>/</span>
+
+                    <span class="text-gray-700">
+                        Details
+                    </span>
+
+                </div>
+
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+                    {{ guide.user.full_name if guide.user else 'Unnamed Guide' }}
+                </h1>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    Guide profile, operational information, assignments, and performance.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {# Header Actions #}
+
+        <div class="flex flex-wrap gap-2">
+
+            <a href="{{ url_for('admin_guide.edit', guide_id=guide.id) }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.5-9.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 8.5-8.5z"/>
+                </svg>
+
+                Edit Guide
+            </a>
+
+            <a href="{{ url_for('admin_guide.assignments', guide_id=guide.id) }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800">
+
+                Assignments
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       FLASH MESSAGES
+       ========================================================================= #}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="space-y-3">
+
+                {% for category, message in messages %}
+
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category in ['danger', 'error'] %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% elif category == 'warning' %}
+                            border-yellow-200 bg-yellow-50 text-yellow-800
+                        {% else %}
+                            border-blue-200 bg-blue-50 text-blue-800
+                        {% endif %}">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    {# =========================================================================
+       PROFILE OVERVIEW
+       ========================================================================= #}
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+        {# ---------------------------------------------------------------------
+           Guide Identity Card
+           --------------------------------------------------------------------- #}
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm xl:col-span-2">
+
+            <div class="flex flex-col gap-6 sm:flex-row">
+
+                {# Avatar #}
+
+                <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-2xl font-bold text-gray-600">
+
+                    {% if guide.user and guide.user.profile_image %}
+
+                        <img src="{{ url_for(
+                            'static',
+                            filename='uploads/profiles/' ~ guide.user.profile_image
+                        ) }}"
+                             alt="{{ guide.user.full_name }}"
+                             class="h-full w-full object-cover">
+
+                    {% else %}
+
+                        {{ guide.user.first_name[:1]|upper if guide.user and guide.user.first_name else 'G' }}
+
+                    {% endif %}
+
+                </div>
+
+                <div class="min-w-0 flex-1">
+
+                    <div class="flex flex-wrap items-center gap-3">
+
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            {{ guide.user.full_name if guide.user else 'Unnamed Guide' }}
+                        </h2>
+
+                        {% set guide_status = guide.status or 'Unknown' %}
+
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
+                            {% if guide_status == 'Active' %}
+                                bg-green-100 text-green-700
+                            {% elif guide_status == 'On Leave' %}
+                                bg-yellow-100 text-yellow-700
+                            {% elif guide_status == 'Suspended' %}
+                                bg-red-100 text-red-700
+                            {% else %}
+                                bg-gray-100 text-gray-600
+                            {% endif %}">
+
+                            {{ guide_status }}
+
+                        </span>
+
+                    </div>
+
+                    <p class="mt-2 text-sm text-gray-500">
+                        {{ guide.guide_type or 'Guide' }}
+
+                        {% if guide.employee_number %}
+                            · Employee #{{ guide.employee_number }}
+                        {% endif %}
+                    </p>
+
+
+                    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                                Email
+                            </p>
+
+                            <p class="mt-1 break-all text-sm font-medium text-gray-800">
+                                {{ guide.user.email if guide.user else '—' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                                Phone
+                            </p>
+
+                            <p class="mt-1 text-sm font-medium text-gray-800">
+                                {{ guide.user.phone if guide.user and guide.user.phone else '—' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                                Department
+                            </p>
+
+                            <p class="mt-1 text-sm font-medium text-gray-800">
+                                {{ guide.department or '—' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                                Job Title
+                            </p>
+
+                            <p class="mt-1 text-sm font-medium text-gray-800">
+                                {{ guide.job_title or '—' }}
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# ---------------------------------------------------------------------
+           Rating Card
+           --------------------------------------------------------------------- #}
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+            <p class="text-sm font-medium text-gray-500">
+                Guide Rating
+            </p>
+
+            <div class="mt-3 flex items-end gap-2">
+
+                <span class="text-4xl font-bold text-gray-900">
+                    {% if guide.rating is not none %}
+                        {{ "%.1f"|format(guide.rating) }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </span>
+
+                {% if guide.rating is not none %}
+                    <span class="mb-1 text-sm text-gray-500">
+                        / 5.0
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <div class="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
+
+                <div class="h-full rounded-full bg-gray-900"
+                     style="width: {{ ((guide.rating or 0) / 5 * 100)|round|int }}%;"></div>
+
+            </div>
+
+            <p class="mt-3 text-xs text-gray-500">
+                Based on available guide performance and review data.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       OPERATIONAL STATISTICS
+       ========================================================================= #}
+
+    {% set stats = statistics or {} %}
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+            <p class="text-sm text-gray-500">
+                Total Assignments
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-gray-900">
+                {{ stats.get('total_assignments', assignments|length if assignments else 0) }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+            <p class="text-sm text-gray-500">
+                Active Assignments
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-gray-900">
+                {{ stats.get('active_assignments', 0) }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+            <p class="text-sm text-gray-500">
+                Completed
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-gray-900">
+                {{ stats.get('completed_assignments', 0) }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+            <p class="text-sm text-gray-500">
+                Completion Rate
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-gray-900">
+                {{ stats.get('completion_rate', 0) }}%
+            </p>
+
+        </div>
+
+    </div>
+
+    {# =========================================================================
+       MAIN CONTENT
+       ========================================================================= #}
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+        {# =====================================================================
+           LEFT / MAIN COLUMN
+           ===================================================================== #}
+
+        <div class="space-y-6 xl:col-span-2">
+
+            {# -----------------------------------------------------------------
+               Professional Information
+               ----------------------------------------------------------------- #}
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <div class="border-b border-gray-100 pb-4">
+
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Professional Information
+                    </h2>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        Guide qualifications and operational profile.
+                    </p>
+
+                </div>
+
+
+                <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Guide Type
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {{ guide.guide_type or '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Employment Type
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {{ guide.employment_type or '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Hire Date
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {% if guide.hire_date %}
+                                {{ guide.hire_date.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            End Date
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {% if guide.end_date %}
+                                {{ guide.end_date.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# -----------------------------------------------------------------
+               Skills & Languages
+               ----------------------------------------------------------------- #}
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Skills
+                    </h2>
+
+                    <div class="mt-4 text-sm leading-7 text-gray-600 whitespace-pre-line">
+                        {{ guide.skills or 'No skills have been recorded.' }}
+                    </div>
+
+                </div>
+
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Languages
+                    </h2>
+
+                    <div class="mt-4 text-sm leading-7 text-gray-600 whitespace-pre-line">
+                        {{ guide.languages or 'No languages have been recorded.' }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# -----------------------------------------------------------------
+               Qualifications & Certifications
+               ----------------------------------------------------------------- #}
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+                    <div>
+
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Qualifications
+                        </h2>
+
+                        <div class="mt-4 text-sm leading-7 text-gray-600 whitespace-pre-line">
+                            {{ guide.qualifications or 'No qualifications have been recorded.' }}
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Certifications
+                        </h2>
+
+                        <div class="mt-4 text-sm leading-7 text-gray-600 whitespace-pre-line">
+                            {{ guide.certifications or 'No certifications have been recorded.' }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# -----------------------------------------------------------------
+               Current Assignments
+               ----------------------------------------------------------------- #}
+
+            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+
+                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+
+                    <div>
+
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Current Assignments
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Active operational assignments for this guide.
+                        </p>
+
+                    </div>
+
+                    <a href="{{ url_for('admin_guide.assignments', guide_id=guide.id) }}"
+                       class="text-sm font-semibold text-gray-700 hover:text-gray-900">
+                        View all →
+                    </a>
+
+                </div>
+
+                {% if assignments %}
+                    <div class="divide-y divide-gray-100">
+                        {% for assignment in assignments[:5] %}
+                            <div class="px-6 py-4">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">
+                                            {% if assignment.booking %}
+                                                {{ assignment.booking.booking_reference }}
+                                            {% else %}
+                                                Booking #{{ assignment.booking_id }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="mt-1 text-sm text-gray-500">
+                                            {% if assignment.booking and assignment.booking.experiences %}
+                                                {{ assignment.booking.experiences.name }}
+                                            {% else %}
+                                                Booking assignment
+                                            {% endif %}
+
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="flex items-center gap-3">
+
+                                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                                            {{ assignment.role or 'Guide' }}
+                                        </span>
+
+                                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                            {% if assignment.status == 'Completed' %}
+                                                bg-green-100 text-green-700
+                                            {% elif assignment.status == 'In Progress' %}
+                                                bg-blue-100 text-blue-700
+                                            {% elif assignment.status == 'Declined' or assignment.status == 'Cancelled' %}
+                                                bg-red-100 text-red-700
+                                            {% else %}
+                                                bg-yellow-100 text-yellow-700
+                                            {% endif %}">
+
+                                            {{ assignment.status or 'Assigned' }}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="px-6 py-10 text-center">
+
+                        <p class="text-sm text-gray-500">
+                            This guide currently has no assignments.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        {# =====================================================================
+           RIGHT SIDEBAR
+           ===================================================================== #}
+
+        <div class="space-y-6">
+
+            {# -----------------------------------------------------------------
+               Quick Actions
+               ----------------------------------------------------------------- #}
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Quick Actions
+                </h2>
+
+                <div class="mt-4 space-y-2">
+
+                    <a href="{{ url_for('admin_guide.schedule', guide_id=guide.id) }}"
+                       class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+
+                        <span>
+                            Manage Schedule
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+                    <a href="{{ url_for('admin_guide.availability', guide_id=guide.id) }}"
+                       class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+
+                        <span>
+                            Manage Availability
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+                    <a href="{{ url_for('admin_guide.assignments', guide_id=guide.id) }}"
+                       class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+
+                        <span>
+                            View Assignments
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+                    <a href="{{ url_for('admin_guide.performance', guide_id=guide.id) }}"
+                       class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+
+                        <span>
+                            View Performance
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+                    <a href="{{ url_for('admin_guide.bookings', guide_id=guide.id) }}"
+                       class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+
+                        <span>
+                            View Bookings
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            {# -----------------------------------------------------------------
+               Emergency Contact
+               ----------------------------------------------------------------- #}
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Emergency Contact
+                </h2>
+
+                <div class="mt-4 space-y-4">
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Name
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {{ guide.emergency_contact_name or '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Phone
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {{ guide.emergency_contact_phone or '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Relationship
+                        </p>
+
+                        <p class="mt-1 text-sm font-medium text-gray-800">
+                            {{ guide.emergency_contact_relationship or '—' }}
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            {# -----------------------------------------------------------------
+               Notes
+               ----------------------------------------------------------------- #}
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Notes
+                </h2>
+
+                <div class="mt-4 space-y-5">
+
+                    <div>
+
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Guide Notes
+                        </p>
+
+                        <p class="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
+                            {{ guide.notes or 'No notes recorded.' }}
+                        </p>
+
+                    </div>
+
+
+                    {% if guide.internal_notes %}
+
+                        <div class="border-t border-gray-100 pt-5">
+
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+                                Internal Notes
+                            </p>
+
+                            <p class="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
+                                {{ guide.internal_notes }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            {# -----------------------------------------------------------------
+               Account Information
+               ----------------------------------------------------------------- #}
+
+            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+
+                <h2 class="text-sm font-semibold text-gray-900">
+                    Account Information
+                </h2>
+
+                <dl class="mt-4 space-y-3 text-sm">
+
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-gray-500">
+                            Username
+                        </dt>
+
+                        <dd class="font-medium text-gray-800">
+                            {{ guide.user.username if guide.user else '—' }}
+                        </dd>
+                    </div>
+
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-gray-500">
+                            Verified
+                        </dt>
+
+                        <dd class="font-medium text-gray-800">
+                            {% if guide.user and guide.user.is_verified %}
+                                Yes
+                            {% else %}
+                                No
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-gray-500">
+                            Account Status
+                        </dt>
+
+                        <dd class="font-medium text-gray-800">
+                            {% if guide.user and guide.user.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                </dl>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       FOOTER NAVIGATION
+       ========================================================================= #}
+
+    <div class="flex flex-col gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+
+        <a href="{{ url_for('admin_guide.index') }}"
+           class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-4 w-4"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 19l-7-7 7-7"/>
+            </svg>
+
+            Back to Guides
+
+        </a>
+
+
+        <div class="flex flex-wrap gap-2">
+
+            <a href="{{ url_for('admin_guide.schedule', guide_id=guide.id) }}"
+               class="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                Schedule
+            </a>
+
+            <a href="{{ url_for('admin_guide.performance', guide_id=guide.id) }}"
+               class="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                Performance
+            </a>
+
+            <a href="{{ url_for('admin_guide.bookings', guide_id=guide.id) }}"
+               class="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-800">
+                Bookings
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

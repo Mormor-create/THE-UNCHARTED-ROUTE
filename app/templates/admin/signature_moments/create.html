@@ -1,0 +1,171 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Create Signature Moment | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+    <div>
+        <a href="{{ url_for('admin_signature_moments.index') }}"
+           class="text-sm font-semibold text-[#5C6B32] hover:text-[#12372A]">
+            <i class="bi bi-arrow-left mr-1"></i> Back to Signature Moments
+        </a>
+
+        <p class="mt-5 text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">
+            Experience Management
+        </p>
+        <h1 class="mt-2 text-3xl font-bold text-[#1C2822]">Create Signature Moment</h1>
+        <p class="mt-2 text-sm text-[#66736B]">
+            Add a distinctive highlight to an existing experience.
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="rounded-xl border px-4 py-3 text-sm
+                    {% if category == 'success' %}border-green-200 bg-green-50 text-green-800
+                    {% else %}border-red-200 bg-red-50 text-red-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-[#1C2822]">Basic Information</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Identify the experience and the moment.</p>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    {{ form.experience_id.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.experience_id(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+                    {% for error in form.experience_id.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="md:col-span-2">
+                    {{ form.title.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.title(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none", placeholder="e.g. Sunrise Over the Savannah") }}
+                    {% for error in form.title.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.moment_type.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.moment_type(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+                </div>
+
+                <div>
+                    {{ form.emotional_impact.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.emotional_impact(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-[#1C2822]">Descriptions</h2>
+
+            <div class="mt-6 space-y-5">
+                <div>
+                    {{ form.short_description.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.short_description(rows="3", class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none", placeholder="A concise introduction to this moment...") }}
+                    {% for error in form.short_description.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.full_description.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.full_description(rows="6", class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none", placeholder="Describe what guests experience and why this moment is memorable...") }}
+                    {% for error in form.full_description.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-[#1C2822]">Timing and Season</h2>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
+                <div>
+                    {{ form.expected_time.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.expected_time(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none", placeholder="e.g. Early morning") }}
+                </div>
+
+                <div>
+                    {{ form.estimated_duration.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.estimated_duration(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none", placeholder="Minutes") }}
+                    {% for error in form.estimated_duration.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.best_season.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.best_season(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none", placeholder="e.g. June to October") }}
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-[#1C2822]">Media</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Choose an image already available in the Media Library.</p>
+
+            <div class="mt-5">
+                {{ form.hero_media_id.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.hero_media_id(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-[#1C2822]">Display Settings</h2>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div>
+                    {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.display_order(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+                    {% for error in form.display_order.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="flex flex-col justify-center gap-4">
+                    <label class="flex items-center gap-3 text-sm font-medium text-[#1C2822]">
+                        {{ form.photography_recommended(class="h-4 w-4 rounded border-[#D8CBB4] text-[#1F5138]") }}
+                        Photography recommended
+                    </label>
+
+                    <label class="flex items-center gap-3 text-sm font-medium text-[#1C2822]">
+                        {{ form.featured(class="h-4 w-4 rounded border-[#D8CBB4] text-[#1F5138]") }}
+                        Featured moment
+                    </label>
+
+                    <label class="flex items-center gap-3 text-sm font-medium text-[#1C2822]">
+                        {{ form.active(class="h-4 w-4 rounded border-[#D8CBB4] text-[#1F5138]") }}
+                        Active
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <div class="flex flex-wrap justify-end gap-3">
+            <a href="{{ url_for('admin_signature_moments.index') }}"
+               class="rounded-xl border border-[#E9DDC8] px-5 py-3 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1F5138]">
+                <i class="bi bi-check2-circle mr-1"></i>
+                Create Signature Moment
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,979 @@
+{# =============================================================================
+   The Uncharted Route
+   Administrative Destination Management
+   =============================================================================
+
+   Template:
+       templates/admin/destinations/detail.html
+
+   Route:
+       admin_destinations.detail
+
+   Media:
+       Destination.banner_image_asset
+       Destination.featured_image_asset
+============================================================================= #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ destination.name }} | Destination Management
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+
+    <div class="mx-auto max-w-7xl space-y-6">
+
+        {# =====================================================================
+           Breadcrumb
+           ===================================================================== #}
+
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="transition hover:text-slate-900"
+            >
+                Admin
+            </a>
+
+            <span>/</span>
+
+            <a
+                href="{{ url_for('admin_destinations.index') }}"
+                class="transition hover:text-slate-900"
+            >
+                Destinations
+            </a>
+
+            <span>/</span>
+
+            <span class="font-medium text-slate-700">
+                {{ destination.name }}
+            </span>
+
+        </div>
+
+
+        {# =====================================================================
+           Destination Hero
+           ===================================================================== #}
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            {% set banner_asset = destination.banner_image_asset %}
+            {% set featured_asset = destination.featured_image_asset %}
+
+            <div class="relative h-64 overflow-hidden bg-slate-200 sm:h-80 lg:h-96">
+
+                {% if banner_asset and banner_asset.active and banner_asset.file_url %}
+
+                    <img
+                        src="{{ banner_asset.file_url }}"
+                        alt="{{ banner_asset.alt_text or destination.name }}"
+                        class="h-full w-full object-cover"
+                    >
+
+                {% elif banner_asset and banner_asset.active and banner_asset.file_path %}
+
+                    <img
+                        src="{{ banner_asset.file_path }}"
+                        alt="{{ banner_asset.alt_text or destination.name }}"
+                        class="h-full w-full object-cover"
+                    >
+
+                {% elif featured_asset and featured_asset.active and featured_asset.file_url %}
+
+                    <img
+                        src="{{ featured_asset.file_url }}"
+                        alt="{{ featured_asset.alt_text or destination.name }}"
+                        class="h-full w-full object-cover"
+                    >
+
+                {% elif featured_asset and featured_asset.active and featured_asset.file_path %}
+
+                    <img
+                        src="{{ featured_asset.file_path }}"
+                        alt="{{ featured_asset.alt_text or destination.name }}"
+                        class="h-full w-full object-cover"
+                    >
+
+                {% else %}
+
+                    <div class="flex h-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+
+                        <svg
+                            class="h-16 w-16 text-slate-400"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                        >
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M3 7.5A2.5 2.5 0 015.5 5h13A2.5 2.5 0 0121 7.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 16.5v-9z"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M7 15l2.5-2.5L12 15l2-2 3 3"
+                            />
+
+                        </svg>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+
+
+                <div class="absolute inset-x-0 bottom-0 p-5 sm:p-8">
+
+                    <div class="flex flex-wrap items-center gap-2">
+
+                        {% if destination.active %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+
+                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
+
+                                Active
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="inline-flex items-center rounded-full bg-slate-700/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+
+                                Inactive
+
+                            </span>
+
+                        {% endif %}
+
+
+                        {% if destination.featured %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+
+                                <svg
+                                    class="h-3.5 w-3.5"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.036a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.802-2.036a1 1 0 00-1.176 0l-2.802 2.036c-.783.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.346-1.118L3.98 8.719c-.783-.57-.38-1.81.588-1.81H8.03a1 1 0 00.95-.69l1.07-3.292z"/>
+
+                                </svg>
+
+                                Featured
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+
+                                Not Featured
+
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <h1 class="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                        {{ destination.name }}
+                    </h1>
+
+
+                    <p class="mt-2 text-sm text-slate-200 sm:text-base">
+
+                        {{ destination.country }}
+
+                        {% if destination.county %}
+                            · {{ destination.county }}
+                        {% endif %}
+
+                        {% if destination.region %}
+                            · {{ destination.region }}
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {# =================================================================
+               Quick Actions
+               ================================================================= #}
+
+            <div class="flex flex-col gap-3 border-t border-slate-200 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6">
+
+                <div class="flex flex-wrap gap-2">
+
+                    <a
+                        href="{{ url_for('admin_destinations.edit', destination_id=destination.id) }}"
+                        class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                        Edit Destination
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_destinations.statistics', destination_id=destination.id) }}"
+                        class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                        Statistics
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                        class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                        View Experiences
+                    </a>
+
+                </div>
+
+
+                {# =============================================================
+                   STATUS ACTIONS
+
+                   IMPORTANT:
+                   These forms use csrf_token() directly.
+                   Do NOT depend on a route-provided "form" variable.
+                   ============================================================= #}
+
+                <div class="flex flex-wrap gap-2">
+
+                    {% if destination.active %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_destinations.deactivate', destination_id=destination.id) }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+                            >
+                                Deactivate
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_destinations.activate', destination_id=destination.id) }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                            >
+                                Activate
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if destination.featured %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_destinations.unfeature', destination_id=destination.id) }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-100"
+                            >
+                                Unfeature
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_destinations.feature', destination_id=destination.id) }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-100"
+                            >
+                                Feature
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {# =====================================================================
+           Overview
+           ===================================================================== #}
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
+
+                <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+
+                    <h2 class="text-base font-semibold text-slate-900">
+                        Destination Overview
+                    </h2>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Core information about this destination.
+                    </p>
+
+                </div>
+
+
+                <div class="space-y-6 px-5 py-6 sm:px-6">
+
+                    {% if destination.short_description %}
+
+                        <div>
+
+                            <h3 class="text-sm font-semibold text-slate-900">
+                                Summary
+                            </h3>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-600">
+                                {{ destination.short_description }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if destination.description %}
+
+                        <div>
+
+                            <h3 class="text-sm font-semibold text-slate-900">
+                                Description
+                            </h3>
+
+                            <div class="mt-2 whitespace-pre-line text-sm leading-7 text-slate-600">
+                                {{ destination.description }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                <div class="border-b border-slate-200 px-5 py-4">
+
+                    <h2 class="text-base font-semibold text-slate-900">
+                        Location
+                    </h2>
+
+                </div>
+
+
+                <div class="divide-y divide-slate-100">
+
+                    <div class="px-5 py-4">
+
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                            Country
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-slate-900">
+                            {{ destination.country or "—" }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-5 py-4">
+
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                            County
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-slate-900">
+                            {{ destination.county or "—" }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-5 py-4">
+
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                            Region
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-slate-900">
+                            {{ destination.region or "—" }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-5 py-4">
+
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                            Coordinates
+                        </p>
+
+                        {% if destination.latitude is not none and destination.longitude is not none %}
+
+                            <p class="mt-1 font-mono text-sm font-semibold text-slate-900">
+
+                                {{ destination.latitude }},
+                                {{ destination.longitude }}
+
+                            </p>
+
+                        {% else %}
+
+                            <p class="mt-1 text-sm text-slate-500">
+                                Not provided
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        {# =====================================================================
+           Statistics
+           ===================================================================== #}
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+                <div>
+
+                    <h2 class="text-base font-semibold text-slate-900">
+                        Destination Statistics
+                    </h2>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        At-a-glance information about this destination.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_destinations.statistics', destination_id=destination.id) }}"
+                    class="text-sm font-semibold text-slate-700 transition hover:text-slate-950"
+                >
+                    View detailed statistics →
+                </a>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+
+                <div class="px-5 py-6 sm:px-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Experiences
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                        {{ statistics.experience_count }}
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                        class="mt-2 inline-flex text-xs font-semibold text-slate-600 hover:text-slate-950"
+                    >
+                        View experiences
+                    </a>
+
+                </div>
+
+
+                <div class="px-5 py-6 sm:px-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Publication Status
+                    </p>
+
+                    {% if destination.active %}
+
+                        <p class="mt-2 text-lg font-bold text-emerald-700">
+                            Active
+                        </p>
+
+                    {% else %}
+
+                        <p class="mt-2 text-lg font-bold text-slate-600">
+                            Inactive
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="px-5 py-6 sm:px-6">
+
+                    <p class="text-sm font-medium text-slate-500">
+                        Featured Status
+                    </p>
+
+                    {% if destination.featured %}
+
+                        <p class="mt-2 text-lg font-bold text-amber-600">
+                            Featured
+                        </p>
+
+                    {% else %}
+
+                        <p class="mt-2 text-lg font-bold text-slate-600">
+                            Not Featured
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {# =====================================================================
+           Experiences
+           ===================================================================== #}
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+                <div>
+
+                    <h2 class="text-base font-semibold text-slate-900">
+                        Experiences Under This Destination
+                    </h2>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Experiences currently associated with {{ destination.name }}.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                    View All
+                </a>
+
+            </div>
+
+
+            {% if experiences %}
+
+                <div class="divide-y divide-slate-100">
+
+                    {% for experience in experiences[:6] %}
+
+                        <div class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+                            <div class="min-w-0">
+
+                                <div class="flex flex-wrap items-center gap-2">
+
+                                    {% if experience.experience_code %}
+
+                                        <span class="font-mono text-xs font-semibold text-slate-400">
+                                            {{ experience.experience_code }}
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if experience.active %}
+
+                                        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <h3 class="mt-1 truncate text-sm font-semibold text-slate-900">
+                                    {{ experience.title }}
+                                </h3>
+
+
+                                {% if experience.short_description %}
+
+                                    <p class="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                                        {{ experience.short_description }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="flex shrink-0 items-center gap-3">
+
+                                {% if experience.formatted_price is defined %}
+
+                                    <span class="text-sm font-semibold text-slate-700">
+                                        {{ experience.formatted_price }}
+                                    </span>
+
+                                {% endif %}
+
+
+                                <a
+                                    href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+                                    class="text-sm font-semibold text-slate-600 hover:text-slate-950"
+                                >
+                                    Manage
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="px-5 py-12 text-center sm:px-6">
+
+                    <h3 class="text-sm font-semibold text-slate-900">
+                        No experiences assigned
+                    </h3>
+
+                    <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
+                        There are currently no experiences associated with this
+                        destination.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        {# =====================================================================
+           Media
+           ===================================================================== #}
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+
+                <h2 class="text-base font-semibold text-slate-900">
+                    Media Assets
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    Images currently selected from the Media Library.
+                </p>
+
+            </div>
+
+
+            <div class="grid gap-6 p-5 sm:grid-cols-2 sm:p-6">
+
+                <div>
+
+                    <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Featured Image
+                    </p>
+
+                    {% if featured_asset and featured_asset.active %}
+
+                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+
+                            {% if featured_asset.file_url %}
+
+                                <img
+                                    src="{{ featured_asset.file_url }}"
+                                    alt="{{ featured_asset.alt_text or destination.name }}"
+                                    class="aspect-video w-full object-cover"
+                                >
+
+                            {% elif featured_asset.file_path %}
+
+                                <img
+                                    src="{{ featured_asset.file_path }}"
+                                    alt="{{ featured_asset.alt_text or destination.name }}"
+                                    class="aspect-video w-full object-cover"
+                                >
+
+                            {% endif %}
+
+                            <div class="p-4">
+
+                                <p class="text-sm font-semibold text-slate-900">
+                                    {{ featured_asset.title or featured_asset.original_filename }}
+                                </p>
+
+                                {% if featured_asset.alt_text %}
+
+                                    <p class="mt-1 text-xs text-slate-500">
+                                        {{ featured_asset.alt_text }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
+
+                            <p class="text-sm font-medium text-slate-500">
+                                No featured image selected.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div>
+
+                    <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        Banner Image
+                    </p>
+
+                    {% if banner_asset and banner_asset.active %}
+
+                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+
+                            {% if banner_asset.file_url %}
+
+                                <img
+                                    src="{{ banner_asset.file_url }}"
+                                    alt="{{ banner_asset.alt_text or destination.name }}"
+                                    class="aspect-video w-full object-cover"
+                                >
+
+                            {% elif banner_asset.file_path %}
+
+                                <img
+                                    src="{{ banner_asset.file_path }}"
+                                    alt="{{ banner_asset.alt_text or destination.name }}"
+                                    class="aspect-video w-full object-cover"
+                                >
+
+                            {% endif %}
+
+                            <div class="p-4">
+
+                                <p class="text-sm font-semibold text-slate-900">
+                                    {{ banner_asset.title or banner_asset.original_filename }}
+                                </p>
+
+                                {% if banner_asset.alt_text %}
+
+                                    <p class="mt-1 text-xs text-slate-500">
+                                        {{ banner_asset.alt_text }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
+
+                            <p class="text-sm font-medium text-slate-500">
+                                No banner image selected.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {# =====================================================================
+           Record Information
+           ===================================================================== #}
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+
+                <h2 class="text-base font-semibold text-slate-900">
+                    Record Information
+                </h2>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 gap-5 px-5 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+
+                <div>
+
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Destination ID
+                    </p>
+
+                    <p class="mt-1 font-mono text-sm font-semibold text-slate-900">
+                        #{{ destination.id }}
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Slug
+                    </p>
+
+                    <p class="mt-1 break-all font-mono text-sm font-semibold text-slate-900">
+                        {{ destination.slug }}
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Created
+                    </p>
+
+                    <p class="mt-1 text-sm font-semibold text-slate-900">
+                        {{ destination.created_at.strftime("%d %b %Y") if destination.created_at else "—" }}
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Last Updated
+                    </p>
+
+                    <p class="mt-1 text-sm font-semibold text-slate-900">
+                        {{ destination.updated_at.strftime("%d %b %Y") if destination.updated_at else "—" }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {# =====================================================================
+           Back
+           ===================================================================== #}
+
+        <div>
+
+            <a
+                href="{{ url_for('admin_destinations.index') }}"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950"
+            >
+                ← Back to Destinations
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

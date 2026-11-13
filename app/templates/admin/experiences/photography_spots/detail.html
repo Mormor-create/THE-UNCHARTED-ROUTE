@@ -1,0 +1,559 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ spot.name }} | Photography Spot{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
+        <div>
+            <a href="{{ url_for('admin_photography_spots.index') }}"
+               class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest hover:text-route-gold">
+                <i class="bi bi-arrow-left"></i>
+                Back to Photography Spots
+            </a>
+
+            <p class="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-route-forest">
+                Photography CMS
+            </p>
+
+            <h1 class="mt-2 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                {{ spot.name }}
+            </h1>
+
+            <p class="mt-3 text-sm text-route-muted">
+                Complete photography location information and configuration.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_photography_spots.edit', spot_id=spot.id) }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-route-deep">
+                <i class="bi bi-pencil-square"></i>
+                Edit Photography Spot
+            </a>
+
+            <a href="{{ url_for('admin_photography_spots.index') }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-route-deep/15 bg-white px-5 py-3 text-sm font-bold text-route-deep transition hover:bg-route-cream">
+                <i class="bi bi-list-ul"></i>
+                All Spots
+            </a>
+        </div>
+    </div>
+
+    <!-- STATUS OVERVIEW -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-2xl border border-route-deep/10 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Record ID
+            </p>
+            <p class="mt-2 text-2xl font-bold text-route-deep">
+                #{{ spot.id }}
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-route-deep/10 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Publication Status
+            </p>
+            <div class="mt-3">
+                {% if spot.active %}
+                    <span class="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-green-800">
+                        Active
+                    </span>
+                {% else %}
+                    <span class="rounded-full bg-route-sand px-3 py-1.5 text-xs font-bold text-route-deep">
+                        Inactive
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-route-deep/10 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Featured Status
+            </p>
+            <div class="mt-3">
+                {% if spot.featured %}
+                    <span class="rounded-full bg-route-gold/15 px-3 py-1.5 text-xs font-bold text-route-deep">
+                        Featured
+                    </span>
+                {% else %}
+                    <span class="rounded-full bg-route-sand px-3 py-1.5 text-xs font-bold text-route-muted">
+                        Not Featured
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-route-deep/10 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Photography Type
+            </p>
+            <p class="mt-2 text-lg font-bold text-route-deep">
+                {{ spot.photography_type or "Not specified" }}
+            </p>
+        </div>
+
+    </div>
+
+    <!-- BASIC INFORMATION -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Basic Information
+            </h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Identity, destination and general description.
+            </p>
+        </div>
+
+        <div class="grid gap-6 p-6 md:grid-cols-2">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Photography Spot Name
+                </p>
+                <p class="mt-2 text-sm font-semibold text-route-deep">
+                    {{ spot.name }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    URL Slug
+                </p>
+                <p class="mt-2 break-all text-sm text-route-ink">
+                    {{ spot.slug or "Not specified" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Destination
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.destination.name if spot.destination else "Not assigned" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Specific Location
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.location or "Not specified" }}
+                </p>
+            </div>
+
+            <div class="md:col-span-2">
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Description
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.description or "No description provided." }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- LOCATION AND COORDINATES -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Location & Coordinates
+            </h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Geographic information for this photography location.
+            </p>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-3">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Latitude
+                </p>
+                <p class="mt-2 text-sm font-semibold text-route-deep">
+                    {{ "%.6f"|format(spot.latitude) if spot.latitude is not none else "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Longitude
+                </p>
+                <p class="mt-2 text-sm font-semibold text-route-deep">
+                    {{ "%.6f"|format(spot.longitude) if spot.longitude is not none else "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Altitude
+                </p>
+                <p class="mt-2 text-sm font-semibold text-route-deep">
+                    {{ "{:,}".format(spot.altitude) ~ " metres" if spot.altitude is not none else "Not provided" }}
+                </p>
+            </div>
+
+            {% if spot.latitude is not none and spot.longitude is not none %}
+                <div class="sm:col-span-3">
+                    <a href="https://www.google.com/maps?q={{ spot.latitude }},{{ spot.longitude }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-bold text-white transition hover:bg-route-deep">
+                        <i class="bi bi-geo-alt"></i>
+                        Open in Google Maps
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <!-- PHOTOGRAPHY CLASSIFICATION -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Photography Classification
+            </h2>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-2">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Photography Type
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.photography_type or "Not specified" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Difficulty
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.difficulty or "Not specified" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Accessibility
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.accessibility or "Not specified" }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PHOTOGRAPHY TIMING -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Photography Timing & Seasons
+            </h2>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-2">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Best Time
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.best_time or "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Best Time to Visit
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.best_time_to_visit or "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Best Time to Photograph
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.best_time_to_photograph or "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Best Season
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.best_season or "Not provided" }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- EQUIPMENT -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Camera & Recommended Equipment
+            </h2>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-2">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Recommended Lens
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.recommended_lens or "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Recommended Lenses
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.recommended_lenses or "Not provided" }}
+                </p>
+            </div>
+
+            <div class="sm:col-span-2">
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Additional Equipment
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.recommended_equipment or "Not provided" }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ENVIRONMENTAL CONDITIONS -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Lighting & Weather Conditions
+            </h2>
+        </div>
+
+        <div class="grid gap-6 p-6 sm:grid-cols-2">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Lighting Conditions
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.lighting_conditions or "Not provided" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Weather Conditions
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.weather_conditions or "Not provided" }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CAMERA SETTINGS -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Suggested Camera Settings
+            </h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Recommended camera configuration for this location.
+            </p>
+        </div>
+
+        <div class="p-6">
+            {% if spot.camera_settings %}
+                <p class="whitespace-pre-line text-sm leading-7 text-route-ink">
+                    {{ spot.camera_settings }}
+                </p>
+            {% else %}
+                <div class="rounded-xl border border-dashed border-route-deep/20 bg-route-cream/40 p-5">
+                    <p class="text-sm font-semibold text-route-deep">
+                        Camera settings have not been provided.
+                    </p>
+                    <p class="mt-2 text-sm text-route-muted">
+                        This field is currently empty in the photography spot record.
+                        Use Edit Photography Spot to add the recommended settings.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- PHOTOGRAPHY TIPS -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Photography Tips
+            </h2>
+        </div>
+
+        <div class="p-6">
+            <p class="whitespace-pre-line text-sm leading-7 text-route-ink">
+                {{ spot.photography_tips or "No photography tips provided." }}
+            </p>
+        </div>
+    </section>
+
+    <!-- SAFETY -->
+    <section class="overflow-hidden rounded-2xl border border-route-terracotta/20 bg-white shadow-sm">
+
+        <div class="border-b border-route-terracotta/15 bg-route-terracotta/5 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Safety & Visitor Considerations
+            </h2>
+        </div>
+
+        <div class="p-6">
+            <p class="whitespace-pre-line text-sm leading-7 text-route-ink">
+                {{ spot.safety_notes or "No safety notes provided." }}
+            </p>
+        </div>
+    </section>
+
+    <!-- LINKED EXPERIENCES -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 bg-route-cream/60 px-6 py-5">
+            <h2 class="font-display text-xl font-bold text-route-deep">
+                Associated Experiences
+            </h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Experiences currently connected to this photography location.
+            </p>
+        </div>
+
+        <div class="p-6">
+
+            {% if experience_links %}
+                <div class="space-y-4">
+
+                    {% for link in experience_links %}
+                        <div class="flex flex-col justify-between gap-3 rounded-xl border border-route-deep/10 p-4 sm:flex-row sm:items-center">
+
+                            <div>
+                                <p class="font-semibold text-route-deep">
+                                    {{ link.experience.title if link.experience else "Experience unavailable" }}
+                                </p>
+
+                                <p class="mt-1 text-xs text-route-muted">
+                                    Experience association #{{ link.id }}
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2">
+
+                                {% if link.featured %}
+                                    <span class="rounded-full bg-route-gold/15 px-3 py-1 text-xs font-semibold text-route-deep">
+                                        Featured
+                                    </span>
+                                {% endif %}
+
+                                {% if link.active %}
+                                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="rounded-full bg-route-sand px-3 py-1 text-xs font-semibold text-route-muted">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            {% else %}
+                <div class="rounded-xl border border-dashed border-route-deep/20 bg-route-cream/40 p-5">
+                    <p class="text-sm text-route-muted">
+                        This photography spot is not currently associated with any experiences.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <!-- RECORD TIMESTAMPS -->
+    <section class="rounded-2xl border border-route-deep/10 bg-white p-6 shadow-sm">
+
+        <h2 class="font-display text-lg font-bold text-route-deep">
+            Record Information
+        </h2>
+
+        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Created At
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.created_at.strftime("%d %B %Y, %H:%M") if spot.created_at else "Not available" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Last Updated
+                </p>
+                <p class="mt-2 text-sm text-route-ink">
+                    {{ spot.updated_at.strftime("%d %B %Y, %H:%M") if spot.updated_at else "Not available" }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PAGE ACTIONS -->
+    <div class="flex flex-wrap justify-between gap-3 border-t border-route-deep/10 pt-6">
+
+        <a href="{{ url_for('admin_photography_spots.index') }}"
+           class="inline-flex items-center gap-2 rounded-xl border border-route-deep/15 bg-white px-5 py-3 text-sm font-bold text-route-deep transition hover:bg-route-cream">
+            <i class="bi bi-arrow-left"></i>
+            Back to Photography Spots
+        </a>
+
+        <a href="{{ url_for('admin_photography_spots.edit', spot_id=spot.id) }}"
+           class="inline-flex items-center gap-2 rounded-xl bg-route-forest px-6 py-3 text-sm font-bold text-white transition hover:bg-route-deep">
+            <i class="bi bi-pencil-square"></i>
+            Edit This Spot
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,522 @@
+{# =============================================================================
+   The Uncharted Route
+   Administrative Destination Catalogue
+   =============================================================================
+   Template:
+       templates/admin/destinations/index.html
+
+   Route:
+       admin_destinations.index
+
+   Media:
+       Destination.featured_image_asset
+       Destination.banner_image_asset
+
+   Deletion:
+       Intentionally unavailable.
+============================================================================= #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Destinations | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+
+    <div class="mx-auto max-w-7xl space-y-6">
+
+        {# =====================================================================
+           Page Header
+        ===================================================================== #}
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+
+                <div class="flex items-center gap-2 text-sm text-slate-500">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="transition hover:text-slate-900"
+                    >
+                        Admin
+                    </a>
+
+                    <span>/</span>
+
+                    <span class="text-slate-700">
+                        Destinations
+                    </span>
+
+                </div>
+
+                <h1 class="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                    Destination Catalogue
+                </h1>
+
+                <p class="mt-1 max-w-2xl text-sm text-slate-600">
+                    Manage the destinations offered by The Uncharted Route,
+                    including their visibility, featured status, associated
+                    experiences, and destination imagery.
+                </p>
+
+            </div>
+
+            <div class="flex items-center gap-3">
+
+                <a
+                    href="{{ url_for('admin_destinations.create') }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+                >
+
+                    <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M10 4a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V5a1 1 0 011-1z"
+                        />
+                    </svg>
+
+                    New Destination
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        {# =====================================================================
+           Search & Filters
+        ===================================================================== #}
+
+        <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+
+                <div class="flex items-center gap-2">
+
+                    <svg
+                        class="h-5 w-5 text-slate-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.817-4.817A6 6 0 012 8z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+
+                    <h2 class="text-sm font-semibold text-slate-900">
+                        Search & Filter Destinations
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <form
+                method="GET"
+                action="{{ url_for('admin_destinations.index') }}"
+                class="px-5 py-5 sm:px-6"
+            >
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+
+                    <div class="xl:col-span-2">
+
+                        {{ form.search.label(
+                            class="mb-1.5 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.search(
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200",
+                            placeholder="Search destinations..."
+                        ) }}
+
+                    </div>
+
+
+                    <div>
+
+                        {{ form.active.label(
+                            class="mb-1.5 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.active(
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                        ) }}
+
+                    </div>
+
+
+                    <div>
+
+                        {{ form.featured.label(
+                            class="mb-1.5 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.featured(
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                        ) }}
+
+                    </div>
+
+
+                    <div>
+
+                        {{ form.country.label(
+                            class="mb-1.5 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.country(
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200",
+                            placeholder="Country"
+                        ) }}
+
+                    </div>
+
+
+                    <div>
+
+                        {{ form.county.label(
+                            class="mb-1.5 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.county(
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200",
+                            placeholder="County"
+                        ) }}
+
+                    </div>
+
+
+                    <div>
+
+                        {{ form.region.label(
+                            class="mb-1.5 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.region(
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200",
+                            placeholder="Region"
+                        ) }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-5 flex flex-wrap items-center gap-3">
+
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                        Apply Filters
+                    </button>
+
+                    <a
+                        href="{{ url_for('admin_destinations.index') }}"
+                        class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                        Clear Filters
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        {# =====================================================================
+           Catalogue Summary
+        ===================================================================== #}
+
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Destinations
+                </h2>
+
+                <p class="text-sm text-slate-500">
+                    {{ destinations|length }}
+                    destination{% if destinations|length != 1 %}s{% endif %}
+                    found
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {# =====================================================================
+           Destination Catalogue
+        ===================================================================== #}
+
+        {% if destinations %}
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+
+                {% for destination in destinations %}
+
+                    <article
+                        class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                    >
+
+                        {# -----------------------------------------------------
+                           MediaAsset Image
+                        ----------------------------------------------------- #}
+
+                        <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+
+                            {% set featured_asset = destination.featured_image_asset %}
+
+                            {% if featured_asset and featured_asset.active and featured_asset.file_url %}
+
+                                <img
+                                    src="{{ featured_asset.file_url }}"
+                                    alt="{{ featured_asset.alt_text or destination.name }}"
+                                    class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                    loading="lazy"
+                                >
+
+                            {% elif featured_asset and featured_asset.active and featured_asset.file_path %}
+
+                                <img
+                                    src="{{ featured_asset.file_path }}"
+                                    alt="{{ featured_asset.alt_text or destination.name }}"
+                                    class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                    loading="lazy"
+                                >
+
+                            {% else %}
+
+                                <div class="flex h-full items-center justify-center bg-slate-100">
+
+                                    <svg
+                                        class="h-12 w-12 text-slate-400"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M12 9h.01M15 9h.01"
+                                        />
+                                    </svg>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="absolute left-3 top-3 flex flex-wrap gap-2">
+
+                                {% if destination.active %}
+
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-700/95 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if destination.featured %}
+
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-500/95 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+
+                                        <svg
+                                            class="h-3.5 w-3.5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.036a1 1 0 00-.346 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.802-2.036a1 1 0 00-1.176 0l-2.802 2.036c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.346-1.118L3.98 8.719c-.783-0.57-.38-1.81.588-1.81H8.03a1 1 0 00.95-.69l1.07-3.292z"/>
+                                        </svg>
+
+                                        Featured
+
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        {# -----------------------------------------------------
+                           Destination Information
+                        ----------------------------------------------------- #}
+
+                        <div class="p-5">
+
+                            <div class="flex items-start justify-between gap-4">
+
+                                <div class="min-w-0">
+
+                                    <h3 class="truncate text-lg font-bold text-slate-900">
+                                        {{ destination.name }}
+                                    </h3>
+
+                                    <p class="mt-1 text-sm text-slate-500">
+
+                                        {% if destination.county %}
+                                            {{ destination.county }}
+                                        {% endif %}
+
+                                        {% if destination.county and destination.country %}
+                                            <span class="mx-1">•</span>
+                                        {% endif %}
+
+                                        {{ destination.country }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-center">
+
+                                    <div class="text-lg font-bold text-slate-900">
+                                        {{ destination.experience_count }}
+                                    </div>
+
+                                    <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                        Experiences
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {% if destination.short_description %}
+
+                                <p class="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
+                                    {{ destination.short_description }}
+                                </p>
+
+                            {% elif destination.description %}
+
+                                <p class="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
+                                    {{ destination.description }}
+                                </p>
+
+                            {% else %}
+
+                                <p class="mt-4 text-sm italic text-slate-400">
+                                    No destination description has been added.
+                                </p>
+
+                            {% endif %}
+
+
+                            {% if destination.region %}
+
+                                <div class="mt-4 flex items-center gap-2 text-sm text-slate-500">
+
+                                    <svg
+                                        class="h-4 w-4 shrink-0"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+
+                                    {{ destination.region }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4">
+
+                                <a
+                                    href="{{ url_for('admin_destinations.detail', destination_id=destination.id) }}"
+                                    class="inline-flex flex-1 items-center justify-center rounded-xl bg-slate-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                                >
+                                    View
+                                </a>
+
+                                <a
+                                    href="{{ url_for('admin_destinations.edit', destination_id=destination.id) }}"
+                                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                >
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
+
+                    <svg
+                        class="h-7 w-7 text-slate-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+
+                </div>
+
+                <h3 class="mt-4 text-lg font-semibold text-slate-900">
+                    No destinations found
+                </h3>
+
+                <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                    No destinations match the current search and filter
+                    criteria.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

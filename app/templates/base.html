@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- ================================================================
+         Document Configuration
+         ================================================================ -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="{% block meta_description %}{{ config.DEFAULT_META_DESCRIPTION }}{% endblock %}"
+    >
+
+    <meta
+        name="author"
+        content="{{ config.COMPANY_NAME }}"
+    >
+
+    <meta
+        name="theme-color"
+        content="#12372A"
+    >
+
+    <meta
+        name="color-scheme"
+        content="light"
+    >
+
+    <title>
+        {% block title %}
+            {{ config.COMPANY_NAME }}
+        {% endblock %}
+    </title>
+
+
+    <!-- ================================================================
+         Open Graph
+         ================================================================ -->
+
+    <meta
+        property="og:title"
+        content="{% block og_title %}{{ config.COMPANY_NAME }}{% endblock %}"
+    >
+
+    <meta
+        property="og:description"
+        content="{% block og_description %}{{ config.DEFAULT_META_DESCRIPTION }}{% endblock %}"
+    >
+
+    <meta
+        property="og:type"
+        content="website"
+    >
+
+    <meta
+        property="og:site_name"
+        content="{{ config.COMPANY_NAME }}"
+    >
+
+
+    <!-- ================================================================
+         Favicon
+         ================================================================ -->
+    <link
+    rel="icon"
+    type="image/svg+xml"
+    href="{{ url_for('static', filename='images/favicon.svg') }}"
+>
+
+    <!-- ================================================================
+         Fonts
+         ================================================================ -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    route: {
+                        deep: "#12372A",
+                        forest: "#1F5138",
+                        safari: "#5C6B32",
+                        gold: "#D89B24",
+                        terracotta: "#C96A2C",
+                        cream: "#F7F1E5",
+                        sand: "#E9DDC8",
+                        ink: "#1C2822",
+                        muted: "#66736B",
+                        white: "#FFFFFF",
+                    },
+                },
+
+                fontFamily: {
+                    sans: [
+                        "DM Sans",
+                        "ui-sans-serif",
+                        "system-ui",
+                        "sans-serif",
+                    ],
+
+                    display: [
+                        "Playfair Display",
+                        "Georgia",
+                        "serif",
+                    ],
+                },
+
+                boxShadow: {
+                    route: "0 10px 30px rgba(18, 55, 42, 0.10)",
+                    "route-lg": "0 20px 50px rgba(18, 55, 42, 0.14)",
+                },
+
+                borderRadius: {
+                    route: "0.75rem",
+                },
+            },
+        },
+    };
+</script>
+    <!-- ================================================================
+         Tailwind CSS
+         ================================================================
+
+         Tailwind's generated stylesheet is the primary styling layer.
+
+         The colour system is defined in tailwind.config.js:
+
+         route-deep
+         route-forest
+         route-safari
+         route-gold
+         route-terracotta
+         route-cream
+         route-sand
+         route-ink
+         route-muted
+         route-white
+         ================================================================ -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/output.css') }}"
+    >
+
+
+    <!-- ================================================================
+         Custom Application Styles
+         ================================================================ -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/app.css') }}"
+    >
+
+
+    <!-- ================================================================
+         Page-Specific Head Content
+         ================================================================ -->
+
+    {% block head %}{% endblock %}
+
+</head>
+
+
+<body
+    class="
+        min-h-screen
+        bg-route-cream
+        text-route-ink
+        antialiased
+        font-sans
+    "
+>
+
+    <!-- ================================================================
+         Navigation
+         ================================================================ -->
+
+    {% block navbar %}
+
+        {% include "partials/_navbar.html" %}
+
+    {% endblock %}
+
+
+    <!-- ================================================================
+         Flash Messages
+         ================================================================ -->
+
+    {% include "partials/_flash_messages.html" %}
+
+
+    <!-- ================================================================
+         Main Content
+         ================================================================ -->
+
+    <main
+        id="main-content"
+        class="min-h-[60vh]"
+    >
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+
+    <!-- ================================================================
+         Footer
+         ================================================================ -->
+
+    {% block footer %}
+
+        {% include "partials/_footer.html" %}
+
+    {% endblock %}
+
+
+    <!-- ================================================================
+         Cookie Notice
+         ================================================================ -->
+
+    {% include "partials/_cookie_notice.html" %}
+
+
+    <!-- ================================================================
+         Global JavaScript
+         ================================================================ -->
+
+    <script
+        src="{{ url_for('static', filename='js/navigation.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/animations.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/gallery.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/app.js') }}"
+        defer
+    ></script>
+
+
+    <!-- ================================================================
+         Page-Specific JavaScript
+         ================================================================ -->
+
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

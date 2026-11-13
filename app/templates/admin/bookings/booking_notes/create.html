@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Booking Note | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6">
+  <div>
+    <a href="{{ url_for('admin_booking_notes.index') }}" class="text-sm font-medium text-route-muted hover:text-route-forest">← Booking Notes</a>
+    <h1 class="mt-3 text-3xl font-bold text-route-deep">Add Booking Note</h1>
+    <p class="mt-2 text-sm text-route-muted">Add an operational note or record a customer communication.</p>
+  </div>
+
+  <form method="POST" class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm md:p-8">
+    {{ form.hidden_tag() }}
+    {% include "admin/booking_notes/_form_fields.html" %}
+  </form>
+</div>
+{% endblock %}

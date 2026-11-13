@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+
+{% block title %}
+Stay Inquiry | {{ stay.property_name }} | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+<section class="bg-route-cream min-h-screen py-12 sm:py-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- =================================================================
+             BACK LINK
+        ================================================================== -->
+
+        <a
+            href="{{ url_for('stays.detail', slug=stay.slug) }}"
+            class="inline-flex items-center gap-2 text-route-forest
+                   font-semibold hover:text-route-terracotta transition"
+        >
+            <span aria-hidden="true">&larr;</span>
+            Back to {{ stay.property_name }}
+        </a>
+
+
+        <div class="grid lg:grid-cols-5 gap-8 mt-8 items-start">
+
+            <!-- =================================================================
+                 STAY SUMMARY
+            ================================================================== -->
+
+            <aside class="lg:col-span-2">
+
+                <div class="bg-white rounded-3xl overflow-hidden
+                            shadow-sm border border-route-sand">
+
+                    {% set hero = stay.hero_media %}
+                    {% set banner = stay.banner_media %}
+                    {% set thumbnail = stay.thumbnail_media %}
+
+
+                    {% if hero and hero.asset %}
+
+                        <img
+                            src="{{ hero.asset.browser_url }}"
+                            alt="{{ stay.property_name }}"
+                            class="w-full h-64 object-cover"
+                        >
+
+                    {% elif banner and banner.asset %}
+
+                        <img
+                            src="{{ banner.asset.browser_url }}"
+                            alt="{{ stay.property_name }}"
+                            class="w-full h-64 object-cover"
+                        >
+
+                    {% elif thumbnail and thumbnail.asset %}
+
+                        <img
+                            src="{{ thumbnail.asset.browser_url }}"
+                            alt="{{ stay.property_name }}"
+                            class="w-full h-64 object-cover"
+                        >
+
+                    {% endif %}
+
+
+                    <div class="p-6">
+
+                        <p class="text-xs uppercase tracking-[0.2em]
+                                  text-route-terracotta font-bold">
+                            Your next stay
+                        </p>
+
+
+                        <h1 class="text-2xl sm:text-3xl font-bold
+                                   text-route-forest mt-3">
+                            {{ stay.property_name }}
+                        </h1>
+
+
+                        <p class="text-route-muted mt-2">
+                            {{ stay.location }}
+                        </p>
+
+
+                        <div class="mt-5 pt-5 border-t border-route-sand">
+
+                            <p class="text-sm text-route-muted">
+                                Accommodation type
+                            </p>
+
+                            <p class="font-semibold text-route-deep mt-1">
+                                {{ stay.accommodation_type }}
+                            </p>
+
+                        </div>
+
+
+                        {% if stay.minimum_nights %}
+
+                            <div class="mt-4">
+
+                                <p class="text-sm text-route-muted">
+                                    Minimum stay
+                                </p>
+
+                                <p class="font-semibold text-route-deep mt-1">
+                                    {{ stay.minimum_nights }}
+                                    night{% if stay.minimum_nights != 1 %}s{% endif %}
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if selected_room %}
+
+                            <div class="mt-5 pt-5 border-t border-route-sand">
+
+                                <p class="text-sm text-route-muted">
+                                    Room you're enquiring about
+                                </p>
+
+                                <p class="font-semibold text-route-deep mt-1">
+                                    {{ selected_room.name }}
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <p class="text-sm text-route-muted mt-5">
+                            Sending an inquiry does not confirm a booking.
+                            Our team will review your request and follow up
+                            about availability and pricing.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+            <!-- =================================================================
+                 INQUIRY FORM
+            ================================================================== -->
+
+            <div class="lg:col-span-3">
+
+                <div class="bg-white rounded-3xl shadow-sm
+                            border border-route-sand p-6 sm:p-8">
+
+                    <p class="text-xs uppercase tracking-[0.2em]
+                              text-route-terracotta font-bold">
+                        Plan your stay
+                    </p>
+
+
+                    <h2 class="text-3xl font-bold text-route-forest mt-3">
+                        Make an inquiry
+                    </h2>
+
+
+                    <p class="text-route-muted mt-3 mb-8">
+                        Tell us when you'd like to stay and what you need.
+                        We'll help you explore the available options.
+                    </p>
+
+
+                    <!-- =========================================================
+                         FLASH MESSAGES
+                    ========================================================== -->
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+
+                        {% if messages %}
+
+                            <div class="space-y-3 mb-6">
+
+                                {% for category, message in messages %}
+
+                                    <div
+                                        class="rounded-xl p-4 text-sm
+                                        {% if category == 'success' %}
+                                            bg-green-50 text-green-800
+                                            border border-green-200
+                                        {% else %}
+                                            bg-red-50 text-red-800
+                                            border border-red-200
+                                        {% endif %}"
+                                        role="status"
+                                    >
+                                        {{ message }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endwith %}
+
+
+                    <!-- =========================================================
+                         FORM
+
+                         IMPORTANT:
+                         room_id is explicitly submitted as a hidden field.
+                         Do not render form.room_id() anywhere else.
+                    ========================================================== -->
+
+                    <form method="POST" class="space-y-6">
+
+                        {{ form.csrf_token }}
+
+                        <input
+                            type="hidden"
+                            name="room_id"
+                            value="{{ form.room_id.data or (selected_room.id if selected_room else '') }}"
+                        >
+
+
+                        {% macro field_errors(field) %}
+
+                            {% for error in field.errors %}
+
+                                <p class="text-sm text-red-600 mt-1">
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        {% endmacro %}
+
+
+                        <!-- =====================================================
+                             YOUR DETAILS
+                        ====================================================== -->
+
+                        <div>
+
+                            <h3 class="font-bold text-route-deep mb-4">
+                                Your details
+                            </h3>
+
+
+                            <div class="grid sm:grid-cols-2 gap-5">
+
+                                <!-- Full name -->
+
+                                <div class="sm:col-span-2">
+
+                                    {{ form.full_name.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.full_name(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        placeholder="Your full name",
+                                        autocomplete="name"
+                                    ) }}
+
+                                    {{ field_errors(form.full_name) }}
+
+                                </div>
+
+
+                                <!-- Email -->
+
+                                <div>
+
+                                    {{ form.email.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.email(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        placeholder="you@example.com",
+                                        autocomplete="email"
+                                    ) }}
+
+                                    {{ field_errors(form.email) }}
+
+                                </div>
+
+
+                                <!-- Phone -->
+
+                                <div>
+
+                                    {{ form.phone.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.phone(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        placeholder="+254...",
+                                        autocomplete="tel"
+                                    ) }}
+
+                                    {{ field_errors(form.phone) }}
+
+                                </div>
+
+
+                                <!-- Country -->
+
+                                <div class="sm:col-span-2">
+
+                                    {{ form.country.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.country(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        placeholder="Country of residence",
+                                        autocomplete="country-name"
+                                    ) }}
+
+                                    {{ field_errors(form.country) }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =====================================================
+                             YOUR STAY
+                        ====================================================== -->
+
+                        <div class="border-t border-route-sand pt-6">
+
+                            <h3 class="font-bold text-route-deep mb-4">
+                                Your stay
+                            </h3>
+
+
+                            {% if selected_room %}
+
+                                <div class="mb-5 rounded-2xl border
+                                            border-route-forest/20
+                                            bg-route-forest/5 p-4">
+
+                                    <p class="text-xs uppercase tracking-[0.15em]
+                                              text-route-forest font-bold">
+                                        Selected room
+                                    </p>
+
+                                    <p class="mt-1 font-semibold
+                                              text-route-deep">
+                                        {{ selected_room.name }}
+                                    </p>
+
+                                    <p class="text-sm text-route-muted mt-1">
+                                        Your inquiry will be sent for this
+                                        room at {{ stay.property_name }}.
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="grid sm:grid-cols-2 gap-5">
+
+                                <!-- Check in -->
+
+                                <div>
+
+                                    {{ form.check_in.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.check_in(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        type="date"
+                                    ) }}
+
+                                    {{ field_errors(form.check_in) }}
+
+                                </div>
+
+
+                                <!-- Check out -->
+
+                                <div>
+
+                                    {{ form.check_out.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.check_out(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        type="date"
+                                    ) }}
+
+                                    {{ field_errors(form.check_out) }}
+
+                                </div>
+
+
+                                <!-- Adults -->
+
+                                <div>
+
+                                    {{ form.adults.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.adults(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        min="1",
+                                        max="100"
+                                    ) }}
+
+                                    {{ field_errors(form.adults) }}
+
+                                </div>
+
+
+                                <!-- Children -->
+
+                                <div>
+
+                                    {{ form.children.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.children(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        min="0",
+                                        max="100"
+                                    ) }}
+
+                                    {{ field_errors(form.children) }}
+
+                                </div>
+
+
+                                <!-- Preferred currency -->
+
+                                <div>
+
+                                    {{ form.preferred_currency.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.preferred_currency(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold"
+                                    ) }}
+
+                                    {{ field_errors(form.preferred_currency) }}
+
+                                </div>
+
+
+                                <!-- Special requests -->
+
+                                <div class="sm:col-span-2">
+
+                                    {{ form.special_requests.label(
+                                        class="block text-sm font-semibold text-route-deep mb-2"
+                                    ) }}
+
+                                    {{ form.special_requests(
+                                        class="w-full rounded-xl border border-route-sand
+                                               px-4 py-3 text-route-deep
+                                               focus:outline-none focus:ring-2
+                                               focus:ring-route-gold",
+                                        rows="4",
+                                        placeholder="Meal preferences, accessibility needs, celebrations, or anything else we should know..."
+                                    ) }}
+
+                                    {{ field_errors(form.special_requests) }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =====================================================
+                             SUBMIT
+                        ====================================================== -->
+
+                        <button
+                            type="submit"
+                            class="w-full rounded-xl bg-route-forest
+                                   hover:bg-route-deep text-white font-bold
+                                   px-6 py-4 transition focus:outline-none
+                                   focus:ring-2 focus:ring-route-gold
+                                   focus:ring-offset-2"
+                        >
+                            Send Stay Inquiry
+                        </button>
+
+
+                        <p class="text-xs text-route-muted text-center">
+                            This is an inquiry only. Your stay is not
+                            reserved until availability and arrangements
+                            are confirmed separately.
+                        </p>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- =====================================================================
+     DATE INPUT BEHAVIOUR
+====================================================================== -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const checkIn = document.querySelector('[name="check_in"]');
+    const checkOut = document.querySelector('[name="check_out"]');
+
+    if (!checkIn || !checkOut) {
+        return;
+    }
+
+
+    // ---------------------------------------------------------------------
+    // Today's local date
+    // ---------------------------------------------------------------------
+
+    const today = new Date();
+
+    const localToday = new Date(
+        today.getTime() - today.getTimezoneOffset() * 60000
+    )
+        .toISOString()
+        .slice(0, 10);
+
+
+    // ---------------------------------------------------------------------
+    // Check-in cannot be before today
+    // ---------------------------------------------------------------------
+
+    checkIn.min = localToday;
+
+
+    // ---------------------------------------------------------------------
+    // Check-out must be at least one day after check-in
+    // ---------------------------------------------------------------------
+
+    function updateCheckoutMinimum() {
+
+        if (!checkIn.value) {
+            checkOut.min = localToday;
+            return;
+        }
+
+
+        const nextDay = new Date(
+            checkIn.value + "T12:00:00"
+        );
+
+        nextDay.setDate(nextDay.getDate() + 1);
+
+
+        const minimumCheckout = [
+            nextDay.getFullYear(),
+            String(nextDay.getMonth() + 1).padStart(2, "0"),
+            String(nextDay.getDate()).padStart(2, "0")
+        ].join("-");
+
+
+        checkOut.min = minimumCheckout;
+
+
+        if (
+            checkOut.value &&
+            checkOut.value < minimumCheckout
+        ) {
+            checkOut.value = "";
+        }
+    }
+
+
+    checkIn.addEventListener(
+        "change",
+        updateCheckoutMinimum
+    );
+
+    updateCheckoutMinimum();
+
+});
+</script>
+
+{% endblock %}

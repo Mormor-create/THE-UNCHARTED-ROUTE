@@ -1,0 +1,450 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Stay Review Details{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+
+        <div>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                <a href="{{ url_for('admin_stay.index') }}"
+                   class="hover:text-gray-900">
+                    Stays
+                </a>
+
+                <span>/</span>
+
+                <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                   class="hover:text-gray-900">
+                    {{ stay.property_name }}
+                </a>
+
+                <span>/</span>
+
+                <a href="{{ url_for('admin_stay_review.index', stay_id=stay.id) }}"
+                   class="hover:text-gray-900">
+                    Reviews
+                </a>
+
+                <span>/</span>
+                <span>Details</span>
+            </div>
+
+            <h1 class="mt-2 text-2xl font-semibold text-gray-900">
+                Stay Review
+            </h1>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+
+                {% if review.status == 'approved' %}
+                    <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                        Approved
+                    </span>
+                {% elif review.status == 'pending' %}
+                    <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
+                        Pending
+                    </span>
+                {% elif review.status == 'rejected' %}
+                    <span class="inline-flex rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">
+                        Rejected
+                    </span>
+                {% else %}
+                    <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {{ review.status|title }}
+                    </span>
+                {% endif %}
+
+                {% if review.verified_stay %}
+                    <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
+                        Verified Stay
+                    </span>
+                {% endif %}
+
+                {% if review.featured %}
+                    <span class="inline-flex rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
+                        Featured
+                    </span>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+
+            <a href="{{ url_for('admin_stay_review.edit', review_id=review.id) }}"
+               class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Edit
+            </a>
+
+            <form method="POST"
+                  action="{{ url_for('admin_stay_review.delete', review_id=review.id) }}"
+                  onsubmit="return confirm('Delete this review?');">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <button type="submit"
+                        class="rounded-lg border border-red-300 bg-white px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50">
+                    Delete
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+        <div class="space-y-6 lg:col-span-2">
+
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+
+                    <div>
+                        <p class="text-sm text-gray-500">
+                            Guest Review
+                        </p>
+
+                        <h2 class="mt-1 text-xl font-semibold text-gray-900">
+                            {{ review.title or 'Guest Review' }}
+                        </h2>
+
+                        <p class="mt-2 text-sm text-gray-500">
+                            {{ review.guest_name }}
+                        </p>
+                    </div>
+
+                    <div class="text-left sm:text-right">
+
+                        <div class="flex items-center gap-1">
+                            {% for i in range(1, 6) %}
+                                {% if i <= review.rating %}
+                                    <span class="text-xl text-amber-500">★</span>
+                                {% else %}
+                                    <span class="text-xl text-gray-300">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ review.rating }}/5
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-6 border-t border-gray-100 pt-6">
+
+                    <p class="whitespace-pre-line text-sm leading-7 text-gray-700">
+                        {{ review.review }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900">
+                            Admin Response
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Public response associated with this review.
+                        </p>
+                    </div>
+                </div>
+
+                {% if review.admin_response %}
+
+                    <div class="mt-5 rounded-lg bg-gray-50 p-4">
+                        <p class="whitespace-pre-line text-sm leading-6 text-gray-700">
+                            {{ review.admin_response }}
+                        </p>
+                    </div>
+
+                {% endif %}
+
+                <form method="POST"
+                      action="{{ url_for('admin_stay_review.response', review_id=review.id) }}"
+                      class="mt-5">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <textarea name="admin_response"
+                              rows="5"
+                              placeholder="Write an admin response..."
+                              class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"></textarea>
+
+                    <div class="mt-3 flex justify-end">
+                        <button type="submit"
+                                class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800">
+                            Save Response
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <div class="space-y-6">
+
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Guest Information
+                </h2>
+
+                <dl class="mt-5 space-y-4">
+
+                    <div>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">
+                            Name
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {{ review.guest_name }}
+                        </dd>
+                    </div>
+
+                    {% if review.guest_email %}
+                    <div>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">
+                            Email
+                        </dt>
+                        <dd class="mt-1 break-words text-sm text-gray-900">
+                            {{ review.guest_email }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                    {% if review.room_name %}
+                    <div>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">
+                            Room
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {{ review.room_name }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                    {% if review.stay_date %}
+                    <div>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">
+                            Stay Date
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {{ review.stay_date.strftime('%d %b %Y') if review.stay_date.strftime else review.stay_date }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                </dl>
+
+            </div>
+
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Moderation
+                </h2>
+
+                <div class="mt-5 space-y-4">
+
+                    {% if review.status != 'approved' %}
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.approve', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700">
+                            Approve Review
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if review.status != 'rejected' %}
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.reject', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg border border-red-300 bg-white px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50">
+                            Reject Review
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if review.status != 'hidden' %}
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.hide', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Hide Review
+                        </button>
+                    </form>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Status
+
+                </h2>
+
+                <form method="POST"
+                      action="{{ url_for('admin_stay_review.status', review_id=review.id) }}"
+                      class="mt-4">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <select name="status"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900">
+
+                        <option value="pending"
+                                {% if review.status == 'pending' %}selected{% endif %}>
+                            Pending
+                        </option>
+
+                        <option value="approved"
+                                {% if review.status == 'approved' %}selected{% endif %}>
+                            Approved
+                        </option>
+
+                        <option value="rejected"
+                                {% if review.status == 'rejected' %}selected{% endif %}>
+                            Rejected
+                        </option>
+
+                        <option value="hidden"
+                                {% if review.status == 'hidden' %}selected{% endif %}>
+                            Hidden
+                        </option>
+
+                    </select>
+
+                    <button type="submit"
+                            class="mt-3 w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800">
+                        Update Status
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Review Flags
+                </h2>
+
+                <div class="mt-5 space-y-3">
+
+                    {% if review.verified_stay %}
+
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.unverify', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg border border-blue-300 bg-white px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-50">
+                            Remove Verification
+                        </button>
+
+                    </form>
+
+                    {% else %}
+
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.verify', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg border border-blue-300 bg-white px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-50">
+                            Mark as Verified
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+
+                    {% if review.featured %}
+
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.unfeature', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg border border-purple-300 bg-white px-4 py-2.5 text-sm font-medium text-purple-700 hover:bg-purple-50">
+                            Remove Featured
+                        </button>
+
+                    </form>
+
+                    {% else %}
+
+                    <form method="POST"
+                          action="{{ url_for('admin_stay_review.feature', review_id=review.id) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full rounded-lg border border-purple-300 bg-white px-4 py-2.5 text-sm font-medium text-purple-700 hover:bg-purple-50">
+                            Feature Review
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

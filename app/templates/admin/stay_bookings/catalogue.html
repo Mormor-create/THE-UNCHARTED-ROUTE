@@ -1,0 +1,744 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Stay Bookings
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-7xl space-y-8">
+
+    <!-- =====================================================================
+         PAGE HEADER
+    ====================================================================== -->
+
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+
+        <div>
+
+            <p class="text-sm font-semibold uppercase tracking-widest text-emerald-700">
+                Accommodation Operations
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                Stay Bookings
+            </h1>
+
+            <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">
+                Manage accommodation bookings, rooms, stay dates, guests,
+                meal plans, payments and stay-specific operational records.
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-3">
+
+            <a
+                href="{{ url_for('admin_bookings.index') }}"
+                class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            >
+                <span>←</span>
+                All Bookings
+            </a>
+
+            <a
+                href="{{ url_for('admin_stay_bookings.create_global') }}"
+                class="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900"
+            >
+                <span class="text-base">＋</span>
+                Create Stay Booking
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         STATISTICS
+    ====================================================================== -->
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <!-- Total -->
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Total Stay Bookings
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-slate-900">
+                {{ statistics.total }}
+            </p>
+
+            <p class="mt-1 text-xs text-slate-500">
+                All accommodation records
+            </p>
+
+        </div>
+
+
+        <!-- Confirmed -->
+
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                Confirmed
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-emerald-800">
+                {{ statistics.confirmed }}
+            </p>
+
+            <p class="mt-1 text-xs text-emerald-700">
+                Confirmed accommodation
+            </p>
+
+        </div>
+
+
+        <!-- Pending -->
+
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                Pending
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-amber-800">
+                {{ statistics.pending }}
+            </p>
+
+            <p class="mt-1 text-xs text-amber-700">
+                Awaiting progression
+            </p>
+
+        </div>
+
+
+        <!-- Cancelled -->
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Cancelled
+            </p>
+
+            <p class="mt-2 text-3xl font-bold text-slate-600">
+                {{ statistics.cancelled }}
+            </p>
+
+            <p class="mt-1 text-xs text-slate-500">
+                Cancelled accommodation
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         SECONDARY PAYMENT SUMMARY
+    ====================================================================== -->
+
+    <div class="grid gap-4 sm:grid-cols-2">
+
+        <a
+            href="{{ url_for('admin_stay_bookings.index', payment_status='paid') }}"
+            class="group rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-50"
+        >
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                        Payment Complete
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ statistics.paid }}
+                    </p>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Stay bookings with no outstanding balance.
+                    </p>
+
+                </div>
+
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
+                    ✓
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_stay_bookings.index', payment_status='outstanding') }}"
+            class="group rounded-2xl border border-amber-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-50"
+        >
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                        Outstanding
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ statistics.outstanding }}
+                    </p>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Stay bookings with a remaining balance.
+                    </p>
+
+                </div>
+
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+                    !
+                </span>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================================
+         FILTERS
+    ====================================================================== -->
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <div class="mb-5">
+
+            <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">
+                Catalogue
+            </p>
+
+            <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                Search & Filters
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Search by booking reference, guest, accommodation, room,
+                status or stay date.
+            </p>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_stay_bookings.index') }}"
+            class="grid gap-4 lg:grid-cols-6"
+        >
+
+            <!-- Search -->
+
+            <div class="lg:col-span-2">
+
+                <label
+                    for="search"
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                >
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search or '' }}"
+                    placeholder="Reference, guest, email, stay or room..."
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                >
+
+            </div>
+
+
+            <!-- Status -->
+
+            <div>
+
+                <label
+                    for="status"
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                >
+                    Status
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                >
+
+                    <option value="">
+                        All statuses
+                    </option>
+
+                    {% for status_option in booking_statuses %}
+
+                        <option
+                            value="{{ status_option }}"
+                            {% if status == status_option %}selected{% endif %}
+                        >
+                            {{ status_option }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- Payment -->
+
+            <div>
+
+                <label
+                    for="payment_status"
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                >
+                    Payment
+                </label>
+
+                <select
+                    id="payment_status"
+                    name="payment_status"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                >
+
+                    <option value="">
+                        All payments
+                    </option>
+
+                    <option
+                        value="paid"
+                        {% if payment_status == 'paid' %}selected{% endif %}
+                    >
+                        Paid
+                    </option>
+
+                    <option
+                        value="outstanding"
+                        {% if payment_status == 'outstanding' %}selected{% endif %}
+                    >
+                        Outstanding
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Date From -->
+
+            <div>
+
+                <label
+                    for="date_from"
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                >
+                    Check-in From
+                </label>
+
+                <input
+                    type="date"
+                    id="date_from"
+                    name="date_from"
+                    value="{{ date_from or '' }}"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                >
+
+            </div>
+
+
+            <!-- Date To -->
+
+            <div>
+
+                <label
+                    for="date_to"
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                >
+                    Check-in To
+                </label>
+
+                <input
+                    type="date"
+                    id="date_to"
+                    name="date_to"
+                    value="{{ date_to or '' }}"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                >
+
+            </div>
+
+
+            <!-- Buttons -->
+
+            <div class="flex items-end gap-3 lg:col-span-6">
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                >
+                    Apply Filters
+                </button>
+
+                <a
+                    href="{{ url_for('admin_stay_bookings.index') }}"
+                    class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                    Reset
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================================
+         STAY BOOKING LIBRARY
+    ====================================================================== -->
+
+    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+
+                <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">
+                    Accommodation Library
+                </p>
+
+                <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                    Stay Booking Catalogue
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    {{ stay_bookings|length }}
+                    stay booking{{ '' if stay_bookings|length == 1 else 's' }}
+                    found.
+                </p>
+
+            </div>
+
+
+            {% if stay_bookings %}
+
+                <span class="inline-flex w-fit items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                    {{ stay_bookings|length }} records
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if stay_bookings %}
+
+            <div class="divide-y divide-slate-100">
+
+                {% for stay_booking in stay_bookings %}
+
+                    {% set booking = stay_booking.booking %}
+
+                    <div class="p-6 transition hover:bg-slate-50">
+
+                        <div class="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+
+                            <!-- =================================================
+                                 MAIN INFORMATION
+                            ================================================== -->
+
+                            <div class="min-w-0 flex-1">
+
+                                <div class="flex flex-wrap items-center gap-2">
+
+                                    {% if booking %}
+
+                                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                                            {{ booking.booking_reference }}
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if booking and booking.status == 'Confirmed' %}
+
+                                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                                            Confirmed
+                                        </span>
+
+                                    {% elif booking and booking.status in ['Inquiry', 'Pending', 'Awaiting Payment', 'Partially Paid'] %}
+
+                                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                                            {{ booking.status }}
+                                        </span>
+
+                                    {% elif booking and booking.status == 'Cancelled' %}
+
+                                        <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                            Cancelled
+                                        </span>
+
+                                    {% elif booking %}
+
+                                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                            {{ booking.status }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <h3 class="mt-3 text-xl font-semibold text-slate-900">
+                                    {{ stay_booking.stay_name or 'Accommodation Stay' }}
+                                </h3>
+
+
+                                {% if stay_booking.room_name %}
+
+                                    <p class="mt-1 text-sm font-semibold text-amber-700">
+                                        {{ stay_booking.room_name }}
+                                    </p>
+
+                                {% endif %}
+
+
+                                <!-- Guest -->
+
+                                {% if booking %}
+
+                                    <div class="mt-4">
+
+                                        <p class="text-sm text-slate-500">
+                                            Guest
+                                        </p>
+
+                                        <p class="mt-1 font-semibold text-slate-800">
+                                            {{ booking.first_name or '' }}
+                                            {{ booking.last_name or '' }}
+                                        </p>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                <!-- Stay details -->
+
+                                <div class="mt-4 flex flex-wrap gap-2">
+
+                                    <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+                                        Check-in:
+                                        <strong class="text-slate-800">
+                                            {% if stay_booking.check_in %}
+                                                {{ stay_booking.check_in.strftime('%d %b %Y') }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </strong>
+                                    </span>
+
+
+                                    <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+                                        Check-out:
+                                        <strong class="text-slate-800">
+                                            {% if stay_booking.check_out %}
+                                                {{ stay_booking.check_out.strftime('%d %b %Y') }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </strong>
+                                    </span>
+
+
+                                    <span class="rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+                                        Nights:
+                                        <strong class="text-emerald-900">
+                                            {{ stay_booking.nights or 0 }}
+                                        </strong>
+                                    </span>
+
+
+                                    <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+                                        Rooms:
+                                        <strong class="text-slate-800">
+                                            {{ stay_booking.rooms or 0 }}
+                                        </strong>
+                                    </span>
+
+
+                                    {% if stay_booking.meal_plan %}
+
+                                        <span class="rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
+                                            Meal Plan:
+                                            <strong class="text-amber-900">
+                                                {{ stay_booking.meal_plan }}
+                                            </strong>
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 FINANCIAL SUMMARY
+                            ================================================== -->
+
+                            {% if booking %}
+
+                                <div class="shrink-0 rounded-2xl border border-slate-200 bg-slate-50 p-5 xl:min-w-[190px]">
+
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Booking Total
+                                    </p>
+
+                                    <p class="mt-2 text-xl font-bold text-slate-900">
+                                        {{ booking.currency or 'KES' }}
+                                        {{ "{:,.2f}".format(booking.total_amount or 0) }}
+                                    </p>
+
+
+                                    <div class="mt-3 border-t border-slate-200 pt-3">
+
+                                        <p class="text-xs text-slate-500">
+                                            Balance Due
+                                        </p>
+
+                                        <p class="mt-1 font-semibold {% if (booking.balance_due or 0) > 0 %}text-amber-700{% else %}text-emerald-700{% endif %}">
+                                            {{ booking.currency or 'KES' }}
+                                            {{ "{:,.2f}".format(booking.balance_due or 0) }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- =================================================
+                                 ACTIONS
+                            ================================================== -->
+
+                            <div class="flex shrink-0 flex-wrap gap-2">
+
+                                {% if booking %}
+
+                                    <a
+                                        href="{{ url_for(
+                                            'admin_stay_bookings.detail',
+                                            booking_id=booking.id,
+                                            stay_booking_id=stay_booking.id
+                                        ) }}"
+                                        class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                    >
+                                        View
+                                    </a>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'admin_stay_bookings.edit',
+                                            booking_id=booking.id,
+                                            stay_booking_id=stay_booking.id
+                                        ) }}"
+                                        class="inline-flex items-center rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900"
+                                    >
+                                        Edit
+                                    </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+        {% else %}
+
+            <!-- =============================================================
+                 EMPTY STATE
+            ============================================================= -->
+
+            <div class="px-6 py-16 text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl">
+                    🏨
+                </div>
+
+                <h3 class="mt-5 text-lg font-semibold text-slate-900">
+                    No stay bookings found
+                </h3>
+
+                <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+
+                    {% if search or status or date_from or date_to or payment_status %}
+
+                        No accommodation records match your current filters.
+                        Try adjusting your search or clearing the filters.
+
+                    {% else %}
+
+                        Stay bookings will appear here once accommodation
+                        reservations have been created.
+
+                    {% endif %}
+
+                </p>
+
+
+                {% if search or status or date_from or date_to or payment_status %}
+
+                    <a
+                        href="{{ url_for('admin_stay_bookings.index') }}"
+                        class="mt-6 inline-flex rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                    >
+                        Clear Filters
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for('admin_stay_bookings.create_global') }}"
+                        class="mt-6 inline-flex rounded-xl bg-emerald-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900"
+                    >
+                        Create First Stay Booking
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

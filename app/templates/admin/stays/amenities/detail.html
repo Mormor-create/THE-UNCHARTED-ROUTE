@@ -1,0 +1,380 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ amenity.name }} · {{ stay.property_name }}{% endblock %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
+        <div>
+
+            <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 mb-2">
+
+                <a
+                    href="{{ url_for('admin_stay.index') }}"
+                    class="hover:text-slate-900"
+                >
+                    Stays
+                </a>
+
+                <span>/</span>
+
+                <a
+                    href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                    class="hover:text-slate-900"
+                >
+                    {{ stay.property_name }}
+                </a>
+
+                <span>/</span>
+
+                <a
+                    href="{{ url_for('admin_stay_amenity.index', stay_id=stay.id) }}"
+                    class="hover:text-slate-900"
+                >
+                    Amenities
+                </a>
+
+                <span>/</span>
+
+                <span>{{ amenity.name }}</span>
+
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+
+                <h1 class="text-2xl font-bold text-slate-900">
+                    {{ amenity.name }}
+                </h1>
+
+                {% if amenity.active %}
+                    <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        Active
+                    </span>
+                {% else %}
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        Inactive
+                    </span>
+                {% endif %}
+
+                {% if amenity.featured %}
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                        Featured
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Property amenity for {{ stay.property_name }}.
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-2">
+
+            <a
+                href="{{ url_for('admin_stay_amenity.index', stay_id=stay.id) }}"
+                class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+                ← Amenities
+            </a>
+
+            <a
+                href="{{ url_for('admin_stay_amenity.edit', amenity_id=amenity.id) }}"
+                class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+                Edit Amenity
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Information -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+        <!-- Amenity Details -->
+        <div class="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-4">
+
+                <h2 class="font-semibold text-slate-900">
+                    Amenity Details
+                </h2>
+
+            </div>
+
+            <div class="p-6">
+
+                <div class="flex items-start gap-5">
+
+                    <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-2xl text-slate-700">
+                        {% if amenity.icon %}
+                            {{ amenity.icon }}
+                        {% else %}
+                            ✦
+                        {% endif %}
+                    </div>
+
+                    <div class="min-w-0">
+
+                        <h3 class="text-xl font-semibold text-slate-900">
+                            {{ amenity.name }}
+                        </h3>
+
+                        {% if amenity.category %}
+                            <p class="mt-1 text-sm text-slate-500">
+                                {{ amenity.category }}
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                {% if amenity.description %}
+
+                    <div class="mt-6">
+
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                            Description
+                        </h3>
+
+                        <div class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
+                            {{ amenity.description }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Configuration -->
+        <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-4">
+
+                <h2 class="font-semibold text-slate-900">
+                    Configuration
+                </h2>
+
+            </div>
+
+            <div class="divide-y divide-slate-100">
+
+                <div class="flex items-center justify-between px-6 py-4">
+                    <span class="text-sm text-slate-500">
+                        Category
+                    </span>
+
+                    <span class="text-sm font-medium text-slate-900">
+                        {{ amenity.category or "—" }}
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between px-6 py-4">
+                    <span class="text-sm text-slate-500">
+                        Display Order
+                    </span>
+
+                    <span class="text-sm font-medium text-slate-900">
+                        {{ amenity.display_order }}
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between px-6 py-4">
+                    <span class="text-sm text-slate-500">
+                        Status
+                    </span>
+
+                    {% if amenity.active %}
+                        <span class="text-sm font-semibold text-emerald-600">
+                            Active
+                        </span>
+                    {% else %}
+                        <span class="text-sm font-semibold text-slate-500">
+                            Inactive
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center justify-between px-6 py-4">
+                    <span class="text-sm text-slate-500">
+                        Featured
+                    </span>
+
+                    {% if amenity.featured %}
+                        <span class="text-sm font-semibold text-amber-600">
+                            Yes
+                        </span>
+                    {% else %}
+                        <span class="text-sm font-semibold text-slate-500">
+                            No
+                        </span>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Actions -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+        <!-- Status / Featured -->
+        <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <h2 class="font-semibold text-slate-900">
+                Manage Amenity
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Change the visibility and featured status of this amenity.
+            </p>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+
+                {% if amenity.active %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_stay_amenity.deactivate', amenity_id=amenity.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-100"
+                        >
+                            Deactivate
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_stay_amenity.activate', amenity_id=amenity.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
+                        >
+                            Activate
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                {% if amenity.featured %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_stay_amenity.unfeature', amenity_id=amenity.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                            Remove Featured
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_stay_amenity.feature', amenity_id=amenity.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-100"
+                        >
+                            Feature Amenity
+                        </button>
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Danger Zone -->
+        <div class="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
+
+            <h2 class="font-semibold text-red-700">
+                Danger Zone
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Permanently remove this amenity from the property.
+            </p>
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_stay_amenity.delete', amenity_id=amenity.id) }}"
+                class="mt-5"
+                onsubmit="return confirm('Are you sure you want to delete this amenity? This action cannot be undone.');"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+                >
+                    Delete Amenity
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

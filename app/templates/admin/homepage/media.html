@@ -1,0 +1,150 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Homepage Media
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <div>
+
+        <a
+            href="{{ url_for('admin_homepage.index') }}"
+            class="text-sm font-medium text-slate-500 hover:text-slate-900"
+        >
+            ← Back to Homepage
+        </a>
+
+        <h1 class="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+            Homepage Media
+        </h1>
+
+        <p class="mt-2 max-w-2xl text-sm text-slate-600">
+            Review the media assets currently assigned to homepage sections.
+            Media remains managed by the central digital asset system.
+        </p>
+
+    </div>
+
+
+    {% if sections %}
+
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+            {% for section in sections %}
+
+                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                    {% if section.media_asset %}
+
+                        <div class="aspect-video overflow-hidden bg-slate-100">
+
+                            {% if section.media_asset.is_image %}
+
+                                <img
+                                    src="{{ section.media_asset.file_url or url_for('static', filename=section.media_asset.file_path) }}"
+                                    alt="{{ section.media_asset.alt_text or section.title or 'Homepage media' }}"
+                                    class="h-full w-full object-cover"
+                                >
+
+                            {% elif section.media_asset.is_video %}
+
+                                <video
+                                    class="h-full w-full object-cover"
+                                    controls
+                                    preload="metadata"
+                                >
+                                    <source
+                                        src="{{ section.media_asset.file_url or url_for('static', filename=section.media_asset.file_path) }}"
+                                        type="{{ section.media_asset.mime_type }}"
+                                    >
+                                </video>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="p-5">
+
+                        <div class="flex items-center justify-between gap-3">
+
+                            <h2 class="font-semibold text-slate-900">
+                                {{ section.title or section.section_type|replace("_", " ")|title }}
+                            </h2>
+
+                            <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                                {{ section.section_type|replace("_", " ") }}
+                            </span>
+
+                        </div>
+
+
+                        <p class="mt-2 text-xs text-slate-500">
+                            Media:
+                            {{ section.media_asset.title
+                                or section.media_asset.original_filename
+                                or section.media_asset.filename }}
+                        </p>
+
+
+                        {% if section.media_asset.media_type %}
+
+                            <p class="mt-1 text-xs text-slate-400">
+                                {{ section.media_asset.media_type|title }}
+                            </p>
+
+                        {% endif %}
+
+
+                        <div class="mt-5">
+
+                            <a
+                                href="{{ url_for('admin_homepage.edit_section', section_id=section.id) }}"
+                                class="inline-flex rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            >
+                                Edit Section
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                No homepage media assigned
+            </h2>
+
+            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
+                No homepage section currently has an active image or video
+                assigned to it.
+            </p>
+
+            <a
+                href="{{ url_for('admin_homepage.sections') }}"
+                class="mt-6 inline-flex rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+                View Homepage Sections
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+:::

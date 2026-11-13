@@ -1,0 +1,215 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ 'Edit' if itinerary_day else 'Add' }} Itinerary Day | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-2 text-sm">
+            <li>
+                <a href="{{ url_for('admin_safaris.properties') }}"
+                   class="font-medium text-[#66736B] hover:text-[#1F5138]">
+                    Safari properties
+                </a>
+            </li>
+            <li class="text-[#D8C9AE]">/</li>
+            <li>
+                <a href="{{ url_for('admin_safaris.packages', property_id=property.id) }}"
+                   class="font-medium text-[#66736B] hover:text-[#1F5138]">
+                    {{ property.name }} packages
+                </a>
+            </li>
+            <li class="text-[#D8C9AE]">/</li>
+            <li>
+                <a href="{{ url_for(
+                        'admin_safaris.itinerary',
+                        property_id=property.id,
+                        option_id=option.id
+                    ) }}"
+                   class="font-medium text-[#66736B] hover:text-[#1F5138]">
+                    Itinerary
+                </a>
+            </li>
+            <li class="text-[#D8C9AE]">/</li>
+            <li class="font-semibold text-[#12372A]" aria-current="page">
+                {{ 'Edit day' if itinerary_day else 'Add day' }}
+            </li>
+        </ol>
+    </nav>
+
+    <header class="mb-8">
+        <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-[#5C6B32]">
+            Safari catalogue
+        </p>
+        <h1 class="text-3xl font-semibold tracking-tight text-[#12372A] sm:text-4xl">
+            {{ 'Edit itinerary day' if itinerary_day else 'Add itinerary day' }}
+        </h1>
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#66736B]">
+            Give guests a clear picture of the day's activities, meals,
+            transport and overnight arrangements.
+        </p>
+    </header>
+
+    <section class="mb-6 rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5]/70 p-5">
+        <p class="text-xs font-bold uppercase tracking-wider text-[#5C6B32]">
+            Package
+        </p>
+        <h2 class="mt-1 text-lg font-semibold text-[#12372A]">
+            {{ option.name }}
+        </h2>
+        <p class="mt-1 text-sm text-[#66736B]">
+            {{ property.name }} · {{ option.duration_days }} days ·
+            {{ option.duration_nights }} nights
+        </p>
+    </section>
+
+    <form method="post"
+          class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        {{ form.hidden_tag() }}
+
+        {# The itinerary routes determine the package. Keep the form's
+           package field submitted but prevent accidental reassignment. #}
+        {% if form.package_option_id is defined %}
+            <div class="hidden">
+                {{ form.package_option_id() }}
+            </div>
+        {% endif %}
+
+        <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/60 px-5 py-5 sm:px-8">
+            <h2 class="text-base font-semibold text-[#12372A]">
+                Day details
+            </h2>
+            <p class="mt-1 text-sm leading-5 text-[#66736B]">
+                Complete the fields that apply to this day. Keep the schedule
+                realistic and avoid promising activities that are not confirmed.
+            </p>
+        </div>
+
+        <div class="space-y-8 p-5 sm:p-8">
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                {% for name in ['day_number', 'title'] %}
+                    {% if form[name] is defined %}
+                        <div>
+                            <label for="{{ form[name].id }}"
+                                   class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                {{ form[name].label.text }}
+                                {% if form[name].flags.required %}
+                                    <span class="text-[#C96A2C]">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ form[name](
+                                class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                            ) }}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <section class="border-t border-[#E9DDC8] pt-7">
+                <h2 class="mb-5 text-lg font-semibold text-[#12372A]">
+                    Guest-facing itinerary
+                </h2>
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {% for name in [
+                        'description',
+                        'morning_activities',
+                        'afternoon_activities',
+                        'evening_activities'
+                    ] %}
+                        {% if form[name] is defined %}
+                            <div class="md:col-span-2">
+                                <label for="{{ form[name].id }}"
+                                       class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                    {{ form[name].label.text }}
+                                    {% if form[name].flags.required %}
+                                        <span class="text-[#C96A2C]">*</span>
+                                    {% endif %}
+                                </label>
+
+                                {{ form[name](
+                                    class_="min-h-28 w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15",
+                                    rows=4
+                                ) }}
+
+                                {% for error in form[name].errors %}
+                                    <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="border-t border-[#E9DDC8] pt-7">
+                <h2 class="mb-5 text-lg font-semibold text-[#12372A]">
+                    Logistics and stay
+                </h2>
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {% for name in [
+                        'meals_included',
+                        'overnight_location',
+                        'transport_details',
+                        'notes'
+                    ] %}
+                        {% if form[name] is defined %}
+                            <div class="{% if name in ['transport_details', 'notes'] %}md:col-span-2{% endif %}">
+                                <label for="{{ form[name].id }}"
+                                       class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                    {{ form[name].label.text }}
+                                </label>
+
+                                {% if form[name].type in ['TextAreaField', 'TextArea'] %}
+                                    {{ form[name](
+                                        class_="min-h-24 w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15",
+                                        rows=3
+                                    ) }}
+                                {% else %}
+                                    {{ form[name](
+                                        class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                                    ) }}
+                                {% endif %}
+
+                                {% for error in form[name].errors %}
+                                    <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ url_for(
+                        'admin_safaris.itinerary',
+                        property_id=property.id,
+                        option_id=option.id
+                    ) }}"
+                   class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+                    {{ 'Save changes' if itinerary_day else 'Add itinerary day' }}
+                    <span class="ml-2" aria-hidden="true">→</span>
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+{% endblock %}

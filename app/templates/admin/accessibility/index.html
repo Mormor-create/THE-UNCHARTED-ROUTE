@@ -1,0 +1,465 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Accessibility Profiles
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- =====================================================================
+         HEADER
+         ===================================================================== -->
+
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+        <div>
+
+            <p class="text-xs font-bold uppercase tracking-[0.25em] text-route-safari">
+                Experience Configuration
+            </p>
+
+            <h1 class="mt-2 font-display text-3xl font-semibold text-route-ink">
+                Accessibility Profiles
+            </h1>
+
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+                Reusable accessibility and guest-suitability profiles
+                shared across The Uncharted Route experiences.
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-3">
+
+            <a
+                href="{{ url_for('admin_accessibility.statistics') }}"
+                class="inline-flex items-center rounded-lg border border-route-border px-4 py-2.5 text-sm font-semibold text-route-forest hover:bg-route-cream"
+            >
+                Statistics
+            </a>
+
+            <a
+                href="{{ url_for('admin_accessibility.create') }}"
+                class="inline-flex items-center rounded-lg bg-route-deep px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-forest"
+            >
+                + New Profile
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         STATISTICS
+         ===================================================================== -->
+
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Total Profiles
+            </p>
+
+            <p class="mt-2 text-3xl font-semibold text-route-ink">
+                {{ statistics.total }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Active
+            </p>
+
+            <p class="mt-2 text-3xl font-semibold text-route-forest">
+                {{ statistics.active }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Wheelchair Accessible
+            </p>
+
+            <p class="mt-2 text-3xl font-semibold text-route-safari">
+                {{ statistics.wheelchair_accessible }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Family Friendly
+            </p>
+
+            <p class="mt-2 text-3xl font-semibold text-route-gold">
+                {{ statistics.family_friendly }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         FILTERS
+         ===================================================================== -->
+
+    <div class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+        <form method="GET" class="grid gap-4 lg:grid-cols-6">
+
+            <div class="lg:col-span-2">
+
+                {{ form.q.label(
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted"
+                ) }}
+
+                {{ form.q(
+                    class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest",
+                    placeholder="Search profiles..."
+                ) }}
+
+            </div>
+
+
+            <div>
+
+                {{ form.active.label(
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted"
+                ) }}
+
+                {{ form.active(
+                    class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                ) }}
+
+            </div>
+
+
+            <div>
+
+                {{ form.wheelchair_accessible.label(
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted"
+                ) }}
+
+                {{ form.wheelchair_accessible(
+                    class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                ) }}
+
+            </div>
+
+
+            <div>
+
+                {{ form.child_friendly.label(
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted"
+                ) }}
+
+                {{ form.child_friendly(
+                    class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                ) }}
+
+            </div>
+
+
+            <div>
+
+                {{ form.fitness_level.label(
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted"
+                ) }}
+
+                {{ form.fitness_level(
+                    class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                ) }}
+
+            </div>
+
+
+            <div class="flex items-end gap-2 lg:col-span-6">
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-route-deep px-5 py-2.5 text-sm font-semibold text-white hover:bg-route-forest"
+                >
+                    Filter
+                </button>
+
+                <a
+                    href="{{ url_for('admin_accessibility.index') }}"
+                    class="rounded-lg border border-route-border px-5 py-2.5 text-sm font-semibold text-route-forest hover:bg-route-cream"
+                >
+                    Clear
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================================
+         PROFILES
+         ===================================================================== -->
+
+    <div class="overflow-hidden rounded-xl border border-route-border bg-route-white shadow-sm">
+
+        <div class="border-b border-route-border px-6 py-5">
+
+            <div class="flex items-center justify-between">
+
+                <div>
+
+                    <h2 class="text-lg font-semibold text-route-ink">
+                        Accessibility Profiles
+                    </h2>
+
+                    <p class="mt-1 text-sm text-route-muted">
+                        {{ profiles|length }} profile{% if profiles|length != 1 %}s{% endif %}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {% if profiles %}
+
+        <div class="divide-y divide-route-border">
+
+            {% for profile in profiles %}
+
+            <div class="px-6 py-5 hover:bg-route-cream">
+
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+
+                    <div class="min-w-0 flex-1">
+
+                        <div class="flex flex-wrap items-center gap-2">
+
+                            <a
+                                href="{{ url_for('admin_accessibility.detail', profile_id=profile.id) }}"
+                                class="text-base font-semibold text-route-ink hover:text-route-forest hover:underline"
+                            >
+                                {{ profile.name }}
+                            </a>
+
+
+                            {% if profile.active %}
+
+                            <span class="rounded-full bg-route-forest/10 px-2.5 py-1 text-xs font-semibold text-route-forest">
+                                Active
+                            </span>
+
+                            {% else %}
+
+                            <span class="rounded-full bg-route-sand px-2.5 py-1 text-xs font-semibold text-route-muted">
+                                Inactive
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if profile.fully_accessible %}
+
+                            <span class="rounded-full bg-route-safari/10 px-2.5 py-1 text-xs font-semibold text-route-safari">
+                                Fully Accessible
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if profile.family_friendly %}
+
+                            <span class="rounded-full bg-route-gold/10 px-2.5 py-1 text-xs font-semibold text-route-gold">
+                                Family Friendly
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        {% if profile.summary %}
+
+                        <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+                            {{ profile.summary }}
+                        </p>
+
+                        {% endif %}
+
+
+                        <div class="mt-4 flex flex-wrap gap-2">
+
+                            {% if profile.wheelchair_accessible %}
+
+                            <span class="rounded-md bg-route-cream px-2 py-1 text-xs text-route-forest">
+                                Wheelchair
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if profile.stroller_friendly %}
+
+                            <span class="rounded-md bg-route-cream px-2 py-1 text-xs text-route-forest">
+                                Stroller
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if profile.child_friendly %}
+
+                            <span class="rounded-md bg-route-cream px-2 py-1 text-xs text-route-forest">
+                                Children
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if profile.elderly_friendly %}
+
+                            <span class="rounded-md bg-route-cream px-2 py-1 text-xs text-route-forest">
+                                Elderly
+                            </span>
+
+                            {% endif %}
+
+
+                            <span class="rounded-md bg-route-sand px-2 py-1 text-xs text-route-forest">
+                                {{ profile.minimum_fitness_level }}
+                            </span>
+
+
+                            {% if profile.hiking_required %}
+
+                            <span class="rounded-md bg-route-terracotta/10 px-2 py-1 text-xs text-route-terracotta">
+                                Hiking
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="flex flex-wrap items-center gap-2">
+
+                        <a
+                            href="{{ url_for('admin_accessibility.detail', profile_id=profile.id) }}"
+                            class="rounded-lg border border-route-border px-3 py-2 text-xs font-semibold text-route-forest hover:bg-route-cream"
+                        >
+                            View
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin_accessibility.edit', profile_id=profile.id) }}"
+                            class="rounded-lg border border-route-border px-3 py-2 text-xs font-semibold text-route-forest hover:bg-route-cream"
+                        >
+                            Edit
+                        </a>
+
+
+                        {% if profile.active %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_accessibility.deactivate', profile_id=profile.id) }}"
+                            class="inline"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="rounded-lg border border-route-gold/40 px-3 py-2 text-xs font-semibold text-route-gold hover:bg-route-gold/10"
+                            >
+                                Deactivate
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_accessibility.activate', profile_id=profile.id) }}"
+                            class="inline"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="rounded-lg border border-route-forest/40 px-3 py-2 text-xs font-semibold text-route-forest hover:bg-route-forest/10"
+                            >
+                                Activate
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="px-6 py-16 text-center">
+
+            <p class="text-sm font-semibold text-route-ink">
+                No accessibility profiles found.
+            </p>
+
+            <p class="mt-2 text-sm text-route-muted">
+                Create your first reusable accessibility profile.
+            </p>
+
+            <a
+                href="{{ url_for('admin_accessibility.create') }}"
+                class="mt-5 inline-flex rounded-lg bg-route-deep px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-forest"
+            >
+                Create Profile
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

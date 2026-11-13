@@ -1,0 +1,469 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Stay Management{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <!-- ================================================================
+         HEADER
+    ================================================================= -->
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+        <div>
+            <div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+                <a href="{{ url_for('admin_stay.index') }}"
+                   class="hover:text-slate-900">
+                    Stays
+                </a>
+                <span>/</span>
+                <span>Management</span>
+            </div>
+
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+                Stay Management
+            </h1>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Manage properties, accommodation details, rooms, availability,
+                media, amenities and guest-facing information.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+
+            <a href="{{ url_for('admin_stay.create') }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="2">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 4v16m8-8H4"/>
+                </svg>
+                Add Stay
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         SUMMARY
+    ================================================================= -->
+    {% set total_stays = stays|length %}
+    {% set active_stays = stays|selectattr("active")|list|length %}
+    {% set featured_stays = stays|selectattr("featured")|list|length %}
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <!-- Total -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Total Stays
+                    </p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ total_stays }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Active
+                    </p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ active_stays }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inactive -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Inactive
+                    </p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ total_stays - active_stays }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Featured
+                    </p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ featured_stays }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.563.563 0 00-.182-.557L2.84 10.385c-.38-.325-.178-.948.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         FILTERS
+    ================================================================= -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+        <div class="mb-5">
+            <h2 class="text-base font-semibold text-slate-900">
+                Find a Stay
+            </h2>
+            <p class="mt-1 text-sm text-slate-500">
+                Search and filter your accommodation properties.
+            </p>
+        </div>
+
+        <form method="POST"
+              action="{{ url_for('admin_stay.filter') }}"
+              class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+
+            {{ form.hidden_tag() }}
+
+            <div class="xl:col-span-2">
+                {{ form.search.label(
+                    class="mb-1.5 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.search(
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200",
+                    placeholder="Search by property, code or location..."
+                ) }}
+
+                {% for error in form.search.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.destination_id.label(
+                    class="mb-1.5 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.destination_id(
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                ) }}
+            </div>
+
+            <div>
+                {{ form.accommodation_type.label(
+                    class="mb-1.5 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.accommodation_type(
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                ) }}
+            </div>
+
+            <div>
+                {{ form.status.label(
+                    class="mb-1.5 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.status(
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                ) }}
+            </div>
+
+            <div>
+                {{ form.featured.label(
+                    class="mb-1.5 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.featured(
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                ) }}
+            </div>
+
+            <div class="flex items-end">
+                {{ form.submit(
+                    class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                ) }}
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ================================================================
+         STAY LIST
+    ================================================================= -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+                <h2 class="font-semibold text-slate-900">
+                    Properties
+                </h2>
+                <p class="mt-1 text-sm text-slate-500">
+                    {{ total_stays }} property{% if total_stays != 1 %}ies{% else %}{% endif %}
+                    currently loaded.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_stay.create') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                Add Property
+            </a>
+
+        </div>
+
+
+        {% if stays %}
+
+            <div class="divide-y divide-slate-100">
+
+                {% for stay in stays %}
+
+                    <div class="p-5 transition hover:bg-slate-50/70">
+
+                        <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+
+                            <!-- Property -->
+                            <div class="min-w-0 flex-1">
+
+                                <div class="flex flex-wrap items-center gap-2">
+
+                                    <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                                       class="text-base font-semibold text-slate-900 hover:text-slate-600">
+                                        {{ stay.property_name }}
+                                    </a>
+
+                                    {% if stay.featured %}
+                                        <span class="inline-flex items-center rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700">
+                                            Featured
+                                        </span>
+                                    {% endif %}
+
+                                    {% if stay.active %}
+                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+
+                                    {% if stay.stay_code %}
+                                        <span>
+                                            Code:
+                                            <strong class="font-medium text-slate-700">
+                                                {{ stay.stay_code }}
+                                            </strong>
+                                        </span>
+                                    {% endif %}
+
+                                    {% if stay.accommodation_type %}
+                                        <span>
+                                            {{ stay.accommodation_type }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if stay.destination %}
+                                        <span>
+                                            {{ stay.destination.name }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if stay.location %}
+                                        <span>
+                                            {{ stay.location }}
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                {% if stay.short_description %}
+                                    <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+                                        {{ stay.short_description }}
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Stats -->
+                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-auto">
+
+                                <div class="rounded-xl bg-slate-50 px-4 py-3 text-center">
+                                    <p class="text-lg font-semibold text-slate-900">
+                                        {{ stay.total_rooms or 0 }}
+                                    </p>
+                                    <p class="text-xs text-slate-500">
+                                        Rooms
+                                    </p>
+                                </div>
+
+                                <div class="rounded-xl bg-slate-50 px-4 py-3 text-center">
+                                    <p class="text-lg font-semibold text-slate-900">
+                                        {{ stay.maximum_guests or 0 }}
+                                    </p>
+                                    <p class="text-xs text-slate-500">
+                                        Guests
+                                    </p>
+                                </div>
+
+                                <div class="rounded-xl bg-slate-50 px-4 py-3 text-center">
+                                    <p class="text-lg font-semibold text-slate-900">
+                                        {{ stay.minimum_nights or 1 }}
+                                    </p>
+                                    <p class="text-xs text-slate-500">
+                                        Min Nights
+                                    </p>
+                                </div>
+
+                                <div class="rounded-xl bg-slate-50 px-4 py-3 text-center">
+                                    <p class="text-lg font-semibold text-slate-900">
+                                        {{ stay.display_order or 0 }}
+                                    </p>
+                                    <p class="text-xs text-slate-500">
+                                        Order
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            <!-- Actions -->
+                            <div class="flex flex-wrap items-center gap-2 xl:w-auto">
+
+                                <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                                   class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:border-slate-400">
+                                    View
+                                </a>
+
+                                <a href="{{ url_for('admin_stay.edit', stay_id=stay.id) }}"
+                                   class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-3.5 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="px-6 py-16 text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-7 w-7"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.7">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9"/>
+                    </svg>
+                </div>
+
+                <h3 class="mt-4 text-base font-semibold text-slate-900">
+                    No stays found
+                </h3>
+
+                <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
+                    You have not added any accommodation properties yet,
+                    or your current filters returned no results.
+                </p>
+
+                <a href="{{ url_for('admin_stay.create') }}"
+                   class="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                    Add Your First Stay
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

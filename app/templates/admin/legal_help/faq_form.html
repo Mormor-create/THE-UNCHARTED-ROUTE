@@ -1,0 +1,255 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ "Edit FAQ" if faq else "Add FAQ" }} | Legal & Help
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-4xl space-y-8">
+
+    <div>
+
+        <a
+            href="{{ url_for('admin_legal_help.faq') }}"
+            class="
+                text-sm
+                font-semibold
+                text-route-forest
+                hover:text-route-terracotta
+            "
+        >
+            ← Back to FAQs
+        </a>
+
+        <h1
+            class="
+                mt-4
+                font-display
+                text-4xl
+                font-semibold
+                text-route-ink
+            "
+        >
+            {{ "Edit FAQ" if faq else "Add FAQ" }}
+        </h1>
+
+        <p class="mt-2 text-sm text-route-muted">
+            Manage the question and answer shown on the public FAQ page.
+        </p>
+
+    </div>
+
+
+    <section class="rounded-2xl bg-route-white p-6 shadow-route">
+
+        <form method="POST" class="space-y-6">
+
+            {{ form.hidden_tag() }}
+
+
+            <div>
+
+                {{ form.question.label(
+                    class="block text-sm font-semibold text-route-ink"
+                ) }}
+
+                {{ form.question(
+                    class="
+                        mt-2
+                        w-full
+                        rounded-xl
+                        border
+                        border-route-sand
+                        bg-route-cream/30
+                        px-4
+                        py-3
+                        text-sm
+                        text-route-ink
+                        outline-none
+                        focus:border-route-forest
+                        focus:ring-2
+                        focus:ring-route-forest/10
+                    "
+                ) }}
+
+                {% for error in form.question.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+
+            </div>
+
+
+            <div>
+
+                {{ form.answer.label(
+                    class="block text-sm font-semibold text-route-ink"
+                ) }}
+
+                {{ form.answer(
+                    rows="10",
+                    class="
+                        mt-2
+                        w-full
+                        rounded-xl
+                        border
+                        border-route-sand
+                        bg-route-cream/30
+                        px-4
+                        py-3
+                        text-sm
+                        leading-7
+                        text-route-ink
+                        outline-none
+                        focus:border-route-forest
+                        focus:ring-2
+                        focus:ring-route-forest/10
+                    "
+                ) }}
+
+                {% for error in form.answer.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="grid gap-6 sm:grid-cols-2">
+
+                <div>
+
+                    {{ form.category.label(
+                        class="block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.category(
+                        placeholder="e.g. Booking",
+                        class="
+                            mt-2
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-sand
+                            bg-route-cream/30
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            focus:border-route-forest
+                            focus:ring-2
+                            focus:ring-route-forest/10
+                        "
+                    ) }}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.sort_order.label(
+                        class="block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.sort_order(
+                        class="
+                            mt-2
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-sand
+                            bg-route-cream/30
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            focus:border-route-forest
+                            focus:ring-2
+                            focus:ring-route-forest/10
+                        "
+                    ) }}
+
+                </div>
+
+            </div>
+
+
+            <div class="flex items-center gap-3">
+
+                {{ form.active(
+                    class="
+                        h-4
+                        w-4
+                        rounded
+                        border-route-sand
+                        text-route-forest
+                        focus:ring-route-forest
+                    "
+                ) }}
+
+                {{ form.active.label(
+                    class="text-sm font-semibold text-route-ink"
+                ) }}
+
+            </div>
+
+
+            <div
+                class="
+                    flex
+                    flex-col-reverse
+                    gap-3
+                    sm:flex-row
+                    sm:justify-end
+                "
+            >
+
+                <a
+                    href="{{ url_for('admin_legal_help.faq') }}"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-route-sand
+                        px-6
+                        py-3
+                        text-sm
+                        font-bold
+                        text-route-muted
+                        transition
+                        hover:bg-route-cream
+                    "
+                >
+                    Cancel
+                </a>
+
+                {{ form.submit(
+                    class="
+                        rounded-full
+                        bg-route-forest
+                        px-7
+                        py-3
+                        text-sm
+                        font-bold
+                        text-route-white
+                        transition
+                        hover:bg-route-deep
+                    "
+                ) }}
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

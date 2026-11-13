@@ -1,0 +1,296 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Experience FAQs — {{ experience.name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8">
+
+    <!-- Header -->
+    <div>
+        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_experiences.index') }}" class="hover:text-[#1F5138]">Experiences</a>
+            <span>/</span>
+            <span>{{ experience.title }}</span>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">FAQs</span>
+        </nav>
+
+        <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span> Back to {{ experience.title }}
+        </a>
+
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E9DDC8] text-2xl">?</div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-[#12372A]">Experience FAQs</h1>
+                    <p class="mt-1 max-w-2xl text-sm leading-6 text-[#66736B]">
+                        Manage frequently asked questions for {{ experience.title }}.
+                    </p>
+                </div>
+            </div>
+
+            <a href="{{ url_for('admin_experience_faqs.create', experience_id=experience.id) }}"
+               class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                <span class="text-lg leading-none">+</span> Add FAQ
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Total FAQs</p>
+            <p class="mt-3 text-3xl font-bold text-[#12372A]">{{ total_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">All questions for this experience</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Active</p>
+            <p class="mt-3 text-3xl font-bold text-[#1F5138]">{{ active_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">Enabled FAQs</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Inactive</p>
+            <p class="mt-3 text-3xl font-bold text-[#66736B]">{{ inactive_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">Disabled FAQs</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Featured</p>
+            <p class="mt-3 text-3xl font-bold text-[#D89B24]">{{ featured_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">Highlighted questions</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+        <div class="mb-5">
+            <h2 class="font-semibold text-[#12372A]">Filter FAQs</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Narrow the list by category, status, or featured setting.</p>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('admin_experience_faqs.index', experience_id=experience.id) }}"
+              class="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+            <div>
+                <label for="category" class="mb-2 block text-sm font-semibold text-[#1C2822]">Category</label>
+                <select id="category" name="category"
+                        class="w-full rounded-xl border border-[#D8DCCF] bg-white px-3 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+                    <option value="">All categories</option>
+                    {% for value, label in categories %}
+                    <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="status" class="mb-2 block text-sm font-semibold text-[#1C2822]">Status</label>
+                <select id="status" name="status"
+                        class="w-full rounded-xl border border-[#D8DCCF] bg-white px-3 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+                    <option value="active" {% if selected_status == "active" %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+                    <option value="all" {% if selected_status == "all" %}selected{% endif %}>All statuses</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="featured" class="mb-2 block text-sm font-semibold text-[#1C2822]">Featured</label>
+                <select id="featured" name="featured"
+                        class="w-full rounded-xl border border-[#D8DCCF] bg-white px-3 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+                    <option value="" {% if not selected_featured %}selected{% endif %}>All FAQs</option>
+                    <option value="featured" {% if selected_featured == "featured" %}selected{% endif %}>Featured only</option>
+                    <option value="not_featured" {% if selected_featured == "not_featured" %}selected{% endif %}>Not featured</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="flex-1 rounded-xl bg-[#1F5138] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                    Apply Filters
+                </button>
+                <a href="{{ url_for('admin_experience_faqs.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-4 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <!-- FAQ list -->
+    <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+        <div class="flex flex-col gap-2 border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="font-semibold text-[#12372A]">Questions and Answers</h2>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    {{ faqs|length }} FAQ{{ '' if faqs|length == 1 else 's' }} shown
+                </p>
+            </div>
+            <span class="text-xs text-[#66736B]">{{ experience.title }}</span>
+        </div>
+
+        {% if faqs %}
+        <div class="divide-y divide-[#E9DDC8]">
+            {% for faq in faqs %}
+            <article class="p-5 transition hover:bg-[#F7F1E5]/30 sm:p-6">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+
+                    <!-- FAQ content -->
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="rounded-full bg-[#E9DDC8] px-3 py-1 text-xs font-semibold text-[#12372A]">
+                                {{ faq.category }}
+                            </span>
+
+                            {% if faq.featured %}
+                            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+                                ★ Featured
+                            </span>
+                            {% endif %}
+
+                            {% if faq.active %}
+                            <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <h3 class="mt-4 text-base font-semibold leading-6 text-[#12372A]">
+                            {{ faq.question }}
+                        </h3>
+
+                        <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#66736B]">
+                            {{ faq.answer }}
+                        </p>
+
+                        <p class="mt-4 text-xs text-[#66736B]">
+                            FAQ #{{ faq.id }} <span class="mx-1">·</span>
+                            Display order: {{ faq.display_order }}
+                        </p>
+                    </div>
+
+                    <!-- Independent action forms -->
+                    <div class="flex shrink-0 flex-wrap items-center gap-2 xl:max-w-sm xl:justify-end">
+
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_faqs.reorder', experience_id=experience.id, faq_id=faq.id) }}"
+                              class="flex items-center gap-2">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <label for="order-{{ faq.id }}" class="sr-only">Display order</label>
+                            <input id="order-{{ faq.id }}"
+                                   type="number"
+                                   name="display_order"
+                                   value="{{ faq.display_order }}"
+                                   min="0"
+                                   class="w-20 rounded-lg border border-[#D8DCCF] px-3 py-2 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+                            <button type="submit"
+                                    class="rounded-lg border border-[#D8DCCF] px-3 py-2 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                                Order
+                            </button>
+                        </form>
+
+                        <a href="{{ url_for('admin_experience_faqs.edit', experience_id=experience.id, faq_id=faq.id) }}"
+                           class="inline-flex items-center justify-center rounded-lg border border-[#D8DCCF] px-3 py-2 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                            Edit
+                        </a>
+
+                        {% if faq.active %}
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_faqs.deactivate', experience_id=experience.id, faq_id=faq.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="rounded-lg border border-[#D8DCCF] px-3 py-2 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                                Deactivate
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_faqs.activate', experience_id=experience.id, faq_id=faq.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="rounded-lg border border-[#1F5138]/20 bg-[#1F5138]/5 px-3 py-2 text-sm font-semibold text-[#1F5138] transition hover:bg-[#1F5138]/10">
+                                Activate
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if faq.featured %}
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_faqs.unfeature', experience_id=experience.id, faq_id=faq.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="rounded-lg border border-amber-200 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-50">
+                                Unfeature
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_faqs.feature', experience_id=experience.id, faq_id=faq.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="rounded-lg border border-amber-200 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-50">
+                                Feature
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_faqs.delete', experience_id=experience.id, faq_id=faq.id) }}"
+                              onsubmit="return confirm('Delete this FAQ permanently?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="px-6 py-16 text-center">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F1E5] text-3xl text-[#1F5138]">?</div>
+
+            <h3 class="mt-5 text-lg font-semibold text-[#12372A]">No FAQs found</h3>
+
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#66736B]">
+                {% if selected_category or selected_featured or selected_status != 'all' %}
+                No FAQs match the selected filters. Reset your filters or add a new FAQ.
+                {% else %}
+                Start by adding answers to the questions guests commonly ask about this experience.
+                {% endif %}
+            </p>
+
+            <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                {% if selected_category or selected_featured or selected_status != 'all' %}
+                <a href="{{ url_for('admin_experience_faqs.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-5 py-3 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                    Reset Filters
+                </a>
+                {% endif %}
+
+                <a href="{{ url_for('admin_experience_faqs.create', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                    + Add First FAQ
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+
+    <p class="text-center text-xs text-[#66736B]">
+        The Uncharted Route · Explore. Experience. Remember.
+    </p>
+</div>
+{% endblock %}

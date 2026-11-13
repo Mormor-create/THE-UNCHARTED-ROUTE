@@ -1,0 +1,504 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ profile.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- =====================================================================
+         HEADER
+         ===================================================================== -->
+
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+        <div>
+
+            <a
+                href="{{ url_for('admin_accessibility.index') }}"
+                class="text-sm font-semibold text-route-muted hover:text-route-forest"
+            >
+                ← Accessibility Profiles
+            </a>
+
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+
+                <h1 class="font-display text-3xl font-semibold text-route-ink">
+                    {{ profile.name }}
+                </h1>
+
+                {% if profile.active %}
+
+                <span class="rounded-full bg-route-forest/10 px-3 py-1 text-xs font-semibold text-route-forest">
+                    Active
+                </span>
+
+                {% else %}
+
+                <span class="rounded-full bg-route-sand px-3 py-1 text-xs font-semibold text-route-muted">
+                    Inactive
+                </span>
+
+                {% endif %}
+
+            </div>
+
+            {% if profile.summary %}
+
+            <p class="mt-3 max-w-3xl text-sm leading-6 text-route-muted">
+                {{ profile.summary }}
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-2">
+
+            <a
+                href="{{ url_for('admin_accessibility.edit', profile_id=profile.id) }}"
+                class="rounded-lg bg-route-deep px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-forest"
+            >
+                Edit Profile
+            </a>
+
+
+            {% if profile.active %}
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_accessibility.deactivate', profile_id=profile.id) }}"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="rounded-lg border border-route-gold/40 px-4 py-2.5 text-sm font-semibold text-route-gold hover:bg-route-gold/10"
+                >
+                    Deactivate
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_accessibility.activate', profile_id=profile.id) }}"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="rounded-lg border border-route-forest/40 px-4 py-2.5 text-sm font-semibold text-route-forest hover:bg-route-forest/10"
+                >
+                    Activate
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         PROFILE OVERVIEW
+         ===================================================================== -->
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Fitness Level
+            </p>
+
+            <p class="mt-2 text-lg font-semibold text-route-forest">
+                {{ profile.minimum_fitness_level }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Experience Usage
+            </p>
+
+            <p class="mt-2 text-lg font-semibold text-route-gold">
+                {{ usage_count }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Wheelchair Access
+            </p>
+
+            <p class="mt-2 text-lg font-semibold text-route-safari">
+                {{ "Yes" if profile.wheelchair_accessible else "No" }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-xl border border-route-border bg-route-white p-5 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                Family Friendly
+            </p>
+
+            <p class="mt-2 text-lg font-semibold text-route-terracotta">
+                {{ "Yes" if profile.family_friendly else "No" }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         ACCESSIBILITY PROFILE
+         ===================================================================== -->
+
+    <div class="grid gap-6 lg:grid-cols-2">
+
+
+        <!-- MOBILITY -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Mobility
+            </h2>
+
+            <div class="mt-5 divide-y divide-route-border">
+
+                {% for label, value in [
+                    ("Wheelchair Accessible", profile.wheelchair_accessible),
+                    ("Stroller Friendly", profile.stroller_friendly),
+                    ("Walking Required", profile.walking_required),
+                    ("Hiking Required", profile.hiking_required),
+                    ("Uneven Terrain", profile.uneven_terrain),
+                    ("Stairs Required", profile.stairs_required)
+                ] %}
+
+                <div class="flex items-center justify-between py-3">
+
+                    <span class="text-sm text-route-muted">
+                        {{ label }}
+                    </span>
+
+                    {% if value %}
+
+                    <span class="font-semibold text-route-forest">
+                        Yes
+                    </span>
+
+                    {% else %}
+
+                    <span class="font-semibold text-route-muted">
+                        No
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- GUEST SUITABILITY -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Guest Suitability
+            </h2>
+
+            <div class="mt-5 divide-y divide-route-border">
+
+                {% for label, value in [
+                    ("Child Friendly", profile.child_friendly),
+                    ("Elderly Friendly", profile.elderly_friendly),
+                    ("Pregnancy Friendly", profile.pregnancy_friendly),
+                    ("Pet Friendly", profile.pet_friendly)
+                ] %}
+
+                <div class="flex items-center justify-between py-3">
+
+                    <span class="text-sm text-route-muted">
+                        {{ label }}
+                    </span>
+
+                    {% if value %}
+
+                    <span class="font-semibold text-route-forest">
+                        Yes
+                    </span>
+
+                    {% else %}
+
+                    <span class="font-semibold text-route-muted">
+                        No
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- FACILITIES -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Facilities & Support
+            </h2>
+
+            <div class="mt-5 divide-y divide-route-border">
+
+                {% for label, value in [
+                    ("Accessible Restrooms", profile.accessible_restrooms),
+                    ("Changing Facilities", profile.changing_facilities),
+                    ("Medical Support", profile.medical_support_available)
+                ] %}
+
+                <div class="flex items-center justify-between py-3">
+
+                    <span class="text-sm text-route-muted">
+                        {{ label }}
+                    </span>
+
+                    <span class="font-semibold {{ 'text-route-forest' if value else 'text-route-muted' }}">
+                        {{ "Yes" if value else "No" }}
+                    </span>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- COMMUNICATION -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Communication
+            </h2>
+
+            <div class="mt-5 divide-y divide-route-border">
+
+                {% for label, value in [
+                    ("Multilingual Guides", profile.multilingual_guides),
+                    ("Sign Language", profile.sign_language_available),
+                    ("Braille Materials", profile.braille_materials),
+                    ("Audio Guides", profile.audio_guides)
+                ] %}
+
+                <div class="flex items-center justify-between py-3">
+
+                    <span class="text-sm text-route-muted">
+                        {{ label }}
+                    </span>
+
+                    <span class="font-semibold {{ 'text-route-forest' if value else 'text-route-muted' }}">
+                        {{ "Yes" if value else "No" }}
+                    </span>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- DIETARY -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm lg:col-span-2">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Dietary Support
+            </h2>
+
+            <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for label, value in [
+                    ("Vegetarian", profile.vegetarian_available),
+                    ("Vegan", profile.vegan_available),
+                    ("Halal", profile.halal_available),
+                    ("Kosher", profile.kosher_available),
+                    ("Gluten-Free", profile.gluten_free_available),
+                    ("Allergy Support", profile.allergy_support)
+                ] %}
+
+                <div class="rounded-lg border border-route-border p-4 hover:bg-route-cream">
+
+                    <p class="text-sm text-route-muted">
+                        {{ label }}
+                    </p>
+
+                    <p class="mt-1 font-semibold {{ 'text-route-forest' if value else 'text-route-muted' }}">
+                        {{ "Available" if value else "Not available" }}
+                    </p>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================================
+         NOTES
+         ===================================================================== -->
+
+    {% if profile.notes %}
+
+    <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+        <h2 class="text-lg font-semibold text-route-ink">
+            Additional Notes
+        </h2>
+
+        <p class="mt-4 whitespace-pre-line text-sm leading-7 text-route-muted">
+            {{ profile.notes }}
+        </p>
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- =====================================================================
+         DELETE
+         ===================================================================== -->
+
+    <section class="rounded-xl border border-route-terracotta/30 bg-route-terracotta/5 p-6">
+
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+
+            <div>
+
+                <h2 class="text-sm font-semibold text-route-terracotta">
+                    Delete Accessibility Profile
+                </h2>
+
+                <p class="mt-1 max-w-2xl text-sm leading-6 text-route-terracotta/80">
+
+                    {% if usage_count > 0 %}
+
+                    This profile is currently used by {{ usage_count }}
+                    experience{% if usage_count != 1 %}s{% endif %}.
+                    It cannot be deleted while it is in use.
+
+                    {% else %}
+
+                    This profile is not currently assigned to any experiences.
+                    Deletion is permanent.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+
+            {% if usage_count == 0 %}
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_accessibility.delete', profile_id=profile.id) }}"
+                onsubmit="return confirm('Delete this accessibility profile permanently?');"
+            >
+
+                {{ delete_form.hidden_tag() }}
+
+                {{ delete_form.submit(
+                    class="rounded-lg bg-route-terracotta px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+                ) }}
+
+            </form>
+
+            {% else %}
+
+            <span class="rounded-lg border border-route-terracotta/30 px-4 py-2.5 text-sm font-semibold text-route-terracotta">
+                In Use
+            </span>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================================
+         FOOTER
+         ===================================================================== -->
+
+    <div class="border-t border-route-border pt-6">
+
+        <div class="flex flex-wrap gap-2">
+
+            <a
+                href="{{ url_for('admin_accessibility.index') }}"
+                class="rounded-lg border border-route-border px-4 py-2.5 text-sm font-semibold text-route-forest hover:bg-route-cream"
+            >
+                ← All Profiles
+            </a>
+
+            <a
+                href="{{ url_for('admin_accessibility.edit', profile_id=profile.id) }}"
+                class="rounded-lg bg-route-deep px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-forest"
+            >
+                Edit
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

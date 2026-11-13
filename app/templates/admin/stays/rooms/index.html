@@ -1,0 +1,249 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ stay.property_name }} — Rooms{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                <a href="{{ url_for('admin_stay.index') }}"
+                   class="hover:text-purple-600">
+                    Stays
+                </a>
+
+                <span>/</span>
+
+                <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                   class="hover:text-purple-600">
+                    {{ stay.property_name }}
+                </a>
+
+                <span>/</span>
+                <span class="text-gray-700">Rooms</span>
+            </div>
+
+            <h1 class="mt-2 text-2xl font-bold text-gray-900">
+                Rooms
+            </h1>
+
+            <p class="mt-1 text-sm text-gray-500">
+                Manage room types, rates, occupancy, meal plans and availability
+                for {{ stay.property_name }}.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+               class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                ← Back to Stay
+            </a>
+
+            <a href="{{ url_for('admin_stay_room.create', stay_id=stay.id) }}"
+               class="inline-flex items-center rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-purple-700">
+                + Add Room
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Summary -->
+    {% set room_count = rooms|length %}
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Room Types</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+                {{ room_count }}
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Active</p>
+            <p class="mt-2 text-2xl font-bold text-green-600">
+                {{ rooms|selectattr('active')|list|length }}
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Featured</p>
+            <p class="mt-2 text-2xl font-bold text-purple-600">
+                {{ rooms|selectattr('featured')|list|length }}
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Units</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+                {{ rooms|sum(attribute='total_units') }}
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Room Table -->
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+        <div class="border-b border-gray-200 px-6 py-4">
+            <h2 class="font-semibold text-gray-900">
+                Room Inventory
+            </h2>
+        </div>
+
+        {% if rooms %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Room
+                        </th>
+
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Type
+                        </th>
+
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Capacity
+                        </th>
+
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Rate
+                        </th>
+
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Availability
+                        </th>
+
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Status
+                        </th>
+
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for room in rooms %}
+                    <tr class="hover:bg-gray-50">
+
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <div class="font-semibold text-gray-900">
+                                {{ room.name }}
+                            </div>
+
+                            <div class="text-xs text-gray-500">
+                                {{ room.room_code }}
+                            </div>
+
+                            {% if room.featured %}
+                            <span class="mt-1 inline-flex rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
+                                Featured
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ room.room_type or "—" }}
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            <div>
+                                {{ room.maximum_guests }} guests
+                            </div>
+
+                            <div class="text-xs text-gray-500">
+                                {{ room.maximum_adults }} adults
+                                {% if room.maximum_children %}
+                                    · {{ room.maximum_children }} children
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="whitespace-nowrap px-6 py-4 text-sm">
+                            <div class="font-semibold text-gray-900">
+                                {{ room.currency or "KES" }}
+                                {{ "{:,.2f}".format(room.nightly_rate or 0) }}
+                            </div>
+
+                            <div class="text-xs text-gray-500">
+                                per night
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            <div>
+                                {{ room.total_units or 0 }} unit{% if (room.total_units or 0) != 1 %}s{% endif %}
+                            </div>
+
+                            <div class="text-xs text-gray-500">
+                                {{ room.availability_status or "—" }}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {% if room.active %}
+                                <span class="inline-flex rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                            <div class="flex justify-end gap-2">
+
+                                <a href="{{ url_for('admin_stay_room.detail', stay_id=stay.id,room_id=room.id) }}"
+                                   class="rounded-lg border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50">
+                                    View
+                                </a>
+
+                                <a href="{{ url_for('admin_stay_room.edit',stay_id=stay.id,room_id=room.id) }}"
+                                   class="rounded-lg border border-purple-200 px-3 py-1.5 font-medium text-purple-700 hover:bg-purple-50">
+                                    Edit
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="px-6 py-16 text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-purple-100 text-2xl">
+                🛏️
+            </div>
+
+            <h3 class="mt-4 text-lg font-semibold text-gray-900">
+                No rooms yet
+            </h3>
+
+            <p class="mx-auto mt-2 max-w-md text-sm text-gray-500">
+                Add the first room type for this property to begin managing
+                accommodation inventory.
+            </p>
+
+            <a href="{{ url_for('admin_stay_room.create', stay_id=stay.id) }}"
+               class="mt-5 inline-flex rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-purple-700">
+                + Add First Room
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

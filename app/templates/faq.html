@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page.public_title }} | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ page.public_description }}
+{% endblock %}
+
+
+{% block content %}
+
+{% set hero = page.get_section("hero") %}
+{% set faq_section = page.get_section("faq") %}
+{% set final_cta = page.get_section("final_cta") %}
+
+
+<!-- =========================================================================
+     FAQ Hero
+     ========================================================================= -->
+
+<section class="bg-route-deep text-route-white">
+
+    <div class="mx-auto max-w-7xl px-6 py-20 sm:px-8 lg:px-12 lg:py-24">
+
+        {% if hero.eyebrow %}
+            <p class="text-sm font-bold uppercase tracking-[0.3em] text-route-gold">
+                {{ hero.eyebrow }}
+            </p>
+        {% endif %}
+
+        <h1 class="mt-4 max-w-4xl font-display text-5xl font-semibold leading-tight sm:text-6xl">
+            {{ hero.title or page.title }}
+        </h1>
+
+        {% if hero.body %}
+            <p class="mt-6 max-w-2xl text-lg leading-8 text-route-cream/75">
+                {{ hero.body }}
+            </p>
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     FAQ Content
+     ========================================================================= -->
+
+<section class="bg-route-cream">
+
+    <div class="mx-auto max-w-4xl px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
+
+        <div class="space-y-5">
+
+            {% for item in faq_section.active_items %}
+
+                <details
+                    class="group rounded-route border border-route-sand bg-route-white shadow-route"
+                >
+
+                    <summary
+                        class="flex cursor-pointer list-none items-center justify-between gap-6 p-6 font-display text-xl font-semibold text-route-ink"
+                    >
+
+                        <span>
+                            {{ item.title }}
+                        </span>
+
+                        <span
+                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-route-cream text-route-forest transition group-open:rotate-45"
+                        >
+                            +
+                        </span>
+
+                    </summary>
+
+                    <div class="border-t border-route-sand px-6 pb-6 pt-5 text-sm leading-7 text-route-muted">
+
+                        <p class="whitespace-pre-line">
+                            {{ item.body }}
+                        </p>
+
+                        {% if item.link_label and item.link_url %}
+
+                            <a
+                                href="{{ item.link_url }}"
+                                class="mt-5 inline-flex rounded-full bg-route-forest px-6 py-3 text-sm font-bold text-route-white transition hover:bg-route-deep"
+                            >
+                                {{ item.link_label }}
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </details>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     CTA
+     ========================================================================= -->
+
+{% if final_cta %}
+
+<section class="bg-route-white">
+
+    <div class="mx-auto max-w-4xl px-6 py-20 text-center sm:px-8 lg:px-12">
+
+        {% if final_cta.eyebrow %}
+
+            <p class="text-sm font-bold uppercase tracking-[0.3em] text-route-safari">
+                {{ final_cta.eyebrow }}
+            </p>
+
+        {% endif %}
+
+
+        {% if final_cta.title %}
+
+            <h2 class="mt-4 font-display text-4xl font-semibold text-route-ink sm:text-5xl">
+                {{ final_cta.title }}
+            </h2>
+
+        {% endif %}
+
+
+        {% if final_cta.body %}
+
+            <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-route-muted">
+                {{ final_cta.body }}
+            </p>
+
+        {% endif %}
+
+
+        {% if final_cta.primary_cta_label and final_cta.primary_cta_url %}
+
+            <a
+                href="{{ final_cta.primary_cta_url }}"
+                class="mt-8 inline-flex rounded-full bg-route-gold px-7 py-3.5 text-sm font-bold text-route-deep transition hover:bg-route-terracotta hover:text-route-white"
+            >
+                {{ final_cta.primary_cta_label }}
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

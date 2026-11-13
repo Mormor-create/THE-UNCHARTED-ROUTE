@@ -1,0 +1,231 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* ==========================================================================
+   THE UNCHARTED ROUTE
+   Global Brand Foundation
+   ========================================================================== */
+
+:root {
+    --route-deep: #12372A;
+    --route-forest: #1F5138;
+    --route-safari: #5C6B32;
+    --route-gold: #D89B24;
+    --route-terracotta: #C96A2C;
+
+    --route-cream: #F7F1E5;
+    --route-sand: #E9DDC8;
+
+    --route-ink: #1C2822;
+    --route-muted: #66736B;
+    --route-white: #FFFFFF;
+}
+
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background-color: var(--route-cream);
+    color: var(--route-ink);
+
+    font-family:
+        "DM Sans",
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    color: var(--route-deep);
+}
+
+p {
+    line-height: 1.75;
+}
+
+a {
+    color: inherit;
+}
+
+
+/* ==========================================================================
+   Selection
+   ========================================================================== */
+
+::selection {
+    background-color: var(--route-gold);
+    color: var(--route-deep);
+}
+
+
+/* ==========================================================================
+   Scrollbar
+   ========================================================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--route-cream);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--route-forest);
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--route-deep);
+}
+
+
+/* ==========================================================================
+   Reusable Brand Components
+   ========================================================================== */
+
+@layer components {
+
+    .route-container {
+        width: 100%;
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .route-section {
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+
+    .route-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        color: var(--route-gold);
+
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+    }
+
+    .route-heading {
+        color: var(--route-deep);
+        font-family:
+            "Playfair Display",
+            Georgia,
+            serif;
+    }
+
+    .route-button-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0.8rem 1.5rem;
+
+        background-color: var(--route-forest);
+        color: var(--route-white);
+
+        border-radius: 999px;
+
+        font-weight: 700;
+
+        transition:
+            background-color 180ms ease,
+            transform 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .route-button-primary:hover {
+        background-color: var(--route-deep);
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 10px 25px rgba(18, 55, 42, 0.18);
+    }
+
+    .route-button-gold {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0.8rem 1.5rem;
+
+        background-color: var(--route-gold);
+        color: var(--route-deep);
+
+        border-radius: 999px;
+
+        font-weight: 700;
+
+        transition:
+            background-color 180ms ease,
+            transform 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .route-button-gold:hover {
+        background-color: var(--route-terracotta);
+
+        color: var(--route-white);
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 10px 25px rgba(201, 106, 44, 0.20);
+    }
+}
+
+
+/* ==========================================================================
+   Responsive Container
+   ========================================================================== */
+
+@media (min-width: 640px) {
+    .route-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .route-container {
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+}

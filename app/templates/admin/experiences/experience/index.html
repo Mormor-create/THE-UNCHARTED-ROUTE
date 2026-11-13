@@ -1,0 +1,409 @@
+{% extends "admin/base.html" %}
+{% block title %}Experience Catalogue | The Uncharted Route{% endblock %}
+{% block content %}
+{% macro status_badge(active) %}
+    {% if active %}
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#E7F3E8] px-2.5 py-1 text-xs font-semibold text-[#28613A]">
+            <span class="h-1.5 w-1.5 rounded-full bg-[#3C8B50]"></span>
+            Active
+        </span>
+    {% else %}
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#F0F1EE] px-2.5 py-1 text-xs font-semibold text-[#66736B]">
+            <span class="h-1.5 w-1.5 rounded-full bg-[#8A968D]"></span>
+            Inactive
+        </span>
+    {% endif %}
+{% endmacro %}
+
+{% set result_count = experiences|length %}
+
+<div class="space-y-7">
+
+    {# =====================================================
+       PAGE HEADER
+    ====================================================== #}
+
+    <section class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#5C6B32]">
+                <span class="h-2 w-2 rounded-full bg-[#D89B24]"></span>
+                Experience Management
+            </div>
+
+            <h1 class="text-2xl font-bold tracking-tight text-[#12372A] sm:text-3xl">
+                Experience Catalogue
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                Manage the experiences, destinations and adventures offered by The Uncharted Route.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_experiences.create') }}"
+           class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+            <span aria-hidden="true">+</span>
+            Create Experience
+        </a>
+    </section>
+
+
+    {# =====================================================
+       INTRODUCTION
+    ====================================================== #}
+
+    <section class="overflow-hidden rounded-2xl border border-[#D8E1D8] bg-white shadow-sm">
+        <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EAF0E7] text-2xl text-[#1F5138]">
+                    🧭
+                </div>
+
+                <div>
+                    <h2 class="font-bold text-[#12372A]">
+                        Your experiences, organised
+                    </h2>
+
+                    <p class="mt-1 max-w-2xl text-sm leading-6 text-[#66736B]">
+                        Keep your catalogue up to date, review active experiences and manage the details behind every journey.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2 text-xs font-medium text-[#66736B]">
+                <span class="text-base text-[#5C6B32]">✓</span>
+                Experience administration
+            </div>
+        </div>
+
+        <div class="h-1 bg-gradient-to-r from-[#12372A] via-[#5C6B32] to-[#D89B24]"></div>
+    </section>
+
+
+    {# =====================================================
+       FILTERS
+    ====================================================== #}
+
+    <section class="rounded-2xl border border-[#D8E1D8] bg-white p-5 shadow-sm sm:p-6">
+
+        <div class="mb-5 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F7F1E5] text-lg text-[#8B6417]">
+                ⚙
+            </div>
+
+            <div>
+                <h2 class="text-base font-bold text-[#12372A]">
+                    Find an experience
+                </h2>
+                <p class="mt-1 text-xs text-[#66736B]">
+                    Narrow the catalogue using the filters below.
+                </p>
+            </div>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('admin_experiences.index') }}"
+              class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+            <div class="xl:col-span-2">
+                {{ form.search.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                {{ form.search(
+                    class="w-full rounded-xl border border-[#D8E1D8] bg-[#FCFDFB] px-3.5 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#8A968D] focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15",
+                    placeholder="Search by code, title or location..."
+                ) }}
+
+                {% for error in form.search.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.category_id.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                {{ form.category_id(
+                    class="w-full rounded-xl border border-[#D8E1D8] bg-[#FCFDFB] px-3.5 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                ) }}
+
+                {% for error in form.category_id.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.destination_id.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                {{ form.destination_id(
+                    class="w-full rounded-xl border border-[#D8E1D8] bg-[#FCFDFB] px-3.5 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                ) }}
+
+                {% for error in form.destination_id.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.difficulty.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+
+                {{ form.difficulty(
+                    class="w-full rounded-xl border border-[#D8E1D8] bg-[#FCFDFB] px-3.5 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                ) }}
+
+                {% for error in form.difficulty.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="flex flex-col justify-center gap-3 rounded-xl border border-[#E5EAE3] bg-[#F9FBF7] p-4">
+                <label class="flex cursor-pointer items-center gap-3 text-sm text-[#1C2822]">
+                    {{ form.active_only(
+                        class="h-4 w-4 rounded border-[#B7C5B6] text-[#1F5138] focus:ring-[#5C6B32]"
+                    ) }}
+                    <span>Active experiences only</span>
+                </label>
+
+                <label class="flex cursor-pointer items-center gap-3 text-sm text-[#1C2822]">
+                    {{ form.featured_only(
+                        class="h-4 w-4 rounded border-[#B7C5B6] text-[#1F5138] focus:ring-[#5C6B32]"
+                    ) }}
+                    <span>Featured experiences only</span>
+                </label>
+            </div>
+
+            <div class="flex flex-wrap items-end gap-3 md:col-span-2 xl:col-span-4">
+                {{ form.submit(
+                    class="inline-flex flex-1 cursor-pointer items-center justify-center rounded-xl bg-[#12372A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2"
+                ) }}
+
+                <a href="{{ url_for('admin_experiences.index') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#D8E1D8] px-4 py-3 text-sm font-semibold text-[#1F5138] transition hover:bg-[#F7F1E5]">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+    </section>
+
+
+    {# =====================================================
+       RESULTS
+       image_urls is supplied by the index route.
+       Each value is MediaAsset.browser_url, not a
+       filesystem path or a legacy featured_image value.
+    ====================================================== #}
+
+    <section class="overflow-hidden rounded-2xl border border-[#D8E1D8] bg-white shadow-sm">
+
+        <div class="flex flex-col gap-3 border-b border-[#E5EAE3] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+                <h2 class="text-lg font-bold text-[#12372A]">
+                    All experiences
+                </h2>
+
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Review experience details and manage individual entries.
+                </p>
+            </div>
+
+            <span class="inline-flex w-fit items-center gap-2 rounded-full bg-[#EAF0E7] px-3 py-1.5 text-xs font-semibold text-[#1F5138]">
+                {{ result_count }} {{ 'experience' if result_count == 1 else 'experiences' }}
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#E5EAE3]">
+
+                <thead class="bg-[#F7F9F5]">
+                    <tr>
+                        <th scope="col" class="whitespace-nowrap px-5 py-4 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-[#66736B] sm:px-6">
+                            Experience
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap px-5 py-4 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-[#66736B]">
+                            Category
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap px-5 py-4 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-[#66736B]">
+                            Destination
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap px-5 py-4 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-[#66736B]">
+                            Starting price
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap px-5 py-4 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-[#66736B]">
+                            Status
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap px-5 py-4 text-right text-[11px] font-bold uppercase tracking-[0.12em] text-[#66736B]">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-[#EDF0EA]">
+
+                    {% for experience in experiences %}
+                    <tr class="transition-colors hover:bg-[#FAFBF8]">
+
+                        {# Experience identity and Media Library image #}
+                        <td class="px-5 py-4 sm:px-6">
+                            <div class="flex min-w-[230px] items-center gap-4">
+
+                                {% set image_url = image_urls.get(experience.id) if image_urls is defined else none %}
+
+                                {% if image_url %}
+                                    <img
+                                        src="{{ image_url }}"
+                                        alt="{{ experience.title }}"
+                                        loading="lazy"
+                                        class="h-14 w-20 shrink-0 rounded-xl border border-[#E5EAE3] bg-[#F7F1E5] object-cover"
+                                        onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                                    >
+
+                                    <div class="hidden h-14 w-20 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-xl text-[#8B6417]">
+                                        🌄
+                                    </div>
+                                {% else %}
+                                    <div class="flex h-14 w-20 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-xl text-[#8B6417]">
+                                        🌄
+                                    </div>
+                                {% endif %}
+
+                                <div class="min-w-0">
+                                    <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+                                       class="font-semibold text-[#12372A] transition hover:text-[#5C6B32]">
+                                        {{ experience.title }}
+                                    </a>
+
+                                    <p class="mt-1 break-all text-xs font-medium tracking-wide text-[#66736B]">
+                                        {{ experience.experience_code|default('No code assigned', true) }}
+                                    </p>
+
+                                    {% if experience.slug %}
+                                        <p class="mt-1 truncate text-xs text-[#8A968D]">
+                                            /{{ experience.slug }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+
+                        {# Category #}
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-[#46564B]">
+                            {% if experience.category %}
+                                {{ experience.category.name }}
+                            {% else %}
+                                <span class="text-[#9AA39B]">Not assigned</span>
+                            {% endif %}
+                        </td>
+
+                        {# Destination #}
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-[#46564B]">
+                            {% if experience.destination %}
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[#5C6B32]" aria-hidden="true">📍</span>
+                                    {{ experience.destination.name }}
+                                </div>
+                            {% else %}
+                                <span class="text-[#9AA39B]">Not assigned</span>
+                            {% endif %}
+                        </td>
+
+                        {# Starting price #}
+                        <td class="whitespace-nowrap px-5 py-4">
+                            {% if experience.price_from is not none %}
+                                <span class="text-sm font-bold text-[#12372A]">
+                                    {{ experience.currency|default('KES', true) }}
+                                    {{ '{:,.2f}'.format(experience.price_from) }}
+                                </span>
+                            {% else %}
+                                <span class="text-sm text-[#9AA39B]">Price not set</span>
+                            {% endif %}
+                        </td>
+
+                        {# Status and featured badge #}
+                        <td class="px-5 py-4">
+                            <div class="flex min-w-[100px] flex-col items-start gap-2">
+
+                                {{ status_badge(experience.active) }}
+
+                                {% if experience.featured %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FBF0D7] px-2.5 py-1 text-xs font-semibold text-[#8B6417]">
+                                        <span aria-hidden="true">★</span>
+                                        Featured
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                        </td>
+
+                        {# Actions #}
+                        <td class="whitespace-nowrap px-5 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+
+                                <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+                                   title="View experience"
+                                   aria-label="View {{ experience.title }}"
+                                   class="inline-flex h-9 items-center justify-center rounded-lg border border-[#D8E1D8] px-3 text-sm font-semibold text-[#1F5138] transition hover:border-[#5C6B32] hover:bg-[#EAF0E7]">
+                                    View
+                                </a>
+
+                                <a href="{{ url_for('admin_experiences.edit', experience_id=experience.id) }}"
+                                   title="Edit experience"
+                                   aria-label="Edit {{ experience.title }}"
+                                   class="inline-flex h-9 items-center justify-center rounded-lg bg-[#12372A] px-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                                    Edit
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center">
+
+                            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F1E5] text-3xl text-[#8B6417]">
+                                🧭
+                            </div>
+
+                            <h3 class="mt-4 text-base font-bold text-[#12372A]">
+                                No experiences found
+                            </h3>
+
+                            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#66736B]">
+                                No experiences match your current filters. Try adjusting your search or create a new experience.
+                            </p>
+
+                            <div class="mt-5 flex flex-wrap justify-center gap-3">
+                                <a href="{{ url_for('admin_experiences.index') }}"
+                                   class="rounded-xl border border-[#D8E1D8] px-4 py-2.5 text-sm font-semibold text-[#1F5138] transition hover:bg-[#F7F1E5]">
+                                    Clear filters
+                                </a>
+
+                                <a href="{{ url_for('admin_experiences.create') }}"
+                                   class="rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                                    + Create experience
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-t border-[#E5EAE3] bg-[#FCFDFB] px-5 py-3 sm:px-6">
+            <p class="text-xs leading-5 text-[#66736B]">
+                Select an experience to review its details, pricing, itinerary and related management options.
+            </p>
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

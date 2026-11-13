@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ journey.meta_title or journey.name ~ " | " ~ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ journey.meta_description or journey.short_description or journey.description or ("Explore " ~ journey.name ~ " with " ~ config.COMPANY_NAME ~ ".") }}
+{% endblock %}
+
+{% block content %}
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+<section class="relative overflow-hidden bg-route-deep text-white">
+
+    {% if journey.featured_image or journey.banner_image %}
+        <div class="absolute inset-0">
+            <img
+                src="{{ journey.banner_image or journey.featured_image }}"
+                alt="{{ journey.name }}"
+                class="h-full w-full object-cover"
+            >
+            <div class="absolute inset-0 bg-slate-950/65"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/55 to-slate-950/20"></div>
+        </div>
+    {% endif %}
+
+    <div class="relative mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
+
+        <!-- Breadcrumb -->
+        <nav class="mb-8 flex flex-wrap items-center gap-2 text-sm text-white/70">
+            <a
+                href="{{ url_for('main.index') }}"
+                class="transition hover:text-white"
+            >
+                Home
+            </a>
+
+            <span class="text-white/40">/</span>
+
+            <span class="text-white/90">
+                Destination Journeys
+            </span>
+
+            <span class="text-white/40">/</span>
+
+            <span class="max-w-xs truncate text-white/90">
+                {{ journey.name }}
+            </span>
+        </nav>
+
+        <div class="max-w-4xl">
+
+            {% if journey.journey_type %}
+                <div class="mb-5 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
+                    {{ journey.journey_type }}
+                </div>
+            {% endif %}
+
+            <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                {{ journey.name }}
+            </h1>
+
+            {% if journey.short_description %}
+                <p class="mt-6 max-w-3xl text-lg leading-8 text-white/80 sm:text-xl">
+                    {{ journey.short_description }}
+                </p>
+            {% endif %}
+
+            <div class="mt-8 flex flex-wrap gap-3">
+
+                {% if journey.duration_days %}
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                        <span>🗓</span>
+                        {{ journey.duration_days }} day{% if journey.duration_days != 1 %}s{% endif %}
+                    </span>
+                {% endif %}
+
+                {% if journey.duration_nights is not none %}
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                        <span>🌙</span>
+                        {{ journey.duration_nights }} night{% if journey.duration_nights != 1 %}s{% endif %}
+                    </span>
+                {% endif %}
+
+                {% if journey.difficulty_level %}
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                        <span>🥾</span>
+                        {{ journey.difficulty_level }}
+                    </span>
+                {% endif %}
+
+                {% if journey.is_bespoke %}
+                    <span class="inline-flex items-center gap-2 rounded-full bg-route-gold px-4 py-2 text-sm font-semibold text-slate-950">
+                        Bespoke Journey
+                    </span>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- =========================================================
+     JOURNEY SNAPSHOT
+========================================================= -->
+<section class="border-b border-route-border bg-white">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="grid divide-y divide-route-border sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+
+            <div class="px-0 py-7 sm:px-6 lg:px-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-route-muted">
+                    Duration
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-route-ink">
+                    {% if journey.duration_days %}
+                        {{ journey.duration_days }} day{% if journey.duration_days != 1 %}s{% endif %}
+                    {% else %}
+                        Flexible
+                    {% endif %}
+                </p>
+
+                {% if journey.duration_nights is not none %}
+                    <p class="mt-1 text-sm text-route-muted">
+                        {{ journey.duration_nights }} night{% if journey.duration_nights != 1 %}s{% endif %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="px-0 py-7 sm:px-6 lg:px-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-route-muted">
+                    Journey Type
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-route-ink">
+                    {{ journey.journey_type or "Journey" }}
+                </p>
+            </div>
+
+            <div class="px-0 py-7 sm:px-6 lg:px-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-route-muted">
+                    Difficulty
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-route-ink">
+                    {{ journey.difficulty_level or "Flexible" }}
+                </p>
+            </div>
+
+            <div class="px-0 py-7 sm:px-6 lg:px-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-route-muted">
+                    From
+                </p>
+
+                {% if journey.base_price is not none %}
+                    <p class="mt-2 text-lg font-bold text-route-ink">
+                        {{ journey.currency or "KES" }}
+                        {{ "{:,.0f}".format(journey.base_price|float) }}
+                    </p>
+
+                    <p class="mt-1 text-sm text-route-muted">
+                        per person
+                    </p>
+                {% else %}
+                    <p class="mt-2 text-lg font-bold text-route-ink">
+                        Bespoke
+                    </p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+<section class="bg-route-cream py-16 sm:py-20">
+
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_380px]">
+
+            <!-- =================================================
+                 LEFT COLUMN
+            ================================================== -->
+            <div class="min-w-0">
+
+                <!-- Overview -->
+                <div class="rounded-3xl border border-route-border bg-white p-7 shadow-sm sm:p-9">
+
+                    <div class="mb-7">
+                        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                            The Journey
+                        </p>
+
+                        <h2 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                            {{ journey.name }}
+                        </h2>
+                    </div>
+
+                    {% if journey.description %}
+                        <div class="prose prose-lg max-w-none text-route-muted">
+                            {% for paragraph in journey.description.split('\n') %}
+                                {% if paragraph.strip() %}
+                                    <p>
+                                        {{ paragraph }}
+                                    </p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% elif journey.short_description %}
+                        <p class="text-base leading-8 text-route-muted">
+                            {{ journey.short_description }}
+                        </p>
+                    {% else %}
+                        <p class="text-base leading-8 text-route-muted">
+                            This journey is being prepared with the details you need to
+                            understand the route, experience and practical arrangements.
+                        </p>
+                    {% endif %}
+
+                </div>
+
+
+                <!-- =================================================
+                     JOURNEY ROUTE / STOPS
+                ================================================== -->
+                {% if stops %}
+                    <div class="mt-8">
+
+                        <div class="mb-6">
+                            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                                Along The Way
+                            </p>
+
+                            <h2 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                                Your route
+                            </h2>
+
+                            <p class="mt-3 max-w-2xl text-route-muted">
+                                A look at the places and moments that shape this journey.
+                            </p>
+                        </div>
+
+
+                        <div class="relative">
+
+                            <!-- Timeline line -->
+                            <div class="absolute left-5 top-5 hidden h-[calc(100%-2.5rem)] w-px bg-route-border sm:block"></div>
+
+                            <div class="space-y-6">
+
+                                {% for stop in stops %}
+                                    <article class="relative">
+
+                                        <div class="flex gap-5">
+
+                                            <!-- Sequence -->
+                                            <div class="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-route-cream bg-route-deep text-sm font-bold text-white shadow-sm">
+                                                {{ stop.sequence or loop.index }}
+                                            </div>
+
+                                            <div class="min-w-0 flex-1 rounded-2xl border border-route-border bg-white p-6 shadow-sm">
+
+                                                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
+                                                    <div>
+                                                        {% if stop.destination %}
+                                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-route-gold">
+                                                                {{ stop.destination.name }}
+                                                            </p>
+                                                        {% endif %}
+
+                                                        <h3 class="mt-1 text-xl font-bold text-route-ink">
+                                                            {{ stop.title or (stop.destination.name if stop.destination else "Journey Stop") }}
+                                                        </h3>
+                                                    </div>
+
+                                                    {% if stop.days or stop.nights %}
+                                                        <div class="shrink-0 rounded-xl bg-route-cream px-4 py-3 text-sm">
+
+                                                            {% if stop.days %}
+                                                                <div class="font-semibold text-route-ink">
+                                                                    {{ stop.days }} day{% if stop.days != 1 %}s{% endif %}
+                                                                </div>
+                                                            {% endif %}
+
+                                                            {% if stop.nights %}
+                                                                <div class="text-route-muted">
+                                                                    {{ stop.nights }} night{% if stop.nights != 1 %}s{% endif %}
+                                                                </div>
+                                                            {% endif %}
+
+                                                        </div>
+                                                    {% endif %}
+
+                                                </div>
+
+                                                {% if stop.description %}
+                                                    <p class="mt-4 leading-7 text-route-muted">
+                                                        {{ stop.description }}
+                                                    </p>
+                                                {% endif %}
+
+                                                {% if stop.arrival_notes %}
+                                                    <div class="mt-5 rounded-xl bg-slate-50 p-4">
+                                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-route-muted">
+                                                            Arrival
+                                                        </p>
+
+                                                        <p class="mt-2 text-sm leading-6 text-route-ink">
+                                                            {{ stop.arrival_notes }}
+                                                        </p>
+                                                    </div>
+                                                {% endif %}
+
+                                                {% if stop.departure_notes %}
+                                                    <div class="mt-3 rounded-xl bg-slate-50 p-4">
+                                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-route-muted">
+                                                            Departure
+                                                        </p>
+
+                                                        <p class="mt-2 text-sm leading-6 text-route-ink">
+                                                            {{ stop.departure_notes }}
+                                                        </p>
+                                                    </div>
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+
+                                    </article>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+                    </div>
+                {% endif %}
+
+
+                <!-- =================================================
+                     JOURNEY NOTES
+                ================================================== -->
+                <div class="mt-8 rounded-3xl border border-route-border bg-route-deep p-7 text-white shadow-sm sm:p-9">
+
+                    <div class="max-w-3xl">
+
+                        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                            Travel Your Way
+                        </p>
+
+                        <h2 class="mt-2 text-3xl font-bold">
+                            A journey, not just a route.
+                        </h2>
+
+                        <p class="mt-4 leading-8 text-white/75">
+                            Every Uncharted Route journey is designed around the places,
+                            people and experiences that make the destination worth remembering.
+                            If you need something different from the published journey,
+                            ask us about creating a more personalised route.
+                        </p>
+
+                        {% if journey.is_bespoke %}
+                            <div class="mt-6 inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-semibold">
+                                This journey can be customised.
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT COLUMN / BOOKING CARD
+            ================================================== -->
+            <aside class="lg:sticky lg:top-8 lg:self-start">
+
+                <div class="overflow-hidden rounded-3xl border border-route-border bg-white shadow-lg">
+
+                    <!-- Price header -->
+                    <div class="bg-route-deep p-7 text-white">
+
+                        <p class="text-sm font-semibold uppercase tracking-[0.16em] text-white/60">
+                            Your Journey
+                        </p>
+
+                        <h2 class="mt-2 text-2xl font-bold">
+                            {{ journey.name }}
+                        </h2>
+
+                        {% if journey.base_price is not none %}
+                            <div class="mt-6">
+
+                                <div class="flex items-end gap-2">
+                                    <span class="text-3xl font-bold">
+                                        {{ journey.currency or "KES" }}
+                                        {{ "{:,.0f}".format(journey.base_price|float) }}
+                                    </span>
+
+                                    <span class="pb-1 text-sm text-white/60">
+                                        / person
+                                    </span>
+                                </div>
+
+                                <p class="mt-2 text-sm text-white/60">
+                                    Starting price
+                                </p>
+
+                            </div>
+                        {% else %}
+                            <p class="mt-5 text-white/70">
+                                Contact us for a personalised journey quotation.
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Booking details -->
+                    <div class="p-7">
+
+                        <div class="space-y-5">
+
+                            {% if journey.duration_days %}
+                                <div class="flex items-start gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-route-cream">
+                                        🗓
+                                    </div>
+
+                                    <div>
+                                        <p class="text-sm font-semibold text-route-ink">
+                                            Duration
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-route-muted">
+                                            {{ journey.duration_days }} day{% if journey.duration_days != 1 %}s{% endif %}
+                                            {% if journey.duration_nights is not none %}
+                                                · {{ journey.duration_nights }} night{% if journey.duration_nights != 1 %}s{% endif %}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+
+                            {% if journey.minimum_travellers or journey.maximum_travellers %}
+                                <div class="flex items-start gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-route-cream">
+                                        👥
+                                    </div>
+
+                                    <div>
+                                        <p class="text-sm font-semibold text-route-ink">
+                                            Group Size
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-route-muted">
+                                            {% if journey.minimum_travellers %}
+                                                From {{ journey.minimum_travellers }}
+                                            {% endif %}
+
+                                            {% if journey.maximum_travellers %}
+                                                {% if journey.minimum_travellers %} to {% endif %}
+                                                {{ journey.maximum_travellers }}
+                                            {% endif %}
+
+                                            traveller{% if journey.maximum_travellers != 1 %}s{% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+
+                            {% if journey.difficulty_level %}
+                                <div class="flex items-start gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-route-cream">
+                                        🥾
+                                    </div>
+
+                                    <div>
+                                        <p class="text-sm font-semibold text-route-ink">
+                                            Difficulty
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-route-muted">
+                                            {{ journey.difficulty_level }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+
+                            {% if journey.requires_approval %}
+                                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                                    <p class="text-sm font-semibold text-amber-900">
+                                        Booking approval required
+                                    </p>
+
+                                    <p class="mt-1 text-sm leading-6 text-amber-800">
+                                        Your request will be reviewed by our team before
+                                        the journey is confirmed.
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- CTA -->
+                        <div class="mt-8">
+
+                            <a
+                                href="{{ url_for('bookings.destination_create', journey_id=journey.id) }}"
+                                class="flex w-full items-center justify-center rounded-xl bg-route-gold px-6 py-4 text-base font-bold text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                                Book This Journey
+                            </a>
+
+                            <p class="mt-3 text-center text-xs leading-5 text-route-muted">
+                                Choose your dates and traveller details on the next step.
+                            </p>
+
+                        </div>
+
+
+                        <!-- Bespoke CTA -->
+                        {% if journey.is_bespoke %}
+                            <div class="mt-6 border-t border-route-border pt-6">
+
+                                <p class="text-sm font-semibold text-route-ink">
+                                    Looking for something different?
+                                </p>
+
+                                <p class="mt-2 text-sm leading-6 text-route-muted">
+                                    Tell us what you have in mind and we can shape the
+                                    journey around you.
+                                </p>
+
+                                <a
+                                    href="{{ url_for('main.index') }}#contact"
+                                    class="mt-4 inline-flex items-center text-sm font-bold text-route-forest transition hover:text-route-gold"
+                                >
+                                    Talk to us
+                                    <span class="ml-2">→</span>
+                                </a>
+
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- =========================================================
+     RELATED JOURNEYS
+========================================================= -->
+{% if related_journeys %}
+<section class="bg-white py-16 sm:py-20">
+
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+
+            <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                    Keep Exploring
+                </p>
+
+                <h2 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                    More journeys
+                </h2>
+
+                <p class="mt-3 max-w-2xl text-route-muted">
+                    There is more than one way to experience the route.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+            {% for related in related_journeys %}
+                <article class="group overflow-hidden rounded-3xl border border-route-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+
+                    {% if related.featured_image or related.banner_image %}
+                        <div class="aspect-[16/10] overflow-hidden bg-route-cream">
+                            <img
+                                src="{{ related.banner_image or related.featured_image }}"
+                                alt="{{ related.name }}"
+                                class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            >
+                        </div>
+                    {% else %}
+                        <div class="flex aspect-[16/10] items-center justify-center bg-route-deep">
+                            <span class="text-5xl">🧭</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="p-6">
+
+                        {% if related.journey_type %}
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-route-gold">
+                                {{ related.journey_type }}
+                            </p>
+                        {% endif %}
+
+                        <h3 class="mt-2 text-xl font-bold text-route-ink">
+                            {{ related.name }}
+                        </h3>
+
+                        {% if related.short_description %}
+                            <p class="mt-3 line-clamp-3 text-sm leading-6 text-route-muted">
+                                {{ related.short_description }}
+                            </p>
+                        {% endif %}
+
+                        <div class="mt-5 flex items-center justify-between gap-4">
+
+                            {% if related.base_price is not none %}
+                                <div>
+                                    <p class="text-xs text-route-muted">
+                                        From
+                                    </p>
+
+                                    <p class="font-bold text-route-ink">
+                                        {{ related.currency or "KES" }}
+                                        {{ "{:,.0f}".format(related.base_price|float) }}
+                                        <span class="text-xs font-normal text-route-muted">
+                                            / person
+                                        </span>
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            <a
+                                href="{{ url_for('destination_journeys.detail', slug=related.slug) }}"
+                                class="inline-flex items-center text-sm font-bold text-route-forest transition group-hover:text-route-gold"
+                            >
+                                Explore
+                                <span class="ml-2 transition-transform group-hover:translate-x-1">
+                                    →
+                                </span>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+{% endif %}
+
+
+<!-- =========================================================
+     FINAL CTA
+========================================================= -->
+<section class="bg-route-deep py-16 text-white sm:py-20">
+
+    <div class="mx-auto max-w-4xl px-6 text-center lg:px-8">
+
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-route-gold">
+            The Uncharted Route
+        </p>
+
+        <h2 class="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            Ready to experience the journey?
+        </h2>
+
+        <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/70">
+            Choose your dates, tell us who is travelling and let us take it from there.
+        </p>
+
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+
+            <a
+                href="{{ url_for('bookings.destination_create', journey_id=journey.id) }}"
+                class="inline-flex items-center justify-center rounded-xl bg-route-gold px-7 py-4 font-bold text-slate-950 transition hover:-translate-y-0.5"
+            >
+                Book This Journey
+            </a>
+
+            <a
+                href="{{ url_for('main.index') }}"
+                class="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-7 py-4 font-semibold text-white transition hover:bg-white/15"
+            >
+                Back to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

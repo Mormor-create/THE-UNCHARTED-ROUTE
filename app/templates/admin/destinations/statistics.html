@@ -1,0 +1,660 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ destination.name }} Statistics | Destinations
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+
+    <div class="mx-auto max-w-6xl space-y-6">
+
+        <!-- Breadcrumb -->
+
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="transition hover:text-slate-900"
+            >
+                Admin
+            </a>
+
+            <span>/</span>
+
+            <a
+                href="{{ url_for('admin_destinations.index') }}"
+                class="transition hover:text-slate-900"
+            >
+                Destinations
+            </a>
+
+            <span>/</span>
+
+            <a
+                href="{{ url_for('admin_destinations.detail', destination_id=destination.id) }}"
+                class="transition hover:text-slate-900"
+            >
+                {{ destination.name }}
+            </a>
+
+            <span>/</span>
+
+            <span class="font-medium text-slate-700">
+                Statistics
+            </span>
+
+        </div>
+
+
+        <!-- Header -->
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+
+            <div>
+
+                <div class="flex flex-wrap items-center gap-3">
+
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                        Destination Statistics
+                    </h1>
+
+                    {% if destination.active %}
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Active
+                    </span>
+
+                    {% else %}
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                        Inactive
+                    </span>
+
+                    {% endif %}
+
+
+                    {% if destination.featured %}
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                        Featured
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Management overview and catalogue statistics for
+                    <span class="font-medium text-slate-700">
+                        {{ destination.name }}
+                    </span>.
+                </p>
+
+            </div>
+
+
+            <div class="flex flex-wrap gap-2">
+
+                <a
+                    href="{{ url_for('admin_destinations.detail', destination_id=destination.id) }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                    ← Destination
+                </a>
+
+                <a
+                    href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                    View Experiences
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Destination Identity -->
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+
+                <div class="relative min-h-[220px] overflow-hidden bg-slate-100 lg:min-h-full">
+
+                    {% if destination.banner_image_asset %}
+
+                    <img
+                        src="{{ destination.banner_image_asset.file_url or url_for('media.serve', filename=destination.banner_image_asset.filename) }}"
+                        alt="{{ destination.banner_image_asset.alt_text or destination.name }}"
+                        class="absolute inset-0 h-full w-full object-cover"
+                    >
+
+                    {% elif destination.featured_image_asset %}
+
+                    <img
+                        src="{{ destination.featured_image_asset.file_url or url_for('media.serve', filename=destination.featured_image_asset.filename) }}"
+                        alt="{{ destination.featured_image_asset.alt_text or destination.name }}"
+                        class="absolute inset-0 h-full w-full object-cover"
+                    >
+
+                    {% else %}
+
+                    <div class="flex h-full min-h-[220px] items-center justify-center text-sm text-slate-400">
+                        No destination image
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent"></div>
+
+                    <div class="absolute bottom-0 left-0 right-0 p-5">
+
+                        <p class="text-xs font-semibold uppercase tracking-wider text-white/70">
+                            Destination
+                        </p>
+
+                        <h2 class="mt-1 text-xl font-bold text-white">
+                            {{ destination.name }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="p-6 lg:col-span-2">
+
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                Country
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-slate-900">
+                                {{ destination.country or "—" }}
+                            </p>
+                        </div>
+
+
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                County
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-slate-900">
+                                {{ destination.county or "—" }}
+                            </p>
+                        </div>
+
+
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                Region
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-slate-900">
+                                {{ destination.region or "—" }}
+                            </p>
+                        </div>
+
+
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                Destination ID
+                            </p>
+
+                            <p class="mt-1 font-mono text-sm font-semibold text-slate-900">
+                                #{{ destination.id }}
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Primary Statistics -->
+
+        <section>
+
+            <div class="mb-4">
+
+                <h2 class="text-lg font-bold text-slate-900">
+                    Catalogue Overview
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    High-level metrics for this destination.
+                </p>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+                <a
+                    href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                    class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                >
+
+                    <div class="flex items-start justify-between">
+
+                        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+
+                            <svg
+                                class="h-5 w-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path d="M3 7h18M5 7v12h14V7M8 4h8l1 3H7l1-3Z"/>
+                                <path d="M9 11h6M9 15h4"/>
+                            </svg>
+
+                        </div>
+
+                        <span class="text-slate-300 transition group-hover:text-slate-500">
+                            →
+                        </span>
+
+                    </div>
+
+                    <p class="mt-5 text-3xl font-bold tracking-tight text-slate-900">
+                        {{ statistics.experience_count }}
+                    </p>
+
+                    <p class="mt-1 text-sm font-medium text-slate-500">
+                        Total Experiences
+                    </p>
+
+                </a>
+
+
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+
+                        <svg
+                            class="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>
+                            <circle cx="12" cy="12" r="5"/>
+                        </svg>
+
+                    </div>
+
+                    <p class="mt-5 text-xl font-bold text-slate-900">
+
+                        {% if statistics.active %}
+                            Active
+                        {% else %}
+                            Inactive
+                        {% endif %}
+
+                    </p>
+
+                    <p class="mt-1 text-sm font-medium text-slate-500">
+                        Catalogue Status
+                    </p>
+
+                </div>
+
+
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+
+                        <svg
+                            class="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>
+                        </svg>
+
+                    </div>
+
+                    <p class="mt-5 text-xl font-bold text-slate-900">
+
+                        {% if statistics.featured %}
+                            Featured
+                        {% else %}
+                            Standard
+                        {% endif %}
+
+                    </p>
+
+                    <p class="mt-1 text-sm font-medium text-slate-500">
+                        Promotional Status
+                    </p>
+
+                </div>
+
+
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+
+                        <svg
+                            class="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/>
+                            <circle cx="12" cy="12" r="2.5"/>
+                        </svg>
+
+                    </div>
+
+                    <p class="mt-5 text-xl font-bold text-slate-900">
+
+                        {% if statistics.active %}
+                            Public
+                        {% else %}
+                            Hidden
+                        {% endif %}
+
+                    </p>
+
+                    <p class="mt-1 text-sm font-medium text-slate-500">
+                        Website Visibility
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Experience Catalogue -->
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+                <div>
+
+                    <h2 class="text-base font-semibold text-slate-900">
+                        Experience Catalogue
+                    </h2>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Experiences currently associated with this destination.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                    View All
+                </a>
+
+            </div>
+
+
+            <div class="p-5 sm:p-6">
+
+                {% if statistics.experience_count > 0 %}
+
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div>
+
+                        <p class="text-3xl font-bold text-slate-900">
+                            {{ statistics.experience_count }}
+                        </p>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            experience{{ "s" if statistics.experience_count != 1 else "" }}
+                            associated with {{ destination.name }}.
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin_destinations.experience_count', destination_id=destination.id) }}"
+                        class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                        Open Experience Count
+                    </a>
+
+                </div>
+
+                {% else %}
+
+                <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center">
+
+                    <p class="text-sm font-semibold text-slate-700">
+                        No experiences are currently associated with this destination.
+                    </p>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Experiences can be assigned through the Experience Management module.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- Geographic Information -->
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+
+                <h2 class="text-base font-semibold text-slate-900">
+                    Geographic Information
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    Stored geographic coordinates for this destination.
+                </p>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 gap-5 px-5 py-6 sm:grid-cols-2 sm:px-6">
+
+                <div class="rounded-xl bg-slate-50 p-4">
+
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Latitude
+                    </p>
+
+                    <p class="mt-2 font-mono text-lg font-semibold text-slate-900">
+
+                        {% if destination.latitude is not none %}
+                            {{ destination.latitude }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+
+                <div class="rounded-xl bg-slate-50 p-4">
+
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Longitude
+                    </p>
+
+                    <p class="mt-2 font-mono text-lg font-semibold text-slate-900">
+
+                        {% if destination.longitude is not none %}
+                            {{ destination.longitude }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Record Information -->
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+
+                <h2 class="text-base font-semibold text-slate-900">
+                    Record Information
+                </h2>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 gap-5 px-5 py-6 sm:grid-cols-2 sm:px-6">
+
+                <div>
+
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Created
+                    </p>
+
+                    <p class="mt-1 text-sm font-medium text-slate-900">
+
+                        {% if destination.created_at %}
+                            {{ destination.created_at.strftime("%d %b %Y, %H:%M") }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Last Updated
+                    </p>
+
+                    <p class="mt-1 text-sm font-medium text-slate-900">
+
+                        {% if destination.updated_at %}
+                            {{ destination.updated_at.strftime("%d %b %Y, %H:%M") }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Actions -->
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between">
+
+            <a
+                href="{{ url_for('admin_destinations.detail', destination_id=destination.id) }}"
+                class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+                Back to Destination
+            </a>
+
+
+            <div class="flex flex-col gap-3 sm:flex-row">
+
+                <a
+                    href="{{ url_for('admin_destinations.edit', destination_id=destination.id) }}"
+                    class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                    Edit Destination
+                </a>
+
+                <a
+                    href="{{ url_for('admin_destinations.experiences', destination_id=destination.id) }}"
+                    class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                    View Experiences
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Lifecycle Notice -->
+
+        <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+
+            <div class="flex gap-3">
+
+                <svg
+                    class="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M8.257 3.099a1.99 1.99 0 013.486 0l5.58 9.92A1.99 1.99 0 0115.58 17H4.42a1.99 1.99 0 01-1.743-2.98l5.58-9.92zM10 7a1 1 0 011 1v2a1 1 0 11-2 0V8a1 1 0 011-1zm0 6a1 1 0 100-2 1 1 0 000 2z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+
+                <div>
+
+                    <h3 class="text-sm font-semibold text-amber-900">
+                        Destination records are retained
+                    </h3>
+
+                    <p class="mt-1 text-sm leading-6 text-amber-800">
+                        Destinations are not casually deleted because Experiences
+                        and historical records may depend on them. Use the
+                        activation controls on the destination management page
+                        when changing public availability.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1256 @@
+{# =============================================================================
+   THE UNCHARTED ROUTE
+   Admin — Testimonial Detail
+   Template: templates/admin/testimonials/detail.html
+   ============================================================================= #}
+
+{% extends "admin/base.html" %}
+{% block title %}{{ testimonial.customer_name }} — Testimonial | The Uncharted Route{% endblock %}
+{% block content %}
+
+<div class="space-y-6">
+
+    {# =========================================================================
+       Page Header
+       ========================================================================= #}
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        <div class="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+
+            <div class="min-w-0">
+
+                <div class="mb-3 flex flex-wrap items-center gap-2 text-sm">
+                    <a href="{{ url_for('admin_testimonial.index') }}"
+                       class="font-medium text-[#66736B] transition hover:text-[#12372A]">
+                        Testimonials
+                    </a>
+
+                    <i class="bi bi-chevron-right text-xs text-[#B5BDB5]"></i>
+
+                    <span class="font-medium text-[#12372A]">
+                        Testimonial Details
+                    </span>
+                </div>
+
+                <div class="flex items-start gap-4">
+
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F7F1E5] text-[#12372A]">
+                        <i class="bi bi-chat-quote text-2xl"></i>
+                    </div>
+
+                    <div class="min-w-0">
+                        <h1 class="break-words text-2xl font-bold tracking-tight text-[#12372A] sm:text-3xl">
+                            {{ testimonial.customer_name }}
+                        </h1>
+
+                        <p class="mt-1 text-sm text-[#66736B]">
+                            Testimonial #{{ testimonial.id }}
+                            <span class="mx-1 text-[#C8CEC7]">·</span>
+                            Customer feedback and publication settings
+                        </p>
+
+                        <div class="mt-3 flex flex-wrap gap-2">
+
+                            {% if testimonial.active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#D4E5D7] bg-[#EDF5EE] px-3 py-1 text-xs font-semibold text-[#1F5138]">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-[#1F5138]"></span>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#E2E5E1] bg-[#F3F4F1] px-3 py-1 text-xs font-semibold text-[#66736B]">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-[#66736B]"></span>
+                                    Inactive
+                                </span>
+                            {% endif %}
+
+                            {% if testimonial.verified %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#E9DDC8] bg-[#FBF5E7] px-3 py-1 text-xs font-semibold text-[#806018]">
+                                    <i class="bi bi-patch-check"></i>
+                                    Verified
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-[#F0D8C5] bg-[#FCF0E7] px-3 py-1 text-xs font-semibold text-[#9B5428]">
+                                    <i class="bi bi-patch-exclamation"></i>
+                                    Unverified
+                                </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="flex shrink-0 flex-wrap gap-2">
+
+                <a href="{{ url_for('admin_testimonial.index') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#D8DFD7] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:border-[#12372A] hover:bg-[#F7F1E5] focus:outline-none focus:ring-2 focus:ring-[#12372A]/15">
+                    <i class="bi bi-arrow-left"></i>
+                    Back
+                </a>
+
+                <a href="{{ url_for('admin_testimonial.edit', testimonial_id=testimonial.id) }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#12372A]/20">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Testimonial
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="h-1 bg-gradient-to-r from-[#12372A] via-[#5C6B32] to-[#D89B24]"></div>
+
+    </div>
+
+
+    {# =========================================================================
+       Flash Messages
+       ========================================================================= #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+
+            <div class="space-y-3">
+
+                {% for category, message in messages %}
+
+                    {% set alert_type = category if category in ['success', 'danger', 'warning', 'info'] else 'info' %}
+
+                    <div
+                        class="flex items-start gap-3 rounded-xl border px-4 py-3 text-sm
+                        {% if alert_type == 'success' %}
+                            border-[#D4E5D7] bg-[#EDF5EE] text-[#1F5138]
+                        {% elif alert_type == 'danger' %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% elif alert_type == 'warning' %}
+                            border-[#E9DDC8] bg-[#FBF5E7] text-[#806018]
+                        {% else %}
+                            border-[#D8E5E0] bg-[#F0F6F3] text-[#1F5138]
+                        {% endif %}"
+                        role="alert">
+
+                        <div class="mt-0.5 shrink-0">
+                            {% if alert_type == 'success' %}
+                                <i class="bi bi-check-circle-fill"></i>
+                            {% elif alert_type == 'danger' %}
+                                <i class="bi bi-exclamation-circle-fill"></i>
+                            {% elif alert_type == 'warning' %}
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill"></i>
+                            {% endif %}
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            {{ message }}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+    {% endwith %}
+
+
+    {# =========================================================================
+       Summary Cards
+       ========================================================================= #}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        {# Status #}
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                        Publication Status
+                    </p>
+
+                    {% if testimonial.active %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#EDF5EE] px-3 py-1 text-xs font-semibold text-[#1F5138]">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Active
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#F3F4F1] px-3 py-1 text-xs font-semibold text-[#66736B]">
+                            <i class="bi bi-pause-circle-fill"></i>
+                            Inactive
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                    <i class="bi bi-broadcast text-lg"></i>
+                </div>
+
+            </div>
+        </div>
+
+
+        {# Verification #}
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                        Verification
+                    </p>
+
+                    {% if testimonial.verified %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FBF5E7] px-3 py-1 text-xs font-semibold text-[#806018]">
+                            <i class="bi bi-patch-check-fill"></i>
+                            Verified
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FCF0E7] px-3 py-1 text-xs font-semibold text-[#9B5428]">
+                            <i class="bi bi-patch-exclamation"></i>
+                            Unverified
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#806018]">
+                    <i class="bi bi-patch-check text-xl"></i>
+                </div>
+
+            </div>
+        </div>
+
+
+        {# Rating #}
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                        Customer Rating
+                    </p>
+
+                    <div class="text-2xl font-bold text-[#12372A]">
+                        {{ testimonial.rating }}<span class="text-sm font-medium text-[#66736B]">/5</span>
+                    </div>
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FBF5E7] text-[#D89B24]">
+                    <i class="bi bi-star-fill text-lg"></i>
+                </div>
+
+            </div>
+
+            <div class="mt-3 tracking-wider text-[#D89B24]" aria-label="{{ testimonial.rating }} out of 5 stars">
+                {{ testimonial.stars }}
+            </div>
+        </div>
+
+
+        {# Display Order #}
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                        Display Order
+                    </p>
+
+                    <div class="text-2xl font-bold text-[#12372A]">
+                        {{ testimonial.sort_order }}
+                    </div>
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                    <i class="bi bi-sort-numeric-down text-xl"></i>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       Main Layout
+       ========================================================================= #}
+    <div class="grid grid-cols-1 items-start gap-6 xl:grid-cols-3">
+
+        {# =====================================================================
+           Main Content
+           ===================================================================== #}
+        <div class="min-w-0 space-y-6 xl:col-span-2">
+
+
+            {# -----------------------------------------------------------------
+               Customer Information
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4 sm:px-6">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-person-vcard text-xl"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-bold text-[#12372A]">
+                                Customer Information
+                            </h2>
+
+                            <p class="mt-0.5 text-sm text-[#66736B]">
+                                Customer identity and associated details.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+
+                    <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+
+                        <div>
+                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                Customer Name
+                            </div>
+
+                            <div class="break-words font-semibold text-[#1C2822]">
+                                {{ testimonial.customer_name or "—" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                Country
+                            </div>
+
+                            <div class="text-sm text-[#1C2822]">
+                                {{ testimonial.customer_country or "—" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                City
+                            </div>
+
+                            <div class="text-sm text-[#1C2822]">
+                                {{ testimonial.customer_city or "—" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                Company
+                            </div>
+
+                            <div class="text-sm text-[#1C2822]">
+                                {{ testimonial.company or "—" }}
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <div class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                Position or Title
+                            </div>
+
+                            <div class="text-sm text-[#1C2822]">
+                                {{ testimonial.position or "—" }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Testimonial Content
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4 sm:px-6">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-chat-quote text-xl"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-bold text-[#12372A]">
+                                Testimonial Content
+                            </h2>
+
+                            <p class="mt-0.5 text-sm text-[#66736B]">
+                                The customer's feedback and public-facing quotation.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+
+                    {% if testimonial.title %}
+                        <h3 class="mb-4 text-xl font-bold leading-snug text-[#12372A]">
+                            {{ testimonial.title }}
+                        </h3>
+                    {% endif %}
+
+                    <div class="rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5] p-5 sm:p-6">
+
+                        <div class="mb-3 text-3xl leading-none text-[#D89B24]">
+                            <i class="bi bi-quote"></i>
+                        </div>
+
+                        <blockquote class="whitespace-pre-line break-words text-base leading-8 text-[#1C2822]">
+                            {{ testimonial.testimonial or "No testimonial content has been provided." }}
+                        </blockquote>
+
+                    </div>
+
+                    {% if testimonial.short_testimonial %}
+
+                        <div class="mt-6 border-t border-[#EEE7DB] pt-5">
+
+                            <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                <i class="bi bi-text-paragraph"></i>
+                                Short Testimonial
+                            </div>
+
+                            <p class="whitespace-pre-line break-words text-sm leading-7 text-[#1C2822]">
+                                {{ testimonial.short_testimonial }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Experience / Stay / Safari Association
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4 sm:px-6">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-map text-xl"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-bold text-[#12372A]">
+                                Experience Association
+                            </h2>
+
+                            <p class="mt-0.5 text-sm text-[#66736B]">
+                                The experience, stay, or safari associated with this feedback.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+
+                    {% if testimonial.experience %}
+
+                        <div class="flex flex-col gap-4 rounded-xl border border-[#E9DDC8] bg-[#FCFAF6] p-4 sm:flex-row sm:items-center sm:justify-between">
+
+                            <div class="flex min-w-0 items-start gap-3">
+
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#E9DDC8] text-[#12372A]">
+                                    <i class="bi bi-compass text-lg"></i>
+                                </div>
+
+                                <div class="min-w-0">
+                                    <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                        Related Experience
+                                    </div>
+
+                                    <div class="break-words font-semibold text-[#12372A]">
+                                        {{ testimonial.experience.name }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {% if testimonial.experience_id %}
+                                <span class="inline-flex w-fit shrink-0 items-center rounded-lg border border-[#E9DDC8] bg-white px-3 py-1.5 text-xs font-semibold text-[#66736B]">
+                                    ID #{{ testimonial.experience_id }}
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                    {% elif testimonial.experiences %}
+
+                        <div class="flex items-center gap-3 rounded-xl border border-[#E9DDC8] bg-[#FCFAF6] p-4">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#E9DDC8] text-[#12372A]">
+                                <i class="bi bi-compass text-lg"></i>
+                            </div>
+
+                            <div class="min-w-0">
+                                <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                    Related Experience
+                                </div>
+
+                                <div class="break-words font-semibold text-[#12372A]">
+                                    {{ testimonial.experiences.name }}
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="flex items-start gap-3 rounded-xl border border-dashed border-[#D8DFD7] bg-[#FCFAF6] p-5">
+                            <i class="bi bi-info-circle mt-0.5 text-lg text-[#66736B]"></i>
+
+                            <div>
+                                <p class="text-sm font-semibold text-[#1C2822]">
+                                    No experience associated
+                                </p>
+
+                                <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                                    This testimonial is not currently linked to an experience record.
+                                </p>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Media
+               Supports DAM relationships and legacy image URL fields.
+               browser_url is preferred for DAM assets.
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4 sm:px-6">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-images text-xl"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-bold text-[#12372A]">
+                                Testimonial Media
+                            </h2>
+
+                            <p class="mt-0.5 text-sm text-[#66736B]">
+                                Profile images, customer photography, and video.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+
+                    {% set current_profile_asset = testimonial.profile_photo_asset if testimonial.profile_photo_asset is defined else none %}
+                    {% set current_customer_asset = testimonial.customer_photo_asset if testimonial.customer_photo_asset is defined else none %}
+                    {% set current_video_asset = testimonial.video_asset if testimonial.video_asset is defined else none %}
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+                        {# Profile Photo #}
+                        <div class="min-w-0">
+
+                            <div class="mb-3 flex items-center justify-between gap-3">
+                                <h3 class="text-sm font-semibold text-[#12372A]">
+                                    Profile Photo
+                                </h3>
+
+                                {% if current_profile_asset %}
+                                    <span class="rounded-full bg-[#EDF5EE] px-2.5 py-1 text-xs font-semibold text-[#1F5138]">
+                                        <i class="bi bi-collection mr-1"></i>
+                                        Media Library
+                                    </span>
+                                {% elif testimonial.profile_photo %}
+                                    <span class="rounded-full bg-[#F7F1E5] px-2.5 py-1 text-xs font-semibold text-[#806018]">
+                                        Existing image
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            {% if current_profile_asset and current_profile_asset.browser_url %}
+
+                                <div class="overflow-hidden rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] p-2">
+                                    <img
+                                        src="{{ current_profile_asset.browser_url }}"
+                                        alt="{{ testimonial.customer_name }} profile photo"
+                                        loading="lazy"
+                                        class="mx-auto max-h-72 w-full rounded-lg object-contain"
+                                    >
+                                </div>
+
+                            {% elif testimonial.profile_photo %}
+
+                                <div class="overflow-hidden rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] p-2">
+                                    <img
+                                        src="{{ testimonial.profile_photo }}"
+                                        alt="{{ testimonial.customer_name }} profile photo"
+                                        loading="lazy"
+                                        class="mx-auto max-h-72 w-full rounded-lg object-contain"
+                                    >
+                                </div>
+
+                            {% else %}
+
+                                <div class="flex min-h-44 flex-col items-center justify-center rounded-xl border border-dashed border-[#D8DFD7] bg-[#FCFAF6] px-4 text-center">
+                                    <i class="bi bi-person-circle mb-3 text-3xl text-[#9AA69B]"></i>
+
+                                    <p class="text-sm font-medium text-[#66736B]">
+                                        No profile photo
+                                    </p>
+
+                                    <p class="mt-1 text-xs leading-5 text-[#8A958B]">
+                                        Add an image through the testimonial editor and Media Library.
+                                    </p>
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+{% set current_customer_asset = testimonial.customer_photo_asset %}
+
+{% if current_customer_asset and current_customer_asset.browser_url %}
+    {% set customer_photo_url = current_customer_asset.browser_url %}
+{% elif testimonial.customer_photo %}
+    {% set stored_photo = testimonial.customer_photo %}
+    {% if stored_photo.startswith('http://') or stored_photo.startswith('https://') or stored_photo.startswith('/static/') %}
+        {% set customer_photo_url = stored_photo %}
+    {% else %}
+        {% set customer_photo_url = url_for(
+            'static',
+            filename=stored_photo.lstrip('/').replace('static/', '', 1)
+        ) %}
+    {% endif %}
+{% else %}
+    {% set customer_photo_url = none %}
+{% endif %}
+
+{% if customer_photo_url %}
+    <div class="overflow-hidden rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] p-2">
+        <img
+            src="{{ customer_photo_url }}"
+            alt="{{ testimonial.customer_name }} customer photo"
+            class="mx-auto max-h-72 w-full rounded-lg object-contain"
+            loading="lazy"
+            onerror="this.onerror=null; this.closest('div').insertAdjacentHTML('beforeend', '<p class=&quot;p-3 text-sm text-red-700&quot;>Image could not be loaded. Check the stored file path.</p>'); this.style.display='none';"
+        >
+    </div>
+{% else %}
+    <div class="flex min-h-44 flex-col items-center justify-center rounded-xl border border-dashed border-[#D8DFD7] bg-[#FCFAF6] px-4 text-center">
+        <i class="bi bi-image mb-3 text-3xl text-[#9AA69B]"></i>
+        <p class="text-sm font-medium text-[#66736B]">No customer photo</p>
+    </div>
+{% endif %}
+
+                        {# Video #}
+                        {% if current_video_asset or testimonial.video_url %}
+
+                            <div class="border-t border-[#EEE7DB] pt-5 md:col-span-2">
+
+                                <div class="mb-3 flex items-center gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                                        <i class="bi bi-play-circle text-xl"></i>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-sm font-semibold text-[#12372A]">
+                                            Video Testimonial
+                                        </h3>
+
+                                        <p class="mt-0.5 text-xs text-[#66736B]">
+                                            Video associated with this testimonial.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {% if current_video_asset and current_video_asset.browser_url %}
+
+                                    <div class="rounded-xl border border-[#E9DDC8] bg-[#FCFAF6] p-4">
+
+                                        <p class="mb-3 text-sm font-medium text-[#1C2822]">
+                                            <i class="bi bi-collection mr-1 text-[#1F5138]"></i>
+                                            Video selected from the Media Library
+                                        </p>
+
+                                        <a href="{{ current_video_asset.browser_url }}"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#12372A]/20">
+                                            <i class="bi bi-play-circle"></i>
+                                            Open Library Video
+                                            <i class="bi bi-box-arrow-up-right text-xs"></i>
+                                        </a>
+
+                                    </div>
+
+                                {% endif %}
+
+                                {% if testimonial.video_url %}
+
+                                    <div class="mt-3 rounded-xl border border-[#E9DDC8] bg-white p-4">
+
+                                        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                                            External Video URL
+                                        </p>
+
+                                        <a href="{{ testimonial.video_url }}"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#12372A]">
+                                            <i class="bi bi-play-btn"></i>
+                                            Watch External Video
+                                            <i class="bi bi-box-arrow-up-right text-xs"></i>
+                                        </a>
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="border-t border-[#EEE7DB] pt-5 md:col-span-2">
+                                <div class="flex items-start gap-3 rounded-xl border border-dashed border-[#D8DFD7] bg-[#FCFAF6] p-4">
+                                    <i class="bi bi-camera-video mt-0.5 text-lg text-[#66736B]"></i>
+
+                                    <div>
+                                        <p class="text-sm font-semibold text-[#1C2822]">
+                                            No video attached
+                                        </p>
+
+                                        <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                                            You can associate a video from the Media Library or add an external video URL using the edit page.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        {# =====================================================================
+           Sidebar
+           ===================================================================== #}
+        <aside class="min-w-0 space-y-6">
+
+
+            {# -----------------------------------------------------------------
+               Display Settings
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-display text-lg"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-bold text-[#12372A]">
+                                Display Settings
+                            </h2>
+
+                            <p class="mt-0.5 text-xs text-[#66736B]">
+                                Visibility and publishing flags.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="px-5">
+
+                    <div class="flex items-center justify-between gap-3 border-b border-[#EEE7DB] py-4">
+                        <div>
+                            <p class="text-sm font-medium text-[#1C2822]">Featured</p>
+                            <p class="mt-0.5 text-xs text-[#66736B]">Highlighted testimonial</p>
+                        </div>
+
+                        {% if testimonial.featured %}
+                            <span class="shrink-0 rounded-full bg-[#FBF5E7] px-2.5 py-1 text-xs font-semibold text-[#806018]">
+                                <i class="bi bi-star-fill mr-1"></i> Yes
+                            </span>
+                        {% else %}
+                            <span class="shrink-0 rounded-full bg-[#F3F4F1] px-2.5 py-1 text-xs font-semibold text-[#66736B]">
+                                No
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 border-b border-[#EEE7DB] py-4">
+                        <div>
+                            <p class="text-sm font-medium text-[#1C2822]">Homepage</p>
+                            <p class="mt-0.5 text-xs text-[#66736B]">Included on the homepage</p>
+                        </div>
+
+                        {% if testimonial.homepage %}
+                            <span class="shrink-0 rounded-full bg-[#EDF5EE] px-2.5 py-1 text-xs font-semibold text-[#1F5138]">
+                                <i class="bi bi-house-check mr-1"></i> Yes
+                            </span>
+                        {% else %}
+                            <span class="shrink-0 rounded-full bg-[#F3F4F1] px-2.5 py-1 text-xs font-semibold text-[#66736B]">
+                                No
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 border-b border-[#EEE7DB] py-4">
+                        <div>
+                            <p class="text-sm font-medium text-[#1C2822]">Active</p>
+                            <p class="mt-0.5 text-xs text-[#66736B]">Available for publication</p>
+                        </div>
+
+                        {% if testimonial.active %}
+                            <span class="shrink-0 rounded-full bg-[#EDF5EE] px-2.5 py-1 text-xs font-semibold text-[#1F5138]">
+                                Yes
+                            </span>
+                        {% else %}
+                            <span class="shrink-0 rounded-full bg-[#F3F4F1] px-2.5 py-1 text-xs font-semibold text-[#66736B]">
+                                No
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 py-4">
+                        <div>
+                            <p class="text-sm font-medium text-[#1C2822]">Verified</p>
+                            <p class="mt-0.5 text-xs text-[#66736B]">Customer feedback verified</p>
+                        </div>
+
+                        {% if testimonial.verified %}
+                            <span class="shrink-0 rounded-full bg-[#FBF5E7] px-2.5 py-1 text-xs font-semibold text-[#806018]">
+                                Yes
+                            </span>
+                        {% else %}
+                            <span class="shrink-0 rounded-full bg-[#FCF0E7] px-2.5 py-1 text-xs font-semibold text-[#9B5428]">
+                                No
+                            </span>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Rating
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FBF5E7] text-[#D89B24]">
+                            <i class="bi bi-star-fill text-lg"></i>
+                        </div>
+
+                        <h2 class="text-base font-bold text-[#12372A]">
+                            Customer Rating
+                        </h2>
+
+                    </div>
+                </div>
+
+                <div class="p-5 text-center">
+
+                    <div class="mb-3 break-words text-2xl tracking-wider text-[#D89B24]" aria-label="{{ testimonial.rating }} out of 5 stars">
+                        {{ testimonial.stars }}
+                    </div>
+
+                    <div class="text-3xl font-bold text-[#12372A]">
+                        {{ testimonial.rating }}
+                        <span class="text-base font-medium text-[#66736B]">/ 5</span>
+                    </div>
+
+                    <p class="mt-2 text-xs text-[#66736B]">
+                        Rating submitted for this testimonial
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Source
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-link-45deg text-xl"></i>
+                        </div>
+
+                        <h2 class="text-base font-bold text-[#12372A]">
+                            Testimonial Source
+                        </h2>
+
+                    </div>
+                </div>
+
+                <div class="p-5">
+
+                    {% if testimonial.source %}
+
+                        <span class="inline-flex max-w-full items-center gap-2 break-words rounded-lg border border-[#E9DDC8] bg-[#FCFAF6] px-3 py-2 text-sm font-semibold text-[#1C2822]">
+                            <i class="bi bi-bookmark text-[#5C6B32]"></i>
+                            {{ testimonial.source }}
+                        </span>
+
+                    {% else %}
+
+                        <div class="flex items-start gap-2 text-sm text-[#66736B]">
+                            <i class="bi bi-dash-circle mt-0.5"></i>
+                            <span>No source specified.</span>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Record Information
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-info-circle text-lg"></i>
+                        </div>
+
+                        <h2 class="text-base font-bold text-[#12372A]">
+                            Record Information
+                        </h2>
+
+                    </div>
+                </div>
+
+                <div class="space-y-5 p-5">
+
+                    <div>
+                        <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                            Testimonial ID
+                        </div>
+
+                        <div class="font-semibold text-[#12372A]">
+                            #{{ testimonial.id }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                            Created
+                        </div>
+
+                        <div class="text-sm text-[#1C2822]">
+                            {% if testimonial.created_at %}
+                                {{ testimonial.created_at.strftime("%d %b %Y, %H:%M") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                            Last Updated
+                        </div>
+
+                        <div class="text-sm text-[#1C2822]">
+                            {% if testimonial.updated_at %}
+                                {{ testimonial.updated_at.strftime("%d %b %Y, %H:%M") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#EEE7DB] pt-4">
+                        <p class="text-xs leading-5 text-[#66736B]">
+                            Use the actions below to manage this testimonial's verification, publication status, and homepage visibility.
+                        </p>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               Actions
+               Existing route names and POST behaviour are preserved.
+               CSRF tokens are included in every POST form.
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="border-b border-[#EEE7DB] px-5 py-4">
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-[#12372A]">
+                            <i class="bi bi-lightning-charge text-lg"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-bold text-[#12372A]">
+                                Manage Testimonial
+                            </h2>
+
+                            <p class="mt-0.5 text-xs text-[#66736B]">
+                                Available record actions
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 p-5">
+
+                    {# Edit #}
+                    <a href="{{ url_for('admin_testimonial.edit', testimonial_id=testimonial.id) }}"
+                       class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#12372A] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#12372A]/20">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit Testimonial
+                    </a>
+
+
+                    {# Activate / Deactivate #}
+                    {% if testimonial.active %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.deactivate', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9DDC8] bg-white px-4 py-2.5 text-sm font-semibold text-[#806018] transition hover:bg-[#FBF5E7] focus:outline-none focus:ring-2 focus:ring-[#D89B24]/20"
+                                    onclick="return confirm('Deactivate this testimonial?');">
+                                <i class="bi bi-pause-circle"></i>
+                                Deactivate Testimonial
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.activate', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#C9DDCD] bg-white px-4 py-2.5 text-sm font-semibold text-[#1F5138] transition hover:bg-[#EDF5EE] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20">
+                                <i class="bi bi-play-circle"></i>
+                                Activate Testimonial
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {# Verify / Unverify #}
+                    {% if testimonial.verified %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.unverify', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D8DFD7] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5] focus:outline-none focus:ring-2 focus:ring-[#12372A]/10">
+                                <i class="bi bi-patch-minus"></i>
+                                Mark Unverified
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.verify', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#C9DDCD] bg-white px-4 py-2.5 text-sm font-semibold text-[#1F5138] transition hover:bg-[#EDF5EE] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20">
+                                <i class="bi bi-patch-check"></i>
+                                Verify Testimonial
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {# Feature / Unfeature #}
+                    {% if testimonial.featured %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.unfeature', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D8DFD7] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5] focus:outline-none focus:ring-2 focus:ring-[#12372A]/10">
+                                <i class="bi bi-star"></i>
+                                Remove Featured Status
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.feature', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9DDC8] bg-white px-4 py-2.5 text-sm font-semibold text-[#806018] transition hover:bg-[#FBF5E7] focus:outline-none focus:ring-2 focus:ring-[#D89B24]/20">
+                                <i class="bi bi-star"></i>
+                                Feature Testimonial
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {# Homepage #}
+                    {% if testimonial.homepage %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.remove_from_homepage', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D8DFD7] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5] focus:outline-none focus:ring-2 focus:ring-[#12372A]/10">
+                                <i class="bi bi-house-dash"></i>
+                                Remove from Homepage
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form method="POST"
+                              action="{{ url_for('admin_testimonial.add_to_homepage', testimonial_id=testimonial.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#C9DDCD] bg-white px-4 py-2.5 text-sm font-semibold text-[#1F5138] transition hover:bg-[#EDF5EE] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20">
+                                <i class="bi bi-house-add"></i>
+                                Add to Homepage
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                    {# ---------------------------------------------------------
+                       Delete Testimonial
+                       Uses POST and includes CSRF protection.
+                       --------------------------------------------------------- #}
+                    <div class="my-4 border-t border-[#EEE7DB]"></div>
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_testimonial.delete', testimonial_id=testimonial.id) }}"
+                        class="space-y-3"
+                        onsubmit="return confirm('Are you sure you want to permanently delete this testimonial? This action cannot be undone.');">
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}">
+
+                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-red-100 bg-red-50/50 p-3">
+                            <input
+                                type="checkbox"
+                                name="confirm"
+                                value="y"
+                                required
+                                class="mt-0.5 h-4 w-4 rounded border-red-300 text-red-600 focus:ring-red-500">
+
+                            <span class="text-sm leading-5 text-[#66736B]">
+                                I confirm that I want to permanently delete this testimonial.
+                            </span>
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/20">
+                            <i class="bi bi-trash3"></i>
+                            Delete Testimonial Permanently
+                        </button>
+                    </form>
+
+                    <p class="pt-1 text-xs leading-5 text-[#66736B]">
+                        This permanently removes the testimonial. Make sure you have selected the correct record before confirming.
+                    </p>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

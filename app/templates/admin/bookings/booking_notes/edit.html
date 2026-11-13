@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Booking Note | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6">
+  <div>
+    <a href="{{ url_for('admin_booking_notes.detail', note_id=note.id) }}" class="text-sm font-medium text-route-muted hover:text-route-forest">← Note Details</a>
+    <h1 class="mt-3 text-3xl font-bold text-route-deep">Edit Booking Note</h1>
+    <p class="mt-2 text-sm text-route-muted">Note #{{ note.id }} · Created {{ note.created_at.strftime("%d %b %Y, %H:%M") if note.created_at else "—" }}</p>
+  </div>
+
+  <form method="POST" class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm md:p-8">
+    {{ form.hidden_tag() }}
+    {% include "admin/booking_notes/_form_fields.html" %}
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{{ form.hidden_tag() }}
+
+<div class="grid gap-5 md:grid-cols-2">
+    <div>
+        {{ form.booking_id.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.booking_id(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+        {% for error in form.booking_id.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+        {{ form.transaction_type.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.transaction_type(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+        {% for error in form.transaction_type.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+        {{ form.payment_purpose.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.payment_purpose(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+        {% for error in form.payment_purpose.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+        {{ form.amount.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.amount(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", min="0.01", step="0.01", placeholder="0.00") }}
+        {% for error in form.amount.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+        {{ form.currency.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.currency(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+        {% for error in form.currency.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+        {{ form.payment_method.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.payment_method(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+        {% for error in form.payment_method.errors %}<p class="mt-1 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+        {{ form.payment_provider.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.payment_provider(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="e.g. Safaricom") }}
+    </div>
+
+    <div>
+        {{ form.transaction_reference.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.transaction_reference(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", placeholder="Leave blank to generate automatically") }}
+    </div>
+
+    <div>
+        {{ form.provider_reference.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.provider_reference(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    </div>
+
+    <div>
+        {{ form.description.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.description(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+    </div>
+
+    <div class="md:col-span-2">
+        {{ form.internal_notes.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+        {{ form.internal_notes(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm", rows="4", placeholder="Internal finance notes; not customer-facing.") }}
+    </div>
+</div>

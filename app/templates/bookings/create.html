@@ -1,0 +1,954 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Book {{ experience.title if experience else "Your Experience" }} | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50">
+
+    <!-- ================================================================
+         HERO
+         ================================================================ -->
+    <section class="relative overflow-hidden bg-slate-950">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950"></div>
+
+        <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+
+                <p class="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
+                    The Uncharted Route
+                </p>
+
+                <h1 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                    Book Your Experience
+                </h1>
+
+                <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                    Tell us who is travelling and how you'd like to experience
+                    the journey. We'll review your request, confirm feasibility
+                    and validate pricing before your booking is confirmed.
+                </p>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         CONTENT
+         ================================================================ -->
+    <main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+
+        <form
+            method="POST"
+            action="{{ url_for('bookings.create') }}"
+            novalidate
+        >
+
+            {{ form.hidden_tag() }}
+
+            <div class="grid gap-8 lg:grid-cols-3">
+
+                <!-- ========================================================
+                     MAIN FORM
+                     ======================================================== -->
+                <div class="space-y-8 lg:col-span-2">
+
+
+                    <!-- ====================================================
+                         EXPERIENCE
+                         ==================================================== -->
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <div class="mb-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                                01 · Your Experience
+                            </p>
+
+                            <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                                Choose your journey
+                            </h2>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Select the experience and pricing level that
+                                best suits your group.
+                            </p>
+
+                        </div>
+
+
+                        <div class="grid gap-6 sm:grid-cols-2">
+
+                            <!-- Experience -->
+
+                            <div class="sm:col-span-2">
+
+                                {{ form.experience_id.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.experience_id(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        bg-white px-4 py-3 text-sm text-slate-900
+                                        shadow-sm outline-none transition
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    "
+                                ) }}
+
+                                {% for error in form.experience_id.errors %}
+                                    <p class="mt-2 text-sm text-red-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Pricing -->
+
+                            <div>
+
+                                {{ form.pricing_id.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.pricing_id(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        bg-white px-4 py-3 text-sm text-slate-900
+                                        shadow-sm outline-none transition
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    "
+                                ) }}
+
+                                {% for error in form.pricing_id.errors %}
+                                    <p class="mt-2 text-sm text-red-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ====================================================
+                         LEAD TRAVELLER
+                         ==================================================== -->
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <div class="mb-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                                02 · Lead Traveller
+                            </p>
+
+                            <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                                Who should we contact?
+                            </h2>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                This person will be the primary contact for the booking request.
+                            </p>
+
+                        </div>
+
+
+                        <div class="grid gap-6 sm:grid-cols-2">
+
+                            <!-- First Name -->
+
+                            <div>
+
+                                {{ form.first_name.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.first_name(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm outline-none
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="First name"
+                                ) }}
+
+                                {% for error in form.first_name.errors %}
+                                    <p class="mt-2 text-sm text-red-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Last Name -->
+
+                            <div>
+
+                                {{ form.last_name.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.last_name(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm outline-none
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Last name"
+                                ) }}
+
+                                {% for error in form.last_name.errors %}
+                                    <p class="mt-2 text-sm text-red-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Email -->
+
+                            <div>
+
+                                {{ form.email.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.email(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm outline-none
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="you@example.com"
+                                ) }}
+
+                                {% for error in form.email.errors %}
+                                    <p class="mt-2 text-sm text-red-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Phone -->
+
+                            <div>
+
+                                {{ form.phone.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.phone(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm outline-none
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="+254..."
+                                ) }}
+
+                                {% for error in form.phone.errors %}
+                                    <p class="mt-2 text-sm text-red-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Nationality -->
+
+                            <div>
+
+                                {{ form.nationality.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.nationality(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm outline-none
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Nationality"
+                                ) }}
+
+                            </div>
+
+
+                            <!-- Country of Residence -->
+
+                            <div>
+
+                                {{ form.country_of_residence.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.country_of_residence(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm outline-none
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Country of residence"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ====================================================
+                         TRAVELLERS
+                         ==================================================== -->
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <div class="mb-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                                03 · Travellers
+                            </p>
+
+                            <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                                Who is coming?
+                            </h2>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Tell us how many guests will be travelling.
+                            </p>
+
+                        </div>
+
+
+                        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+                            {% for field in [
+                                form.adults,
+                                form.children,
+                                form.infants,
+                                form.seniors,
+                                form.students
+                            ] %}
+
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+
+                                    {{ field.label(
+                                        class="mb-2 block text-sm font-semibold text-slate-700"
+                                    ) }}
+
+                                    {{ field(
+                                        class="
+                                            block w-full rounded-lg border border-slate-300
+                                            bg-white px-3 py-2.5 text-sm
+                                            focus:border-emerald-500
+                                            focus:ring-2 focus:ring-emerald-500/20
+                                        ",
+                                        min="0"
+                                    ) }}
+
+                                    {% for error in field.errors %}
+                                        <p class="mt-2 text-xs text-red-600">
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ====================================================
+                         EMERGENCY CONTACT
+                         ==================================================== -->
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <div class="mb-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                                04 · Emergency Contact
+                            </p>
+
+                            <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                                Someone we can reach if needed
+                            </h2>
+
+                        </div>
+
+
+                        <div class="grid gap-6 sm:grid-cols-3">
+
+                            <!-- Name -->
+
+                            <div>
+
+                                {{ form.emergency_contact_name.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.emergency_contact_name(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Full name"
+                                ) }}
+
+                            </div>
+
+
+                            <!-- Phone -->
+
+                            <div>
+
+                                {{ form.emergency_contact_phone.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.emergency_contact_phone(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="+254..."
+                                ) }}
+
+                            </div>
+
+
+                            <!-- Relationship -->
+
+                            <div>
+
+                                {{ form.emergency_contact_relationship.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.emergency_contact_relationship(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Relationship"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ====================================================
+                         REQUIREMENTS
+                         ==================================================== -->
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <div class="mb-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                                05 · Your Needs
+                            </p>
+
+                            <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                                Help us prepare
+                            </h2>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Share anything that will help us prepare your experience properly.
+                            </p>
+
+                        </div>
+
+
+                        <div class="space-y-6">
+
+                            <!-- Dietary -->
+
+                            <div>
+
+                                {{ form.dietary_requirements.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.dietary_requirements(
+                                    class="
+                                        block min-h-28 w-full rounded-xl border
+                                        border-slate-300 px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Tell us about any dietary requirements..."
+                                ) }}
+
+                            </div>
+
+
+                            <!-- Medical -->
+
+                            <div>
+
+                                {{ form.medical_information.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.medical_information(
+                                    class="
+                                        block min-h-28 w-full rounded-xl border
+                                        border-slate-300 px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Anything our team should know..."
+                                ) }}
+
+                            </div>
+
+
+                            <!-- Accessibility -->
+
+                            <div>
+
+                                {{ form.accessibility_requirements.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.accessibility_requirements(
+                                    class="
+                                        block min-h-28 w-full rounded-xl border
+                                        border-slate-300 px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Accessibility requirements..."
+                                ) }}
+
+                            </div>
+
+
+                            <!-- Special Requests -->
+
+                            <div>
+
+                                {{ form.special_requests.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.special_requests(
+                                    class="
+                                        block min-h-28 w-full rounded-xl border
+                                        border-slate-300 px-4 py-3 text-sm
+                                        focus:border-emerald-500
+                                        focus:ring-2 focus:ring-emerald-500/20
+                                    ",
+                                    placeholder="Anything else you'd like us to know?"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ====================================================
+                         TERMS
+                         ==================================================== -->
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <label class="flex items-start gap-3">
+
+                            {{ form.agree_to_terms(
+                                class="
+                                    mt-1 h-5 w-5 rounded border-slate-300
+                                    text-emerald-600 focus:ring-emerald-500
+                                "
+                            ) }}
+
+                            <span class="text-sm leading-6 text-slate-600">
+
+                                I agree to The Uncharted Route's booking terms
+                                and understand that this submission is a
+                                booking request subject to availability and
+                                confirmation.
+
+                            </span>
+
+                        </label>
+
+
+                        {% for error in form.agree_to_terms.errors %}
+
+                            <p class="mt-3 text-sm text-red-600">
+                                {{ error }}
+                            </p>
+
+                        {% endfor %}
+
+                    </section>
+
+
+
+                    <!-- ====================================================
+                         SUBMIT
+                         ==================================================== -->
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                        <p class="max-w-xl text-xs leading-5 text-slate-500">
+                            Your request will be reviewed against current
+                            feasibility, capacity and pricing before
+                            confirmation.
+                        </p>
+
+                        {{ form.submit(
+                            class="
+                                inline-flex w-full cursor-pointer items-center
+                                justify-center rounded-xl bg-emerald-700
+                                px-8 py-4 text-sm font-bold text-white
+                                shadow-sm transition hover:bg-emerald-800
+                                focus:outline-none focus:ring-2
+                                focus:ring-emerald-500 focus:ring-offset-2
+                                sm:w-auto
+                            "
+                        ) }}
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ========================================================
+                     SIDEBAR
+                     ======================================================== -->
+                <aside>
+
+                    <div class="sticky top-8 overflow-hidden rounded-2xl bg-slate-950 shadow-xl">
+
+                        <!-- Header -->
+
+                        <div class="p-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-400">
+                                Your Journey
+                            </p>
+
+                            <h2 class="mt-2 text-2xl font-bold text-white">
+                                Booking Summary
+                            </h2>
+
+                        </div>
+
+
+                        <!-- Summary -->
+
+                        <div class="space-y-6 border-t border-white/10 p-6">
+
+                            <!-- Experience -->
+
+                            <div>
+
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                    Experience
+                                </p>
+
+                                <p
+                                    id="summary-experience"
+                                    class="mt-1 text-sm font-semibold text-white"
+                                >
+                                    Select an experience
+                                </p>
+
+                            </div>
+
+
+                            <!-- Travellers -->
+
+                            <div>
+
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                    Travellers
+                                </p>
+
+                                <p
+                                    id="summary-guests"
+                                    class="mt-1 text-sm font-semibold text-white"
+                                >
+                                    0 travellers
+                                </p>
+
+                            </div>
+
+
+                            <!-- Pricing -->
+
+                            <div>
+
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                    Pricing
+                                </p>
+
+                                <p
+                                    id="summary-pricing"
+                                    class="mt-1 text-sm font-semibold text-white"
+                                >
+                                    Select a pricing option
+                                </p>
+
+                            </div>
+
+
+                            <!-- Notice -->
+
+                            <div class="rounded-xl bg-white/5 p-4">
+
+                                <p class="text-xs leading-5 text-slate-400">
+                                    Your preferred arrangements are reviewed
+                                    by The Uncharted Route before the booking
+                                    is confirmed. Final pricing and
+                                    feasibility will be validated with you.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </form>
+
+    </main>
+
+</div>
+
+
+<!-- ================================================================
+     SIMPLE SUMMARY JAVASCRIPT
+     ================================================================ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const experience = document.getElementById("experience_id");
+    const pricing = document.getElementById("pricing_id");
+
+    const summaryExperience =
+        document.getElementById("summary-experience");
+
+    const summaryPricing =
+        document.getElementById("summary-pricing");
+
+    const summaryGuests =
+        document.getElementById("summary-guests");
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    /*
+     * The server-rendered experience is the fallback when no
+     * experience_id query parameter is supplied.
+     */
+    const defaultExperienceId =
+        {{ experience.id | tojson if experience else 'null' }};
+
+
+    function selectOption(field, requestedValue) {
+
+        if (!field || requestedValue === null || requestedValue === "") {
+            return;
+        }
+
+        const optionExists =
+            Array.from(field.options).some(
+                option => option.value === String(requestedValue)
+            );
+
+        if (optionExists) {
+
+            field.value = String(requestedValue);
+
+            field.dispatchEvent(
+                new Event("change", {
+                    bubbles: true
+                })
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Prefill the selected experience and pricing option
+     * when supplied through the query string.
+     */
+    selectOption(
+        experience,
+        params.get("experience_id") || defaultExperienceId
+    );
+
+    selectOption(
+        pricing,
+        params.get("pricing_id")
+    );
+
+
+    function updateSummary() {
+
+        /* Experience */
+
+        if (experience && summaryExperience) {
+
+            const option =
+                experience.options[experience.selectedIndex];
+
+            summaryExperience.textContent =
+                option && option.value
+                    ? option.text
+                    : "Select an experience";
+
+        }
+
+
+        /* Pricing */
+
+        if (pricing && summaryPricing) {
+
+            const option =
+                pricing.options[pricing.selectedIndex];
+
+            summaryPricing.textContent =
+                option && option.value
+                    ? option.text
+                    : "Select a pricing option";
+
+        }
+
+
+        /* Travellers */
+
+        let total = 0;
+
+        [
+            "adults",
+            "children",
+            "infants",
+            "seniors",
+            "students"
+        ].forEach(function (id) {
+
+            const field =
+                document.getElementById(id);
+
+            if (field) {
+
+                total += Math.max(
+                    0,
+                    parseInt(field.value || "0", 10) || 0
+                );
+
+            }
+
+        });
+
+
+        if (summaryGuests) {
+
+            summaryGuests.textContent =
+                total === 1
+                    ? "1 traveller"
+                    : total + " travellers";
+
+        }
+
+    }
+
+
+    /* Update summary when experience or pricing changes. */
+
+    [experience, pricing].forEach(function (field) {
+
+        if (field) {
+
+            field.addEventListener(
+                "change",
+                updateSummary
+            );
+
+        }
+
+    });
+
+
+    /* Update traveller count live. */
+
+    [
+        "adults",
+        "children",
+        "infants",
+        "seniors",
+        "students"
+    ].forEach(function (id) {
+
+        const field =
+            document.getElementById(id);
+
+        if (field) {
+
+            field.addEventListener(
+                "input",
+                updateSummary
+            );
+
+            field.addEventListener(
+                "change",
+                updateSummary
+            );
+
+        }
+
+    });
+
+
+    updateSummary();
+
+});
+</script>
+
+{% endblock %}

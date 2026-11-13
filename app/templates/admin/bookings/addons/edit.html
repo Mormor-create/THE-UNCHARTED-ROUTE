@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Booking Add-on | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-6">
+    <a href="{{ url_for('admin_booking_addons.detail', addon_id=addon.id) }}"
+       class="text-sm font-semibold text-route-forest">← Back to add-on</a>
+
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-widest text-route-gold">
+            {{ addon.booking.booking_reference }}
+        </p>
+        <h1 class="mt-1 text-3xl font-bold text-route-deep">Edit add-on</h1>
+    </div>
+
+    <form method="POST" class="rounded-2xl border border-route-sand bg-white p-6 md:p-8">
+        {{ form.hidden_tag() }}
+        {% include "admin/bookings/addons/_form_fields.html" %}
+
+        <div class="mt-8 flex justify-end">
+            {{ form.submit(class="cursor-pointer rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

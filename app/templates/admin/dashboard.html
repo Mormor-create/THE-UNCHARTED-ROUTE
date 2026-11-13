@@ -1,0 +1,1244 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Dashboard · {{ company_name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- ================================================================
+         Welcome Header
+         ================================================================ -->
+
+    <section>
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-safari">
+                    Administration
+                </p>
+
+                <h2 class="mt-2 font-display text-3xl font-semibold text-route-ink sm:text-4xl">
+                    Welcome back, {{ current_user.first_name }}.
+                </h2>
+
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-route-muted sm:text-base">
+                    Manage The Uncharted Route's experiences, destinations,
+                    bookings, service enquiries, newsletter subscribers,
+                    content, people, and digital presence from one place.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <a
+                    href="{{ url_for('main.home') }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 rounded-full border border-route-forest/15 bg-route-white px-4 py-2.5 text-xs font-bold text-route-forest transition hover:border-route-gold hover:text-route-terracotta"
+                >
+                    View Website <span>↗</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Quick Overview
+         ================================================================ -->
+
+    <section>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+            <!-- Experiences -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                        ✦
+                    </div>
+                    <span class="rounded-full bg-route-cream px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        Content
+                    </span>
+                </div>
+
+                <p class="mt-5 text-sm font-medium text-route-muted">Experiences</p>
+                <p class="mt-1 font-display text-3xl font-semibold text-route-ink">
+                    {{ experience_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    {{ active_experience_count }} active
+                    {% if featured_experience_count %}
+                        · {{ featured_experience_count }} featured
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Destinations -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                        ◉
+                    </div>
+                    <span class="rounded-full bg-route-cream px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        Content
+                    </span>
+                </div>
+
+                <p class="mt-5 text-sm font-medium text-route-muted">Destinations</p>
+                <p class="mt-1 font-display text-3xl font-semibold text-route-ink">
+                    {{ destination_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    {{ active_destination_count }} active
+                    {% if featured_destination_count %}
+                        · {{ featured_destination_count }} featured
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Bookings -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-safari/10 text-route-safari">
+                        ▣
+                    </div>
+                    <span class="rounded-full bg-route-cream px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        Operations
+                    </span>
+                </div>
+
+                <p class="mt-5 text-sm font-medium text-route-muted">Bookings</p>
+                <p class="mt-1 font-display text-3xl font-semibold text-route-ink">
+                    {{ booking_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    {{ pending_booking_count }} pending
+                    · {{ confirmed_booking_count }} confirmed
+                </p>
+            </div>
+
+            <!-- Website Contact Enquiries -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                        ✉
+                    </div>
+                    <span class="rounded-full bg-route-cream px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        Contact
+                    </span>
+                </div>
+
+                <p class="mt-5 text-sm font-medium text-route-muted">Contact Enquiries</p>
+                <p class="mt-1 font-display text-3xl font-semibold text-route-ink">
+                    {{ enquiry_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    {{ unread_enquiry_count }} unread
+                    · {{ open_enquiry_count }} open
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Operational Snapshot
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-safari">
+                Operations
+            </p>
+            <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                Operational snapshot
+            </h3>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                A quick view of the areas that may need attention today.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Pending bookings
+                    </span>
+                    <span class="text-route-gold">●</span>
+                </div>
+                <p class="mt-3 font-display text-3xl font-semibold text-route-ink">
+                    {{ pending_booking_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    Awaiting administrative action.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Unread contact enquiries
+                    </span>
+                    <span class="text-route-terracotta">●</span>
+                </div>
+                <p class="mt-3 font-display text-3xl font-semibold text-route-ink">
+                    {{ unread_enquiry_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    Customer messages not yet reviewed.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Published journal
+                    </span>
+                    <span class="text-route-forest">●</span>
+                </div>
+                <p class="mt-3 font-display text-3xl font-semibold text-route-ink">
+                    {{ published_blog_count }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    Live articles currently published.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Average testimonial rating
+                    </span>
+                    <span class="text-route-gold">★</span>
+                </div>
+                <p class="mt-3 font-display text-3xl font-semibold text-route-ink">
+                    {{ average_testimonial_rating }}
+                    <span class="font-sans text-base font-medium text-route-muted">/ 5</span>
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    {{ verified_testimonial_count }} verified testimonials.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Service Enquiries
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                    Customer Operations
+                </p>
+                <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                    Service Enquiries
+                </h3>
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                    Monitor enquiries submitted for safaris, stays, and experiences.
+                    These enquiries remain separate from confirmed bookings.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('service_inquiries.index') }}"
+                class="inline-flex w-fit items-center gap-2 rounded-full bg-route-forest px-4 py-2.5 text-xs font-bold text-route-white transition hover:bg-route-deep"
+            >
+                Manage Service Enquiries <span>→</span>
+            </a>
+        </div>
+
+        {% set inquiry_stats = service_inquiry_stats|default({}) %}
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+            <!-- Total -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Total enquiries
+                    </span>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                        ✉
+                    </span>
+                </div>
+                <p class="mt-4 font-display text-3xl font-semibold text-route-ink">
+                    {{ inquiry_stats.get('total', service_inquiry_count|default(0)) }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    Safari, stay, and experience requests.
+                </p>
+            </div>
+
+            <!-- Active -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Active enquiries
+                    </span>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                        ●
+                    </span>
+                </div>
+                <p class="mt-4 font-display text-3xl font-semibold text-route-ink">
+                    {{ inquiry_stats.get('active', active_service_inquiry_count|default(0)) }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    Enquiries not currently archived.
+                </p>
+            </div>
+
+            <!-- New -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        New enquiries
+                    </span>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                        !
+                    </span>
+                </div>
+                <p class="mt-4 font-display text-3xl font-semibold text-route-ink">
+                    {{ inquiry_stats.get('new', new_service_inquiry_count|default(0)) }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    New, unarchived service requests.
+                </p>
+            </div>
+
+            <!-- Archived -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Archived enquiries
+                    </span>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-route-cream text-route-muted">
+                        ▤
+                    </span>
+                </div>
+                <p class="mt-4 font-display text-3xl font-semibold text-route-ink">
+                    {{ inquiry_stats.get('archived', archived_service_inquiry_count|default(0)) }}
+                </p>
+                <p class="mt-2 text-xs text-route-muted">
+                    Retained records outside the active view.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Service Type Breakdown -->
+        <div class="mt-5 rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm sm:p-6">
+            <div class="mb-5">
+                <h4 class="font-display text-lg font-semibold text-route-ink">
+                    Enquiries by service type
+                </h4>
+                <p class="mt-1 text-sm text-route-muted">
+                    Separate counts for each service enquiry category.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+                <div class="rounded-xl bg-route-cream/70 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Safari enquiries
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ inquiry_stats.get('safari', safari_inquiry_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        {{ inquiry_stats.get('safari_active', 0) }} active
+                        · {{ inquiry_stats.get('safari_archived', 0) }} archived
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-cream/70 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Stay enquiries
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ inquiry_stats.get('stay', stay_inquiry_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        {{ inquiry_stats.get('stay_active', 0) }} active
+                        · {{ inquiry_stats.get('stay_archived', 0) }} archived
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-cream/70 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Experience enquiries
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ inquiry_stats.get('experience', experience_inquiry_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        {{ inquiry_stats.get('experience_active', 0) }} active
+                        · {{ inquiry_stats.get('experience_archived', 0) }} archived
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Newsletter Subscribers
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-safari">
+                Audience & Engagement
+            </p>
+            <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                Newsletter Subscribers
+            </h3>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                Review subscription growth, verification, and recorded marketing consent.
+                The two newsletter tables are shown separately to avoid double-counting
+                the same email address across different models.
+            </p>
+        </div>
+
+        {% set subscriber_stats = newsletter_subscriber_stats|default({}) %}
+        {% set simple_newsletter_stats = newsletter_stats|default({}) %}
+
+        <!-- Rich Newsletter Subscriber Model -->
+        <div class="mb-5 rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm sm:p-6">
+
+            <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h4 class="font-display text-lg font-semibold text-route-ink">
+                        Subscriber Management
+                    </h4>
+                    <p class="mt-1 text-xs text-route-muted">
+                        newsletter_subscribers · Verification, preferences, and consent
+                    </p>
+                </div>
+
+                <span class="inline-flex w-fit rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                    Detailed model
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+                <div class="rounded-xl bg-route-cream/70 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Total subscribers
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('total', newsletter_subscriber_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        All records in the detailed subscriber table.
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-forest/5 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-forest">
+                        Currently subscribed
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('subscribed', active_newsletter_subscriber_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        Subscribers whose subscription is active.
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-gold/10 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-deep">
+                        Verified emails
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('verified', verified_newsletter_subscriber_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        Email addresses marked as verified.
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-terracotta/5 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-terracotta">
+                        Unsubscribed
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('unsubscribed', unsubscribed_newsletter_subscriber_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        Records that are no longer subscribed.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+                <div class="rounded-xl border border-route-forest/10 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Unverified emails
+                    </p>
+                    <p class="mt-2 text-xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('unverified', 0) }}
+                    </p>
+                </div>
+
+                <div class="rounded-xl border border-route-forest/10 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Marketing consent recorded
+                    </p>
+                    <p class="mt-2 text-xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('marketing_consent', marketing_consent_count|default(0)) }}
+                    </p>
+                </div>
+
+                <div class="rounded-xl border border-route-forest/10 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Eligible for marketing
+                    </p>
+                    <p class="mt-2 text-xl font-semibold text-route-ink">
+                        {{ subscriber_stats.get('eligible_for_marketing', eligible_for_marketing_count|default(0)) }}
+                    </p>
+                    <p class="mt-1 text-xs text-route-muted">
+                        Subscribed, verified, and consent recorded.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Simple Newsletter Model -->
+        <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm sm:p-6">
+
+            <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h4 class="font-display text-lg font-semibold text-route-ink">
+                        Newsletter Records
+                    </h4>
+                    <p class="mt-1 text-xs text-route-muted">
+                        newsletters · Basic subscription and verification records
+                    </p>
+                </div>
+
+                <span class="inline-flex w-fit rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                    Simple model
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+
+                <div class="rounded-xl bg-route-cream/70 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Total records
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ simple_newsletter_stats.get('total', newsletter_count|default(0)) }}
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-forest/5 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-forest">
+                        Subscribed
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ simple_newsletter_stats.get('subscribed', active_newsletter_count|default(0)) }}
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-terracotta/5 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-terracotta">
+                        Unsubscribed
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ simple_newsletter_stats.get('unsubscribed', unsubscribed_newsletter_count|default(0)) }}
+                    </p>
+                </div>
+
+                <div class="rounded-xl bg-route-gold/10 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-deep">
+                        Verified
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ simple_newsletter_stats.get('verified', verified_newsletter_count|default(0)) }}
+                    </p>
+                </div>
+
+                <div class="rounded-xl border border-route-forest/10 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Unverified
+                    </p>
+                    <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                        {{ simple_newsletter_stats.get('unverified', 0) }}
+                    </p>
+                </div>
+
+            </div>
+
+            <p class="mt-4 text-xs leading-5 text-route-muted">
+                These two newsletter tables are reported independently. Their totals
+                should not be combined unless the application is confirmed to use
+                separate, non-overlapping subscriber populations.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Management Areas
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-safari">
+                Management
+            </p>
+            <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                Your workspace
+            </h3>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                Manage the content and operational systems that power The Uncharted Route.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+
+            <!-- Homepage -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                    ⌂
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Homepage
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Manage homepage content, featured experiences, destinations,
+                    media, calls-to-action, and promotional sections.
+                </p>
+                <div class="mt-5">
+                    <span class="inline-flex rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        CMS
+                    </span>
+                </div>
+            </div>
+
+            <!-- Experiences -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                    ✦
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Experiences
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Maintain experiences, pricing, itineraries, media, wildlife,
+                    safety information, requirements, schedules, and more.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        {{ experience_count }} experiences
+                    </span>
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ active_experience_count }} active
+                    </span>
+                </div>
+            </div>
+
+            <!-- Destinations -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-safari/10 text-route-safari">
+                    ◉
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Destinations
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Manage destination information, imagery, descriptions,
+                    highlights, and associated experiences.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        {{ destination_count }} destinations
+                    </span>
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ active_destination_count }} active
+                    </span>
+                </div>
+            </div>
+
+            <!-- Bookings -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-safari/10 text-route-safari">
+                    ▣
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Bookings
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Review incoming bookings, manage status, cancellations,
+                    travellers, schedules, and customer booking information.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-deep">
+                        {{ pending_booking_count }} pending
+                    </span>
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ confirmed_booking_count }} confirmed
+                    </span>
+                </div>
+            </div>
+
+            <!-- Journal -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                    ▤
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Journal
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Create travel stories, destination guides, articles, categories,
+                    publishing schedules, SEO, and featured journal content.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ published_blog_count }} published
+                    </span>
+                    <span class="rounded-full bg-route-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-deep">
+                        {{ draft_blog_count }} drafts
+                    </span>
+                </div>
+            </div>
+
+            <!-- Testimonials -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                    ★
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Testimonials
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Curate customer testimonials, ratings, featured reviews,
+                    homepage displays, verification, and experience associations.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-deep">
+                        {{ testimonial_count }} total
+                    </span>
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ verified_testimonial_count }} verified
+                    </span>
+                </div>
+            </div>
+
+            <!-- Media Library -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                    ▧
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Media Library
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Upload, organize, and reuse images and other media throughout
+                    the website and experience catalogue.
+                </p>
+                <div class="mt-5">
+                    <span class="inline-flex rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        Media system
+                    </span>
+                </div>
+            </div>
+
+            <!-- Contact Enquiries -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                    ✉
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Contact Enquiries
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Review website contact messages, respond to enquiries,
+                    and track communication and enquiry status.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-terracotta/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-terracotta">
+                        {{ unread_enquiry_count }} unread
+                    </span>
+                    <span class="rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        {{ open_enquiry_count }} open
+                    </span>
+                </div>
+            </div>
+
+            <!-- Service Enquiries -->
+            <a
+                href="{{ url_for('service_inquiries.index') }}"
+                class="block rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-route-gold hover:shadow-md"
+            >
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                    ↗
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Service Enquiries
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Manage safari, stay, and experience requests. Edit enquiries,
+                    archive or restore records, and control permanent deletion.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ inquiry_stats.get('active', active_service_inquiry_count|default(0)) }} active
+                    </span>
+                    <span class="rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        {{ inquiry_stats.get('archived', archived_service_inquiry_count|default(0)) }} archived
+                    </span>
+                </div>
+            </a>
+
+            <!-- Newsletter -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                    ✉
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Newsletter Audience
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Monitor subscriber counts, email verification, subscription
+                    status, marketing consent, and audience engagement data.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-forest">
+                        {{ subscriber_stats.get('subscribed', active_newsletter_subscriber_count|default(0)) }} subscribed
+                    </span>
+                    <span class="rounded-full bg-route-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-deep">
+                        {{ subscriber_stats.get('verified', verified_newsletter_subscriber_count|default(0)) }} verified
+                    </span>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                    ⚙
+                </div>
+                <h4 class="mt-5 font-display text-xl font-semibold text-route-ink">
+                    Settings
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Configure website identity, contact details, social presence,
+                    SEO defaults, booking behaviour, and system-wide settings.
+                </p>
+                <div class="mt-5">
+                    <span class="inline-flex rounded-full bg-route-cream px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                        System settings
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         People & Access
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-safari">
+                People & Access
+            </p>
+            <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                Administrative controls
+            </h3>
+        </div>
+
+        <div class="rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+            <div class="grid divide-y divide-route-forest/10 md:grid-cols-3 md:divide-x md:divide-y-0">
+
+                <!-- Users -->
+                <div class="p-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                        ◎
+                    </div>
+                    <h4 class="mt-4 font-semibold text-route-ink">Users</h4>
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        {{ user_count }} user accounts currently exist in the administration system.
+                    </p>
+                    <p class="mt-2 text-xs text-route-muted">
+                        {{ active_user_count }} active · {{ inactive_user_count }} inactive
+                    </p>
+                </div>
+
+                <!-- Guides & Staff -->
+                <div class="p-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                        ◌
+                    </div>
+                    <h4 class="mt-4 font-semibold text-route-ink">Guides & Staff</h4>
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        Manage guides, staff profiles, assignments, availability,
+                        and operational responsibilities.
+                    </p>
+                    <p class="mt-2 text-xs text-route-muted">
+                        {{ guide_count }} guides · {{ staff_count }} staff
+                    </p>
+                </div>
+
+                <!-- Access Control -->
+                <div class="p-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                        ⚿
+                    </div>
+                    <h4 class="mt-4 font-semibold text-route-ink">Access Control</h4>
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        Administrator-only controls for permissions, roles,
+                        protected system areas, and administrative access.
+                    </p>
+                    <p class="mt-2 text-xs text-route-muted">
+                        {{ admin_user_count }} administrator accounts
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Recent Activity
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-safari">
+                Recent Activity
+            </p>
+            <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                What's happening
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+
+            <!-- Recent Testimonials -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-route-forest/10 px-6 py-5">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-route-safari">
+                            Testimonials
+                        </p>
+                        <h4 class="mt-1 font-display text-lg font-semibold text-route-ink">
+                            Recent testimonials
+                        </h4>
+                    </div>
+                    <span class="rounded-full bg-route-gold/10 px-3 py-1.5 text-[10px] font-bold text-route-deep">
+                        {{ testimonial_count }} total
+                    </span>
+                </div>
+
+                <div class="divide-y divide-route-forest/10">
+                    {% if recent_testimonials %}
+                        {% for testimonial in recent_testimonials %}
+                            <div class="px-6 py-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-semibold text-route-ink">
+                                            {{ testimonial.customer_name }}
+                                        </p>
+                                        <p class="mt-1 line-clamp-2 text-xs leading-5 text-route-muted">
+                                            {{ testimonial.short_testimonial or testimonial.testimonial }}
+                                        </p>
+                                    </div>
+                                    <span class="shrink-0 text-sm tracking-wide text-route-gold">
+                                        {{ testimonial.stars }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="px-6 py-8 text-center">
+                            <p class="text-sm font-medium text-route-muted">
+                                No testimonials yet.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Journal -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-route-forest/10 px-6 py-5">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-route-safari">
+                            Journal
+                        </p>
+                        <h4 class="mt-1 font-display text-lg font-semibold text-route-ink">
+                            Recent articles
+                        </h4>
+                    </div>
+                    <span class="rounded-full bg-route-forest/5 px-3 py-1.5 text-[10px] font-bold text-route-forest">
+                        {{ blog_post_count }} total
+                    </span>
+                </div>
+
+                <div class="divide-y divide-route-forest/10">
+                    {% if recent_blog_posts %}
+                        {% for post in recent_blog_posts %}
+                            <div class="px-6 py-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-semibold text-route-ink">
+                                            {{ post.title }}
+                                        </p>
+                                        <p class="mt-1 text-xs text-route-muted">
+                                            {{ post.status }}
+                                            {% if post.category %}
+                                                · {{ post.category.name }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+
+                                    {% if post.featured %}
+                                        <span class="shrink-0 rounded-full bg-route-gold/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-route-deep">
+                                            Featured
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="px-6 py-8 text-center">
+                            <p class="text-sm font-medium text-route-muted">
+                                No journal posts yet.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Contact Enquiries -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-route-forest/10 px-6 py-5">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-route-terracotta">
+                            Contact Enquiries
+                        </p>
+                        <h4 class="mt-1 font-display text-lg font-semibold text-route-ink">
+                            Recent customer enquiries
+                        </h4>
+                    </div>
+                    <span class="rounded-full bg-route-terracotta/10 px-3 py-1.5 text-[10px] font-bold text-route-terracotta">
+                        {{ unread_enquiry_count }} unread
+                    </span>
+                </div>
+
+                <div class="divide-y divide-route-forest/10">
+                    {% if recent_enquiries %}
+                        {% for enquiry in recent_enquiries %}
+                            <div class="px-6 py-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-semibold text-route-ink">
+                                            {{ enquiry.name }}
+                                        </p>
+                                        <p class="mt-1 truncate text-xs text-route-muted">
+                                            {{ enquiry.subject or "Customer enquiry" }}
+                                        </p>
+                                    </div>
+
+                                    {% if enquiry.is_read is defined and not enquiry.is_read %}
+                                        <span class="shrink-0 rounded-full bg-route-terracotta/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-route-terracotta">
+                                            Unread
+                                        </span>
+                                    {% else %}
+                                        <span class="shrink-0 rounded-full bg-route-forest/5 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-route-forest">
+                                            Reviewed
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="px-6 py-8 text-center">
+                            <p class="text-sm font-medium text-route-muted">
+                                No contact enquiries yet.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-route-forest/10 px-6 py-5">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-route-safari">
+                            Bookings
+                        </p>
+                        <h4 class="mt-1 font-display text-lg font-semibold text-route-ink">
+                            Recent bookings
+                        </h4>
+                    </div>
+                    <span class="rounded-full bg-route-safari/10 px-3 py-1.5 text-[10px] font-bold text-route-safari">
+                        {{ booking_count }} total
+                    </span>
+                </div>
+
+                <div class="divide-y divide-route-forest/10">
+                    {% if recent_bookings %}
+                        {% for booking in recent_bookings %}
+                            <div class="px-6 py-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-semibold text-route-ink">
+                                            {% if booking.customer_name %}
+                                                {{ booking.customer_name }}
+                                            {% elif booking.guest_name %}
+                                                {{ booking.guest_name }}
+                                            {% else %}
+                                                Booking #{{ booking.id }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="mt-1 text-xs text-route-muted">
+                                            Booking #{{ booking.id }}
+                                        </p>
+                                    </div>
+
+                                    <span class="shrink-0 rounded-full bg-route-cream px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-route-muted">
+                                        {{ booking.status }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="px-6 py-8 text-center">
+                            <p class="text-sm font-medium text-route-muted">
+                                No bookings yet.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         Content Health
+         ================================================================ -->
+
+    <section>
+        <div class="mb-5">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-safari">
+                Content Health
+            </p>
+            <h3 class="mt-1 font-display text-2xl font-semibold text-route-ink">
+                Content at a glance
+            </h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                    Blog drafts
+                </p>
+                <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                    {{ draft_blog_count }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Awaiting further editing.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                    Awaiting review
+                </p>
+                <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                    {{ review_blog_count }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Journal posts in review.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                    Featured experiences
+                </p>
+                <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                    {{ featured_experience_count }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Experiences promoted across the CMS.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                    Homepage testimonials
+                </p>
+                <p class="mt-2 font-display text-2xl font-semibold text-route-ink">
+                    {{ homepage_testimonial_count }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">
+                    Reviews selected for the homepage.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================================================================
+         System Status
+         ================================================================ -->
+
+    <section>
+        <div class="rounded-2xl border border-route-forest/10 bg-route-deep p-6 text-route-white sm:p-8">
+            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-gold">
+                        The Uncharted Route
+                    </p>
+
+                    <h3 class="mt-2 font-display text-2xl font-semibold text-route-cream">
+                        Administration system
+                    </h3>
+
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-route-sand">
+                        The administration dashboard brings together website content,
+                        customer operations, experiences, destinations, bookings,
+                        service enquiries, newsletter statistics, journal content,
+                        testimonials, people, and system configuration.
+                    </p>
+                </div>
+
+                <div class="inline-flex shrink-0 items-center gap-2 rounded-full border border-route-white/10 bg-route-white/5 px-4 py-2.5 text-xs font-semibold text-route-cream">
+                    <span class="h-2 w-2 rounded-full bg-route-gold"></span>
+                    System online
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

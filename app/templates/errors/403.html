@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Access Restricted | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+
+{% block content %}
+
+<section class="flex min-h-[75vh] items-center bg-route-cream">
+
+    <div class="mx-auto w-full max-w-4xl px-6 py-20 text-center sm:px-8 lg:px-12">
+
+        <p class="font-display text-8xl font-semibold text-route-terracotta sm:text-9xl">
+            403
+        </p>
+
+        <p class="mt-6 text-sm font-bold uppercase tracking-[0.3em] text-route-safari">
+            Restricted Route
+        </p>
+
+        <h1 class="mt-4 font-display text-4xl font-semibold text-route-ink sm:text-5xl">
+            This route isn't accessible from here.
+        </h1>
+
+        <p class="mx-auto mt-5 max-w-xl text-lg leading-8 text-route-muted">
+            You don't have permission to access the page or resource
+            you're trying to reach.
+        </p>
+
+        <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+
+            <a
+                href="{{ url_for('main.home') }}"
+                class="inline-flex items-center justify-center rounded-full bg-route-deep px-7 py-3.5 text-sm font-bold text-route-white transition hover:bg-route-forest"
+            >
+                Back to Home
+            </a>
+
+            <a
+                href="{{ url_for('main.contact') }}"
+                class="inline-flex items-center justify-center rounded-full border border-route-sand bg-route-white px-7 py-3.5 text-sm font-bold text-route-ink transition hover:border-route-forest hover:text-route-forest"
+            >
+                Contact Us
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

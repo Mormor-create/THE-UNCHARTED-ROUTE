@@ -1,0 +1,1074 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ experience.title }} · Experience Management{% endblock %}
+{% block content %}
+
+{# =========================================================
+   THE UNCHARTED ROUTE
+   Experience Detail & Management Workspace
+
+   Route context:
+   - experience
+   - statistics
+   - primary_image_url (resolved from Media Library)
+========================================================= #}
+
+{% macro stat_card(label, value, emoji, note='Experience records') %}
+<div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+            <p class="text-sm font-medium text-[#66736B]">{{ label }}</p>
+            <p class="mt-2 text-3xl font-bold tracking-tight text-[#12372A]">
+                {{ value|default(0, true) }}
+            </p>
+            <p class="mt-1 text-xs text-[#66736B]">{{ note }}</p>
+        </div>
+
+        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F7F1E5] text-2xl">
+            {{ emoji }}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro management_card(href, emoji, title, description, count=none, count_label='records') %}
+<a href="{{ href }}"
+   class="group flex h-full flex-col rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#D89B24] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+
+    <div class="flex items-start justify-between gap-3">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F7F1E5] text-2xl transition group-hover:bg-[#E9DDC8]">
+            {{ emoji }}
+        </div>
+
+        <div class="flex items-center gap-2">
+            {% if count is not none %}
+            <span class="inline-flex items-center rounded-full bg-[#F7F1E5] px-2.5 py-1 text-xs font-bold text-[#1F5138]">
+                {{ count|default(0, true) }} {{ count_label }}
+            </span>
+            {% endif %}
+
+            <span class="text-lg text-[#66736B] transition group-hover:translate-x-0.5 group-hover:text-[#D89B24]"
+                  aria-hidden="true">↗</span>
+        </div>
+    </div>
+
+    <h3 class="mt-4 text-base font-bold text-[#12372A]">{{ title }}</h3>
+
+    <p class="mt-2 flex-1 text-sm leading-6 text-[#66736B]">
+        {{ description }}
+    </p>
+
+    <div class="mt-4 flex items-center gap-2 text-sm font-semibold text-[#1F5138]">
+        <span>Manage</span>
+        <span class="transition group-hover:translate-x-1" aria-hidden="true">→</span>
+    </div>
+</a>
+{% endmacro %}
+
+
+{% set is_active = experience.active|default(false, true) %}
+{% set is_featured = experience.featured|default(false, true) %}
+{% set experience_code = experience.experience_code|default('', true) %}
+{% set experience_difficulty = experience.difficulty|default('', true) %}
+{% set experience_max_people = experience.maximum_people|default(none, true) %}
+
+<div class="space-y-8">
+
+    {# =====================================================
+       PAGE HEADER
+    ====================================================== #}
+
+    <header class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div class="min-w-0">
+            <nav class="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#66736B]"
+                 aria-label="Breadcrumb">
+
+                <a href="{{ url_for('admin_experiences.index') }}"
+                   class="transition hover:text-[#D89B24]">
+                    Experiences
+                </a>
+
+                <span aria-hidden="true">/</span>
+
+                <span class="truncate font-medium text-[#1C2822]">
+                    {{ experience.title }}
+                </span>
+            </nav>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <h1 class="text-2xl font-bold tracking-tight text-[#12372A] sm:text-3xl">
+                    {{ experience.title }}
+                </h1>
+
+                {% if is_active %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-[#EAF2E9] px-3 py-1 text-xs font-bold text-[#1F5138]">
+                    <span class="h-2 w-2 rounded-full bg-[#1F5138]"></span>
+                    Active
+                </span>
+                {% else %}
+                <span class="inline-flex items-center gap-2 rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-bold text-[#66736B]">
+                    <span class="h-2 w-2 rounded-full bg-[#66736B]"></span>
+                    Inactive
+                </span>
+                {% endif %}
+
+                {% if is_featured %}
+                <span class="inline-flex items-center rounded-full bg-[#FFF4D6] px-3 py-1 text-xs font-bold text-[#805B0B]">
+                    ★ Featured
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#66736B]">
+                {% if experience_code %}
+                <span>
+                    Code:
+                    <strong class="text-[#1C2822]">{{ experience_code }}</strong>
+                </span>
+                {% endif %}
+
+                {% if experience.slug %}
+                <span>
+                    Slug:
+                    <strong class="break-all text-[#1C2822]">{{ experience.slug }}</strong>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_experiences.edit', experience_id=experience.id) }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-[#12372A] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138]">
+                <span aria-hidden="true">✎</span>
+                Edit Experience
+            </a>
+
+            <a href="{{ url_for('experiences.catalogue', experience_id=experience.id) }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm font-semibold text-[#12372A] transition hover:border-[#D89B24] hover:bg-[#F7F1E5]">
+                <span aria-hidden="true">↗</span>
+                Catalogue View
+            </a>
+        </div>
+    </header>
+
+
+    {# =====================================================
+       EXPERIENCE HERO
+       Corrected: use the Media Library-backed URL supplied
+       by the detail route as primary_image_url.
+    ====================================================== #}
+
+    <section class="overflow-hidden rounded-3xl border border-[#E9DDC8] bg-white shadow-sm">
+        <div class="grid lg:grid-cols-5">
+
+            <div class="relative min-h-[260px] overflow-hidden bg-[#F7F1E5] lg:col-span-2">
+
+                {% if primary_image_url %}
+                <img
+                    src="{{ primary_image_url }}"
+                    alt="{{ experience.title }}"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    loading="eager"
+                    onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                >
+
+                <div class="absolute inset-0 hidden flex-col items-center justify-center bg-[#F7F1E5] p-6 text-center">
+                    <span class="text-5xl">🌿</span>
+                    <p class="mt-3 text-sm font-semibold text-[#66736B]">
+                        Image unavailable
+                    </p>
+                    <p class="mt-1 text-xs text-[#66736B]">
+                        Check the experience's selected Media Library image.
+                    </p>
+                </div>
+
+                {% else %}
+                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E9DDC8] text-3xl">
+                        🌄
+                    </div>
+
+                    <p class="mt-4 font-semibold text-[#12372A]">
+                        No experience image yet
+                    </p>
+
+                    <p class="mt-1 max-w-xs text-sm text-[#66736B]">
+                        Select a featured image from the Experiences Media Library.
+                    </p>
+
+                    <a href="{{ url_for('admin_experiences.edit', experience_id=experience.id) }}"
+                       class="mt-4 inline-flex rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                        Add Featured Image
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="flex flex-col justify-center p-6 lg:col-span-3 lg:p-8">
+                <div class="mb-4 flex flex-wrap gap-2">
+                    {% if experience.category %}
+                    <span class="rounded-full bg-[#EAF2E9] px-3 py-1 text-xs font-semibold text-[#1F5138]">
+                        {{ experience.category.name }}
+                    </span>
+                    {% endif %}
+
+                    {% if experience.destination %}
+                    <span class="rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-semibold text-[#5C6B32]">
+                        📍 {{ experience.destination.name }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#C96A2C]">
+                    Experience at a glance
+                </p>
+
+                {% if experience.short_description %}
+                <p class="mt-3 max-w-3xl text-base leading-7 text-[#66736B]">
+                    {{ experience.short_description }}
+                </p>
+                {% elif experience.description %}
+                <p class="mt-3 max-w-3xl text-base leading-7 text-[#66736B]">
+                    {{ experience.description|striptags|truncate(350, true, '…') }}
+                </p>
+                {% else %}
+                <p class="mt-3 text-sm italic text-[#66736B]">
+                    Add a short description to introduce this experience to guests.
+                </p>
+                {% endif %}
+
+                <div class="mt-7 grid grid-cols-2 gap-5 sm:grid-cols-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                            Duration
+                        </p>
+                        <p class="mt-2 text-sm font-bold text-[#12372A]">
+                            {{ experience.duration|default('—', true) }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                            Difficulty
+                        </p>
+                        <p class="mt-2 text-sm font-bold text-[#12372A]">
+                            {{ experience_difficulty or 'Not set' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                            Maximum group
+                        </p>
+                        <p class="mt-2 text-sm font-bold text-[#12372A]">
+                            {{ experience_max_people if experience_max_people is not none else 'Not set' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                            Publication
+                        </p>
+                        <p class="mt-2 text-sm font-bold text-[#12372A]">
+                            {{ 'Active' if is_active else 'Inactive' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    {# =====================================================
+       EXPERIENCE STATISTICS
+    ====================================================== #}
+
+    <section>
+        <div class="mb-4">
+            <h2 class="text-lg font-bold text-[#12372A]">
+                Experience Statistics
+            </h2>
+            <p class="mt-1 text-sm text-[#66736B]">
+                A snapshot of the content and records connected to this experience.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {{ stat_card('Bookings', statistics.booking|default(0, true), '🗓️', 'Guest reservations') }}
+            {{ stat_card('Media assets', statistics.media|default(0, true), '📸', 'Images and visual assets') }}
+            {{ stat_card('Pricing plans', statistics.pricing|default(0, true), '💰', 'Configured prices') }}
+            {{ stat_card('Itinerary items', statistics.itinerary|default(0, true), '🗺️', 'Journey stops and activities') }}
+            {{ stat_card('Inclusions', statistics.inclusions|default(0, true), '✅', 'Included services') }}
+            {{ stat_card('Wildlife records', statistics.wildlife|default(0, true), '🦒', 'Wildlife information') }}
+            {{ stat_card('Photography spots', statistics.photography|default(0, true), '📷', 'Photo locations') }}
+            {{ stat_card('Guest reviews', statistics.reviews|default(0, true), '⭐', 'Guest feedback') }}
+        </div>
+    </section>
+
+
+    {# =====================================================
+       EXPERIENCE STORY AND CORE DETAILS
+    ====================================================== #}
+
+    <section class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+        <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm xl:col-span-2">
+            <div class="border-b border-[#E9DDC8] px-6 py-5">
+                <h2 class="font-bold text-[#12372A]">Experience Story</h2>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    The full description and details of this experience.
+                </p>
+            </div>
+
+            <div class="p-6">
+                {% if experience.description %}
+                <div class="prose prose-sm max-w-none break-words leading-7 prose-headings:text-[#12372A] prose-a:text-[#1F5138] prose-strong:text-[#12372A]">
+                    {{ experience.description|safe }}
+                </div>
+                {% else %}
+                <div class="rounded-2xl border border-dashed border-[#D7C9AF] bg-[#F7F1E5] px-6 py-10 text-center">
+                    <span class="text-4xl">📝</span>
+
+                    <p class="mt-3 font-semibold text-[#12372A]">
+                        Your experience story starts here
+                    </p>
+
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Add a description that captures what makes this journey special.
+                    </p>
+
+                    <a href="{{ url_for('admin_experiences.edit', experience_id=experience.id) }}"
+                       class="mt-4 inline-flex rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                        Add Description
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <aside class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="border-b border-[#E9DDC8] px-6 py-5">
+                <h2 class="font-bold text-[#12372A]">Core Details</h2>
+            </div>
+
+            <dl class="divide-y divide-[#F0E8DA]">
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Experience code</dt>
+                    <dd class="break-all text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience_code or '—' }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Category</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.category.name if experience.category else '—' }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Destination</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.destination.name if experience.destination else '—' }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Duration</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.duration|default('—', true) }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Location</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.location|default('—', true) }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Meeting point</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.meeting_point|default('—', true) }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Difficulty</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience_difficulty or '—' }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Minimum group</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.minimum_people|default('—', true) }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Maximum group</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience_max_people if experience_max_people is not none else '—' }}
+                    </dd>
+                </div>
+
+                <div class="flex items-start justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Minimum age</dt>
+                    <dd class="text-right text-sm font-semibold text-[#12372A]">
+                        {{ experience.minimum_age|default('—', true) }}
+                    </dd>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Active</dt>
+                    <dd>
+                        <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ 'bg-[#EAF2E9] text-[#1F5138]' if is_active else 'bg-[#F7F1E5] text-[#66736B]' }}">
+                            {{ 'Yes' if is_active else 'No' }}
+                        </span>
+                    </dd>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 px-6 py-4">
+                    <dt class="text-sm text-[#66736B]">Featured</dt>
+                    <dd>
+                        <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ 'bg-[#FFF4D6] text-[#805B0B]' if is_featured else 'bg-[#F7F1E5] text-[#66736B]' }}">
+                            {{ 'Yes' if is_featured else 'No' }}
+                        </span>
+                    </dd>
+                </div>
+
+            </dl>
+        </aside>
+    </section>
+
+
+{# =====================================================
+   EXPERIENCE CONFIGURATION OVERVIEW
+====================================================== #}
+
+{% set assigned_tags = experience.tags.all() %}
+{% set assigned_moments = experience.signature_moments.all() %}
+{% set gallery_items = experience.gallery_media %}
+{% set conservation = experience.conservation_story %}
+{% set accessibility = experience.accessibility_profile %}
+{% set cancellation = experience.cancellation_policy %}
+
+<section class="space-y-6">
+
+    <div>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#C96A2C]">
+            Experience configuration
+        </p>
+        <h2 class="mt-2 text-xl font-bold text-[#12372A]">
+            Assigned Content & Supporting Information
+        </h2>
+        <p class="mt-1 text-sm text-[#66736B]">
+            A read-only overview of the reusable content and supporting
+            information connected to this experience.
+        </p>
+    </div>
+
+    {# CLASSIFICATION #}
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+        <h3 class="font-bold text-[#12372A]">🧭 Classification</h3>
+
+        <div class="mt-5 grid gap-5 sm:grid-cols-3">
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                    Category
+                </p>
+                <p class="mt-2 font-semibold text-[#12372A]">
+                    {{ experience.category.name if experience.category else 'Not assigned' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                    Destination
+                </p>
+                <p class="mt-2 font-semibold text-[#12372A]">
+                    {{ experience.destination.name if experience.destination else 'Not assigned' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                    Difficulty
+                </p>
+                <p class="mt-2 font-semibold text-[#12372A]">
+                    {{ experience_difficulty or 'Not assigned' }}
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    {# EXPERIENCE TAGS #}
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="font-bold text-[#12372A]">🏷️ Experience Tags</h3>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Discovery themes assigned to this experience.
+                </p>
+            </div>
+
+            <span class="rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-bold text-[#1F5138]">
+                {{ assigned_tags|length }} assigned
+            </span>
+        </div>
+
+        {% if assigned_tags %}
+        <div class="mt-5 flex flex-wrap gap-3">
+            {% for tag in assigned_tags %}
+            <div class="inline-flex items-center gap-2 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] px-4 py-3">
+                {% if tag.icon %}
+                <span class="text-lg" aria-hidden="true">{{ tag.icon }}</span>
+                {% endif %}
+
+                <span class="text-sm font-semibold text-[#12372A]">
+                    {{ tag.name }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="mt-5 rounded-xl border border-dashed border-[#D7C9AF] bg-[#F7F1E5] p-5 text-sm text-[#66736B]">
+            No Experience Tags have been assigned yet.
+        </p>
+        {% endif %}
+    </section>
+
+    {# SIGNATURE MOMENTS #}
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="font-bold text-[#12372A]">✦ Signature Moments</h3>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Defining moments guests can experience during this journey.
+                </p>
+            </div>
+
+            <span class="rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-bold text-[#1F5138]">
+                {{ assigned_moments|length }} assigned
+            </span>
+        </div>
+
+        {% if assigned_moments %}
+        <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {% for moment in assigned_moments %}
+            <article class="rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] p-5">
+
+                <div class="flex items-start justify-between gap-3">
+                    <h4 class="font-bold text-[#12372A]">
+                        {{ moment.title }}
+                    </h4>
+
+                    {% if moment.active %}
+                    <span class="shrink-0 rounded-full bg-[#EAF2E9] px-2 py-1 text-xs font-semibold text-[#1F5138]">
+                        Active
+                    </span>
+                    {% else %}
+                    <span class="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-semibold text-[#66736B]">
+                        Inactive
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if moment.short_description %}
+                <p class="mt-3 text-sm leading-6 text-[#66736B]">
+                    {{ moment.short_description }}
+                </p>
+                {% endif %}
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    {% if moment.moment_type %}
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-[#1F5138]">
+                        {{ moment.moment_type }}
+                    </span>
+                    {% endif %}
+
+                    {% if moment.expected_time %}
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-[#66736B]">
+                        {{ moment.expected_time }}
+                    </span>
+                    {% endif %}
+                </div>
+
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="mt-5 rounded-xl border border-dashed border-[#D7C9AF] bg-[#F7F1E5] p-5 text-sm text-[#66736B]">
+            No Signature Moments have been assigned to this experience yet.
+        </p>
+        {% endif %}
+    </section>
+
+    {# SUPPORTING INFORMATION #}
+    <div class="grid gap-6 lg:grid-cols-3">
+
+        {# CONSERVATION #}
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h3 class="font-bold text-[#12372A]">🌿 Conservation Story</h3>
+
+            {% if conservation %}
+            <p class="mt-4 font-semibold text-[#12372A]">
+                {{ conservation.title|default(conservation.name|default('Assigned conservation story')) }}
+            </p>
+
+            {% if conservation.short_description %}
+            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                {{ conservation.short_description }}
+            </p>
+            {% endif %}
+            {% else %}
+            <p class="mt-4 text-sm text-[#66736B]">
+                No conservation story assigned.
+            </p>
+            {% endif %}
+        </section>
+
+        {# ACCESSIBILITY #}
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h3 class="font-bold text-[#12372A]">♿ Accessibility Profile</h3>
+
+            {% if accessibility %}
+            <p class="mt-4 font-semibold text-[#12372A]">
+                {{ accessibility.name }}
+            </p>
+
+            {% if accessibility.summary %}
+            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                {{ accessibility.summary }}
+            </p>
+            {% endif %}
+            {% else %}
+            <p class="mt-4 text-sm text-[#66736B]">
+                No accessibility profile assigned.
+            </p>
+            {% endif %}
+        </section>
+
+        {# CANCELLATION #}
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <h3 class="font-bold text-[#12372A]">📋 Cancellation Policy</h3>
+
+            {% if cancellation %}
+            <p class="mt-4 font-semibold text-[#12372A]">
+                {{ cancellation.name }}
+            </p>
+
+            {% if cancellation.short_description %}
+            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                {{ cancellation.short_description }}
+            </p>
+            {% endif %}
+            {% else %}
+            <p class="mt-4 text-sm text-[#66736B]">
+                No cancellation policy assigned.
+            </p>
+            {% endif %}
+        </section>
+
+    </div>
+
+    {# MEDIA OVERVIEW #}
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="font-bold text-[#12372A]">📸 Experience Media Overview</h3>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Primary image and gallery assets connected to this experience.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_experience_media.index', experience_id=experience.id) }}"
+               class="text-sm font-semibold text-[#1F5138] underline underline-offset-4 hover:text-[#C96A2C]">
+                Manage Experience Media →
+            </a>
+        </div>
+
+        <div class="mt-5">
+            <p class="mb-3 text-xs font-bold uppercase tracking-wide text-[#66736B]">
+                Primary image
+            </p>
+
+            {% if primary_image_url %}
+            <img
+                src="{{ primary_image_url }}"
+                alt="{{ experience.title }}"
+                class="h-56 w-full rounded-xl object-cover sm:max-w-md"
+                loading="lazy"
+            >
+            {% else %}
+            <p class="rounded-xl border border-dashed border-[#D7C9AF] bg-[#F7F1E5] p-5 text-sm text-[#66736B]">
+                No primary image selected.
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="mt-6">
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <p class="text-xs font-bold uppercase tracking-wide text-[#66736B]">
+                    Gallery
+                </p>
+
+                <span class="text-xs font-semibold text-[#66736B]">
+                    {{ gallery_items|length }} gallery assets
+                </span>
+            </div>
+
+            {% if gallery_items %}
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {% for item in gallery_items %}
+                    {% if item.media_asset and item.media_asset.browser_url %}
+                    <div class="overflow-hidden rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]">
+                        <img
+                            src="{{ item.media_asset.browser_url }}"
+                            alt="{{ item.media_asset.alt_text|default(item.title|default(experience.title), true) }}"
+                            class="h-36 w-full object-cover"
+                            loading="lazy"
+                        >
+
+                        {% if item.title or item.caption %}
+                        <div class="p-3">
+                            {% if item.title %}
+                            <p class="text-sm font-semibold text-[#12372A]">
+                                {{ item.title }}
+                            </p>
+                            {% endif %}
+
+                            {% if item.caption %}
+                            <p class="mt-1 text-xs leading-5 text-[#66736B]">
+                                {{ item.caption }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="rounded-xl border border-dashed border-[#D7C9AF] bg-[#F7F1E5] p-5 text-sm text-[#66736B]">
+                No gallery images have been assigned yet.
+            </p>
+            {% endif %}
+        </div>
+    </section>
+
+    {# PRICING OVERVIEW #}
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h3 class="font-bold text-[#12372A]">💰 Pricing Overview</h3>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Starting price and configured pricing plans.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_experience_pricing.index', experience_id=experience.id) }}"
+               class="text-sm font-semibold text-[#1F5138] underline underline-offset-4 hover:text-[#C96A2C]">
+                Manage Pricing →
+            </a>
+        </div>
+
+        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            <div class="rounded-xl bg-[#F7F1E5] p-5">
+                <p class="text-xs font-bold uppercase tracking-wide text-[#66736B]">
+                    Starting price
+                </p>
+
+                <p class="mt-2 text-2xl font-bold text-[#12372A]">
+                    {% if experience.price_from is not none %}
+                        {{ experience.currency }} {{ "%.2f"|format(experience.price_from) }}
+                    {% else %}
+                        Not configured
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="rounded-xl bg-[#F7F1E5] p-5">
+                <p class="text-xs font-bold uppercase tracking-wide text-[#66736B]">
+                    Pricing plans
+                </p>
+
+                <p class="mt-2 text-2xl font-bold text-[#12372A]">
+                    {{ statistics.pricing|default(0, true) }}
+                </p>
+            </div>
+        </div>
+    </section>
+
+</section>
+
+    {# =====================================================
+       MANAGEMENT WORKSPACE
+    ====================================================== #}
+
+    <section class="overflow-hidden rounded-3xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        <div class="border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-6 sm:px-8">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#C96A2C]">
+                        Management workspace
+                    </p>
+
+                    <h2 class="mt-2 text-xl font-bold text-[#12372A]">
+                        Build the complete experience
+                    </h2>
+
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                        Manage guest-facing content, operational details, storytelling and supporting records for this experience.
+                    </p>
+                </div>
+
+                <span class="inline-flex w-fit items-center rounded-full border border-[#D7C9AF] bg-white px-4 py-2 text-xs font-bold text-[#1F5138]">
+                    {{ experience_code or 'Experience workspace' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="space-y-9 p-5 sm:p-8">
+
+            {# CONTENT & STRUCTURE #}
+            <section>
+                <div class="mb-4">
+                    <h3 class="font-bold text-[#12372A]">🧭 Content & Structure</h3>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Shape the experience guests discover and purchase.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+                    {{ management_card(url_for('admin_experience_pricing.index', experience_id=experience.id), '💰', 'Pricing', 'Configure Explorer, Signature, Luxury and other pricing levels, group sizes and prices.', statistics.pricing|default(0, true), 'plans') }}
+
+                    {{ management_card(url_for('experience_itinerary_admin.index', experience_id=experience.id), '🗺️', 'Itinerary', 'Build the journey, stops, activities and timing.', statistics.itinerary|default(0, true), 'items') }}
+
+                    {{ management_card(url_for('admin_experience_media.index', experience_id=experience.id), '📸', 'Experience Media', 'Manage images and visual assets attached to this experience.', statistics.media|default(0, true), 'assets') }}
+
+                    {{ management_card(url_for('experience_inclusions.index', experience_id=experience.id), '✅', 'Inclusions', 'Define what is included in the experience price and service.', statistics.inclusions|default(0, true), 'items') }}
+
+                    {{ management_card(url_for('experience_exclusions.index', experience_id=experience.id), '🚫', 'Exclusions', 'Clarify expenses, services and items that are not included.') }}
+
+                    {{ management_card(url_for('admin_experience_highlights.index', experience_id=experience.id), '✨', 'Highlights', 'Manage the standout moments and reasons guests will remember this experience.') }}
+
+                    {{ management_card(url_for('experience_addons.experience_addons', experience_id=experience.id), '🎁', 'Add-ons', 'Offer optional upgrades, extras and additional guest services.') }}
+
+                    {{ management_card(url_for('admin_experience_packing_items.index', experience_id=experience.id), '🎒', 'Packing List', 'Tell guests what to bring and what is recommended.') }}
+
+                    {{ management_card(url_for('admin_experience_faqs.index', experience_id=experience.id), '💬', 'FAQs', 'Answer common questions before guests need to ask them.') }}
+
+                </div>
+            </section>
+
+
+            {# OPERATIONS & GUEST READINESS #}
+            <section>
+                <div class="mb-4">
+                    <h3 class="font-bold text-[#12372A]">🛡️ Operations & Guest Readiness</h3>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Prepare the information needed to deliver the experience responsibly.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+                    {{ management_card(url_for('admin_experience_safety_rules.index', experience_id=experience.id), '🛡️', 'Safety Rules', 'Maintain safety guidance, priorities and operational rules.') }}
+
+                    {{ management_card(url_for('admin_experience_requirements.index', experience_id=experience.id), '📋', 'Requirements', 'Define guest requirements, preparation needs and conditions.') }}
+
+                    {{ management_card(url_for('admin_experience_wildlife.index', experience_id=experience.id), '🦒', 'Wildlife', 'Manage species, sighting expectations, seasons and guide notes.', statistics.wildlife|default(0, true), 'records') }}
+
+                    {{ management_card(url_for('admin_experience_photography.index', experience_id=experience.id), '📷', 'Photography Spots', 'Manage photo locations, stops, notes and featured viewpoints.', statistics.photography|default(0, true), 'spots') }}
+
+                </div>
+            </section>
+
+
+            {# EXPERIENCE & STORYTELLING #}
+            <section>
+                <div class="mb-4">
+                    <h3 class="font-bold text-[#12372A]">🌿 Experience & Storytelling</h3>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Give every experience context, character and a reason to explore.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+                    {{ management_card(url_for('admin_media.index'), '🖼️', 'Media Library', 'Access and manage visual assets through the central Media Library.', statistics.media|default(0, true), 'assets') }}
+
+                    {{ management_card(url_for('admin_experience_categories.index'), '🗂️', 'Experience Categories', 'Manage the wider categories used across the experience catalogue.') }}
+
+                </div>
+            </section>
+
+
+            {# GUEST FEEDBACK #}
+            <section>
+                <div class="mb-4">
+                    <h3 class="font-bold text-[#12372A]">⭐ Guest Feedback</h3>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Monitor guest reviews and feedback associated with this experience.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {{ management_card(url_for('admin_experience_reviews.index', experience_id=experience.id), '⭐', 'Reviews', 'Review guest ratings, feedback, approvals and responses.', statistics.reviews|default(0, true), 'reviews') }}
+                </div>
+            </section>
+
+        </div>
+    </section>
+
+    {# =====================================================
+       OPERATIONAL STATUS
+    ====================================================== #}
+    <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        <div class="border-b border-[#E9DDC8] px-6 py-5">
+            <h2 class="font-bold text-[#12372A]">Operational Status</h2>
+            <p class="mt-1 text-sm text-[#66736B]">
+                Control whether this experience is active and featured.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-5 p-6 xl:flex-row xl:items-center xl:justify-between">
+
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl {{ 'bg-[#EAF2E9]' if is_active else 'bg-[#F7F1E5]' }}">
+                    <span class="text-2xl">{{ '🌱' if is_active else '🍂' }}</span>
+                </div>
+
+                <div>
+                    <p class="font-bold text-[#12372A]">
+                        {{ 'Experience is active' if is_active else 'Experience is inactive' }}
+                    </p>
+
+                    <p class="mt-1 max-w-2xl text-sm leading-6 text-[#66736B]">
+                        {% if is_active %}
+                        The experience is marked active. Confirm its content and pricing are ready before promoting it.
+                        {% else %}
+                        The experience is marked inactive. Activate it when it is ready to be presented as available.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+
+                {% if is_active %}
+                <form method="POST"
+                      action="{{ url_for('admin_experiences.deactivate', experience_id=experience.id) }}"
+                      onsubmit="return confirm('Pause this experience?');">
+                    {% if csrf_token is defined %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
+
+                    <button type="submit"
+                            class="rounded-xl border border-[#D7C9AF] bg-white px-4 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                        Pause Experience
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST"
+                      action="{{ url_for('admin_experiences.activate', experience_id=experience.id) }}"
+                      onsubmit="return confirm('Activate this experience?');">
+                    {% if csrf_token is defined %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
+
+                    <button type="submit"
+                            class="rounded-xl bg-[#12372A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                        Activate Experience
+                    </button>
+                </form>
+                {% endif %}
+
+
+                {% if is_featured %}
+                <form method="POST"
+                      action="{{ url_for('admin_experiences.unfeature', experience_id=experience.id) }}"
+                      onsubmit="return confirm('Remove this experience from featured experiences?');">
+                    {% if csrf_token is defined %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
+
+                    <button type="submit"
+                            class="rounded-xl border border-[#D7C9AF] bg-white px-4 py-3 text-sm font-semibold text-[#5C6B32] transition hover:bg-[#F7F1E5]">
+                        ★ Remove Featured
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST"
+                      action="{{ url_for('admin_experiences.feature', experience_id=experience.id) }}"
+                      onsubmit="return confirm('Feature this experience?');">
+                    {% if csrf_token is defined %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
+
+                    <button type="submit"
+                            class="rounded-xl border border-[#D89B24] bg-[#FFF4D6] px-4 py-3 text-sm font-semibold text-[#805B0B] transition hover:bg-[#FBE8AD]">
+                        ★ Feature Experience
+                    </button>
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </section>
+
+    {# =====================================================
+       DANGER ZONE
+    ====================================================== #}
+
+    <section class="overflow-hidden rounded-2xl border border-[#E9C8B9] bg-white shadow-sm">
+
+        <div class="border-b border-[#F0DCD3] bg-[#FFF8F5] px-6 py-5">
+            <h2 class="font-bold text-[#A9472B]">Danger Zone</h2>
+            <p class="mt-1 text-sm text-[#66736B]">
+                Destructive actions affecting this experience.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+                <p class="font-semibold text-[#1C2822]">Delete this experience</p>
+
+                <p class="mt-1 max-w-2xl text-sm leading-6 text-[#66736B]">
+                    Deletion may affect associated records. Only proceed if this experience should be permanently removed and its related data is handled safely.
+                </p>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('admin_experiences.delete', experience_id=experience.id) }}"
+                  onsubmit="return confirm('Delete this experience? This action may not be reversible.');">
+
+                {% if csrf_token is defined %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% endif %}
+
+                <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-xl border border-[#E9C8B9] bg-[#FFF0EA] px-4 py-3 text-sm font-semibold text-[#A9472B] transition hover:bg-[#FBE0D5]">
+                    <span aria-hidden="true">🗑️</span>
+                    Delete Experience
+                </button>
+            </form>
+
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

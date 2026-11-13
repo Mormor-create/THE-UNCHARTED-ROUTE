@@ -1,0 +1,251 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Experience Bookings | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-route-forest">
+                Booking Management
+            </p>
+            <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+                Experience Bookings
+            </h1>
+            <p class="mt-2 text-sm text-slate-600">
+                Manage experience reservations, customers, payments and staff assignments.
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_experience_bookings.archived') }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-route-cream">
+                <i class="bi bi-archive"></i> Archived
+            </a>
+            <a href="{{ url_for('admin_experience_bookings.create') }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-route-deep">
+                <i class="bi bi-plus-lg"></i> Create Booking
+            </a>
+        </div>
+    </div>
+
+    {% set stat_cards = [
+        ('All Bookings', stats.total, 'bi-calendar2-check', 'route-forest'),
+        ('Pending', stats.pending, 'bi-hourglass-split', 'route-gold'),
+        ('Confirmed', stats.confirmed, 'bi-check-circle', 'route-forest'),
+        ('Completed', stats.completed, 'bi-flag', 'route-forest'),
+        ('Cancelled', stats.cancelled, 'bi-x-circle', 'route-terracotta'),
+        ('Unassigned', stats.unassigned, 'bi-person-exclamation', 'route-terracotta')
+    ] %}
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+        {% for label, value, icon, tone in stat_cards %}
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-slate-500">{{ label }}</p>
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+                    <i class="bi {{ icon }} text-lg"></i>
+                </span>
+            </div>
+            <p class="mt-4 text-3xl font-bold text-slate-900">{{ value }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Assigned bookings</p>
+            <p class="mt-2 text-2xl font-bold text-route-forest">{{ stats.assigned }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Website bookings</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ stats.website }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Open staff requests</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ stats.requests }}</p>
+        </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <form method="GET" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <label for="search" class="mb-1.5 block text-sm font-medium text-slate-700">Search</label>
+                <input id="search" name="search" value="{{ filters.search }}"
+                       placeholder="Reference, customer, email..."
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/10">
+            </div>
+            <div>
+                <label for="status" class="mb-1.5 block text-sm font-medium text-slate-700">Booking status</label>
+                <select id="status" name="status"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                    <option value="">All statuses</option>
+                    {% for value, label in [
+                        ('pending','Pending'),('awaiting_payment','Awaiting Payment'),
+                        ('confirmed','Confirmed'),('in_progress','In Progress'),
+                        ('completed','Completed'),('cancelled','Cancelled'),('refunded','Refunded')
+                    ] %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="payment_status" class="mb-1.5 block text-sm font-medium text-slate-700">Payment</label>
+                <select id="payment_status" name="payment_status"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                    <option value="">All payment statuses</option>
+                    {% for value, label in [
+                        ('unpaid','Unpaid'),('pending','Pending'),('partially_paid','Partially Paid'),
+                        ('paid','Paid'),('partially_refunded','Partially Refunded'),
+                        ('refunded','Refunded'),('failed','Failed'),('not_required','Not Required')
+                    ] %}
+                    <option value="{{ value }}" {% if filters.payment_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="source" class="mb-1.5 block text-sm font-medium text-slate-700">Source</label>
+                <select id="source" name="source"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                    <option value="">All sources</option>
+                    {% for value, label in [
+                        ('website','Website'),('admin','Administrator'),
+                        ('staff_request','Staff Request'),('phone','Phone'),('other','Other')
+                    ] %}
+                    <option value="{{ value }}" {% if filters.source == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="assignment" class="mb-1.5 block text-sm font-medium text-slate-700">Assignment</label>
+                <select id="assignment" name="assignment"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                    <option value="">All bookings</option>
+                    <option value="assigned" {% if filters.assignment == 'assigned' %}selected{% endif %}>Assigned</option>
+                    <option value="unassigned" {% if filters.assignment == 'unassigned' %}selected{% endif %}>Unassigned</option>
+                </select>
+            </div>
+            <div>
+                <label for="start_date" class="mb-1.5 block text-sm font-medium text-slate-700">From date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ filters.start_date }}"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+            </div>
+            <div>
+                <label for="end_date" class="mb-1.5 block text-sm font-medium text-slate-700">To date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ filters.end_date }}"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+            </div>
+            <div class="flex items-end gap-2">
+                <button type="submit"
+                        class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-deep">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                <a href="{{ url_for('admin_experience_bookings.index') }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="font-semibold text-slate-900">Experience reservations</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ bookings|length }} matching booking(s)</p>
+            </div>
+        </div>
+
+        {% if bookings %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100">
+                <thead class="bg-route-cream/60">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <th class="px-5 py-3">Booking</th>
+                        <th class="px-5 py-3">Customer</th>
+                        <th class="px-5 py-3">Experience</th>
+                        <th class="px-5 py-3">Date</th>
+                        <th class="px-5 py-3">Guests</th>
+                        <th class="px-5 py-3">Status</th>
+                        <th class="px-5 py-3">Payment</th>
+                        <th class="px-5 py-3">Team</th>
+                        <th class="px-5 py-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for booking in bookings %}
+                    <tr class="hover:bg-route-cream/30">
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <a class="font-semibold text-route-forest hover:underline"
+                               href="{{ url_for('admin_experience_bookings.detail', booking_id=booking.id) }}">
+                                {{ booking.booking_reference }}
+                            </a>
+                            <p class="mt-1 text-xs text-slate-500">{{ booking.source|replace('_',' ')|title }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="font-medium text-slate-900">{{ booking.full_name or 'Customer' }}</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ booking.email }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="font-medium text-slate-800">
+                                {{ booking.service_name }}
+                            </p>
+                            {% if booking.experience_booking and booking.experience_booking.location_snapshot %}
+                            <p class="mt-1 text-xs text-slate-500">{{ booking.experience_booking.location_snapshot }}</p>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
+                            {{ booking.start_date.strftime('%d %b %Y') if booking.start_date else 'Flexible' }}
+                        </td>
+                        <td class="px-5 py-4 text-sm text-slate-600">{{ booking.total_guests }}</td>
+                        <td class="whitespace-nowrap px-5 py-4">
+                            {% set status_styles = {
+                                'pending':'bg-amber-50 text-amber-800',
+                                'awaiting_payment':'bg-amber-50 text-amber-800',
+                                'confirmed':'bg-emerald-50 text-emerald-800',
+                                'in_progress':'bg-sky-50 text-sky-800',
+                                'completed':'bg-route-cream text-route-forest',
+                                'cancelled':'bg-red-50 text-red-700',
+                                'refunded':'bg-slate-100 text-slate-700'
+                            } %}
+                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ status_styles.get(booking.status, 'bg-slate-100 text-slate-700') }}">
+                                {{ booking.status|replace('_',' ')|title }}
+                            </span>
+                        </td>
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
+                            {{ booking.payment_status|replace('_',' ')|title }}
+                            <p class="mt-1 text-xs text-slate-500">{{ booking.currency }} {{ '%.2f'|format(booking.total_amount or 0) }}</p>
+                        </td>
+                        <td class="px-5 py-4 text-sm">
+                            {% if booking.staff_assignments %}
+                                <span class="font-medium text-route-forest">Assigned</span>
+                            {% else %}
+                                <span class="font-medium text-amber-700">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-5 py-4 text-right">
+                            <a href="{{ url_for('admin_experience_bookings.detail', booking_id=booking.id) }}"
+                               class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-route-cream">
+                                View <i class="bi bi-arrow-up-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-16 text-center">
+            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-route-cream text-route-forest">
+                <i class="bi bi-calendar2-x text-2xl"></i>
+            </span>
+            <h3 class="mt-4 text-lg font-semibold text-slate-900">No experience bookings found</h3>
+            <p class="mt-2 text-sm text-slate-500">Try adjusting your filters or create a booking.</p>
+            <a href="{{ url_for('admin_experience_bookings.create') }}"
+               class="mt-5 inline-flex rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-deep">
+                Create Booking
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

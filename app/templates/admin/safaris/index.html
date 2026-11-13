@@ -1,0 +1,258 @@
+```html
+{% extends "admin/base.html" %}
+
+{% block title %}Safari Destinations{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F8F5]">
+    <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+        <header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.22em] text-emerald-800">
+                    The Uncharted Route · Catalogue
+                </p>
+                <h1 class="mt-2 text-3xl font-semibold tracking-tight text-[#1C2822] sm:text-4xl">
+                    Safari Destinations
+                </h1>
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-gray-600">
+                    Manage destinations and open each workspace to manage properties,
+                    packages, itineraries, rates and enquiries.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_safaris.destination_create') }}"
+               class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138]">
+                <span class="mr-2 text-lg">+</span>
+                Add safari destination
+            </a>
+        </header>
+
+        <section class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {% set stats = [
+                ('Total destinations', destination_count, 'All catalogue destinations'),
+                ('Active', active_destination_count, 'Currently enabled'),
+                ('Inactive', inactive_destination_count, 'Not currently enabled'),
+                ('Featured', featured_destination_count, 'Marked as featured')
+            ] %}
+
+            {% for label, value, description in stats %}
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500">{{ label }}</p>
+                    <p class="mt-3 text-3xl font-semibold text-[#12372A]">{{ value }}</p>
+                    <p class="mt-2 text-xs text-gray-500">{{ description }}</p>
+                </div>
+            {% endfor %}
+        </section>
+
+        <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <form method="GET"
+                  action="{{ url_for('admin_safaris.index') }}"
+                  class="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px_auto]">
+
+                <div>
+                    <label for="search" class="mb-2 block text-sm font-semibold text-gray-700">
+                        Search destinations
+                    </label>
+                    <input id="search"
+                           type="search"
+                           name="search"
+                           value="{{ search }}"
+                           placeholder="Search by destination name or slug..."
+                           class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100">
+                </div>
+
+                <div>
+                    <label for="status" class="mb-2 block text-sm font-semibold text-gray-700">
+                        Publication status
+                    </label>
+                    <select id="status"
+                            name="status"
+                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100">
+                        <option value="all" {% if active_filter == 'all' %}selected{% endif %}>
+                            All destinations
+                        </option>
+                        <option value="active" {% if active_filter == 'active' %}selected{% endif %}>
+                            Active only
+                        </option>
+                        <option value="inactive" {% if active_filter == 'inactive' %}selected{% endif %}>
+                            Inactive only
+                        </option>
+                    </select>
+                </div>
+
+                <div class="flex items-end gap-2">
+                    <button type="submit"
+                            class="rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                        Apply
+                    </button>
+                    <a href="{{ url_for('admin_safaris.index') }}"
+                       class="rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div class="flex flex-col gap-2 border-b border-gray-200 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div>
+                    <h2 class="text-lg font-semibold text-[#1C2822]">Destination catalogue</h2>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ destinations|length }} destination(s) match your filters.
+                    </p>
+                </div>
+                <span class="text-xs font-medium text-gray-500">
+                    Manage publication status or open a destination workspace.
+                </span>
+            </div>
+
+            {% if destinations %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
+                                    Destination
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
+                                    Featured
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-500">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-100">
+                            {% for destination in destinations %}
+                                <tr class="transition hover:bg-[#F7F8F5]">
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-start gap-4">
+                                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E9DDC8] text-lg font-semibold text-[#12372A]">
+                                                {{ destination.name[:1]|upper }}
+                                            </div>
+
+                                            <div class="min-w-0">
+                                                <p class="font-semibold text-[#1C2822]">
+                                                    {{ destination.name }}
+                                                </p>
+                                                <p class="mt-1 text-xs text-gray-500">
+                                                    /{{ destination.slug }}
+                                                </p>
+
+                                                {% if destination.description %}
+                                                    <p class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
+                                                        {{ destination.description|striptags|truncate(130, true, '…') }}
+                                                    </p>
+                                                {% elif destination.introduction %}
+                                                    <p class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
+                                                        {{ destination.introduction|striptags|truncate(130, true, '…') }}
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-6 py-5">
+                                        {% if destination.active %}
+                                            <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                                                Active
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                                                Inactive
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-6 py-5">
+                                        {% if destination.featured|default(false) %}
+                                            <span class="text-sm font-medium text-amber-700">
+                                                ★ Featured
+                                            </span>
+                                        {% else %}
+                                            <span class="text-sm text-gray-400">—</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="px-6 py-5">
+                                        <div class="flex flex-wrap items-center justify-end gap-2">
+                                            <a href="{{ url_for('admin_safaris.destination_detail', destination_id=destination.id) }}"
+                                               class="rounded-lg bg-[#12372A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                                                View
+                                            </a>
+
+                                            <a href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}"
+                                               class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                                                Edit
+                                            </a>
+
+                                            <form method="POST"
+                                                  action="{{ url_for('admin_safaris.destination_toggle', destination_id=destination.id) }}"
+                                                  onsubmit="return confirm('Are you sure you want to {{ 'deactivate' if destination.active else 'activate' }} this destination?');">
+                                                <input type="hidden"
+                                                       name="csrf_token"
+                                                       value="{{ csrf_token() }}">
+
+                                                <button type="submit"
+                                                        class="rounded-lg border px-4 py-2 text-sm font-semibold transition
+                                                        {% if destination.active %}
+                                                            border-red-200 bg-white text-red-700 hover:bg-red-50
+                                                        {% else %}
+                                                            border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100
+                                                        {% endif %}">
+                                                    {{ 'Deactivate' if destination.active else 'Activate' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="px-6 py-16 text-center">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E9DDC8] text-2xl text-[#12372A]">
+                        ◈
+                    </div>
+
+                    <h3 class="mt-5 text-lg font-semibold text-[#1C2822]">
+                        {% if search or active_filter != 'all' %}
+                            No matching destinations
+                        {% else %}
+                            Your safari catalogue starts here
+                        {% endif %}
+                    </h3>
+
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
+                        {% if search or active_filter != 'all' %}
+                            Try another search term or change the status filter.
+                        {% else %}
+                            Add your first destination to begin organising safari properties,
+                            packages, itineraries and pricing.
+                        {% endif %}
+                    </p>
+
+                    {% if search or active_filter != 'all' %}
+                        <a href="{{ url_for('admin_safaris.index') }}"
+                           class="mt-5 inline-flex rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                            Clear filters
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('admin_safaris.destination_create') }}"
+                           class="mt-5 inline-flex rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                            Add your first destination
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
+</div>
+{% endblock %}

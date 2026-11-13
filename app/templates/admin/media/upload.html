@@ -1,0 +1,932 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Upload Media — The Uncharted Route{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-5xl space-y-8">
+
+    <!-- ================================================================ -->
+    <!-- Header -->
+    <!-- ================================================================ -->
+
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-route-safari">
+                Digital Asset Management
+            </p>
+
+            <h1 class="mt-1 text-3xl font-bold tracking-tight text-route-ink">
+                Upload Media
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                Add a new image, video, document, audio file, icon, or map
+                to the central media library.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_media.index') }}"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-deep/15 bg-white px-4 py-2.5 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream"
+        >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m15 18-6-6 6-6"
+                />
+            </svg>
+
+            Back to Library
+        </a>
+
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!-- Upload Form -->
+    <!-- ================================================================ -->
+
+    <form
+        method="POST"
+        action="{{ url_for('admin_media.upload') }}"
+        enctype="multipart/form-data"
+        class="space-y-8"
+    >
+
+        {{ form.hidden_tag() }}
+
+
+        <!-- ============================================================ -->
+        <!-- File Upload -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    File
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Select the digital asset you want to add to the library.
+                </p>
+
+            </div>
+
+            <div class="p-6">
+
+                <label
+                    for="{{ form.file.id }}"
+                    class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-route-deep/20 bg-route-cream/40 px-6 py-12 text-center transition hover:border-route-forest/50 hover:bg-route-cream"
+                >
+
+                    <div
+                        id="upload-icon"
+                        class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-route-forest shadow-sm ring-1 ring-route-deep/10 transition group-hover:scale-105"
+                    >
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.7"
+                                d="M12 16V4m0 0L8 8m4-4 4 4"
+                            />
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.7"
+                                d="M5 20h14"
+                            />
+                        </svg>
+                    </div>
+
+                    <span class="mt-5 text-sm font-semibold text-route-ink">
+                        Choose a file to upload
+                    </span>
+
+                    <span class="mt-1 text-sm text-route-muted">
+                        Images, videos, documents, audio, icons, and maps
+                    </span>
+
+                    <span class="mt-3 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-route-muted ring-1 ring-route-deep/10">
+                        Maximum file size is controlled by server configuration
+                    </span>
+
+                    {{ form.file(
+                        class="sr-only",
+                        accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.mp3,.wav,.ogg,.m4a,.aac,.svg,.ico"
+                    ) }}
+
+                </label>
+
+                {% if form.file.errors %}
+                    <div class="mt-3 space-y-1">
+                        {% for error in form.file.errors %}
+                            <p class="text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+
+                <!-- Selected File Information -->
+
+                <div
+                    id="selected-file-panel"
+                    class="mt-5 hidden overflow-hidden rounded-2xl border border-route-forest/20 bg-route-cream/60"
+                >
+
+                    <div class="flex flex-col gap-5 p-5 sm:flex-row sm:items-start">
+
+                        <div
+                            id="media-preview"
+                            class="w-full shrink-0 overflow-hidden rounded-xl border border-route-deep/10 bg-white sm:w-64"
+                        ></div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <div class="flex items-start justify-between gap-4">
+
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-route-forest">
+                                        Selected File
+                                    </p>
+
+                                    <p
+                                        id="selected-file-name"
+                                        class="mt-1 break-words text-sm font-semibold text-route-ink"
+                                    ></p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    id="clear-file"
+                                    class="shrink-0 rounded-lg border border-route-deep/15 bg-white px-3 py-2 text-xs font-semibold text-route-muted transition hover:bg-route-cream"
+                                >
+                                    Remove
+                                </button>
+
+                            </div>
+
+                            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+                                <div class="rounded-xl bg-white px-4 py-3 ring-1 ring-route-deep/10">
+                                    <p class="text-xs font-medium uppercase tracking-wider text-route-muted">
+                                        File Type
+                                    </p>
+
+                                    <p id="selected-file-type" class="mt-1 break-words text-sm font-semibold text-route-ink">
+                                        —
+                                    </p>
+                                </div>
+
+                                <div class="rounded-xl bg-white px-4 py-3 ring-1 ring-route-deep/10">
+                                    <p class="text-xs font-medium uppercase tracking-wider text-route-muted">
+                                        File Size
+                                    </p>
+
+                                    <p id="selected-file-size" class="mt-1 text-sm font-semibold text-route-ink">
+                                        —
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <p class="mt-4 text-xs leading-5 text-route-muted">
+                                The preview shown here is generated directly by
+                                your browser. The final asset will be processed
+                                and stored by the server when you submit the form.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Basic Information -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Asset Information
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Add information that will help identify and use this asset.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                <!-- Title -->
+
+                <div>
+                    <label
+                        for="{{ form.title.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Title
+                    </label>
+
+                    {{ form.title(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="e.g. Safari Landscape — Kenya"
+                    ) }}
+
+                    {% if form.title.errors %}
+                        <div class="mt-2 space-y-1">
+                            {% for error in form.title.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <!-- Media Type -->
+
+                <div>
+                    <label
+                        for="{{ form.media_type.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Media Type
+                    </label>
+
+                    {{ form.media_type(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20"
+                    ) }}
+
+                    <p class="mt-2 text-xs text-route-muted">
+                        Leave this as Auto-detect when available.
+                    </p>
+                </div>
+
+
+                <!-- Usage -->
+
+                <div>
+                    <label
+                        for="{{ form.usage.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Asset Usage
+                    </label>
+
+                    {{ form.usage(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20"
+                    ) }}
+
+                    <p class="mt-2 text-xs text-route-muted">
+                        Describe how this asset is intended to be used across the site.
+                    </p>
+
+                    {% if form.usage.errors %}
+                        <div class="mt-2 space-y-1">
+                            {% for error in form.usage.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <!-- Alt Text -->
+
+                <div>
+                    <label
+                        for="{{ form.alt_text.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Alt Text
+                    </label>
+
+                    {{ form.alt_text(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="Describe the image for accessibility"
+                    ) }}
+                </div>
+
+
+                <!-- Credit -->
+
+                <div>
+                    <label
+                        for="{{ form.credit.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Credit
+                    </label>
+
+                    {{ form.credit(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="Photographer or source"
+                    ) }}
+                </div>
+
+
+                <!-- Tags -->
+
+                <div>
+                    <label
+                        for="{{ form.tags.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Tags
+                    </label>
+
+                    {{ form.tags(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="safari, kenya, wildlife"
+                    ) }}
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Folder Organization -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Folder Organization
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Place this asset into one or more folders. Choose one folder as its primary location.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                <div class="md:col-span-2">
+
+                    <label
+                        for="{{ form.folder_ids.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Folders
+                    </label>
+
+                    {{ form.folder_ids(
+                        class="block min-h-40 w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20"
+                    ) }}
+
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Hold Ctrl or Command to select multiple folders.
+                        Nested folders are displayed by their hierarchy.
+                    </p>
+
+                    {% if form.folder_ids.errors %}
+                        <div class="mt-2 space-y-1">
+                            {% for error in form.folder_ids.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="{{ form.primary_folder_id.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Primary Folder
+                    </label>
+
+                    {{ form.primary_folder_id(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20"
+                    ) }}
+
+                    <p class="mt-2 text-xs text-route-muted">
+                        Used as the asset's main organizational folder.
+                    </p>
+
+                    {% if form.primary_folder_id.errors %}
+                        <div class="mt-2 space-y-1">
+                            {% for error in form.primary_folder_id.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Descriptions -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Descriptions
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Add contextual information for the asset.
+                </p>
+
+            </div>
+
+            <div class="space-y-6 p-6">
+
+                <div>
+                    <label
+                        for="{{ form.caption.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Caption
+                    </label>
+
+                    {{ form.caption(
+                        rows="3",
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="Short caption displayed alongside the asset when applicable."
+                    ) }}
+                </div>
+
+                <div>
+                    <label
+                        for="{{ form.description.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        Description
+                    </label>
+
+                    {{ form.description(
+                        rows="5",
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="Provide a more detailed description of the asset."
+                    ) }}
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- SEO -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    SEO Metadata
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Optional search-engine metadata for assets that may be publicly exposed.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                <div>
+                    <label
+                        for="{{ form.seo_title.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        SEO Title
+                    </label>
+
+                    {{ form.seo_title(
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="SEO title"
+                    ) }}
+                </div>
+
+                <div>
+                    <label
+                        for="{{ form.seo_description.id }}"
+                        class="mb-2 block text-sm font-medium text-route-ink"
+                    >
+                        SEO Description
+                    </label>
+
+                    {{ form.seo_description(
+                        rows="3",
+                        class="block w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                        placeholder="SEO description"
+                    ) }}
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Asset Settings -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Asset Settings
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Control how this asset is treated throughout the system.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 p-6 sm:grid-cols-3">
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-route-deep/10 p-4 transition hover:border-route-forest/30 hover:bg-route-cream/40">
+
+                    {{ form.active(
+                        class="mt-0.5 h-4 w-4 rounded border-route-deep/20 text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Active
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Allow the asset to be used by active CMS features.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-route-deep/10 p-4 transition hover:border-route-gold/40 hover:bg-route-cream/40">
+
+                    {{ form.featured(
+                        class="mt-0.5 h-4 w-4 rounded border-route-deep/20 text-route-gold focus:ring-route-gold"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Featured
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Mark this asset as a preferred media resource.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-route-deep/10 p-4 transition hover:border-route-forest/30 hover:bg-route-cream/40">
+
+                    {{ form.downloadable(
+                        class="mt-0.5 h-4 w-4 rounded border-route-deep/20 text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Downloadable
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Permit supported users to download this asset.
+                        </span>
+                    </span>
+
+                </label>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Form Actions -->
+        <!-- ============================================================ -->
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+            <a
+                href="{{ url_for('admin_media.index') }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-deep/15 bg-white px-6 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="inline-flex items-center justify-center rounded-xl bg-route-deep px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-forest"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- ================================================================ -->
+<!-- Browser Preview -->
+<!-- ================================================================ -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const fileInput = document.getElementById("{{ form.file.id }}");
+    const selectedPanel = document.getElementById("selected-file-panel");
+    const previewContainer = document.getElementById("media-preview");
+
+    const fileName = document.getElementById("selected-file-name");
+    const fileType = document.getElementById("selected-file-type");
+    const fileSize = document.getElementById("selected-file-size");
+
+    const clearButton = document.getElementById("clear-file");
+
+    let currentObjectUrl = null;
+
+
+    if (!fileInput) {
+        return;
+    }
+
+
+    function formatFileSize(bytes) {
+
+        if (!bytes || bytes < 1) {
+            return "0 Bytes";
+        }
+
+        const units = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        let index = Math.floor(
+            Math.log(bytes) / Math.log(1024)
+        );
+
+        index = Math.min(index, units.length - 1);
+
+        const size = bytes / Math.pow(1024, index);
+
+        return (
+            parseFloat(size.toFixed(2))
+            + " "
+            + units[index]
+        );
+    }
+
+
+    function revokeObjectUrl() {
+
+        if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+            currentObjectUrl = null;
+        }
+    }
+
+
+    function clearPreview() {
+
+        revokeObjectUrl();
+
+        selectedPanel.classList.add("hidden");
+
+        previewContainer.innerHTML = "";
+        fileName.textContent = "";
+        fileType.textContent = "—";
+        fileSize.textContent = "—";
+
+        fileInput.value = "";
+    }
+
+
+    function createGenericPreview(file) {
+
+        const wrapper = document.createElement("div");
+
+        wrapper.className =
+            "flex h-48 w-full flex-col items-center justify-center px-5 text-center";
+
+        const icon = document.createElement("div");
+
+        icon.className =
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-route-cream text-route-safari shadow-sm ring-1 ring-route-deep/10";
+
+        icon.innerHTML = `
+            <svg
+                class="h-7 w-7"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    d="M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                />
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    d="M14 3v6h5"
+                />
+            </svg>
+        `;
+
+        const type = document.createElement("p");
+
+        type.className =
+            "mt-3 text-xs font-semibold text-route-ink";
+
+        type.textContent =
+            file.type || "File";
+
+        const message = document.createElement("p");
+
+        message.className =
+            "mt-1 text-xs text-route-muted";
+
+        message.textContent =
+            "Preview not available for this file type.";
+
+        wrapper.appendChild(icon);
+        wrapper.appendChild(type);
+        wrapper.appendChild(message);
+
+        return wrapper;
+    }
+
+
+    function showPreview(file) {
+
+        if (!file) {
+            clearPreview();
+            return;
+        }
+
+        revokeObjectUrl();
+
+        selectedPanel.classList.remove("hidden");
+
+        fileName.textContent = file.name;
+        fileType.textContent = file.type || "Unknown";
+        fileSize.textContent = formatFileSize(file.size);
+
+        previewContainer.innerHTML = "";
+
+        currentObjectUrl =
+            URL.createObjectURL(file);
+
+
+        if (file.type && file.type.startsWith("image/")) {
+
+            const image =
+                document.createElement("img");
+
+            image.className =
+                "block h-48 w-full object-cover";
+
+            image.alt =
+                "Selected image preview";
+
+            image.src =
+                currentObjectUrl;
+
+            image.addEventListener(
+                "error",
+                function () {
+
+                    previewContainer.innerHTML = "";
+
+                    previewContainer.appendChild(
+                        createGenericPreview(file)
+                    );
+
+                }
+            );
+
+            previewContainer.appendChild(image);
+
+            return;
+        }
+
+
+        if (file.type && file.type.startsWith("video/")) {
+
+            const video =
+                document.createElement("video");
+
+            video.className =
+                "block h-48 w-full object-cover";
+
+            video.controls = true;
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "metadata";
+
+            video.src =
+                currentObjectUrl;
+
+            video.addEventListener(
+                "error",
+                function () {
+
+                    previewContainer.innerHTML = "";
+
+                    previewContainer.appendChild(
+                        createGenericPreview(file)
+                    );
+
+                }
+            );
+
+            previewContainer.appendChild(video);
+
+            return;
+        }
+
+
+        previewContainer.appendChild(
+            createGenericPreview(file)
+        );
+    }
+
+
+    fileInput.addEventListener(
+        "change",
+        function () {
+
+            if (
+                !fileInput.files ||
+                !fileInput.files.length
+            ) {
+                clearPreview();
+                return;
+            }
+
+            showPreview(
+                fileInput.files[0]
+            );
+        }
+    );
+
+
+    if (clearButton) {
+
+        clearButton.addEventListener(
+            "click",
+            function () {
+                clearPreview();
+            }
+        );
+
+    }
+
+
+    window.addEventListener(
+        "beforeunload",
+        function () {
+            revokeObjectUrl();
+        }
+    );
+
+});
+</script>
+
+{% endblock %}

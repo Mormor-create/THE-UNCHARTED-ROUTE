@@ -1,0 +1,955 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page.title if page else "About Us" }} | {{ company_name }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ page.meta_description if page and page.meta_description else
+       "Discover the story, philosophy, and approach behind " ~ company_name ~ ". Explore Kenya differently through thoughtfully designed journeys, meaningful experiences, and unforgettable adventures." }}
+{% endblock %}
+
+{% block content %}
+
+<!-- =========================================================================
+     HERO
+     ========================================================================= -->
+
+<section
+    class="
+        relative
+        overflow-hidden
+        bg-route-deep
+        text-route-white
+    "
+>
+
+    <div
+        class="
+            absolute
+            inset-0
+            bg-gradient-to-br
+            from-route-deep
+            via-route-forest
+            to-route-deep
+        "
+    ></div>
+
+    <div
+        class="
+            absolute
+            -right-40
+            -top-40
+            h-[30rem]
+            w-[30rem]
+            rounded-full
+            bg-route-gold/10
+            blur-3xl
+        "
+    ></div>
+
+    <div
+        class="
+            absolute
+            -bottom-40
+            -left-40
+            h-[28rem]
+            w-[28rem]
+            rounded-full
+            bg-route-safari/10
+            blur-3xl
+        "
+    ></div>
+
+    <div
+        class="
+            relative
+            mx-auto
+            max-w-7xl
+            px-6
+            py-24
+            sm:px-8
+            lg:px-12
+            lg:py-32
+        "
+    >
+
+        <div class="max-w-4xl">
+
+            <p
+                class="
+                    text-sm
+                    font-bold
+                    uppercase
+                    tracking-[0.3em]
+                    text-route-gold
+                "
+            >
+                {{ page.eyebrow if page and page.eyebrow else "About " ~ company_name }}
+            </p>
+
+            <h1
+                class="
+                    mt-5
+                    font-display
+                    text-5xl
+                    font-semibold
+                    leading-[1.05]
+                    sm:text-6xl
+                    lg:text-7xl
+                "
+            >
+                {{ page.hero_title if page and page.hero_title else "Travel should feel like a story." }}
+            </h1>
+
+            <p
+                class="
+                    mt-7
+                    max-w-2xl
+                    text-lg
+                    leading-8
+                    text-route-cream/80
+                    sm:text-xl
+                "
+            >
+                {{ page.intro if page and page.intro else
+                   "We create journeys that take you beyond the ordinary — connecting you with places, people, wildlife, culture, and moments that stay with you." }}
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     INTRODUCTION
+     ========================================================================= -->
+
+<section class="bg-route-white">
+
+    <div
+        class="
+            mx-auto
+            max-w-7xl
+            px-6
+            py-20
+            sm:px-8
+            lg:px-12
+            lg:py-28
+        "
+    >
+
+        <div
+            class="
+                grid
+                gap-12
+                lg:grid-cols-[0.9fr_1.1fr]
+                lg:items-center
+            "
+        >
+
+            <div>
+
+                <p
+                    class="
+                        text-sm
+                        font-bold
+                        uppercase
+                        tracking-[0.25em]
+                        text-route-safari
+                    "
+                >
+                    {{ page.story_eyebrow if page else "Our Story" }}
+                </p>
+
+                <h2
+                    class="
+                        mt-4
+                        font-display
+                        text-4xl
+                        font-semibold
+                        leading-tight
+                        text-route-ink
+                        sm:text-5xl
+                    "
+                >
+                    {{ page.story_title if page else "The route is only the beginning." }}
+                </h2>
+
+            </div>
+
+
+            <div class="space-y-5">
+
+                <p
+                    class="
+                        text-lg
+                        leading-8
+                        text-route-muted
+                    "
+                >
+                    {{ page.story_paragraph_1 if page else "" }}
+                </p>
+
+                <p
+                    class="
+                        leading-8
+                        text-route-muted
+                    "
+                >
+                    {{ page.story_paragraph_2 if page else "" }}
+                </p>
+
+                <p
+                    class="
+                        leading-8
+                        text-route-muted
+                    "
+                >
+                    {{ page.story_paragraph_3 if page else "" }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     OUR PHILOSOPHY
+     ========================================================================= -->
+
+<section class="bg-route-cream">
+
+    <div
+        class="
+            mx-auto
+            max-w-7xl
+            px-6
+            py-20
+            sm:px-8
+            lg:px-12
+            lg:py-24
+        "
+    >
+
+        <div class="max-w-3xl">
+
+            <p
+                class="
+                    text-sm
+                    font-bold
+                    uppercase
+                    tracking-[0.25em]
+                    text-route-safari
+                "
+            >
+                {{ page.philosophy_eyebrow if page else "Our Philosophy" }}
+            </p>
+
+            <h2
+                class="
+                    mt-3
+                    font-display
+                    text-4xl
+                    font-semibold
+                    text-route-ink
+                    sm:text-5xl
+                "
+            >
+                {{ page.philosophy_title if page else "Explore differently." }}
+            </h2>
+
+            <p
+                class="
+                    mt-5
+                    text-lg
+                    leading-8
+                    text-route-muted
+                "
+            >
+                {{ page.philosophy_intro if page else "" }}
+            </p>
+
+        </div>
+
+
+        <div
+            class="
+                mt-12
+                grid
+                gap-6
+                md:grid-cols-2
+                lg:grid-cols-4
+            "
+        >
+
+            {% for item in page.philosophy_items if page and page.philosophy_items %}
+
+                <article
+                    class="
+                        rounded-route
+                        bg-route-white
+                        p-7
+                        shadow-route
+                    "
+                >
+
+                    <span class="text-2xl text-route-gold">
+                        {{ item.icon or "✦" }}
+                    </span>
+
+                    <h3
+                        class="
+                            mt-5
+                            font-display
+                            text-2xl
+                            font-semibold
+                            text-route-ink
+                        "
+                    >
+                        {{ item.title }}
+                    </h3>
+
+                    <p
+                        class="
+                            mt-3
+                            text-sm
+                            leading-6
+                            text-route-muted
+                        "
+                    >
+                        {{ item.body }}
+                    </p>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     WHAT WE CREATE
+     ========================================================================= -->
+
+<section class="bg-route-white">
+
+    <div
+        class="
+            mx-auto
+            max-w-7xl
+            px-6
+            py-20
+            sm:px-8
+            lg:px-12
+            lg:py-28
+        "
+    >
+
+        <div
+            class="
+                grid
+                gap-12
+                lg:grid-cols-2
+                lg:items-center
+            "
+        >
+
+            <div>
+
+                <p
+                    class="
+                        text-sm
+                        font-bold
+                        uppercase
+                        tracking-[0.25em]
+                        text-route-safari
+                    "
+                >
+                    {{ page.create_eyebrow if page else "What We Create" }}
+                </p>
+
+                <h2
+                    class="
+                        mt-4
+                        font-display
+                        text-4xl
+                        font-semibold
+                        leading-tight
+                        text-route-ink
+                        sm:text-5xl
+                    "
+                >
+                    {{ page.create_title if page else
+                       "Journeys designed around the way you want to travel." }}
+                </h2>
+
+                <p
+                    class="
+                        mt-6
+                        max-w-xl
+                        text-lg
+                        leading-8
+                        text-route-muted
+                    "
+                >
+                    {{ page.create_intro if page else "" }}
+                </p>
+
+                <a
+                    href="{{ url_for('experiences.index') }}"
+                    class="
+                        mt-7
+                        inline-flex
+                        items-center
+                        rounded-full
+                        bg-route-deep
+                        px-7
+                        py-3.5
+                        text-sm
+                        font-bold
+                        text-route-white
+                        transition
+                        hover:bg-route-forest
+                    "
+                >
+                    {{ page.create_button_label if page else "Explore Experiences" }}
+
+                    <span class="ml-2">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <div
+                class="
+                    grid
+                    gap-4
+                    sm:grid-cols-2
+                "
+            >
+
+                {% for item in page.create_items if page and page.create_items %}
+
+                    <div
+                        class="
+                            rounded-route
+                            {{ item.background_class or 'bg-route-cream' }}
+                            p-7
+                        "
+                    >
+
+                        <p
+                            class="
+                                text-xs
+                                font-bold
+                                uppercase
+                                tracking-[0.2em]
+                                text-route-safari
+                            "
+                        >
+                            {{ item.eyebrow }}
+                        </p>
+
+                        <h3
+                            class="
+                                mt-3
+                                font-display
+                                text-2xl
+                                font-semibold
+                                text-route-ink
+                            "
+                        >
+                            {{ item.title }}
+                        </h3>
+
+                        <p
+                            class="
+                                mt-3
+                                text-sm
+                                leading-6
+                                text-route-muted
+                            "
+                        >
+                            {{ item.body }}
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     KENYA
+     ========================================================================= -->
+
+<section class="bg-route-deep text-route-white">
+
+    <div
+        class="
+            mx-auto
+            max-w-7xl
+            px-6
+            py-20
+            sm:px-8
+            lg:px-12
+            lg:py-24
+        "
+    >
+
+        <div
+            class="
+                grid
+                gap-12
+                lg:grid-cols-[1.1fr_0.9fr]
+                lg:items-center
+            "
+        >
+
+            <div>
+
+                <p
+                    class="
+                        text-sm
+                        font-bold
+                        uppercase
+                        tracking-[0.25em]
+                        text-route-gold
+                    "
+                >
+                    {{ page.kenya_eyebrow if page else "Rooted In Kenya" }}
+                </p>
+
+                <h2
+                    class="
+                        mt-4
+                        font-display
+                        text-4xl
+                        font-semibold
+                        leading-tight
+                        sm:text-5xl
+                    "
+                >
+                    {{ page.kenya_title if page else "One country. Endless routes." }}
+                </h2>
+
+                <p
+                    class="
+                        mt-6
+                        max-w-2xl
+                        text-lg
+                        leading-8
+                        text-route-cream/75
+                    "
+                >
+                    {{ page.kenya_paragraph_1 if page else "" }}
+                </p>
+
+                <p
+                    class="
+                        mt-5
+                        max-w-2xl
+                        leading-7
+                        text-route-cream/65
+                    "
+                >
+                    {{ page.kenya_paragraph_2 if page else "" }}
+                </p>
+
+                <a
+                    href="{{ url_for('destinations.index') }}"
+                    class="
+                        mt-7
+                        inline-flex
+                        items-center
+                        rounded-full
+                        bg-route-gold
+                        px-7
+                        py-3.5
+                        text-sm
+                        font-bold
+                        text-route-deep
+                        transition
+                        hover:bg-route-white
+                    "
+                >
+                    {{ page.kenya_button_label if page else "Discover Destinations" }}
+
+                    <span class="ml-2">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <div
+                class="
+                    rounded-route
+                    border
+                    border-route-white/10
+                    bg-route-white/5
+                    p-8
+                    sm:p-10
+                "
+            >
+
+                <p
+                    class="
+                        font-display
+                        text-3xl
+                        font-semibold
+                        text-route-gold
+                    "
+                >
+                    {{ page.promise_line_1 if page else "Explore." }}
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        font-display
+                        text-3xl
+                        font-semibold
+                        text-route-cream
+                    "
+                >
+                    {{ page.promise_line_2 if page else "Experience." }}
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        font-display
+                        text-3xl
+                        font-semibold
+                        text-route-cream
+                    "
+                >
+                    {{ page.promise_line_3 if page else "Remember." }}
+                </p>
+
+                <div
+                    class="
+                        my-7
+                        h-px
+                        bg-route-white/10
+                    "
+                ></div>
+
+                <p
+                    class="
+                        text-sm
+                        leading-7
+                        text-route-cream/65
+                    "
+                >
+                    {{ page.promise_body if page else "" }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     JOURNAL
+     ========================================================================= -->
+
+<section class="bg-route-cream">
+
+    <div
+        class="
+            mx-auto
+            max-w-7xl
+            px-6
+            py-20
+            sm:px-8
+            lg:px-12
+            lg:py-24
+        "
+    >
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-5
+                sm:flex-row
+                sm:items-end
+                sm:justify-between
+            "
+        >
+
+            <div>
+
+                <p
+                    class="
+                        text-sm
+                        font-bold
+                        uppercase
+                        tracking-[0.25em]
+                        text-route-safari
+                    "
+                >
+                    {{ page.journal_eyebrow if page else "Keep Exploring" }}
+                </p>
+
+                <h2
+                    class="
+                        mt-3
+                        font-display
+                        text-4xl
+                        font-semibold
+                        text-route-ink
+                        sm:text-5xl
+                    "
+                >
+                    {{ page.journal_title if page else "Stories from the road." }}
+                </h2>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('blog.index') }}"
+                class="
+                    inline-flex
+                    items-center
+                    text-sm
+                    font-bold
+                    text-route-forest
+                    transition
+                    hover:text-route-terracotta
+                "
+            >
+                {{ page.journal_link_label if page else "Visit the Journal" }}
+
+                <span class="ml-2">
+                    →
+                </span>
+            </a>
+
+        </div>
+
+
+        <div
+            class="
+                mt-10
+                rounded-route
+                bg-route-white
+                p-8
+                shadow-route
+                sm:p-10
+            "
+        >
+
+            <div class="max-w-3xl">
+
+                <p
+                    class="
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-[0.2em]
+                        text-route-safari
+                    "
+                >
+                    {{ page.journal_card_eyebrow if page else "The Journal" }}
+                </p>
+
+                <h3
+                    class="
+                        mt-3
+                        font-display
+                        text-3xl
+                        font-semibold
+                        text-route-ink
+                    "
+                >
+                    {{ page.journal_card_title if page else
+                       "Inspiration for your next route." }}
+                </h3>
+
+                <p
+                    class="
+                        mt-4
+                        leading-7
+                        text-route-muted
+                    "
+                >
+                    {{ page.journal_card_body if page else "" }}
+                </p>
+
+                <a
+                    href="{{ url_for('blog.index') }}"
+                    class="
+                        mt-6
+                        inline-flex
+                        rounded-full
+                        border
+                        border-route-forest
+                        px-6
+                        py-3
+                        text-sm
+                        font-bold
+                        text-route-forest
+                        transition
+                        hover:bg-route-forest
+                        hover:text-route-white
+                    "
+                >
+                    {{ page.journal_button_label if page else
+                       "Explore The Journal" }}
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     FINAL CTA
+     ========================================================================= -->
+
+<section class="bg-route-forest text-route-white">
+
+    <div
+        class="
+            mx-auto
+            max-w-4xl
+            px-6
+            py-24
+            text-center
+            sm:px-8
+            lg:py-28
+        "
+    >
+
+        <p
+            class="
+                text-sm
+                font-bold
+                uppercase
+                tracking-[0.3em]
+                text-route-gold
+            "
+        >
+            {{ page.cta_eyebrow if page else "Your journey starts here" }}
+        </p>
+
+        <h2
+            class="
+                mt-5
+                font-display
+                text-4xl
+                font-semibold
+                sm:text-5xl
+            "
+        >
+            {{ page.cta_title if page else "Ready to find your route?" }}
+        </h2>
+
+        <p
+            class="
+                mx-auto
+                mt-6
+                max-w-2xl
+                text-lg
+                leading-8
+                text-route-cream/75
+            "
+        >
+            {{ page.cta_body if page else "" }}
+        </p>
+
+        <div
+            class="
+                mt-9
+                flex
+                flex-col
+                justify-center
+                gap-3
+                sm:flex-row
+            "
+        >
+
+            <a
+                href="{{ url_for('experiences.index') }}"
+                class="
+                    inline-flex
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-route-gold
+                    px-7
+                    py-3.5
+                    text-sm
+                    font-bold
+                    text-route-deep
+                    transition
+                    hover:bg-route-white
+                "
+            >
+                {{ page.cta_primary_label if page else "Explore Experiences" }}
+            </a>
+
+            <a
+                href="{{ url_for('main.contact') }}"
+                class="
+                    inline-flex
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-route-white/40
+                    px-7
+                    py-3.5
+                    text-sm
+                    font-bold
+                    text-route-white
+                    transition
+                    hover:bg-route-white
+                    hover:text-route-deep
+                "
+            >
+                {{ page.cta_secondary_label if page else "Plan Your Journey" }}
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

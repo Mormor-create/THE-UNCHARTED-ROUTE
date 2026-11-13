@@ -1,0 +1,224 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ heading }} | Legal & Help
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-4xl px-6 py-10">
+
+    <a
+        href="{{ url_for('admin_legal_help.detail', page_id=page.id) }}"
+        class="text-sm font-bold text-route-forest hover:text-route-deep"
+    >
+        ← Back to {{ page.title }}
+    </a>
+
+
+    <div class="mt-6">
+
+        <p class="text-sm font-bold uppercase tracking-[0.3em] text-route-gold">
+            {{ page.title }}
+        </p>
+
+        <h1 class="mt-2 font-display text-4xl font-semibold text-route-ink">
+            {{ heading }}
+        </h1>
+
+    </div>
+
+
+    <form
+        method="POST"
+        class="mt-8 rounded-2xl border border-route-sand bg-route-white p-6 shadow-route sm:p-8"
+    >
+
+        {{ form.hidden_tag() }}
+
+
+        <div class="grid gap-6 md:grid-cols-2">
+
+            <div>
+
+                {{ form.section_key.label(class="block text-sm font-bold text-route-ink") }}
+
+                {{ form.section_key(
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink"
+                ) }}
+
+                <p class="mt-2 text-xs text-route-muted">
+                    Example: hero, faq, privacy_content, final_cta
+                </p>
+
+            </div>
+
+
+            <div>
+
+                {{ form.section_type.label(class="block text-sm font-bold text-route-ink") }}
+
+                {{ form.section_type(
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink"
+                ) }}
+
+            </div>
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.eyebrow.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.eyebrow(
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.title.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.title(
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.body.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.body(
+                rows="8",
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm leading-7 text-route-ink"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.secondary_body.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.secondary_body(
+                rows="6",
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm leading-7 text-route-ink"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-8 rounded-xl border border-route-sand bg-route-cream/50 p-5">
+
+            <h2 class="font-display text-lg font-semibold text-route-ink">
+                Primary CTA
+            </h2>
+
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+
+                <div>
+                    {{ form.primary_cta_label.label(class="block text-xs font-bold text-route-ink") }}
+
+                    {{ form.primary_cta_label(
+                        class="mt-2 w-full rounded-xl border border-route-sand bg-route-white px-4 py-3 text-sm"
+                    ) }}
+                </div>
+
+                <div>
+                    {{ form.primary_cta_url.label(class="block text-xs font-bold text-route-ink") }}
+
+                    {{ form.primary_cta_url(
+                        class="mt-2 w-full rounded-xl border border-route-sand bg-route-white px-4 py-3 text-sm"
+                    ) }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="mt-5 rounded-xl border border-route-sand bg-route-cream/50 p-5">
+
+            <h2 class="font-display text-lg font-semibold text-route-ink">
+                Secondary CTA
+            </h2>
+
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+
+                <div>
+                    {{ form.secondary_cta_label.label(class="block text-xs font-bold text-route-ink") }}
+
+                    {{ form.secondary_cta_label(
+                        class="mt-2 w-full rounded-xl border border-route-sand bg-route-white px-4 py-3 text-sm"
+                    ) }}
+                </div>
+
+                <div>
+                    {{ form.secondary_cta_url.label(class="block text-xs font-bold text-route-ink") }}
+
+                    {{ form.secondary_cta_url(
+                        class="mt-2 w-full rounded-xl border border-route-sand bg-route-white px-4 py-3 text-sm"
+                    ) }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+
+            <div>
+
+                {{ form.sort_order.label(class="block text-sm font-bold text-route-ink") }}
+
+                {{ form.sort_order(
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm"
+                ) }}
+
+            </div>
+
+            <div class="flex items-end">
+
+                <label class="flex items-center gap-3">
+
+                    {{ form.active(
+                        class="h-4 w-4 rounded border-route-sand text-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-semibold text-route-ink">
+                        Active
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <div class="mt-8 flex gap-3">
+
+            {{ form.submit(
+                class="rounded-full bg-route-forest px-7 py-3 text-sm font-bold text-route-white transition hover:bg-route-deep"
+            ) }}
+
+            <a
+                href="{{ url_for('admin_legal_help.detail', page_id=page.id) }}"
+                class="rounded-full bg-route-cream px-7 py-3 text-sm font-bold text-route-forest"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

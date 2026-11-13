@@ -1,0 +1,507 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+        <div class="flex items-start gap-5">
+
+            {% if category.featured_image %}
+                <img
+                    src="{{ category.featured_image }}"
+                    alt="{{ category.name }}"
+                    class="h-24 w-24 rounded-2xl object-cover shadow-sm"
+                >
+            {% else %}
+                <div
+                    class="flex h-24 w-24 items-center justify-center rounded-2xl text-3xl font-bold text-white"
+                    style="background-color: {{ category.color or '#0F766E' }};"
+                >
+                    {{ category.name[:1] }}
+                </div>
+            {% endif %}
+
+            <div>
+
+                <a
+                    href="{{ url_for('admin_experience_categories.index') }}"
+                    class="text-sm font-medium text-teal-700 hover:text-teal-800"
+                >
+                    ← Experience Categories
+                </a>
+
+                <h1 class="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                    {{ category.name }}
+                </h1>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    /{{ category.slug }}
+                </p>
+
+                <div class="mt-3 flex flex-wrap gap-2">
+
+                    {% if category.active %}
+                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            Active
+                        </span>
+                    {% else %}
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                            Inactive
+                        </span>
+                    {% endif %}
+
+                    {% if category.featured %}
+                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                            Featured
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-2">
+
+            <a
+                href="{{ url_for('admin_experience_categories.edit', category_id=category.id) }}"
+                class="rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800"
+            >
+                Edit Category
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Statistics -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Experiences</p>
+            <p class="mt-2 text-3xl font-bold text-slate-900">
+                {{ category.experience_count }}
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Display Order</p>
+            <p class="mt-2 text-3xl font-bold text-slate-900">
+                {{ category.display_order }}
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Status</p>
+            <p class="mt-2 text-lg font-bold text-slate-900">
+                {{ "Active" if category.active else "Inactive" }}
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Featured</p>
+            <p class="mt-2 text-lg font-bold text-slate-900">
+                {{ "Yes" if category.featured else "No" }}
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Category Media -->
+    <div class="space-y-5">
+
+        <div>
+            <p class="text-sm font-medium text-teal-700">
+                CMS Media
+            </p>
+
+            <h2 class="mt-1 text-xl font-bold text-slate-900">
+                Category Images
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                The icon, featured image, and banner assigned to this category.
+            </p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+            <!-- Icon -->
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h3 class="font-semibold text-slate-900">
+                        Category Icon
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Used to visually identify the category.
+                    </p>
+                </div>
+
+                <div class="flex min-h-48 items-center justify-center bg-slate-50 p-8">
+                    {% if category.icon %}
+                        <img
+                            src="{{ category.icon }}"
+                            alt="{{ category.name }} icon"
+                            class="h-28 w-28 object-contain"
+                            loading="lazy"
+                        >
+                    {% else %}
+                        <div
+                            class="flex h-24 w-24 items-center justify-center rounded-2xl text-4xl font-bold text-white"
+                            style="background-color: {{ category.color or '#0F766E' }};"
+                        >
+                            {{ category.name[:1] }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="px-5 py-4">
+                    <p class="text-sm text-slate-500">
+                        {% if category.icon %}
+                            Icon assigned
+                        {% else %}
+                            No icon assigned
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Featured Image -->
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h3 class="font-semibold text-slate-900">
+                        Featured Image
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        The main image representing this category.
+                    </p>
+                </div>
+
+                <div class="flex min-h-48 items-center justify-center bg-slate-50">
+                    {% if category.featured_image %}
+                        <img
+                            src="{{ category.featured_image }}"
+                            alt="{{ category.name }} featured image"
+                            class="h-48 w-full object-cover"
+                            loading="lazy"
+                        >
+                    {% else %}
+                        <div class="px-6 py-12 text-center">
+                            <span class="text-sm text-slate-400">
+                                No featured image assigned
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="px-5 py-4">
+                    <p class="text-sm text-slate-500">
+                        {% if category.featured_image %}
+                            Featured image assigned
+                        {% else %}
+                            Select an image from Edit Category
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Banner Image -->
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h3 class="font-semibold text-slate-900">
+                        Banner Image
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        The wide visual used for category banners.
+                    </p>
+                </div>
+
+                <div class="flex min-h-48 items-center justify-center bg-slate-50">
+                    {% if category.banner_image %}
+                        <img
+                            src="{{ category.banner_image }}"
+                            alt="{{ category.name }} banner"
+                            class="h-48 w-full object-cover"
+                            loading="lazy"
+                        >
+                    {% else %}
+                        <div class="px-6 py-12 text-center">
+                            <span class="text-sm text-slate-400">
+                                No banner image assigned
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="px-5 py-4">
+                    <p class="text-sm text-slate-500">
+                        {% if category.banner_image %}
+                            Banner image assigned
+                        {% else %}
+                            Select an image from Edit Category
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="flex justify-end">
+            <a
+                href="{{ url_for('admin_experience_categories.edit', category_id=category.id) }}"
+                class="inline-flex items-center rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800"
+            >
+                Edit Category Media
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- Description -->
+    <div class="grid gap-6 lg:grid-cols-3">
+
+        <div class="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                Category Information
+            </h2>
+
+            {% if category.short_description %}
+                <p class="mt-5 font-medium text-slate-700">
+                    {{ category.short_description }}
+                </p>
+            {% endif %}
+
+            {% if category.description %}
+                <div class="mt-4 whitespace-pre-line text-sm leading-7 text-slate-600">
+                    {{ category.description }}
+                </div>
+            {% else %}
+                <p class="mt-5 text-sm text-slate-400">
+                    No detailed description has been added.
+                </p>
+            {% endif %}
+
+        </div>
+
+
+        <!-- Actions -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                Category Controls
+            </h2>
+
+            <div class="mt-5 space-y-3">
+
+                {% if category.active %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_experience_categories.deactivate', category_id=category.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700 hover:bg-amber-100"
+                        >
+                            Deactivate Category
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_experience_categories.activate', category_id=category.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+                        >
+                            Activate Category
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                {% if category.featured %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_experience_categories.unfeature', category_id=category.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                            Remove Featured Status
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_experience_categories.feature', category_id=category.id) }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white hover:bg-amber-600"
+                        >
+                            Feature Category
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('admin_experience_categories.delete', category_id=category.id) }}"
+                    onsubmit="return confirm('Delete this category? This may also delete its associated experiences.');"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-100"
+                    >
+                        Delete Category
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Experiences -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+
+            <div>
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Experiences in this Category
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    Experiences currently assigned to {{ category.name }}.
+                </p>
+            </div>
+
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                {{ experiences|length }}
+            </span>
+
+        </div>
+
+
+        {% if experiences %}
+
+            <div class="divide-y divide-slate-100">
+
+                {% for experience in experiences %}
+
+                    <a
+                        href="#"
+                        class="flex items-center justify-between gap-4 px-6 py-5 transition hover:bg-slate-50"
+                    >
+
+                        <div>
+
+                            <p class="font-semibold text-slate-900">
+                                {{ experience.title }}
+                            </p>
+
+                            <p class="mt-1 text-xs text-slate-500">
+                                {{ experience.experience_code }}
+                            </p>
+
+                        </div>
+
+                        <div class="flex items-center gap-3">
+
+                            {% if experience.active %}
+                                <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                                    Inactive
+                                </span>
+                            {% endif %}
+
+                            <span class="text-slate-400">
+                                →
+                            </span>
+
+                        </div>
+
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="px-6 py-14 text-center">
+
+                <p class="text-sm text-slate-500">
+                    No experiences are currently assigned to this category.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

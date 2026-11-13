@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Search Journal{% if query %}: {{ query }}{% endif %} | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    Search travel stories, destination guides, safari advice, conservation stories,
+    and travel inspiration from {{ config.COMPANY_NAME }}.
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =========================================================================
+     Search Header
+     ========================================================================= -->
+
+<section class="border-b border-route-sand bg-route-cream">
+
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+
+        <p
+            class="
+                text-xs
+                font-bold
+                uppercase
+                tracking-[0.3em]
+                text-route-safari
+            "
+        >
+            The Journal
+        </p>
+
+        <h1
+            class="
+                mt-3
+                font-display
+                text-4xl
+                font-semibold
+                text-route-ink
+                sm:text-5xl
+            "
+        >
+            Search the Journal
+        </h1>
+
+        <form
+            method="GET"
+            action="{{ url_for('blog.search') }}"
+            class="mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row"
+        >
+
+            <label
+                for="search-query"
+                class="sr-only"
+            >
+                Search
+            </label>
+
+            <input
+                id="search-query"
+                name="q"
+                value="{{ query }}"
+                type="search"
+                placeholder="What are you looking for?"
+                class="
+                    w-full
+                    rounded-full
+                    border
+                    border-route-sand
+                    bg-white
+                    px-5
+                    py-3
+                    text-sm
+                    text-route-ink
+                    outline-none
+                    transition
+                    placeholder:text-route-muted
+                    focus:border-route-forest
+                    focus:ring-2
+                    focus:ring-route-forest/10
+                "
+            >
+
+            <button
+                type="submit"
+                class="
+                    rounded-full
+                    bg-route-forest
+                    px-7
+                    py-3
+                    text-sm
+                    font-semibold
+                    text-white
+                    shadow-route
+                    transition
+                    hover:bg-route-deep
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-route-gold
+                    focus:ring-offset-2
+                "
+            >
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     Search Results
+     ========================================================================= -->
+
+<section class="bg-white">
+
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+
+        {% if query %}
+
+            <div class="mb-10">
+
+                <p class="text-sm text-route-muted">
+                    Search results for
+                </p>
+
+                <h2
+                    class="
+                        mt-1
+                        font-display
+                        text-2xl
+                        font-semibold
+                        text-route-ink
+                    "
+                >
+                    “{{ query }}”
+                </h2>
+
+                <p class="mt-2 text-sm text-route-muted">
+                    {{ posts|length }}
+                    result{% if posts|length != 1 %}s{% endif %}
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if posts %}
+
+            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for post in posts %}
+
+                    <article
+                        class="
+                            group
+                            overflow-hidden
+                            rounded-route
+                            border
+                            border-route-sand
+                            bg-white
+                            shadow-sm
+                            transition
+                            hover:-translate-y-1
+                            hover:shadow-route-lg
+                        "
+                    >
+
+                        {% if post.featured_image %}
+
+                            <a
+                                href="{{ url_for('blog.detail', slug=post.slug) }}"
+                                class="block"
+                            >
+
+                                <div
+                                    class="
+                                        aspect-[16/10]
+                                        overflow-hidden
+                                        bg-route-sand
+                                    "
+                                >
+
+                                    <img
+                                        src="{{ url_for('static', filename=post.featured_image) }}"
+                                        alt="{{ post.featured_image_alt or post.title }}"
+                                        class="
+                                            h-full
+                                            w-full
+                                            object-cover
+                                            transition
+                                            duration-500
+                                            group-hover:scale-105
+                                        "
+                                    >
+
+                                </div>
+
+                            </a>
+
+                        {% endif %}
+
+
+                        <div class="p-6">
+
+                            {% if post.category %}
+
+                                <a
+                                    href="{{ url_for('blog.category', slug=post.category.slug) }}"
+                                    class="
+                                        text-xs
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.2em]
+                                        text-route-safari
+                                        transition
+                                        hover:text-route-forest
+                                    "
+                                >
+                                    {{ post.category.name }}
+                                </a>
+
+                            {% endif %}
+
+
+                            <h3
+                                class="
+                                    mt-3
+                                    font-display
+                                    text-xl
+                                    font-semibold
+                                    leading-snug
+                                    text-route-ink
+                                "
+                            >
+
+                                <a
+                                    href="{{ url_for('blog.detail', slug=post.slug) }}"
+                                    class="
+                                        transition
+                                        hover:text-route-forest
+                                    "
+                                >
+                                    {{ post.title }}
+                                </a>
+
+                            </h3>
+
+
+                            {% if post.excerpt %}
+
+                                <p
+                                    class="
+                                        mt-3
+                                        line-clamp-3
+                                        text-sm
+                                        leading-6
+                                        text-route-muted
+                                    "
+                                >
+                                    {{ post.excerpt }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <div class="mt-5 text-xs text-route-muted">
+                                {{ post.reading_time_text }}
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+        {% elif query %}
+
+            <div
+                class="
+                    rounded-route
+                    border
+                    border-dashed
+                    border-route-sand
+                    bg-route-cream
+                    p-12
+                    text-center
+                "
+            >
+
+                <div class="mx-auto max-w-xl">
+
+                    <div
+                        class="
+                            mx-auto
+                            flex
+                            h-14
+                            w-14
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-route-sand
+                            text-route-forest
+                        "
+                        aria-hidden="true"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            class="h-6 w-6"
+                        >
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="7"
+                            />
+                            <path
+                                d="m20 20-4-4"
+                            />
+                        </svg>
+                    </div>
+
+
+                    <h2
+                        class="
+                            mt-5
+                            font-display
+                            text-2xl
+                            font-semibold
+                            text-route-ink
+                        "
+                    >
+                        No stories found.
+                    </h2>
+
+                    <p class="mt-3 text-route-muted">
+                        We couldn't find a published article matching
+                        “{{ query }}”.
+                    </p>
+
+                    <a
+                        href="{{ url_for('blog.index') }}"
+                        class="
+                            mt-6
+                            inline-flex
+                            items-center
+                            rounded-full
+                            bg-route-forest
+                            px-6
+                            py-3
+                            text-sm
+                            font-semibold
+                            text-white
+                            shadow-route
+                            transition
+                            hover:bg-route-deep
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-route-gold
+                            focus:ring-offset-2
+                        "
+                    >
+                        Browse the Journal
+
+                        <span
+                            aria-hidden="true"
+                            class="ml-2"
+                        >
+                            →
+                        </span>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+        {% else %}
+
+            <div
+                class="
+                    rounded-route
+                    border
+                    border-route-sand
+                    bg-route-cream
+                    p-12
+                    text-center
+                "
+            >
+
+                <div class="mx-auto max-w-xl">
+
+                    <div
+                        class="
+                            mx-auto
+                            flex
+                            h-14
+                            w-14
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-route-sand
+                            text-route-forest
+                        "
+                        aria-hidden="true"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            class="h-6 w-6"
+                        >
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="7"
+                            />
+                            <path
+                                d="m20 20-4-4"
+                            />
+                        </svg>
+                    </div>
+
+
+                    <h2
+                        class="
+                            mt-5
+                            font-display
+                            text-2xl
+                            font-semibold
+                            text-route-ink
+                        "
+                    >
+                        Search our stories.
+                    </h2>
+
+                    <p class="mt-3 text-route-muted">
+                        Search by destination, safari, wildlife, travel,
+                        culture, photography, or anything else you're
+                        curious about.
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

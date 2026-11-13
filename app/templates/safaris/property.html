@@ -1,0 +1,1719 @@
+{% extends "base.html" %}
+
+{% block title %}{{ property.name }} | {{ destination.name }} Safari | The Uncharted Route{% endblock %}
+
+{% block content %}
+
+{# ============================================================
+   THE UNCHARTED ROUTE — SAFARI PROPERTY DETAIL
+   Editorial layout · Forest green · Ivory · Sand · Gold
+============================================================ #}
+
+{% set booking_enabled = booking_enabled|default(false) %}
+{% set online_payment_enabled = online_payment_enabled|default(false) %}
+{% set property_image = namespace(url=none, alt=property.name) %}
+
+{% if gallery %}
+    {% for item in gallery %}
+        {% if not property_image.url and item.media_asset and item.media_asset.browser_url %}
+            {% set property_image.url = item.media_asset.browser_url %}
+            {% set property_image.alt = item.alt_text or item.caption or property.name %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+
+{# ============================================================
+   BREADCRUMB
+============================================================ #}
+
+<section class="bg-[#F7F1E5]">
+    <div class="mx-auto max-w-[1600px] px-5 py-5 sm:px-8 lg:px-12">
+        <nav aria-label="Breadcrumb"
+             class="flex flex-wrap items-center gap-2 text-xs tracking-wide text-[#66736B] sm:text-sm">
+
+            <a href="{{ url_for('safaris.index') }}"
+               class="transition hover:text-[#12372A]">
+                Safaris
+            </a>
+
+            <span aria-hidden="true">/</span>
+
+            <a href="{{ url_for('safaris.destination_detail', slug=destination.slug) }}"
+               class="transition hover:text-[#12372A]">
+                {{ destination.name }}
+            </a>
+
+            <span aria-hidden="true">/</span>
+
+            <span class="font-medium text-[#1C2822]" aria-current="page">
+                {{ property.name }}
+            </span>
+        </nav>
+    </div>
+</section>
+
+{% include "safaris/_messages.html" %}
+
+
+{# ============================================================
+   PROPERTY INTRODUCTION
+============================================================ #}
+
+<section class="overflow-hidden bg-[#F7F1E5]">
+    <div class="mx-auto max-w-[1600px] px-5 pb-12 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
+
+        <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+
+            <div class="py-3 lg:py-10">
+
+                <p class="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5C6B32]">
+                    <span class="h-px w-9 bg-[#D89B24]"></span>
+                    {{ destination.name }}
+
+                    {% if property.property_type %}
+                        <span class="text-[#66736B]">·</span>
+                        {{ property.property_type|replace('_', ' ')|title }}
+                    {% endif %}
+                </p>
+
+                <h1 class="max-w-3xl font-serif text-4xl font-medium leading-[1.08] tracking-tight text-[#12372A] sm:text-5xl lg:text-6xl xl:text-7xl">
+                    {{ property.name }}
+                </h1>
+
+                {% if property.short_description %}
+                    <p class="mt-7 max-w-2xl text-base leading-8 text-[#66736B] sm:text-lg sm:leading-9">
+                        {{ property.short_description }}
+                    </p>
+                {% elif property.overview %}
+                    <p class="mt-7 max-w-2xl text-base leading-8 text-[#66736B] sm:text-lg sm:leading-9">
+                        {{ property.overview|striptags|truncate(280, true, '…') }}
+                    </p>
+                {% endif %}
+
+                {% if property.location_description or property.location_name %}
+                    <p class="mt-5 flex items-start gap-3 text-sm leading-7 text-[#66736B]">
+                        <span class="mt-1 text-[#C96A2C]" aria-hidden="true">⌖</span>
+                        <span>
+                            <strong class="font-semibold text-[#1C2822]">Where you'll find it</strong><br>
+                            {{ property.location_description or property.location_name }}
+                        </span>
+                    </p>
+                {% endif %}
+
+                <div class="mt-8 flex flex-wrap gap-3">
+
+                    <a href="#choose-safari"
+                       class="inline-flex min-h-12 items-center justify-center bg-[#12372A] px-6 py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-[#1F5138]">
+                        Explore safari options
+                        <span class="ml-3" aria-hidden="true">↗</span>
+                    </a>
+
+                    {% if booking_enabled and packages %}
+                        <a href="{{ url_for(
+                            'safaris.booking_form',
+                            slug=property.slug,
+                            package_option_id=selected_option.id if selected_option else none,
+                            rate_id=selected_rate.id if selected_rate else none,
+                            currency=selected_currency
+                        ) }}"
+                           class="inline-flex min-h-12 items-center justify-center border border-[#12372A]/25 px-6 py-3 text-sm font-semibold tracking-wide text-[#12372A] transition hover:border-[#12372A] hover:bg-white/60">
+                            Start booking request
+                        </a>
+                    {% else %}
+                        <a href="#send-inquiry"
+                           class="inline-flex min-h-12 items-center justify-center border border-[#12372A]/25 px-6 py-3 text-sm font-semibold tracking-wide text-[#12372A] transition hover:border-[#12372A] hover:bg-white/60">
+                            Enquire about this stay
+                        </a>
+                    {% endif %}
+
+                </div>
+
+                <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-[#12372A]/10 pt-5 text-xs tracking-wide text-[#66736B]">
+                    <span>Thoughtfully planned journeys</span>
+                    <span class="text-[#D89B24]" aria-hidden="true">✳</span>
+                    <span>Personalised to your travel plans</span>
+                </div>
+
+            </div>
+
+            <div class="relative">
+                {% if property_image.url %}
+                    <div class="relative aspect-[4/5] overflow-hidden bg-[#E9DDC8] sm:aspect-[5/4] lg:aspect-[4/5]">
+                        <img src="{{ property_image.url }}"
+                             alt="{{ property_image.alt }}"
+                             fetchpriority="high"
+                             class="absolute inset-0 h-full w-full object-cover">
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#12372A]/45 via-transparent to-transparent"></div>
+
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
+                                Your next chapter begins here
+                            </p>
+
+                            <p class="mt-2 max-w-md font-serif text-2xl leading-snug text-white sm:text-3xl">
+                                Discover a different side of {{ destination.name }}.
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="flex aspect-[4/5] items-end bg-[#12372A] p-8 sm:aspect-[5/4] sm:p-12 lg:aspect-[4/5]">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#D89B24]">
+                                The Uncharted Route
+                            </p>
+
+                            <h2 class="mt-4 max-w-lg font-serif text-4xl leading-tight text-white sm:text-5xl">
+                                The journey is yours to shape.
+                            </h2>
+
+                            <p class="mt-5 max-w-md leading-7 text-white/70">
+                                Explore the stay, discover your options and let us help you plan the details.
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ============================================================
+   PLAN YOUR STAY
+============================================================ #}
+
+<section class="bg-white py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+
+        <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+
+            <div class="max-w-xl">
+                <p class="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#C96A2C]">
+                    A safari, your way
+                </p>
+
+                <h2 class="font-serif text-3xl leading-tight text-[#12372A] sm:text-4xl lg:text-5xl">
+                    Not just where you stay. How you experience it.
+                </h2>
+
+                <p class="mt-6 leading-8 text-[#66736B]">
+                    Every journey has its own rhythm. Choose the duration that suits you,
+                    explore what's included, and review the available rates before contacting us.
+                </p>
+
+                <a href="#choose-safari"
+                   class="mt-7 inline-flex items-center gap-3 text-sm font-semibold text-[#12372A] transition hover:text-[#C96A2C]">
+                    Find your safari <span aria-hidden="true">↓</span>
+                </a>
+            </div>
+
+            <div class="rounded-sm bg-[#F7F1E5] p-6 sm:p-9 lg:p-10">
+
+                {% set planning_steps = [
+                    ('01', 'Choose your duration', 'Compare the available safari packages and find a pace that works for your trip.'),
+                    ('02', 'Explore the details', 'Review the itinerary, inclusions, exclusions, transport details and listed rates.'),
+                    ('03', 'Let’s make it happen', 'Tell us your dates and group details. We’ll review your request and help clarify the next steps.')
+                ] %}
+
+                {% for number, heading, description in planning_steps %}
+                    {% if not loop.first %}
+                        <div class="my-6 border-t border-[#12372A]/10"></div>
+                    {% endif %}
+
+                    <div class="flex items-start gap-4">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-[#12372A] font-serif text-xl text-[#D89B24]">
+                            {{ number }}
+                        </span>
+
+                        <div>
+                            <h3 class="font-serif text-xl text-[#12372A]">{{ heading }}</h3>
+                            <p class="mt-2 text-sm leading-7 text-[#66736B]">{{ description }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% if packages %}
+                    <div class="mt-8 border-t border-[#12372A]/10 pt-6">
+                        <p class="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#66736B]">
+                            Available durations
+                        </p>
+
+                        <div class="space-y-2">
+                            {% for package in packages %}
+                                <a href="{{ url_for(
+                                    'safaris.property_detail',
+                                    slug=property.slug,
+                                    package_option_id=package.id,
+                                    currency=selected_currency
+                                ) }}#choose-safari"
+                                   class="group flex items-center justify-between gap-4 border border-[#12372A]/10 bg-white p-4 transition hover:border-[#5C6B32]">
+
+                                    <span>
+                                        <span class="block font-semibold text-[#12372A]">{{ package.name }}</span>
+                                        <span class="mt-1 block text-sm text-[#66736B]">
+                                            {{ package.duration_days }} days · {{ package.duration_nights }} nights
+                                        </span>
+                                    </span>
+
+                                    <span class="text-xl text-[#C96A2C] transition group-hover:translate-x-1" aria-hidden="true">→</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="mt-7 border-t border-[#12372A]/10 pt-5 text-sm leading-7 text-[#66736B]">
+                        Duration options are being prepared for this property. You can still send an enquiry
+                        and we'll help you explore the possibilities.
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ============================================================
+   PROPERTY GALLERY
+============================================================ #}
+
+{% if gallery %}
+<section class="bg-[#F7F1E5] py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+
+        <div class="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+                <p class="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#C96A2C]">
+                    A closer look
+                </p>
+
+                <h2 class="font-serif text-3xl text-[#12372A] sm:text-4xl lg:text-5xl">
+                    Picture yourself here.
+                </h2>
+            </div>
+
+            <p class="max-w-md text-sm leading-7 text-[#66736B]">
+                A glimpse of the spaces, surroundings and moments that make this stay distinctive.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            {% for item in gallery %}
+                {% if item.media_asset and item.media_asset.browser_url %}
+                    <figure class="group relative overflow-hidden bg-[#E9DDC8]
+                        {% if loop.first %}col-span-2 row-span-2 min-h-[300px] md:min-h-[520px]{% else %}min-h-[160px] md:min-h-[250px]{% endif %}">
+
+                        <img src="{{ item.media_asset.browser_url }}"
+                             alt="{{ item.alt_text or item.caption or property.name }}"
+                             loading="lazy"
+                             class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]">
+
+                        {% if item.caption %}
+                            <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#12372A]/85 to-transparent px-4 pb-4 pt-12 text-sm leading-6 text-white">
+                                {{ item.caption }}
+                            </figcaption>
+                        {% endif %}
+                    </figure>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+{% endif %}
+
+
+{# ============================================================
+   PROPERTY STORY AND INFORMATION
+============================================================ #}
+
+<section class="bg-white py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+
+        <div class="grid gap-12 lg:grid-cols-[1fr_360px] lg:gap-20">
+
+            <div class="min-w-0 space-y-12">
+
+                {% if property.overview %}
+                    <section>
+                        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#C96A2C]">
+                            Get to know the property
+                        </p>
+
+                        <h2 class="font-serif text-3xl text-[#12372A] sm:text-4xl">
+                            The property
+                        </h2>
+
+                        <div class="mt-6 whitespace-pre-line text-base leading-8 text-[#66736B]">
+                            {{ property.overview }}
+                        </div>
+                    </section>
+                {% endif %}
+
+                {% if property.property_story %}
+                    <section class="border-t border-[#12372A]/10 pt-9">
+                        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5C6B32]">
+                            More than a place to stay
+                        </p>
+
+                        <h2 class="font-serif text-3xl text-[#12372A]">
+                            The story behind the stay
+                        </h2>
+
+                        <div class="mt-5 whitespace-pre-line text-base leading-8 text-[#66736B]">
+                            {{ property.property_story }}
+                        </div>
+                    </section>
+                {% endif %}
+
+                {% set property_sections = [
+                    ('accommodation_details', 'Accommodation'),
+                    ('activities', 'Activities & experiences'),
+                    ('wildlife_experience', 'Wildlife experience'),
+                    ('facilities', 'Facilities'),
+                    ('dining_information', 'Dining & meals'),
+                    ('transport_information', 'Getting there')
+                ] %}
+
+                {% for field, heading in property_sections %}
+                    {% if property[field] %}
+                        <section class="border-t border-[#12372A]/10 pt-9
+                            {% if field == 'wildlife_experience' %}border-0 bg-[#F7F1E5] p-6 sm:p-9{% endif %}">
+
+                            {% if field == 'wildlife_experience' %}
+                                <p class="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#C96A2C]">
+                                    Out in the wild
+                                </p>
+                            {% endif %}
+
+                            <h2 class="font-serif text-2xl text-[#12372A] sm:text-3xl">
+                                {{ heading }}
+                            </h2>
+
+                            <div class="mt-4 whitespace-pre-line leading-8 text-[#66736B]">
+                                {{ property[field] }}
+                            </div>
+                        </section>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+
+            <aside class="lg:sticky lg:top-8 lg:self-start">
+                <div class="border border-[#12372A]/10 bg-[#F7F1E5] p-6 sm:p-8">
+
+                    <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#C96A2C]">
+                        Before you travel
+                    </p>
+
+                    <h2 class="font-serif text-2xl text-[#12372A]">
+                        Guest information
+                    </h2>
+
+                    {% set guest_sections = [
+                        ('check_in_information', 'Check-in'),
+                        ('check_out_information', 'Check-out'),
+                        ('child_policy', 'Children'),
+                        ('accessibility_information', 'Accessibility'),
+                        ('booking_conditions', 'Booking conditions')
+                    ] %}
+
+                    {% for field, heading in guest_sections %}
+                        {% if property[field] %}
+                            <div class="mt-5 border-t border-[#12372A]/10 pt-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.12em] text-[#66736B]">
+                                    {{ heading }}
+                                </p>
+
+                                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-[#1C2822]">
+                                    {{ property[field] }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if property.official_website %}
+                        <a href="{{ property.official_website }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="mt-7 inline-flex items-center gap-2 border-b border-[#D89B24] pb-1 text-sm font-semibold text-[#12372A] transition hover:text-[#C96A2C]">
+                            Visit property website <span aria-hidden="true">↗</span>
+                        </a>
+                    {% endif %}
+
+                    {% if booking_enabled and selected_option %}
+                        <a href="{{ url_for(
+                            'safaris.booking_form',
+                            slug=property.slug,
+                            package_option_id=selected_option.id,
+                            rate_id=selected_rate.id if selected_rate else none,
+                            currency=selected_currency
+                        ) }}"
+                           class="mt-7 flex min-h-12 w-full items-center justify-center bg-[#12372A] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                            Book this safari
+                        </a>
+                    {% else %}
+                        <a href="#send-inquiry"
+                           class="mt-7 flex min-h-12 w-full items-center justify-center bg-[#12372A] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                            Ask us about this stay
+                        </a>
+                    {% endif %}
+
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+
+{# ============================================================
+   PACKAGE, ITINERARY AND RATES
+============================================================ #}
+
+<section id="choose-safari"
+         class="scroll-mt-8 bg-[#F7F1E5] py-16 sm:py-20 lg:py-24">
+
+    <div class="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+
+        <div class="max-w-3xl">
+            <p class="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#C96A2C]">
+                Build your safari
+            </p>
+
+            <h2 class="font-serif text-3xl leading-tight text-[#12372A] sm:text-4xl lg:text-5xl">
+                Choose the journey that feels right.
+            </h2>
+
+            <p class="mt-5 leading-8 text-[#66736B]">
+                Compare durations, explore the daily itinerary and review the listed rates.
+                Final arrangements and pricing are confirmed after we review your travel dates,
+                party size and requirements.
+            </p>
+        </div>
+
+
+        {# ========================================================
+           CURRENCY / PACKAGE CONTROLS
+
+           Currency is changed through AJAX.
+           The page itself does not reload.
+        ======================================================== #}
+
+        <div class="mt-9 grid gap-5 border border-[#12372A]/10 bg-white p-5 sm:p-7 md:grid-cols-[1fr_0.5fr_auto] md:items-end">
+
+            <div>
+                <label for="package_option_id"
+                       class="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-[#66736B]">
+                    Safari duration
+                </label>
+
+                <select id="package_option_id"
+                        name="package_option_id"
+                        class="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]"
+                        {% if not packages %}disabled{% endif %}>
+
+                    {% for package in packages %}
+                        <option value="{{ package.id }}"
+                                {% if selected_option and selected_option.id == package.id %}selected{% endif %}>
+                            {{ package.name }} — {{ package.duration_days }} days / {{ package.duration_nights }} nights
+                        </option>
+                    {% endfor %}
+
+                    {% if not packages %}
+                        <option value="">No durations currently listed</option>
+                    {% endif %}
+                </select>
+            </div>
+
+
+            <div>
+                <label for="currency"
+                       class="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-[#66736B]">
+                    Display currency
+                </label>
+
+                <select id="currency"
+                        name="currency"
+                        class="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]"
+                        {% if not packages %}disabled{% endif %}>
+
+                    {% for currency in ['KES', 'USD', 'EUR', 'GBP', 'UGX', 'TZS', 'ZAR', 'NGN', 'GHS'] %}
+                        <option value="{{ currency }}"
+                                {% if selected_currency == currency %}selected{% endif %}>
+                            {{ currency }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div>
+                <button type="button"
+                        id="currency-loading-button"
+                        class="inline-flex min-h-12 w-full items-center justify-center bg-[#12372A] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138] md:w-auto"
+                        {% if not packages %}disabled{% endif %}>
+                    <span id="currency-loading-label">
+                        Update safari
+                    </span>
+                </button>
+            </div>
+
+        </div>
+
+
+        {# ========================================================
+           AJAX-UPDATED CURRENCY CONTENT
+        ======================================================== #}
+
+        <div id="currency-sensitive-content">
+
+            {% if selected_option %}
+
+                <div class="mt-10 grid items-start gap-8 xl:grid-cols-[0.78fr_1.22fr]">
+
+                    {# Selected package overview #}
+                    <div class="bg-white p-6 sm:p-9">
+
+                        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#C96A2C]">
+                            Your selected package
+                        </p>
+
+                        <h3 class="font-serif text-3xl leading-tight text-[#12372A]">
+                            {{ selected_option.name }}
+                        </h3>
+
+                        <p class="mt-3 text-sm font-medium text-[#5C6B32]">
+                            {{ selected_option.duration_days }} days
+                            <span class="mx-1 text-[#D89B24]">·</span>
+                            {{ selected_option.duration_nights }} nights
+                        </p>
+
+                        {% if selected_option.summary %}
+                            <p class="mt-6 leading-8 text-[#66736B]">
+                                {{ selected_option.summary }}
+                            </p>
+                        {% endif %}
+
+                        {% if selected_option.description %}
+                            <div class="mt-5 whitespace-pre-line text-sm leading-7 text-[#66736B]">
+                                {{ selected_option.description }}
+                            </div>
+                        {% endif %}
+
+                        {% set package_sections = [
+                            ('inclusions', "What's included"),
+                            ('exclusions', "What's not included"),
+                            ('transport_information', 'Transport'),
+                            ('meals_information', 'Meals'),
+                            ('important_information', 'A few important details')
+                        ] %}
+
+                        {% for field, heading in package_sections %}
+                            {% if selected_option[field] %}
+                                <div class="mt-6 border-t border-[#12372A]/10 pt-6
+                                    {% if field == 'important_information' %}border-l-4 border-l-[#D89B24] bg-[#F7F1E5] px-5 pb-5{% endif %}">
+
+                                    <h4 class="font-serif text-xl text-[#12372A]">
+                                        {{ heading }}
+                                    </h4>
+
+                                    <div class="mt-3 whitespace-pre-line text-sm leading-7 text-[#66736B]">
+                                        {{ selected_option[field] }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                    </div>
+
+
+                    {# Daily itinerary #}
+                    <div>
+                        <div class="mb-6">
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#C96A2C]">
+                                Day by day
+                            </p>
+
+                            <h3 class="font-serif text-3xl text-[#12372A] sm:text-4xl">
+                                Your itinerary
+                            </h3>
+
+                            <p class="mt-3 text-sm leading-7 text-[#66736B]">
+                                The planned rhythm of your safari, from mornings in the wild to evenings at your overnight stop.
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            {% for day in itinerary %}
+                                <article class="border border-[#12372A]/10 bg-white p-5 sm:p-7">
+
+                                    <div class="flex items-start gap-4">
+                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center bg-[#12372A] font-serif text-xl text-[#D89B24]">
+                                            {{ day.day_number }}
+                                        </div>
+
+                                        <div class="min-w-0 pt-1">
+                                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C96A2C]">
+                                                Day {{ day.day_number }}
+                                            </p>
+
+                                            <h4 class="mt-1 font-serif text-xl text-[#12372A] sm:text-2xl">
+                                                {{ day.title }}
+                                            </h4>
+                                        </div>
+                                    </div>
+
+                                    {% if day.description %}
+                                        <p class="mt-5 whitespace-pre-line text-sm leading-7 text-[#66736B]">
+                                            {{ day.description }}
+                                        </p>
+                                    {% endif %}
+
+                                    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                                        {% for field, heading in [
+                                            ('morning_activities', 'Morning'),
+                                            ('afternoon_activities', 'Afternoon'),
+                                            ('evening_activities', 'Evening'),
+                                            ('meals_included', 'Meals')
+                                        ] %}
+                                            {% if day[field] %}
+                                                <div class="bg-[#F7F1E5] p-4">
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#5C6B32]">
+                                                        {{ heading }}
+                                                    </p>
+
+                                                    <p class="mt-2 text-sm leading-6 text-[#1C2822]">
+                                                        {{ day[field] }}
+                                                    </p>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                                    {% if day.overnight_location %}
+                                        <p class="mt-5 text-sm leading-6 text-[#66736B]">
+                                            <strong class="text-[#12372A]">Overnight:</strong>
+                                            {{ day.overnight_location }}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if day.transport_details %}
+                                        <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                                            <strong class="text-[#12372A]">Transport:</strong>
+                                            {{ day.transport_details }}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if day.notes %}
+                                        <p class="mt-3 border-t border-[#12372A]/10 pt-3 text-sm leading-6 text-[#66736B]">
+                                            {{ day.notes }}
+                                        </p>
+                                    {% endif %}
+
+                                </article>
+                            {% else %}
+                                <div class="border border-dashed border-[#12372A]/20 bg-white p-8">
+                                    <h4 class="font-serif text-xl text-[#12372A]">
+                                        Your itinerary is being finalised.
+                                    </h4>
+
+                                    <p class="mt-3 text-sm leading-7 text-[#66736B]">
+                                        Send us an enquiry about this duration, and we'll help clarify the planned daily experience.
+                                    </p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+
+                {# ====================================================
+                   LISTED RATES
+                ==================================================== #}
+
+                <div id="rates-section"
+                     class="mt-16 border-t border-[#12372A]/10 pt-12 sm:mt-20 sm:pt-16">
+
+                    <div class="mb-8 max-w-2xl">
+                        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#C96A2C]">
+                            Know before you enquire
+                        </p>
+
+                        <h3 class="font-serif text-3xl text-[#12372A] sm:text-4xl">
+                            Available rates
+                        </h3>
+
+                        <p class="mt-4 leading-7 text-[#66736B]">
+                            Explore the available pricing options for your selected safari package.
+                            Prices are displayed in your chosen currency where conversion is available.
+                            Your final quotation depends on your travel dates, group size and requirements.
+                        </p>
+                    </div>
+
+
+                    {% if rates %}
+
+                        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+                            {% for rate in rates %}
+                                <article class="flex flex-col border border-[#12372A]/10 bg-white p-6 transition duration-300 hover:border-[#5C6B32]/40 hover:shadow-sm sm:p-7">
+
+                                    <div class="flex-1">
+
+                                        <div class="flex flex-wrap items-center justify-between gap-2">
+
+                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[#5C6B32]">
+                                                {{ rate.pricing_basis|replace('_', ' ')|title }}
+                                            </p>
+
+                                            {% if rate.conversion_available and rate.original_currency != rate.display_currency %}
+                                                <span class="inline-flex items-center border border-[#5C6B32]/20 bg-[#F7F1E5] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#5C6B32]">
+                                                    Converted
+                                                </span>
+                                            {% endif %}
+
+                                        </div>
+
+                                        <h4 class="mt-3 font-serif text-xl text-[#12372A]">
+                                            {{ rate.name }}
+                                        </h4>
+
+                                        <p class="mt-5 font-serif text-3xl leading-tight text-[#12372A] sm:text-4xl">
+
+                                            <span class="text-sm font-sans font-semibold text-[#66736B]">
+                                                {{ rate.display_currency }}
+                                            </span>
+
+                                            {{ '{:,.2f}'.format(rate.display_amount|float) }}
+
+                                        </p>
+
+
+                                        {% if not rate.conversion_available %}
+
+                                            <p class="mt-2 text-xs leading-5 text-[#C96A2C]">
+                                                Displayed in the original supplier currency because conversion is temporarily unavailable.
+                                            </p>
+
+                                        {% elif rate.original_currency != rate.display_currency %}
+
+                                            <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                                                Original supplier rate:
+                                                {{ rate.original_currency }}
+                                                {{ '{:,.2f}'.format(rate.original_amount|float) }}
+                                            </p>
+
+                                        {% endif %}
+
+
+                                        <p class="mt-3 text-sm text-[#66736B]">
+
+                                            {{ rate.guest_category|replace('_', ' ')|title }}
+
+                                            {% if rate.occupancy_type and rate.occupancy_type != 'any' %}
+                                                <span class="text-[#D89B24]">·</span>
+                                                {{ rate.occupancy_type|replace('_', ' ')|title }}
+                                            {% endif %}
+
+                                        </p>
+
+
+                                        {% if rate.season_name %}
+                                            <p class="mt-4 text-xs leading-5 text-[#66736B]">
+                                                <strong class="text-[#12372A]">Season:</strong>
+                                                {{ rate.season_name }}
+                                            </p>
+                                        {% endif %}
+
+
+                                        {% if rate.valid_from or rate.valid_to %}
+                                            <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                                                <strong class="text-[#12372A]">Validity:</strong>
+                                                {{ rate.valid_from or 'No start date' }} – {{ rate.valid_to or 'No end date' }}
+                                            </p>
+                                        {% endif %}
+
+
+                                        {% if rate.rate_notes %}
+                                            <p class="mt-4 border-t border-[#12372A]/10 pt-4 text-sm leading-7 text-[#66736B]">
+                                                {{ rate.rate_notes }}
+                                            </p>
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    {% if booking_enabled %}
+
+                                        <a href="{{ url_for(
+                                            'safaris.booking_form',
+                                            slug=property.slug,
+                                            package_option_id=selected_option.id,
+                                            rate_id=rate.id,
+                                            currency=selected_currency
+                                        ) }}"
+                                           class="mt-6 inline-flex min-h-11 items-center justify-center bg-[#12372A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                                            Book this rate
+                                        </a>
+
+                                    {% else %}
+
+                                        <a href="{{ url_for(
+                                            'safaris.property_detail',
+                                            slug=property.slug,
+                                            package_option_id=selected_option.id,
+                                            rate_id=rate.id,
+                                            currency=selected_currency
+                                        ) }}#send-inquiry"
+                                           class="mt-6 inline-flex min-h-11 items-center justify-center border border-[#12372A]/20 px-4 py-3 text-sm font-semibold text-[#12372A] transition hover:border-[#12372A] hover:bg-[#F7F1E5]">
+                                            Enquire about this rate
+                                        </a>
+
+                                    {% endif %}
+
+                                </article>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="mt-5 max-w-4xl space-y-2 text-xs leading-6 text-[#66736B]">
+
+                            <p>
+                                Displayed conversions are indicative and use the latest available exchange-rate data.
+                                Converted amounts may change as exchange rates are updated. Your original supplier rate
+                                is not changed by currency conversion.
+                            </p>
+
+                            <p>
+                                Listed rates do not guarantee live availability or a final total for every party.
+                                The Uncharted Route confirms the final quotation after reviewing your dates,
+                                group size and requirements.
+                            </p>
+
+                            {% if conversion_info and conversion_info.updated_at %}
+                                <p>
+                                    Exchange rates last updated: {{ conversion_info.updated_at }}.
+
+                                    {% if conversion_info.stale %}
+                                        Previously retrieved exchange-rate data is being used.
+                                    {% endif %}
+
+                                    Rates provided by
+                                    <a href="https://www.exchangerate-api.com/"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="font-semibold underline underline-offset-2 hover:text-[#12372A]">
+                                        ExchangeRate-API
+                                    </a>.
+                                </p>
+                            {% endif %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="border border-dashed border-[#12372A]/20 bg-white p-7 sm:p-9">
+
+                            <h4 class="font-serif text-2xl text-[#12372A]">
+                                Let's work out the right rate for you.
+                            </h4>
+
+                            <p class="mt-3 max-w-2xl text-sm leading-7 text-[#66736B]">
+                                No active supplier rate is currently listed for this package and travel period.
+                                Send us your travel details and we'll help you request a tailored quotation.
+                            </p>
+
+                            <a href="#send-inquiry"
+                               class="mt-5 inline-flex items-center gap-3 text-sm font-semibold text-[#12372A] hover:text-[#C96A2C]">
+                                Request a quotation <span aria-hidden="true">→</span>
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% else %}
+
+                <div class="mt-9 border border-dashed border-[#12372A]/20 bg-white p-8 sm:p-10">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#C96A2C]">
+                        Your safari starts with a conversation
+                    </p>
+
+                    <h3 class="mt-3 font-serif text-2xl text-[#12372A] sm:text-3xl">
+                        Duration options are being prepared.
+                    </h3>
+
+                    <p class="mt-4 max-w-2xl leading-7 text-[#66736B]">
+                        You can still enquire about this property. Tell us what you have in mind,
+                        and we'll help you explore the available possibilities.
+                    </p>
+
+                    <a href="#send-inquiry"
+                       class="mt-6 inline-flex min-h-12 items-center justify-center bg-[#12372A] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                        Enquire about this stay
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+</section>
+
+
+{# ============================================================
+   ENQUIRY FORM
+   Currency is inherited from the page-level currency selector.
+   There is intentionally NO second currency dropdown here.
+============================================================ #}
+
+<section id="send-inquiry"
+         class="scroll-mt-6 bg-[#12372A] py-16 text-white sm:py-20 lg:py-24">
+
+    <div class="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+
+        <div class="grid items-start gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20">
+
+            <div class="lg:sticky lg:top-8">
+
+                <p class="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#D89B24]">
+                    <span class="h-px w-9 bg-[#D89B24]"></span>
+                    Your journey begins here
+                </p>
+
+                <h2 class="max-w-xl font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
+                    Let's plan something worth remembering.
+                </h2>
+
+                <p class="mt-6 max-w-lg leading-8 text-white/70">
+                    Share a few details about your plans. We'll use your request to understand
+                    your dates, your group and the kind of experience you're looking for.
+                </p>
+
+
+                <div class="mt-9 border border-white/15 bg-white/5 p-6 sm:p-7">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#D89B24]">
+                        Your selected stay
+                    </p>
+
+                    <h3 class="mt-3 font-serif text-2xl">
+                        {{ property.name }}
+                    </h3>
+
+                    <p class="mt-2 text-sm text-white/65">
+                        {{ destination.name }}
+                    </p>
+
+
+                    {% if selected_option %}
+
+                        <div class="mt-5 border-t border-white/15 pt-5">
+
+                            <p class="text-xs uppercase tracking-[0.14em] text-white/55">
+                                Selected duration
+                            </p>
+
+                            <p class="mt-2 font-medium text-white">
+                                {{ selected_option.name }}
+                            </p>
+
+                            <p class="mt-1 text-sm text-white/65">
+                                {{ selected_option.duration_days }} days · {{ selected_option.duration_nights }} nights
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if selected_rate %}
+
+                        <div id="inquiry-selected-rate"
+                             class="mt-5 border-t border-white/15 pt-5">
+
+                            <p class="text-xs uppercase tracking-[0.14em] text-white/55">
+                                Preferred rate
+                            </p>
+
+                            <p class="mt-2 font-medium text-white">
+                                {{ selected_rate.name }}
+                            </p>
+
+                            <p class="mt-1 text-sm text-white/65">
+                                {{ selected_rate.display_currency or selected_rate.original_currency or selected_rate.currency }}
+                                {{ '{:,.2f}'.format(
+                                    (
+                                        selected_rate.display_amount
+                                        if selected_rate.display_amount is defined
+                                        else (
+                                            selected_rate.original_amount
+                                            if selected_rate.original_amount is defined
+                                            else selected_rate.amount
+                                        )
+                                    )|float
+                                ) }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="mt-6 border-t border-white/15 pt-5">
+
+                        <p class="text-sm leading-7 text-white/70">
+                            This form submits an enquiry, not a confirmed reservation.
+                            We'll review your details and follow up with the next steps.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <form method="post"
+                  action="{{ url_for('safaris.property_detail', slug=property.slug) }}#send-inquiry"
+                  class="bg-white p-6 text-[#1C2822] shadow-2xl sm:p-8 lg:p-10">
+
+                {{ form.hidden_tag() }}
+
+
+                {% if selected_option %}
+                    <input type="hidden"
+                           name="package_option_id"
+                           value="{{ selected_option.id }}">
+                {% endif %}
+
+
+                {% if selected_rate %}
+                    <input type="hidden"
+                           name="rate_id"
+                           value="{{ selected_rate.id }}">
+                {% endif %}
+
+
+                {# The page-level currency selector controls this value. #}
+                {{ form.preferred_currency(
+                    type="hidden",
+                    id="preferred_currency"
+                ) }}
+
+
+                <div class="mb-8">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#C96A2C]">
+                        Tell us about your plans
+                    </p>
+
+                    <h3 class="mt-2 font-serif text-2xl text-[#12372A] sm:text-3xl">
+                        Your safari enquiry
+                    </h3>
+
+                    <p class="mt-3 text-sm leading-7 text-[#66736B]">
+                        Complete what you can. We'll help clarify the details with you.
+                    </p>
+
+                </div>
+
+
+                <div class="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+
+
+                    {% for name in ['full_name', 'email', 'phone'] %}
+
+                        <div class="{% if name == 'phone' %}sm:col-span-2{% endif %}">
+
+                            {{ form[name].label(
+                                class_="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form[name](
+                                class_="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#66736B]/60 focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]",
+                                autocomplete=('name' if name == 'full_name' else 'email' if name == 'email' else 'tel')
+                            ) }}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-2 text-sm text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endfor %}
+
+
+                    {% for name in ['preferred_start_date', 'preferred_end_date'] %}
+
+                        <div>
+
+                            {{ form[name].label(
+                                class_="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form[name](
+                                class_="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]"
+                            ) }}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-2 text-sm text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endfor %}
+
+
+                    {% for name in ['adults', 'children', 'infants'] %}
+
+                        <div>
+
+                            {{ form[name].label(
+                                class_="mb-2 block text-sm font-semibold text-[#1C2822]"
+                            ) }}
+
+                            {{ form[name](
+                                class_="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]",
+                                min=0
+                            ) }}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-2 text-sm text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endfor %}
+
+
+                    <div>
+
+                        {{ form.children_ages.label(
+                            class_="mb-2 block text-sm font-semibold text-[#1C2822]"
+                        ) }}
+
+                        {{ form.children_ages(
+                            class_="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#66736B]/60 focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]",
+                            placeholder="e.g. 5, 9"
+                        ) }}
+
+                        {% if form.children_ages.description %}
+                            <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                                {{ form.children_ages.description }}
+                            </p>
+                        {% endif %}
+
+                        {% for error in form.children_ages.errors %}
+                            <p class="mt-2 text-sm text-red-700">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+
+                    </div>
+
+
+                    {# ====================================================
+                       NO CURRENCY DROPDOWN HERE.
+
+                       The page-level currency selector controls the
+                       hidden preferred_currency field.
+                    ==================================================== #}
+
+
+                    {% if selected_option and rates %}
+
+                        <div class="sm:col-span-2">
+
+                            <label for="inquiry_rate_id"
+                                   class="mb-2 block text-sm font-semibold text-[#1C2822]">
+
+                                Rate preference
+
+                                <span class="font-normal text-[#66736B]">
+                                    (optional)
+                                </span>
+
+                            </label>
+
+
+                            <select id="inquiry_rate_id"
+                                    name="rate_id"
+                                    class="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]">
+
+                                <option value="">
+                                    Please advise me on the best rate
+                                </option>
+
+
+                                {% for rate in rates %}
+
+                                    <option value="{{ rate.id }}"
+                                            {% if selected_rate and selected_rate.id == rate.id %}selected{% endif %}>
+
+                                        {{ rate.name }} —
+                                        {{ rate.display_currency }}
+                                        {{ '{:,.2f}'.format(rate.display_amount|float) }}
+                                        ({{ rate.pricing_basis|replace('_', ' ')|title }})
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+
+                            <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                                This records your preference only. Availability and final pricing are confirmed separately.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="sm:col-span-2">
+
+                        {{ form.special_requests.label(
+                            class_="mb-2 block text-sm font-semibold text-[#1C2822]"
+                        ) }}
+
+                        {{ form.special_requests(
+                            class_="w-full border border-[#12372A]/15 bg-white px-4 py-3 text-sm leading-7 text-[#1C2822] outline-none transition placeholder:text-[#66736B]/60 focus:border-[#5C6B32] focus:ring-1 focus:ring-[#5C6B32]",
+                            rows=5,
+                            placeholder="Tell us about your interests, preferences, accessibility requirements or anything else we should consider."
+                        ) }}
+
+                        {% for error in form.special_requests.errors %}
+                            <p class="mt-2 text-sm text-red-700">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-7 border-t border-[#12372A]/10 pt-5">
+
+                    <p class="text-xs leading-6 text-[#66736B]">
+                        Sending this form submits an enquiry, not a confirmed booking.
+                        We'll review your details and follow up about availability, pricing and the next steps.
+                    </p>
+
+
+                    <button type="submit"
+                            class="mt-6 flex min-h-13 w-full items-center justify-center gap-3 bg-[#12372A] px-6 py-4 text-sm font-semibold tracking-wide text-white transition hover:bg-[#1F5138]">
+
+                        Send my safari enquiry
+
+                        <span aria-hidden="true">→</span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</section>
+
+
+{# ============================================================
+   CLOSING BRAND MOMENT
+============================================================ #}
+
+<section class="bg-[#E9DDC8] py-12 sm:py-16">
+
+    <div class="mx-auto flex max-w-[1600px] flex-col gap-5 px-5 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-12">
+
+        <div>
+
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#5C6B32]">
+                The Uncharted Route
+            </p>
+
+            <p class="mt-3 font-serif text-2xl leading-snug text-[#12372A] sm:text-3xl">
+                Explore. Experience. Remember.
+            </p>
+
+        </div>
+
+
+        <a href="{{ url_for('safaris.index') }}"
+           class="inline-flex min-h-11 items-center gap-3 self-start border-b border-[#D89B24] pb-2 text-sm font-semibold text-[#12372A] transition hover:text-[#C96A2C] md:self-center">
+
+            Explore more safaris
+
+            <span aria-hidden="true">→</span>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+{# ============================================================
+   AJAX CURRENCY SWITCHING
+============================================================ #}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const currencySelect = document.getElementById("currency");
+    const packageSelect = document.getElementById("package_option_id");
+    const updateButton = document.getElementById("currency-loading-button");
+    const updateLabel = document.getElementById("currency-loading-label");
+    const currencyContent = document.getElementById("currency-sensitive-content");
+    const preferredCurrencyInput = document.getElementById("preferred_currency");
+
+    if (!currencySelect || !packageSelect || !currencyContent) {
+        return;
+    }
+
+
+    let requestController = null;
+
+
+    function setLoadingState(isLoading) {
+
+        currencySelect.disabled = isLoading;
+        packageSelect.disabled = isLoading;
+
+        if (updateButton) {
+            updateButton.disabled = isLoading;
+        }
+
+        if (updateLabel) {
+            updateLabel.textContent = isLoading
+                ? "Updating rates…"
+                : "Update safari";
+        }
+
+        currencySelect.classList.toggle("opacity-60", isLoading);
+        packageSelect.classList.toggle("opacity-60", isLoading);
+
+    }
+
+
+    function buildCurrencyUrl() {
+
+        const url = new URL(
+            "{{ url_for('safaris.property_detail', slug=property.slug) }}",
+            window.location.origin
+        );
+
+        const packageId = packageSelect.value;
+        const currency = currencySelect.value;
+
+        if (packageId) {
+            url.searchParams.set("package_option_id", packageId);
+        }
+
+        if (currency) {
+            url.searchParams.set("currency", currency);
+        }
+
+        return url;
+
+    }
+
+
+    async function updateCurrency() {
+
+        const selectedCurrency = currencySelect.value;
+
+        if (preferredCurrencyInput) {
+            preferredCurrencyInput.value = selectedCurrency;
+        }
+
+        if (requestController) {
+            requestController.abort();
+        }
+
+        requestController = new AbortController();
+
+        setLoadingState(true);
+
+        const url = buildCurrencyUrl();
+
+        try {
+
+            const response = await fetch(url.toString(), {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "text/html"
+                },
+                signal: requestController.signal
+            });
+
+
+            if (!response.ok) {
+                throw new Error("Unable to update safari rates.");
+            }
+
+
+            const html = await response.text();
+
+            const parser = new DOMParser();
+            const returnedDocument = parser.parseFromString(
+                html,
+                "text/html"
+            );
+
+
+            const returnedCurrencyContent =
+                returnedDocument.getElementById(
+                    "currency-sensitive-content"
+                );
+
+
+            if (!returnedCurrencyContent) {
+                throw new Error(
+                    "Updated currency content could not be found."
+                );
+            }
+
+
+            currencyContent.innerHTML =
+                returnedCurrencyContent.innerHTML;
+
+
+            /*
+             * The server is authoritative for the selected currency.
+             * Synchronise the hidden inquiry field with it.
+             */
+            const returnedPreferredCurrency =
+                returnedDocument.getElementById(
+                    "preferred_currency"
+                );
+
+
+            if (preferredCurrencyInput) {
+
+                preferredCurrencyInput.value =
+                    returnedPreferredCurrency
+                        ? returnedPreferredCurrency.value
+                        : selectedCurrency;
+
+            }
+
+
+            /*
+             * Keep the browser URL in sync without reloading
+             * the page. This means refresh/back navigation still
+             * remembers the selected currency.
+             */
+            const cleanUrl = new URL(
+                window.location.href
+            );
+
+            cleanUrl.searchParams.set(
+                "currency",
+                selectedCurrency
+            );
+
+            if (packageSelect.value) {
+
+                cleanUrl.searchParams.set(
+                    "package_option_id",
+                    packageSelect.value
+                );
+
+            }
+
+            /*
+             * Do not preserve an old rate_id automatically.
+             * The displayed rates are now the authoritative
+             * rates for the selected currency.
+             */
+            cleanUrl.searchParams.delete("rate_id");
+
+            window.history.replaceState(
+                {},
+                "",
+                cleanUrl.toString()
+            );
+
+
+            /*
+             * Re-attach the rate-preference behaviour because
+             * the currency-sensitive content was replaced.
+             */
+            attachRatePreferenceHandler();
+
+
+        } catch (error) {
+
+            if (error.name === "AbortError") {
+                return;
+            }
+
+            console.error(
+                "Safari currency update failed:",
+                error
+            );
+
+            /*
+             * Restore the previous visible currency if the
+             * server request failed.
+             */
+            const currentCurrency =
+                preferredCurrencyInput
+                    ? preferredCurrencyInput.value
+                    : "{{ selected_currency }}";
+
+            currencySelect.value = currentCurrency;
+
+            alert(
+                "We could not update the safari rates right now. Please try again."
+            );
+
+        } finally {
+
+            setLoadingState(false);
+
+        }
+
+    }
+
+
+    function attachRatePreferenceHandler() {
+
+        const rateSelect =
+            document.getElementById(
+                "inquiry_rate_id"
+            );
+
+        if (!rateSelect) {
+            return;
+        }
+
+
+        rateSelect.addEventListener(
+            "change",
+            function () {
+
+                const selectedRateId =
+                    this.value;
+
+                /*
+                 * The rate preference is submitted with the
+                 * inquiry form. We do not need to reload the
+                 * page just because the visitor selected a rate.
+                 */
+                const hiddenRateInput =
+                    document.querySelector(
+                        'input[name="rate_id"]'
+                    );
+
+                if (hiddenRateInput) {
+                    hiddenRateInput.value =
+                        selectedRateId;
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Currency changes are intentionally AJAX-driven.
+     * The browser never performs a normal GET form submission.
+     */
+    currencySelect.addEventListener(
+        "change",
+        updateCurrency
+    );
+
+
+    /*
+     * Keep the button functional for keyboard users and
+     * visitors who prefer an explicit update action.
+     */
+    if (updateButton) {
+
+        updateButton.addEventListener(
+            "click",
+            function () {
+
+                updateCurrency();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * The duration selector changes the package, so that
+     * selection still requires the server to render the
+     * appropriate package, itinerary and rates.
+     *
+     * Currency remains preserved during that navigation.
+     */
+    packageSelect.addEventListener(
+        "change",
+        function () {
+
+            const url = new URL(
+                "{{ url_for('safaris.property_detail', slug=property.slug) }}",
+                window.location.origin
+            );
+
+            url.searchParams.set(
+                "package_option_id",
+                this.value
+            );
+
+            url.searchParams.set(
+                "currency",
+                currencySelect.value
+            );
+
+            window.location.href =
+                url.toString();
+
+        }
+    );
+
+
+    /*
+     * Ensure the initial hidden inquiry currency is correct.
+     */
+    if (preferredCurrencyInput) {
+
+        preferredCurrencyInput.value =
+            currencySelect.value;
+
+    }
+
+
+    attachRatePreferenceHandler();
+
+});
+</script>
+
+{% endblock %}

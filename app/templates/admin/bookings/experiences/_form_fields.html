@@ -1,0 +1,101 @@
+<div class="space-y-8">
+    {% macro field_error(field) %}
+        {% if field.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ field.errors[0] }}</p>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro input_field(field, type='text') %}
+    <div>
+        {{ field.label(class="mb-1.5 block text-sm font-medium text-slate-700") }}
+        {{ field(class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/10", type=type) }}
+        {{ field_error(field) }}
+    </div>
+    {% endmacro %}
+
+    <section>
+        <h2 class="text-base font-semibold text-slate-900">Customer information</h2>
+        <p class="mt-1 text-sm text-slate-500">The customer snapshot is stored on the central booking.</p>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{ input_field(form.first_name) }}
+            {{ input_field(form.last_name) }}
+            {{ input_field(form.email, 'email') }}
+            {{ input_field(form.phone, 'tel') }}
+            {{ input_field(form.nationality) }}
+            {{ input_field(form.country_of_residence) }}
+        </div>
+    </section>
+
+    <section class="border-t border-slate-100 pt-6">
+        <h2 class="text-base font-semibold text-slate-900">Experience and schedule</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{ input_field(form.experience_id) }}
+            {{ input_field(form.schedule_id) }}
+            {{ input_field(form.pricing_id) }}
+            {{ input_field(form.experience_date) }}
+            {{ input_field(form.start_date) }}
+            {{ input_field(form.end_date) }
+
+        </div>
+    </section>
+
+    <section class="border-t border-slate-100 pt-6">
+        <h2 class="text-base font-semibold text-slate-900">Travellers</h2>
+        <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
+            {{ input_field(form.adults) }}
+            {{ input_field(form.children) }}
+            {{ input_field(form.infants) }}
+            {{ input_field(form.seniors) }}
+            {{ input_field(form.students) }}
+        </div>
+    </section>
+
+    <section class="border-t border-slate-100 pt-6">
+        <h2 class="text-base font-semibold text-slate-900">Pricing</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{ input_field(form.price_basis) }}
+            {{ input_field(form.quantity) }}
+            {{ input_field(form.unit_price) }}
+            {{ input_field(form.currency) }}
+            {{ input_field(form.discount_amount) }}
+            {{ input_field(form.tax_amount) }}
+        </div>
+        <p class="mt-3 text-xs text-slate-500">
+            Pricing is saved as a snapshot so later catalogue price changes do not silently alter this booking.
+        </p>
+    </section>
+
+    <section class="border-t border-slate-100 pt-6">
+        <h2 class="text-base font-semibold text-slate-900">Pickup and experience instructions</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{ input_field(form.pickup_location) }}
+            {{ input_field(form.dropoff_location) }}
+            <div class="md:col-span-2">
+                {{ input_field(form.customer_instructions) }}
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-slate-100 pt-6">
+        <h2 class="text-base font-semibold text-slate-900">Requirements and emergency contact</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{ input_field(form.emergency_contact_name) }}
+            {{ input_field(form.emergency_contact_phone) }}
+            {{ input_field(form.emergency_contact_relationship) }}
+            {{ input_field(form.dietary_requirements) }}
+            {{ input_field(form.medical_information) }}
+            {{ input_field(form.accessibility_requirements) }}
+            {{ input_field(form.special_requests) }}
+        </div>
+    </section>
+
+    <section class="border-t border-slate-100 pt-6">
+        <h2 class="text-base font-semibold text-slate-900">Status and notes</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{ input_field(form.status) }}
+            {{ input_field(form.payment_status) }}
+            {{ input_field(form.customer_notes) }}
+            {{ input_field(form.internal_notes) }}
+        </div>
+    </section>
+</div>

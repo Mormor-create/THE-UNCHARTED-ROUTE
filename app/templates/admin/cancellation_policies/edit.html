@@ -1,0 +1,409 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit {{ policy.name }}{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-5xl space-y-8">
+
+    <!-- Header -->
+    <div>
+
+        <a
+            href="{{ url_for('admin_cancellation_policies.detail', policy_id=policy.id) }}"
+            class="text-sm font-medium text-emerald-700 hover:text-emerald-900"
+        >
+            ← Back to Policy
+        </a>
+
+        <div class="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+
+            <div>
+
+                <p class="text-sm font-medium text-slate-500">
+                    Cancellation Policy
+                </p>
+
+                <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+                    Edit {{ policy.name }}
+                </h1>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Update this reusable cancellation and refund policy.
+                </p>
+
+            </div>
+
+            {% if policy.default_policy %}
+
+                <span class="inline-flex w-fit rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                    Default Policy
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <form method="POST" class="space-y-8">
+
+        {{ form.hidden_tag() }}
+
+
+        <!-- Basic Information -->
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Basic Information
+                </h2>
+
+            </div>
+
+
+            <div class="grid gap-6 p-6 md:grid-cols-2">
+
+                <div>
+
+                    <label
+                        for="{{ form.name.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Policy Name
+                    </label>
+
+                    {{ form.name(
+                        class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    ) }}
+
+                    {% for error in form.name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="{{ form.slug.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Slug
+                    </label>
+
+                    {{ form.slug(
+                        class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    ) }}
+
+                    {% for error in form.slug.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="md:col-span-2">
+
+                    <label
+                        for="{{ form.short_description.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Short Description
+                    </label>
+
+                    {{ form.short_description(
+                        class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    ) }}
+
+                </div>
+
+
+                <div class="md:col-span-2">
+
+                    <label
+                        for="{{ form.full_policy.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Full Policy
+                    </label>
+
+                    {{ form.full_policy(
+                        rows="10",
+                        class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-7 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    ) }}
+
+                    {% for error in form.full_policy.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Refund Rules -->
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Refund Rules
+                </h2>
+
+            </div>
+
+
+            <div class="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-4">
+
+                <div>
+
+                    <label
+                        for="{{ form.full_refund_days.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Full Refund — Days
+                    </label>
+
+                    {{ form.full_refund_days(
+                        class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm"
+                    ) }}
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="{{ form.partial_refund_days.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Partial Refund — Days
+                    </label>
+
+                    {{ form.partial_refund_days(
+                        class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm"
+                    ) }}
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="{{ form.partial_refund_percentage.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Partial Refund %
+                    </label>
+
+                    {{ form.partial_refund_percentage(
+                        class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm"
+                    ) }}
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="{{ form.no_refund_days.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        No Refund — Days
+                    </label>
+
+                    {{ form.no_refund_days(
+                        class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm"
+                    ) }}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Booking Changes -->
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Booking Changes
+                </h2>
+
+            </div>
+
+
+            <div class="grid gap-4 p-6 md:grid-cols-3">
+
+                <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+
+                    {{ form.date_changes_allowed(
+                        class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600"
+                    ) }}
+
+                    <span class="text-sm">
+                        <strong class="block text-slate-800">
+                            Date Changes
+                        </strong>
+
+                        <span class="mt-1 block text-xs text-slate-500">
+                            Allow date changes.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+
+                    {{ form.name_changes_allowed(
+                        class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600"
+                    ) }}
+
+                    <span class="text-sm">
+                        <strong class="block text-slate-800">
+                            Name Changes
+                        </strong>
+
+                        <span class="mt-1 block text-xs text-slate-500">
+                            Allow guest name changes.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+
+                    {{ form.transferable_booking(
+                        class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600"
+                    ) }}
+
+                    <span class="text-sm">
+                        <strong class="block text-slate-800">
+                            Transferable
+                        </strong>
+
+                        <span class="mt-1 block text-xs text-slate-500">
+                            Allow booking transfers.
+                        </span>
+                    </span>
+
+                </label>
+
+            </div>
+
+        </section>
+
+
+        <!-- Notes -->
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Additional Settings
+                </h2>
+
+            </div>
+
+
+            <div class="space-y-6 p-6">
+
+                <div>
+
+                    <label
+                        for="{{ form.notes.id }}"
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                        Internal Notes
+                    </label>
+
+                    {{ form.notes(
+                        rows="5",
+                        class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-7 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    ) }}
+
+                </div>
+
+
+                <div class="grid gap-4 md:grid-cols-2">
+
+                    <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+
+                        {{ form.active(
+                            class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600"
+                        ) }}
+
+                        <span>
+                            <strong class="block text-sm text-slate-800">
+                                Active Policy
+                            </strong>
+
+                            <span class="mt-1 block text-xs text-slate-500">
+                                Make this policy available for use.
+                            </span>
+                        </span>
+
+                    </label>
+
+
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+
+                        <p class="text-sm font-semibold text-slate-800">
+                            Default Policy
+                        </p>
+
+                        {% if policy.default_policy %}
+
+                            <p class="mt-1 text-xs leading-5 text-amber-700">
+                                This is currently the default policy.
+                            </p>
+
+                        {% else %}
+
+                            <p class="mt-1 text-xs leading-5 text-slate-600">
+                                To make this the default policy, use the
+                                “Set Default” action on the detail page.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Actions -->
+        <div class="flex flex-wrap justify-end gap-3">
+
+            <a
+                href="{{ url_for('admin_cancellation_policies.detail', policy_id=policy.id) }}"
+                class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="rounded-xl bg-emerald-800 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-900"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

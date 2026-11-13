@@ -1,0 +1,107 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Booking Payments | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-route-gold">Finance & operations</p>
+            <h1 class="mt-2 text-3xl font-bold text-route-forest">Booking payments</h1>
+            <p class="mt-2 text-sm text-route-muted">Review payments, refunds, adjustments and transaction history.</p>
+        </div>
+        <a href="{{ url_for('booking_payments.create') }}"
+           class="inline-flex items-center justify-center rounded-xl bg-route-forest px-5 py-3 font-semibold text-white transition hover:bg-route-deep">
+            + Record transaction
+        </a>
+    </div>
+
+    <form method="GET" class="grid gap-3 rounded-2xl border border-route-sand bg-white p-4 md:grid-cols-4">
+        <select name="booking_id" class="rounded-xl border border-route-sand px-3 py-3 text-sm">
+            <option value="">All bookings</option>
+            {% for value, label in form.booking_id.choices %}
+                {% if value %}
+                <option value="{{ value }}" {% if selected_booking_id == value %}selected{% endif %}>{{ label }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <select name="transaction_type" class="rounded-xl border border-route-sand px-3 py-3 text-sm">
+            <option value="">All transaction types</option>
+            {% for value, label in form.transaction_type.choices if value %}
+            <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="rounded-xl border border-route-sand px-3 py-3 text-sm">
+            <option value="">All statuses</option>
+            {% for value, label in form.status.choices if value %}
+            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <div class="flex gap-2">
+            <input name="q" value="{{ search }}" placeholder="Search reference..."
+                   class="min-w-0 flex-1 rounded-xl border border-route-sand px-3 py-3 text-sm">
+            <button class="rounded-xl bg-route-forest px-4 py-3 font-semibold text-white">Filter</button>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-route-sand bg-white">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-route-sand text-left text-sm">
+                <thead class="bg-route-cream text-route-forest">
+                    <tr>
+                        <th class="px-5 py-4 font-semibold">Transaction</th>
+                        <th class="px-5 py-4 font-semibold">Booking</th>
+                        <th class="px-5 py-4 font-semibold">Type / status</th>
+                        <th class="px-5 py-4 font-semibold">Amount</th>
+                        <th class="px-5 py-4 font-semibold">Method</th>
+                        <th class="px-5 py-4 font-semibold">Initiated</th>
+                        <th class="px-5 py-4"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-route-sand">
+                    {% for payment in payments %}
+                    <tr class="hover:bg-route-cream/50">
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-route-forest">{{ payment.transaction_reference }}</p>
+                            <p class="mt-1 text-xs text-route-muted">{{ payment.receipt_number or "No receipt" }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <a class="font-semibold text-route-forest underline"
+                               href="{{ url_for('booking_payments.index', booking_id=payment.booking_id) }}">
+                                Booking #{{ payment.booking_id }}
+                            </a>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="capitalize text-route-forest">{{ payment.transaction_type.replace("_", " ") }}</p>
+                            <span class="mt-1 inline-flex rounded-full bg-route-cream px-2.5 py-1 text-xs font-semibold capitalize text-route-deep">
+                                {{ payment.status }}
+                            </span>
+                        </td>
+                        <td class="whitespace-nowrap px-5 py-4 font-semibold text-route-forest">
+                            {{ payment.currency }} {{ "{:,.2f}".format(payment.amount) }}
+                        </td>
+                        <td class="px-5 py-4 capitalize text-route-muted">
+                            {{ payment.payment_method.replace("_", " ") }}
+                        </td>
+                        <td class="whitespace-nowrap px-5 py-4 text-route-muted">
+                            {{ payment.initiated_at.strftime("%d %b %Y, %H:%M") if payment.initiated_at else "—" }}
+                        </td>
+                        <td class="px-5 py-4 text-right">
+                            <a href="{{ url_for('booking_payments.detail', payment_id=payment.id) }}"
+                               class="font-semibold text-route-forest hover:text-route-terracotta">View</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-5 py-12 text-center">
+                            <p class="font-semibold text-route-forest">No transactions found</p>
+                            <p class="mt-2 text-sm text-route-muted">Try changing your filters or record a transaction.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

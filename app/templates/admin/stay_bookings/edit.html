@@ -1,0 +1,217 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Edit Stay Booking | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-5xl space-y-8">
+
+    <div>
+
+        <div class="route-eyebrow">
+            Stay Booking
+        </div>
+
+        <h1 class="mt-3 text-3xl font-bold route-heading">
+            Edit Stay Booking
+        </h1>
+
+        <p class="mt-2 text-sm text-[var(--route-muted)]">
+            {{ booking.booking.booking_reference }}
+        </p>
+
+    </div>
+
+
+    <form method="POST" class="space-y-6">
+
+        {{ form.hidden_tag() }}
+
+
+        <div class="route-card p-6">
+
+            <h2 class="text-xl font-bold route-heading">
+                Accommodation
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Stay
+                    </label>
+
+                    {{ form.stay_id(class="route-select") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Room
+                    </label>
+
+                    {{ form.room_id(class="route-select") }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <h2 class="text-xl font-bold route-heading">
+                Dates
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Check-in
+                    </label>
+
+                    {{ form.check_in(class="route-input") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Check-out
+                    </label>
+
+                    {{ form.check_out(class="route-input") }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <h2 class="text-xl font-bold route-heading">
+                Occupancy
+            </h2>
+
+            <div class="mt-5 grid grid-cols-2 gap-5 md:grid-cols-4">
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Rooms
+                    </label>
+
+                    {{ form.rooms(class="route-input") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Adults
+                    </label>
+
+                    {{ form.adults(class="route-input") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Children
+                    </label>
+
+                    {{ form.children(class="route-input") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Infants
+                    </label>
+
+                    {{ form.infants(class="route-input") }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <h2 class="text-xl font-bold route-heading">
+                Preferences & Notes
+            </h2>
+
+            <div class="mt-5 space-y-5">
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Meal Plan
+                    </label>
+
+                    {{ form.meal_plan(class="route-input") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Special Requests
+                    </label>
+
+                    {{ form.special_requests(class="route-textarea") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-semibold">
+                        Internal Notes
+                    </label>
+
+                    {{ form.notes(class="route-textarea") }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="flex justify-end gap-3">
+
+            <a
+                href="{{ url_for('admin_stay_bookings.detail', booking_id=booking.id) }}"
+                class="route-button route-button-outline"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="route-button route-button-primary"
+            >
+                Save Changes
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

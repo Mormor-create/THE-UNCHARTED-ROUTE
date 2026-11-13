@@ -1,0 +1,1153 @@
+{% extends "admin/base.html" %}
+{% block title %}Contact Enquiries{% endblock %}
+
+{% block content %}
+{% set open_count = (
+    statistics.get('open', (
+        statistics.get('new', 0)
+        + statistics.get('assigned', 0)
+        + statistics.get('in_progress', 0)
+        + statistics.get('waiting_for_customer', 0)
+    ))
+) %}
+
+<div class="space-y-6">
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================== -->
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <div class="mb-2 flex items-center gap-2 text-sm text-slate-500">
+                <i class="bi bi-chat-left-text"></i>
+                <span>Customer Communication</span>
+            </div>
+
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                Contact Enquiries
+            </h1>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Manage customer enquiries, follow-ups, replies, and internal communication.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('contacts.statistics') }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                <i class="bi bi-bar-chart"></i>
+                Statistics
+            </a>
+
+            <a href="{{ url_for('contacts.archived') }}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                <i class="bi bi-archive"></i>
+                Archived
+            </a>
+
+            <a href="{{ url_for('contacts.create') }}"
+               class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                <i class="bi bi-plus-lg"></i>
+                New Enquiry
+            </a>
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         STATISTICS
+    ========================================================== -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Enquiries</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ statistics.get('total', 0) }}
+                    </p>
+                </div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                    <i class="bi bi-inbox text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Open</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ open_count }}
+                    </p>
+                </div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+                    <i class="bi bi-chat-dots text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Urgent</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ statistics.get('urgent', 0) }}
+                    </p>
+                </div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
+                    <i class="bi bi-exclamation-triangle text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Unread</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ statistics.get('unread', 0) }}
+                    </p>
+                    <a href="{{ url_for('contacts.index', unread_only='1') }}"
+                       class="mt-1 inline-flex text-xs font-semibold text-slate-600 hover:text-slate-900">
+                        View unread enquiries
+                    </a>
+                </div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+                    <i class="bi bi-envelope-exclamation text-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- =========================================================
+     COMPACT ENQUIRY FILTERS — TAILWIND ONLY
+========================================================== -->
+<div class="overflow-hidden rounded-2xl border border-route-forest/10 bg-white shadow-sm">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-3 border-b border-route-forest/10 px-4 py-3">
+        <div class="flex min-w-0 items-center gap-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                <i class="bi bi-funnel text-base"></i>
+            </div>
+
+            <div class="min-w-0">
+                <h2 class="text-sm font-bold text-route-ink">
+                    Filter Enquiries
+                </h2>
+                <p class="mt-0.5 text-xs text-route-muted">
+                    Search and narrow down your enquiry inbox.
+                </p>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            id="toggleContactFilters"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-route-forest/10 bg-white text-route-muted transition hover:bg-route-cream hover:text-route-forest"
+            aria-expanded="true"
+            aria-controls="contactFilters"
+            aria-label="Collapse enquiry filters"
+        >
+            <i id="contactFiltersChevron" class="bi bi-chevron-up text-xs"></i>
+        </button>
+    </div>
+
+    <!-- Filter Body: visible by default -->
+    <div id="contactFilters" class="block">
+        <div class="p-4">
+
+            <form method="GET" action="{{ url_for('contacts.index') }}">
+                <div class="grid grid-cols-1 gap-x-4 gap-y-3 md:grid-cols-2 lg:grid-cols-4">
+
+                    <!-- Search -->
+                    <div class="lg:col-span-2">
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Search
+                        </label>
+                        {{ form.search(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none placeholder:text-route-muted/70 focus:border-route-forest focus:ring-2 focus:ring-route-forest/10",
+                            placeholder="Name, email, subject, message..."
+                        ) }}
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Status
+                        </label>
+                        {{ form.status(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+                    </div>
+
+                    <!-- Enquiry Type -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Enquiry Type
+                        </label>
+                        {{ form.enquiry_type(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+                    </div>
+
+                    <!-- Priority -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Priority
+                        </label>
+                        {{ form.priority(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+                    </div>
+
+                    <!-- Source -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Source
+                        </label>
+                        {{ form.source(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+                    </div>
+
+                    <!-- Assigned To -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Assigned To
+                        </label>
+                        {{ form.assigned_user_id(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+                    </div>
+
+                    <!-- Department -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Department
+                        </label>
+                        {{ form.department(
+                            class="block w-full rounded-lg border border-route-forest/15 bg-white px-3 py-2 text-sm text-route-ink outline-none placeholder:text-route-muted/70 focus:border-route-forest focus:ring-2 focus:ring-route-forest/10",
+                            placeholder="Department"
+                        ) }}
+                    </div>
+
+                    <!-- Quick Filters -->
+                    <div class="md:col-span-2 lg:col-span-2">
+                        <label class="mb-1.5 block text-xs font-semibold text-route-ink">
+                            Quick Filters
+                        </label>
+
+                        <div class="flex min-h-[38px] flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-route-forest/10 bg-route-cream/50 px-3 py-2">
+
+                            <label class="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-route-ink">
+                                {{ form.unread_only(class="h-3.5 w-3.5 rounded border-route-forest/30 text-route-forest focus:ring-route-forest/20") }}
+                                <span>Unread only</span>
+                            </label>
+
+                            <label class="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-route-ink">
+                                {{ form.follow_up_only(class="h-3.5 w-3.5 rounded border-route-forest/30 text-route-forest focus:ring-route-forest/20") }}
+                                <span>Follow-ups</span>
+                            </label>
+
+                            <label class="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-route-ink">
+                                {{ form.urgent_only(class="h-3.5 w-3.5 rounded border-route-forest/30 text-route-forest focus:ring-route-forest/20") }}
+                                <span>Urgent only</span>
+                            </label>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-route-forest/10 pt-3">
+
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-2 rounded-lg bg-route-forest px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-route-deep"
+                    >
+                        <i class="bi bi-search"></i>
+                        Apply Filters
+                    </button>
+
+                    <a
+                        href="{{ url_for('contacts.index') }}"
+                        class="inline-flex items-center gap-2 rounded-lg border border-route-forest/15 bg-white px-3.5 py-2 text-xs font-semibold text-route-forest transition hover:bg-route-cream"
+                    >
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+                    </a>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tailwind-compatible filter toggle; no Bootstrap JavaScript required -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toggle = document.getElementById("toggleContactFilters");
+    const panel = document.getElementById("contactFilters");
+    const chevron = document.getElementById("contactFiltersChevron");
+
+    if (!toggle || !panel || !chevron) return;
+
+    toggle.addEventListener("click", function () {
+        const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+        panel.classList.toggle("hidden", isExpanded);
+        panel.classList.toggle("block", !isExpanded);
+
+        toggle.setAttribute("aria-expanded", String(!isExpanded));
+        toggle.setAttribute(
+            "aria-label",
+            isExpanded ? "Expand enquiry filters" : "Collapse enquiry filters"
+        );
+
+        chevron.classList.toggle("bi-chevron-up", !isExpanded);
+        chevron.classList.toggle("bi-chevron-down", isExpanded);
+    });
+});
+</script>
+    <!-- =========================================================
+         BULK ACTION FORM
+
+         The CSRF token is generated by Flask-WTF.
+         All selected contact IDs are submitted to bulk_action.
+    ========================================================== -->
+    <form method="POST"
+          action="{{ url_for('contacts.bulk_action') }}"
+          id="bulkActionForm">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+
+                <div class="flex flex-wrap items-center gap-4">
+                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
+                        <input type="checkbox"
+                               class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                               id="selectAllContacts">
+                        <span>Select all</span>
+                    </label>
+
+                    <span class="text-sm text-slate-500" id="selectedCount">0 selected</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <select name="action"
+                            id="bulkAction"
+                            required
+                            class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                        <option value="">Bulk action...</option>
+                        <option value="status">Change status</option>
+                        <option value="priority">Change priority</option>
+                        <option value="assign">Assign / unassign</option>
+                        <option value="read">Mark as read</option>
+                        <option value="unread">Mark as unread</option>
+                        <option value="archive">Archive</option>
+                        <option value="restore">Restore</option>
+                        <option value="delete">Delete permanently</option>
+                    </select>
+
+                    <select name="status"
+                            id="bulkStatus"
+                            class="hidden rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                        <option value="">Select status...</option>
+                        {% for value, label in form.status.choices %}
+                            {% if value %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                    <select name="priority"
+                            id="bulkPriority"
+                            class="hidden rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                        <option value="">Select priority...</option>
+                        {% for value, label in form.priority.choices %}
+                            {% if value %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                    <select name="assigned_user_id"
+                            id="bulkAssignee"
+                            class="hidden rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                        {% for value, label in form.assigned_user_id.choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit"
+                            id="applyBulkAction"
+                            disabled
+                            class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50">
+                        <i class="bi bi-check2"></i>
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =====================================================
+             ENQUIRY INBOX
+        ====================================================== -->
+        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-6 py-5">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Enquiry Inbox</h2>
+
+                        {% if pagination %}
+                            <p class="mt-1 text-sm text-slate-500">
+                                Showing
+                                <span class="font-semibold text-slate-700">{{ pagination.first or 0 }}</span>
+                                –
+                                <span class="font-semibold text-slate-700">{{ pagination.last or 0 }}</span>
+                                of
+                                <span class="font-semibold text-slate-700">{{ pagination.total or 0 }}</span>
+                            </p>
+                        {% else %}
+                            <p class="mt-1 text-sm text-slate-500">{{ contacts|length }} enquiries</p>
+                        {% endif %}
+                    </div>
+
+                    {% if filters %}
+                        {% if filters.get('search')
+                           or filters.get('status')
+                           or filters.get('enquiry_type')
+                           or filters.get('priority')
+                           or filters.get('assigned_user_id')
+                           or filters.get('department')
+                           or filters.get('source')
+                           or filters.get('unread_only')
+                           or filters.get('follow_up_only')
+                           or filters.get('urgent_only') %}
+                            <span class="inline-flex w-fit items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                                <i class="bi bi-funnel"></i>
+                                Filters active
+                            </span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+
+            {% if contacts %}
+
+                <!-- DESKTOP TABLE -->
+                <div class="hidden overflow-x-auto lg:block">
+                    <table class="w-full text-left">
+                        <thead class="border-b border-slate-200 bg-slate-50">
+                            <tr class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                <th class="w-12 px-5 py-4"></th>
+                                <th class="px-5 py-4">Enquiry</th>
+                                <th class="px-5 py-4">Customer</th>
+                                <th class="px-5 py-4">Type</th>
+                                <th class="px-5 py-4">Priority</th>
+                                <th class="px-5 py-4">Status</th>
+                                <th class="px-5 py-4">Assigned</th>
+                                <th class="px-5 py-4">Received</th>
+                                <th class="w-16 px-5 py-4"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-slate-100">
+                        {% for contact in contacts %}
+                            <tr class="transition hover:bg-slate-50 {% if not contact.is_read %}bg-slate-50/70{% endif %}">
+
+                                <td class="px-5 py-4">
+                                    <input type="checkbox"
+                                           class="contact-checkbox h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                                           name="contact_ids"
+                                           value="{{ contact.id }}"
+                                           data-contact-id="{{ contact.id }}"
+                                           aria-label="Select enquiry {{ contact.id }}">
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <div class="flex min-w-[260px] items-start gap-3">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                            <i class="bi bi-chat-left-text"></i>
+                                        </div>
+
+                                        <div class="min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <a href="{{ url_for('contacts.detail', contact_id=contact.id) }}"
+                                                   class="font-semibold text-slate-900 transition hover:text-slate-600">
+                                                    {{ contact.subject or "No subject" }}
+                                                </a>
+
+                                                {% if not contact.is_read %}
+                                                    <span class="inline-flex rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                                                        Unread
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+
+                                            <p class="mt-1 max-w-[300px] truncate text-xs text-slate-500">
+                                                {{ contact.message|striptags|truncate(85) }}
+                                            </p>
+
+                                            {% if contact.follow_up_required %}
+                                                <div class="mt-1.5 flex items-center gap-1 text-xs font-medium text-sky-600">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                    <span>
+                                                        Follow-up
+                                                        {% if contact.follow_up_date %}
+                                                            · {{ contact.follow_up_date.strftime('%d %b %Y, %H:%M') }}
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <div class="min-w-[170px]">
+                                        <p class="text-sm font-semibold text-slate-900">{{ contact.full_name }}</p>
+                                        <p class="mt-0.5 text-xs text-slate-500">{{ contact.email }}</p>
+                                        {% if contact.phone %}
+                                            <p class="mt-0.5 text-xs text-slate-500">{{ contact.phone }}</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    {% if contact.enquiry_type %}
+                                        <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
+                                            {{ contact.enquiry_type }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-sm text-slate-400">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    {% set priority = contact.priority or 'Normal' %}
+
+                                    {% if priority == 'Urgent' %}
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-200">
+                                            <i class="bi bi-exclamation-triangle"></i> Urgent
+                                        </span>
+                                    {% elif priority == 'High' %}
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
+                                            <i class="bi bi-arrow-up"></i> High
+                                        </span>
+                                    {% elif priority == 'Low' %}
+                                        <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Low</span>
+                                    {% else %}
+                                        <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">Normal</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    {% set status = contact.status or 'New' %}
+
+                                    {% if status == 'New' %}
+                                        <span class="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-inset ring-sky-200">New</span>
+                                    {% elif status == 'Assigned' %}
+                                        <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-200">Assigned</span>
+                                    {% elif status == 'In Progress' %}
+                                        <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">In Progress</span>
+                                    {% elif status == 'Waiting for Customer' %}
+                                        <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Waiting</span>
+                                    {% elif status == 'Resolved' %}
+                                        <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">Resolved</span>
+                                    {% elif status == 'Closed' %}
+                                        <span class="inline-flex rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-white">Closed</span>
+                                    {% else %}
+                                        <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">{{ status }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    {% if contact.assigned_user %}
+                                        <div class="flex min-w-[140px] items-center gap-2">
+                                            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                                                <i class="bi bi-person text-sm"></i>
+                                            </div>
+                                            <span class="text-xs font-medium text-slate-700">
+                                                {{ contact.assigned_user.full_name }}
+                                            </span>
+                                        </div>
+                                    {% elif contact.assigned_to %}
+                                        <span class="text-xs font-medium text-slate-700">{{ contact.assigned_to }}</span>
+                                    {% else %}
+                                        <span class="text-xs text-slate-400">Unassigned</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    {% if contact.created_at %}
+                                        <div class="min-w-[100px]">
+                                            <p class="text-xs font-semibold text-slate-700">{{ contact.created_at.strftime('%d %b %Y') }}</p>
+                                            <p class="mt-0.5 text-xs text-slate-400">{{ contact.created_at.strftime('%H:%M') }}</p>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-sm text-slate-400">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- ROW ACTIONS -->
+                                <td class="px-5 py-4 text-right">
+                                    <div class="dropdown">
+                                        <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+                                                type="button"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                aria-label="Actions for enquiry {{ contact.id }}">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-lg">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('contacts.detail', contact_id=contact.id) }}">
+                                                    <i class="bi bi-eye me-2"></i> View
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('contacts.edit', contact_id=contact.id) }}">
+                                                    <i class="bi bi-pencil me-2"></i> Edit
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('contacts.reply', contact_id=contact.id) }}">
+                                                    <i class="bi bi-reply me-2"></i> Reply
+                                                </a>
+                                            </li>
+
+                                            <li><hr class="dropdown-divider"></li>
+
+                                            {% if contact.is_read %}
+                                                <li>
+                                                    <form method="POST" action="{{ url_for('contacts.mark_unread', contact_id=contact.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-envelope me-2"></i> Mark as unread
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% else %}
+                                                <li>
+                                                    <form method="POST" action="{{ url_for('contacts.mark_read', contact_id=contact.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-envelope-open me-2"></i> Mark as read
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+
+                                            <li><hr class="dropdown-divider"></li>
+
+                                            {% if contact.status != 'Resolved' %}
+                                                <li>
+                                                    <form method="POST" action="{{ url_for('contacts.resolve', contact_id=contact.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <input type="hidden" name="resolution_notes" value="Resolved from enquiry inbox.">
+                                                        <button type="submit" class="dropdown-item text-success">
+                                                            <i class="bi bi-check-circle me-2"></i> Resolve
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+
+                                            {% if contact.status != 'Closed' %}
+                                                <li>
+                                                    <form method="POST" action="{{ url_for('contacts.close', contact_id=contact.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-x-circle me-2"></i> Close
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+
+                                            <li><hr class="dropdown-divider"></li>
+
+
+<li>
+    <form method="POST"
+          action="{{ url_for('contacts.archive', contact_id=contact.id) }}">
+
+        {{ archive_form.hidden_tag() }}
+
+        <button type="submit"
+                class="flex w-full items-center px-3 py-2 text-sm text-amber-700 hover:bg-amber-50">
+            <i class="bi bi-archive me-2"></i>
+            Archive
+        </button>
+    </form>
+</li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- MOBILE CARDS -->
+                <div class="divide-y divide-slate-100 lg:hidden">
+                    {% for contact in contacts %}
+                        <div class="p-5">
+                            <div class="flex items-start gap-3">
+
+                                <input type="checkbox"
+                                       class="contact-checkbox mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                                       name="contact_ids"
+                                       value="{{ contact.id }}"
+                                       data-contact-id="{{ contact.id }}"
+                                       aria-label="Select enquiry {{ contact.id }}">
+
+                                <div class="flex min-w-0 flex-1 gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                        <i class="bi bi-chat-left-text"></i>
+                                    </div>
+
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div class="min-w-0">
+                                                <a href="{{ url_for('contacts.detail', contact_id=contact.id) }}"
+                                                   class="font-semibold text-slate-900">
+                                                    {{ contact.subject or "No subject" }}
+                                                </a>
+
+                                                {% if not contact.is_read %}
+                                                    <span class="ml-1 inline-flex rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-bold uppercase text-white">Unread</span>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="dropdown shrink-0">
+                                                <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500"
+                                                        type="button"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false"
+                                                        aria-label="Actions for enquiry {{ contact.id }}">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-lg">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url_for('contacts.detail', contact_id=contact.id) }}">
+                                                            <i class="bi bi-eye me-2"></i> View
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url_for('contacts.edit', contact_id=contact.id) }}">
+                                                            <i class="bi bi-pencil me-2"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url_for('contacts.reply', contact_id=contact.id) }}">
+                                                            <i class="bi bi-reply me-2"></i> Reply
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+
+                                                    {% if contact.is_read %}
+                                                        <li>
+                                                            <form method="POST" action="{{ url_for('contacts.mark_unread', contact_id=contact.id) }}">
+                                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="bi bi-envelope me-2"></i> Mark as unread
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    {% else %}
+                                                        <li>
+                                                            <form method="POST" action="{{ url_for('contacts.mark_read', contact_id=contact.id) }}">
+                                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="bi bi-envelope-open me-2"></i> Mark as read
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    {% endif %}
+
+                                                    <li><hr class="dropdown-divider"></li>
+
+                                                    <li>
+                                                        <form method="POST" action="{{ url_for('contacts.archive', contact_id=contact.id) }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <button type="submit" class="dropdown-item text-warning">
+                                                                <i class="bi bi-archive me-2"></i> Archive
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <p class="mt-1 text-xs text-slate-500">
+                                            {{ contact.full_name }} · {{ contact.email }}
+                                        </p>
+
+                                        <p class="mt-2 text-sm leading-6 text-slate-600">
+                                            {{ contact.message|striptags|truncate(120) }}
+                                        </p>
+
+                                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                                            {% set priority = contact.priority or 'Normal' %}
+
+                                            {% if priority == 'Urgent' %}
+                                                <span class="inline-flex rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">Urgent</span>
+                                            {% elif priority == 'High' %}
+                                                <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">High</span>
+                                            {% else %}
+                                                <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{{ priority }}</span>
+                                            {% endif %}
+
+                                            {% set status = contact.status or 'New' %}
+                                            {% if status == 'Resolved' %}
+                                                <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Resolved</span>
+                                            {% elif status == 'Closed' %}
+                                                <span class="inline-flex rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-white">Closed</span>
+                                            {% elif status == 'In Progress' %}
+                                                <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">In Progress</span>
+                                            {% elif status == 'Assigned' %}
+                                                <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">Assigned</span>
+                                            {% elif status == 'Waiting for Customer' %}
+                                                <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Waiting</span>
+                                            {% else %}
+                                                <span class="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">{{ status }}</span>
+                                            {% endif %}
+
+                                            {% if contact.enquiry_type %}
+                                                <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600">
+                                                    {{ contact.enquiry_type }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                                            <span>
+                                                {% if contact.created_at %}
+                                                    {{ contact.created_at.strftime('%d %b %Y, %H:%M') }}
+                                                {% endif %}
+                                            </span>
+
+                                            {% if contact.follow_up_required %}
+                                                <span class="flex items-center gap-1 font-medium text-sky-600">
+                                                    <i class="bi bi-calendar-event"></i>
+                                                    Follow-up
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+
+                <!-- EMPTY STATE -->
+                <div class="px-6 py-16 text-center">
+                    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                        <i class="bi bi-inbox text-2xl"></i>
+                    </div>
+
+                    <h3 class="text-base font-bold text-slate-900">No enquiries found</h3>
+
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                        {% if filters and (
+                            filters.get('search')
+                            or filters.get('status')
+                            or filters.get('enquiry_type')
+                            or filters.get('priority')
+                            or filters.get('assigned_user_id')
+                            or filters.get('department')
+                            or filters.get('source')
+                            or filters.get('unread_only')
+                            or filters.get('follow_up_only')
+                            or filters.get('urgent_only')
+                        ) %}
+                            No enquiries match your current filters.
+                        {% else %}
+                            There are currently no customer enquiries.
+                        {% endif %}
+                    </p>
+
+                    <div class="mt-6 flex justify-center gap-2">
+                        <a href="{{ url_for('contacts.index') }}"
+                           class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                            Clear Filters
+                        </a>
+
+                        <a href="{{ url_for('contacts.create') }}"
+                           class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                            <i class="bi bi-plus-lg"></i>
+                            Create Enquiry
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+
+            <!-- PAGINATION -->
+            {% if pagination and pagination.pages > 1 %}
+                <div class="flex flex-col gap-4 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-sm text-slate-500">
+                        Page
+                        <span class="font-semibold text-slate-700">{{ pagination.page }}</span>
+                        of
+                        <span class="font-semibold text-slate-700">{{ pagination.pages }}</span>
+                    </p>
+
+                    <nav aria-label="Contact enquiries pagination">
+                        <ul class="mb-0 flex items-center gap-1">
+                            <li>
+                                {% if pagination.has_prev %}
+                                    <a class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                                       href="{{ url_for('contacts.index', page=pagination.prev_num, **request.args.to_dict()) }}"
+                                       aria-label="Previous page">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-slate-300">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </span>
+                                {% endif %}
+                            </li>
+
+                            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                {% if page_num %}
+                                    <li>
+                                        {% if page_num == pagination.page %}
+                                            <span class="flex h-9 min-w-9 items-center justify-center rounded-lg bg-slate-900 px-2 text-sm font-semibold text-white">
+                                                {{ page_num }}
+                                            </span>
+                                        {% else %}
+                                            <a class="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                                               href="{{ url_for('contacts.index', page=page_num, **request.args.to_dict()) }}">
+                                                {{ page_num }}
+                                            </a>
+                                        {% endif %}
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <span class="flex h-9 w-9 items-center justify-center text-sm text-slate-400">…</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            <li>
+                                {% if pagination.has_next %}
+                                    <a class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                                       href="{{ url_for('contacts.index', page=pagination.next_num, **request.args.to_dict()) }}"
+                                       aria-label="Next page">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-slate-300">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+
+<!-- =============================================================
+     PAGE JAVASCRIPT
+============================================================== -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAll = document.getElementById("selectAllContacts");
+    const checkboxes = Array.from(
+        document.querySelectorAll(".contact-checkbox")
+    );
+    const selectedCount = document.getElementById("selectedCount");
+    const applyButton = document.getElementById("applyBulkAction");
+    const bulkAction = document.getElementById("bulkAction");
+    const bulkStatus = document.getElementById("bulkStatus");
+    const bulkPriority = document.getElementById("bulkPriority");
+    const bulkAssignee = document.getElementById("bulkAssignee");
+    const bulkForm = document.getElementById("bulkActionForm");
+
+    function getSelectedIds() {
+        return new Set(
+            checkboxes
+                .filter(function (checkbox) {
+                    return checkbox.checked;
+                })
+                .map(function (checkbox) {
+                    return checkbox.dataset.contactId || checkbox.value;
+                })
+        );
+    }
+
+    function syncDuplicateCheckboxes(changedCheckbox) {
+        const id = changedCheckbox.dataset.contactId || changedCheckbox.value;
+
+        checkboxes.forEach(function (checkbox) {
+            if (
+                (checkbox.dataset.contactId || checkbox.value) === id
+                && checkbox !== changedCheckbox
+            ) {
+                checkbox.checked = changedCheckbox.checked;
+            }
+        });
+    }
+
+    function updateSelection() {
+        const selectedIds = getSelectedIds();
+        const count = selectedIds.size;
+
+        selectedCount.textContent =
+            count + (count === 1 ? " selected" : " selected");
+
+        applyButton.disabled = count === 0;
+
+        if (selectAll) {
+            selectAll.checked =
+                checkboxes.length > 0 &&
+                checkboxes.every(function (checkbox) {
+                    return selectedIds.has(
+                        checkbox.dataset.contactId || checkbox.value
+                    );
+                });
+
+            selectAll.indeterminate =
+                count > 0 &&
+                count < new Set(
+                    checkboxes.map(function (checkbox) {
+                        return checkbox.dataset.contactId || checkbox.value;
+                    })
+                ).size;
+        }
+    }
+
+    function updateBulkFields() {
+        const action = bulkAction.value;
+
+        const fields = [
+            bulkStatus,
+            bulkPriority,
+            bulkAssignee
+        ];
+
+        fields.forEach(function (field) {
+            field.classList.add("hidden");
+            field.disabled = true;
+            field.removeAttribute("required");
+        });
+
+        if (action === "status") {
+            bulkStatus.classList.remove("hidden");
+            bulkStatus.disabled = false;
+            bulkStatus.required = true;
+        } else if (action === "priority") {
+            bulkPriority.classList.remove("hidden");
+            bulkPriority.disabled = false;
+            bulkPriority.required = true;
+        } else if (action === "assign") {
+            bulkAssignee.classList.remove("hidden");
+            bulkAssignee.disabled = false;
+        }
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function () {
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+
+            updateSelection();
+        });
+    }
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", function () {
+            syncDuplicateCheckboxes(checkbox);
+            updateSelection();
+        });
+    });
+
+    bulkAction.addEventListener("change", updateBulkFields);
+
+    bulkForm.addEventListener("submit", function (event) {
+        const selectedIds = getSelectedIds();
+        const action = bulkAction.value;
+
+        if (selectedIds.size === 0) {
+            event.preventDefault();
+            alert("Please select at least one enquiry.");
+            return;
+        }
+
+        if (!action) {
+            event.preventDefault();
+            alert("Please select a bulk action.");
+            return;
+        }
+
+        if (action === "delete") {
+            const confirmed = confirm(
+                "Permanently delete the selected enquiries? This action cannot be undone."
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+                return;
+            }
+        }
+
+        /*
+         * Desktop and mobile layouts each render a checkbox for the same
+         * enquiry. Submit only one checked, visible checkbox per ID.
+         * This prevents duplicate IDs and incorrect bulk-action counts.
+         */
+        const submittedIds = new Set();
+
+        checkboxes.forEach(function (checkbox) {
+            const id = checkbox.dataset.contactId || checkbox.value;
+            const isVisible = checkbox.getClientRects().length > 0;
+
+            checkbox.disabled = true;
+
+            if (
+                checkbox.checked &&
+                isVisible &&
+                !submittedIds.has(id)
+            ) {
+                checkbox.disabled = false;
+                submittedIds.add(id);
+            }
+        });
+
+        if (submittedIds.size === 0) {
+            event.preventDefault();
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.disabled = false;
+            });
+
+            alert("No selected enquiries are available to submit.");
+        }
+    });
+
+    updateSelection();
+    updateBulkFields();
+});
+</script>
+{% endblock %}

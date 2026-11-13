@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+{% block title %}Safari Destinations | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="route-container py-8">
+    <div class="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+            <p class="route-eyebrow">Safari catalogue</p>
+            <h1 class="route-heading text-3xl">Destinations</h1>
+            <p class="mt-2 text-stone-600">
+                Manage the places, landscapes and conservation stories behind your safaris.
+            </p>
+        </div>
+        <a href="{{ url_for('admin_safaris.destination_create') }}"
+           class="route-button-primary">+ Add destination</a>
+    </div>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-stone-200 text-sm">
+                <thead class="bg-stone-50 text-left text-xs uppercase tracking-wider text-stone-500">
+                    <tr>
+                        <th class="px-5 py-4">Destination</th>
+                        <th class="px-5 py-4">Properties</th>
+                        <th class="px-5 py-4">Featured</th>
+                        <th class="px-5 py-4">Status</th>
+                        <th class="px-5 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    {% for destination in destinations %}
+                    <tr class="hover:bg-stone-50">
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-stone-900">{{ destination.name }}</p>
+                            <p class="mt-1 text-xs text-stone-500">/{{ destination.slug }}</p>
+                            <p class="mt-1 max-w-md text-xs text-stone-600">
+                                {{ destination.short_description or destination.description or '' }}
+                            </p>
+                        </td>
+                        <td class="px-5 py-4">
+                            {{ destination.properties|length }}
+                        </td>
+                        <td class="px-5 py-4">
+                            {{ 'Yes' if destination.is_featured else 'No' }}
+                        </td>
+                        <td class="px-5 py-4">
+                            {% if destination.is_active %}
+                                <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Active</span>
+                            {% else %}
+                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="flex justify-end gap-3 whitespace-nowrap">
+                                <a class="font-semibold text-emerald-800 hover:underline"
+                                   href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}">Edit</a>
+                                <form method="post"
+                                      action="{{ url_for('admin_safaris.destination_toggle', destination_id=destination.id) }}">
+                                    {{ csrf_token() }}
+                                    <button type="submit" class="font-semibold text-stone-600 hover:text-stone-900">
+                                        {{ 'Deactivate' if destination.is_active else 'Activate' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-12 text-center text-stone-500">
+                            No destinations have been added yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

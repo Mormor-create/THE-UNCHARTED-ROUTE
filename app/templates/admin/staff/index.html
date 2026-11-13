@@ -1,0 +1,1168 @@
+{# =============================================================================
+  The Uncharted Route
+  Admin — Staff Management
+  templates/admin/staff/index.html
+  ============================================================================= #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Staff Management{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    {# =========================================================================
+       PAGE HEADER
+       ========================================================================= #}
+
+    <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+
+        <div>
+
+            <div class="flex items-center gap-2 text-sm text-route-muted">
+
+                <a href="{{ url_for('admin.dashboard') }}"
+                   class="transition hover:text-route-deep">
+                    Dashboard
+                </a>
+
+                <span class="text-route-muted/60">/</span>
+
+                <span class="font-medium text-route-deep">
+                    Staff
+                </span>
+
+            </div>
+
+            <div class="mt-3">
+
+                <span class="inline-flex items-center rounded-full
+                             bg-route-cream px-3 py-1
+                             text-xs font-bold uppercase tracking-[0.16em]
+                             text-route-deep">
+                    Operations
+                </span>
+
+                <h1 class="mt-3 text-3xl font-bold tracking-tight text-route-deep">
+                    Staff Management
+                </h1>
+
+                <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+                    Manage the people behind The Uncharted Route — staff profiles,
+                    operational assignments, availability, schedules and performance.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {# Header Actions #}
+
+        <div class="flex flex-wrap gap-3">
+
+            <a href="{{ url_for('admin_staff.statistics') }}"
+               class="inline-flex items-center gap-2 rounded-xl
+                      border border-route-deep/15 bg-white px-5 py-3
+                      text-sm font-semibold text-route-deep shadow-sm
+                      transition hover:border-route-gold hover:bg-route-cream">
+
+                <svg class="h-5 w-5"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M3 3v18h18M7 16l4-5 3 3 5-7"/>
+
+                </svg>
+
+                Staff Statistics
+
+            </a>
+
+
+            <a href="{{ url_for('admin_staff.create') }}"
+               class="inline-flex items-center gap-2 rounded-xl
+                      bg-route-deep px-5 py-3
+                      text-sm font-semibold text-white shadow-sm
+                      transition hover:bg-route-forest">
+
+                <svg class="h-5 w-5"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 4v16m8-8H4"/>
+
+                </svg>
+
+                Add Staff
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       DASHBOARD SUMMARY
+       ========================================================================= #}
+
+    {% set stats = statistics or {} %}
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
+        {# Total Staff #}
+
+        <div class="rounded-2xl border border-route-deep/10
+                    bg-white p-6 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-semibold text-route-muted">
+                        Total Staff
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-deep">
+                        {{ stats.total_staff|default(0, true) }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-route-muted">
+                        Internal team members
+                    </p>
+
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center
+                            rounded-xl bg-route-cream text-route-deep">
+
+                    <svg class="h-6 w-6"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m8-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Active Staff #}
+
+        <div class="rounded-2xl border border-route-forest/20
+                    bg-white p-6 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-semibold text-route-muted">
+                        Active Staff
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-forest">
+                        {{ stats.active_staff|default(0, true) }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-route-muted">
+                        Currently active
+                    </p>
+
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center
+                            rounded-xl bg-route-forest/10">
+
+                    <span class="h-3 w-3 rounded-full bg-route-forest"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Active Assignments #}
+
+        <div class="rounded-2xl border border-route-gold/25
+                    bg-white p-6 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-semibold text-route-muted">
+                        Active Assignments
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-gold">
+                        {{ stats.active_assignments|default(0, true) }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-route-muted">
+                        Currently in operation
+                    </p>
+
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center
+                            rounded-xl bg-route-gold/10">
+
+                    <svg class="h-6 w-6 text-route-gold"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Completed Assignments #}
+
+        <div class="rounded-2xl border border-route-terracotta/20
+                    bg-white p-6 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-semibold text-route-muted">
+                        Completed Assignments
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-terracotta">
+                        {{ stats.completed_assignments|default(0, true) }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-route-muted">
+                        Successfully completed
+                    </p>
+
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center
+                            rounded-xl bg-route-terracotta/10">
+
+                    <svg class="h-6 w-6 text-route-terracotta"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"/>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       OPERATIONAL OVERVIEW
+       ========================================================================= #}
+
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+
+        {# Active Staff Summary #}
+
+        <div class="rounded-2xl border border-route-deep/10
+                    bg-route-deep p-6 text-white shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-[0.16em]
+                              text-route-gold">
+                        Team Overview
+                    </p>
+
+                    <h2 class="mt-2 text-xl font-bold">
+                        Your operational team
+                    </h2>
+
+                </div>
+
+                <div class="flex h-10 w-10 items-center justify-center
+                            rounded-xl bg-white/10">
+
+                    <svg class="h-5 w-5 text-route-gold"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m14-10a4 4 0 100-8 4 4 0 000 8zm4 10v-2a4 4 0 00-3-3.87"/>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div class="mt-6 grid grid-cols-2 gap-4">
+
+                <div class="rounded-xl bg-white/10 p-4">
+
+                    <p class="text-xs font-medium text-route-sand">
+                        Active
+                    </p>
+
+                    <p class="mt-1 text-2xl font-bold">
+                        {{ stats.active_staff|default(0, true) }}
+                    </p>
+
+                </div>
+
+                <div class="rounded-xl bg-white/10 p-4">
+
+                    <p class="text-xs font-medium text-route-sand">
+                        Inactive
+                    </p>
+
+                    <p class="mt-1 text-2xl font-bold">
+                        {{ stats.inactive_staff|default(0, true) }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            <a href="{{ url_for('admin_staff.statistics') }}"
+               class="mt-5 inline-flex items-center gap-2 text-sm font-semibold
+                      text-route-gold transition hover:text-route-sand">
+
+                View full staff statistics
+
+                <svg class="h-4 w-4"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"/>
+
+                </svg>
+
+            </a>
+
+        </div>
+
+
+        {# Assignment Summary #}
+
+        <div class="rounded-2xl border border-route-deep/10
+                    bg-white p-6 shadow-sm">
+
+            <div class="flex items-start justify-between">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-[0.16em]
+                              text-route-muted">
+                        Assignments
+                    </p>
+
+                    <h2 class="mt-2 text-xl font-bold text-route-deep">
+                        Operational workload
+                    </h2>
+
+                </div>
+
+                <div class="flex h-10 w-10 items-center justify-center
+                            rounded-xl bg-route-cream text-route-deep">
+
+                    <svg class="h-5 w-5"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div class="mt-6 space-y-4">
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-route-muted">
+                        Total assignments
+                    </span>
+
+                    <span class="font-bold text-route-deep">
+                        {{ stats.total_assignments|default(0, true) }}
+                    </span>
+
+                </div>
+
+                <div class="h-px bg-route-deep/10"></div>
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-route-muted">
+                        Active
+                    </span>
+
+                    <span class="font-bold text-route-gold">
+                        {{ stats.active_assignments|default(0, true) }}
+                    </span>
+
+                </div>
+
+                <div class="h-px bg-route-deep/10"></div>
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-route-muted">
+                        Completed
+                    </span>
+
+                    <span class="font-bold text-route-forest">
+                        {{ stats.completed_assignments|default(0, true) }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Staff Management Shortcuts #}
+
+        <div class="rounded-2xl border border-route-deep/10
+                    bg-route-cream p-6 shadow-sm">
+
+            <p class="text-xs font-bold uppercase tracking-[0.16em]
+                      text-route-deep">
+                Staff Operations
+            </p>
+
+            <h2 class="mt-2 text-xl font-bold text-route-deep">
+                Manage your team
+            </h2>
+
+            <p class="mt-2 text-sm leading-6 text-route-muted">
+                Open an individual profile to manage assignments, availability,
+                schedules and performance.
+            </p>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+
+                <a href="{{ url_for('admin_staff.statistics') }}"
+                   class="inline-flex items-center rounded-lg
+                          border border-route-deep/15 bg-white px-3 py-2
+                          text-xs font-semibold text-route-deep
+                          transition hover:border-route-gold hover:bg-route-sand">
+
+                    Staff Statistics
+
+                </a>
+
+                <a href="{{ url_for('admin_staff.create') }}"
+                   class="inline-flex items-center rounded-lg
+                          bg-route-deep px-3 py-2
+                          text-xs font-semibold text-white
+                          transition hover:bg-route-forest">
+
+                    Add Staff
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       STAFF DIRECTORY
+       ========================================================================= #}
+
+    <div class="rounded-2xl border border-route-deep/10
+                bg-white shadow-sm">
+
+        {# Directory Header #}
+
+        <div class="flex flex-col gap-4 border-b border-route-deep/10
+                    px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
+
+            <div>
+
+                <div class="flex items-center gap-3">
+
+                    <div class="flex h-10 w-10 items-center justify-center
+                                rounded-xl bg-route-cream text-route-deep">
+
+                        <svg class="h-5 w-5"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m8-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="text-lg font-bold text-route-deep">
+                            Staff Directory
+                        </h2>
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            Search and filter your operational team.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="flex items-center gap-3">
+
+                <span class="rounded-full bg-route-cream px-3 py-1.5
+                             text-xs font-bold text-route-deep">
+
+                    {{ staff_members|length }} staff
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {# =========================================================================
+           FILTERS
+           ========================================================================= #}
+
+        <form method="GET"
+              action="{{ url_for('admin_staff.index') }}"
+              class="border-b border-route-deep/10 bg-route-sand/40
+                     p-6">
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+
+                {# Search #}
+
+                <div class="xl:col-span-2">
+
+                    <label for="search"
+                           class="mb-2 block text-sm font-semibold text-route-deep">
+                        Search Staff
+                    </label>
+
+                    <input type="text"
+                           id="search"
+                           name="search"
+                           value="{{ request.args.get('search', '') }}"
+                           placeholder="Name, employee number, email..."
+                           class="w-full rounded-xl border border-route-deep/15
+                                  bg-white px-4 py-3 text-sm text-route-deep
+                                  placeholder:text-route-muted/70
+                                  outline-none transition
+                                  focus:border-route-gold
+                                  focus:ring-2 focus:ring-route-gold/20">
+
+                </div>
+
+
+                {# Staff Type / Role #}
+
+                <div>
+
+                    <label for="role"
+                           class="mb-2 block text-sm font-semibold text-route-deep">
+                        Staff Type
+                    </label>
+
+                    <select id="role"
+                            name="role"
+                            class="w-full rounded-xl border border-route-deep/15
+                                   bg-white px-4 py-3 text-sm text-route-deep
+                                   outline-none transition
+                                   focus:border-route-gold
+                                   focus:ring-2 focus:ring-route-gold/20">
+
+                        <option value="">
+                            All Types
+                        </option>
+
+                        {% for role in staff_roles|default([]) %}
+
+                            <option value="{{ role }}"
+                                {% if request.args.get('role') == role %}selected{% endif %}>
+                                {{ role }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                {# Department #}
+
+                <div>
+
+                    <label for="department"
+                           class="mb-2 block text-sm font-semibold text-route-deep">
+                        Department
+                    </label>
+
+                    <select id="department"
+                            name="department"
+                            class="w-full rounded-xl border border-route-deep/15
+                                   bg-white px-4 py-3 text-sm text-route-deep
+                                   outline-none transition
+                                   focus:border-route-gold
+                                   focus:ring-2 focus:ring-route-gold/20">
+
+                        <option value="">
+                            All Departments
+                        </option>
+
+                        {% for department in departments|default([]) %}
+
+                            <option value="{{ department }}"
+                                {% if request.args.get('department') == department %}selected{% endif %}>
+                                {{ department }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                {# Status #}
+
+                <div>
+
+                    <label for="status"
+                           class="mb-2 block text-sm font-semibold text-route-deep">
+                        Status
+                    </label>
+
+                    <select id="status"
+                            name="status"
+                            class="w-full rounded-xl border border-route-deep/15
+                                   bg-white px-4 py-3 text-sm text-route-deep
+                                   outline-none transition
+                                   focus:border-route-gold
+                                   focus:ring-2 focus:ring-route-gold/20">
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        {% for status in staff_statuses|default([]) %}
+
+                            <option value="{{ status }}"
+                                {% if request.args.get('status') == status %}selected{% endif %}>
+                                {{ status }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            {# Filter Actions #}
+
+            <div class="mt-5 flex flex-wrap gap-3">
+
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2
+                               rounded-xl bg-route-deep px-5 py-3
+                               text-sm font-semibold text-white
+                               transition hover:bg-route-forest">
+
+                    <svg class="h-4 w-4"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M3 4h18M6 12h12m-9 8h6"/>
+
+                    </svg>
+
+                    Apply Filters
+
+                </button>
+
+
+                <a href="{{ url_for('admin_staff.index') }}"
+                   class="inline-flex items-center justify-center
+                          rounded-xl border border-route-deep/15
+                          bg-white px-5 py-3
+                          text-sm font-semibold text-route-deep
+                          transition hover:border-route-gold
+                          hover:bg-route-cream">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </form>
+
+
+        {# =========================================================================
+           STAFF TABLE
+           ========================================================================= #}
+
+        <div class="overflow-x-auto">
+
+            <table class="min-w-full divide-y divide-route-deep/10">
+
+                <thead class="bg-route-deep">
+
+                    <tr>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Staff Member
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Employee #
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Role
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Department
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Employment
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Status
+                        </th>
+
+                        <th class="px-6 py-4 text-right text-xs font-bold
+                                   uppercase tracking-wider text-route-sand">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody class="divide-y divide-route-deep/10 bg-white">
+
+                    {% for member in staff_members %}
+
+                    <tr class="transition hover:bg-route-cream/40">
+
+                        {# Staff Member #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <div class="flex items-center gap-3">
+
+                                <div class="flex h-11 w-11 shrink-0
+                                            items-center justify-center
+                                            rounded-full bg-route-forest
+                                            text-sm font-bold text-route-sand">
+
+                                    {% if member.user %}
+
+                                        {{ member.user.first_name[:1]|upper }}{{ member.user.last_name[:1]|upper }}
+
+                                    {% else %}
+
+                                        ?
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div>
+
+                                    <p class="font-semibold text-route-deep">
+
+                                        {% if member.user %}
+
+                                            {{ member.user.full_name }}
+
+                                        {% else %}
+
+                                            {{ member.display_name or "Staff Member" }}
+
+                                        {% endif %}
+
+                                    </p>
+
+
+                                    {% if member.user %}
+
+                                        <p class="mt-0.5 text-sm text-route-muted">
+                                            {{ member.user.email }}
+                                        </p>
+
+                                    {% elif member.work_email %}
+
+                                        <p class="mt-0.5 text-sm text-route-muted">
+                                            {{ member.work_email }}
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        {# Employee Number #}
+
+                        <td class="whitespace-nowrap px-6 py-5 text-sm text-route-muted">
+
+                            {% if member.employee_number %}
+
+                                <span class="font-medium text-route-deep">
+                                    {{ member.employee_number }}
+                                </span>
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Role #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <p class="text-sm font-semibold text-route-deep">
+                                {{ member.job_title or member.staff_type or "—" }}
+                            </p>
+
+                            {% if member.job_title and member.staff_type %}
+
+                                <p class="mt-0.5 text-xs text-route-muted">
+                                    {{ member.staff_type }}
+                                </p>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Department #}
+
+                        <td class="whitespace-nowrap px-6 py-5 text-sm text-route-muted">
+
+                            {{ member.department or "—" }}
+
+                        </td>
+
+
+                        {# Employment #}
+
+                        <td class="whitespace-nowrap px-6 py-5 text-sm text-route-muted">
+
+                            {{ member.employment_type or "—" }}
+
+                        </td>
+
+
+                        {# Status #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            {% if member.status == "Active" %}
+
+                                <span class="inline-flex items-center gap-2
+                                             rounded-full bg-route-forest/10
+                                             px-3 py-1.5 text-xs font-bold
+                                             text-route-forest">
+
+                                    <span class="h-1.5 w-1.5 rounded-full
+                                                 bg-route-forest"></span>
+
+                                    Active
+
+                                </span>
+
+                            {% elif member.status == "On Leave" %}
+
+                                <span class="inline-flex items-center
+                                             rounded-full bg-route-gold/15
+                                             px-3 py-1.5 text-xs font-bold
+                                             text-route-deep">
+
+                                    On Leave
+
+                                </span>
+
+                            {% elif member.status == "Suspended" %}
+
+                                <span class="inline-flex items-center
+                                             rounded-full bg-route-terracotta/10
+                                             px-3 py-1.5 text-xs font-bold
+                                             text-route-terracotta">
+
+                                    Suspended
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="inline-flex items-center
+                                             rounded-full bg-route-muted/10
+                                             px-3 py-1.5 text-xs font-bold
+                                             text-route-muted">
+
+                                    {{ member.status or "Inactive" }}
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Actions #}
+
+                        <td class="whitespace-nowrap px-6 py-5 text-right">
+
+                            <div class="flex justify-end gap-2">
+
+                                <a href="{{ url_for('admin_staff.detail', staff_id=member.id) }}"
+                                   class="inline-flex items-center rounded-lg
+                                          border border-route-deep/10
+                                          bg-white px-3 py-2
+                                          text-xs font-bold text-route-deep
+                                          transition hover:border-route-gold
+                                          hover:bg-route-cream">
+
+                                    View
+
+                                </a>
+
+
+                                <a href="{{ url_for('admin_staff.edit', staff_id=member.id) }}"
+                                   class="inline-flex items-center rounded-lg
+                                          bg-route-deep px-3 py-2
+                                          text-xs font-bold text-white
+                                          transition hover:bg-route-forest">
+
+                                    Edit
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    {# Empty State #}
+
+                    <tr>
+
+                        <td colspan="7"
+                            class="px-6 py-16 text-center">
+
+                            <div class="mx-auto max-w-md">
+
+                                <div class="mx-auto flex h-16 w-16
+                                            items-center justify-center
+                                            rounded-2xl bg-route-cream">
+
+                                    <svg class="h-8 w-8 text-route-deep"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         viewBox="0 0 24 24">
+
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m8-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+
+                                    </svg>
+
+                                </div>
+
+
+                                <h3 class="mt-5 text-lg font-bold text-route-deep">
+                                    No staff members found
+                                </h3>
+
+                                <p class="mt-2 text-sm leading-6 text-route-muted">
+                                    No staff members match the current filters.
+                                    Try adjusting your search or create a new
+                                    internal staff profile.
+                                </p>
+
+
+                                <div class="mt-6 flex flex-wrap justify-center gap-3">
+
+                                    <a href="{{ url_for('admin_staff.index') }}"
+                                       class="inline-flex rounded-xl
+                                              border border-route-deep/15
+                                              bg-white px-5 py-3
+                                              text-sm font-semibold text-route-deep
+                                              transition hover:border-route-gold
+                                              hover:bg-route-cream">
+
+                                        Clear Filters
+
+                                    </a>
+
+
+                                    <a href="{{ url_for('admin_staff.create') }}"
+                                       class="inline-flex rounded-xl
+                                              bg-route-deep px-5 py-3
+                                              text-sm font-semibold text-white
+                                              transition hover:bg-route-forest">
+
+                                        Add Staff Member
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {# =========================================================================
+           DIRECTORY FOOTER
+           ========================================================================= #}
+
+        {% if staff_members %}
+
+        <div class="flex flex-col gap-3 border-t border-route-deep/10
+                    bg-route-sand/30 px-6 py-4
+                    sm:flex-row sm:items-center sm:justify-between">
+
+            <p class="text-xs text-route-muted">
+                Showing {{ staff_members|length }} staff member{% if staff_members|length != 1 %}s{% endif %}
+                in the current view.
+            </p>
+
+            <a href="{{ url_for('admin_staff.statistics') }}"
+               class="inline-flex items-center gap-2 text-xs font-bold
+                      text-route-deep transition hover:text-route-gold">
+
+                Open Staff Statistics
+
+                <svg class="h-4 w-4"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"/>
+
+                </svg>
+
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

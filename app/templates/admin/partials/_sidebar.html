@@ -1,0 +1,389 @@
+{# ============================================================================
+   THE UNCHARTED ROUTE — ADMIN SIDEBAR
+   Consistent navigation, responsive layout, and current-page highlighting.
+   Uses sidebarOpen from admin/base.html.
+============================================================================ #}
+
+{% set current_endpoint = request.endpoint or '' %}
+
+{% macro nav_item(label, href, icon, active=false, badge=none) %}
+    <a
+        href="{{ href }}"
+        class="group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200
+            {% if active %}
+                bg-route-gold font-semibold text-route-deep shadow-sm
+            {% else %}
+                font-medium text-route-cream/85 hover:bg-route-white/10 hover:text-route-cream
+            {% endif %}"
+        @click="sidebarOpen = false"
+        {% if active %}aria-current="page"{% endif %}
+    >
+        <span
+            class="flex h-5 w-5 shrink-0 items-center justify-center text-base
+                {% if active %}text-route-deep{% else %}text-route-gold{% endif %}"
+            aria-hidden="true"
+        >{{ icon }}</span>
+
+        <span class="min-w-0 flex-1">{{ label }}</span>
+
+        {% if badge is not none and badge|int > 0 %}
+            <span class="inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold
+                {% if active %}
+                    bg-route-deep/10 text-route-deep
+                {% else %}
+                    bg-route-gold text-route-deep
+                {% endif %}">
+                {{ badge }}
+            </span>
+        {% endif %}
+    </a>
+{% endmacro %}
+
+{% macro nav_section(title) %}
+    <div class="mb-3 mt-7 px-3 first:mt-0">
+        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-route-muted">
+            {{ title }}
+        </p>
+    </div>
+{% endmacro %}
+
+<aside
+    class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col border-r border-route-white/10 bg-route-deep text-route-white shadow-route-lg transition-transform duration-300 ease-out lg:translate-x-0 lg:shadow-none"
+    :class="{ 'translate-x-0': sidebarOpen }"
+    aria-label="Administrative navigation"
+>
+    <!-- Brand -->
+    <div class="flex h-20 shrink-0 items-center justify-between border-b border-route-white/10 px-5">
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="group flex min-w-0 items-center gap-3"
+            @click="sidebarOpen = false"
+        >
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-gold text-route-deep shadow-sm transition group-hover:scale-105">
+                <span class="font-display text-xs font-bold tracking-tight">
+                    TUR
+                </span>
+            </div>
+
+            <div class="min-w-0">
+                <p class="truncate font-display text-base font-semibold leading-tight text-route-cream">
+                    {{ company_name }}
+                </p>
+                <p class="mt-1 text-[9px] font-bold uppercase tracking-[0.2em] text-route-gold">
+                    Admin workspace
+                </p>
+            </div>
+        </a>
+
+        <button
+            type="button"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-route-sand transition hover:bg-route-white/10 hover:text-route-gold lg:hidden"
+            @click="sidebarOpen = false"
+            aria-label="Close navigation"
+        >
+            <span class="text-2xl leading-none" aria-hidden="true">
+                &times;
+            </span>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav
+        class="flex-1 overflow-y-auto px-3 py-5"
+        aria-label="Main menu"
+    >
+        <!-- Overview -->
+        {{ nav_section('Overview') }}
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'Dashboard',
+                url_for('admin.dashboard'),
+                '⌂',
+                current_endpoint == 'admin.dashboard'
+            ) }}
+        </div>
+
+        <!-- Website CMS -->
+        {{ nav_section('Website CMS') }}
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'Homepage',
+                url_for('admin_homepage.index'),
+                '⌂',
+                current_endpoint.startswith('admin_homepage.')
+            ) }}
+
+            {{ nav_item(
+                'Page Heroes',
+                url_for('admin_page_hero.index'),
+                '◇',
+                current_endpoint.startswith('admin_page_hero.')
+            ) }}
+
+            {{ nav_item(
+                'Destinations',
+                url_for('admin_destinations.index'),
+                '◎',
+                current_endpoint.startswith('admin_destination.')
+            ) }}
+
+            {{ nav_item(
+                'Blog',
+                url_for('admin_blog.index'),
+                '▤',
+                current_endpoint.startswith('admin_blog.')
+            ) }}
+
+            {{ nav_item(
+                'Media Library',
+                url_for('admin_media.index'),
+                '▧',
+                current_endpoint.startswith('admin_media.')
+            ) }}
+
+            {{ nav_item(
+                'Promotions & Offers',
+                url_for('admin_promotions.index'),
+                '✦',
+                current_endpoint.startswith('admin_promotions.')
+            ) }}
+
+            {{ nav_item(
+                'Testimonials',
+                url_for('admin_testimonial.index'),
+                '☆',
+                current_endpoint.startswith('admin_testimonial.')
+            ) }}
+            {{ nav_item(
+    'Legal & Help',
+    url_for('admin_legal_help.index'),
+    '§',
+    current_endpoint.startswith('admin_legal_help.')
+) }}
+        </div>
+
+        <!-- Experiences, Safaris & Stays -->
+        {{ nav_section('Experiences & Stays') }}
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'Experiences',
+                url_for('admin_experiences.index'),
+                '✧',
+                current_endpoint.startswith('admin_experience.')
+            ) }}
+
+            {{ nav_item(
+                'Safaris',
+                url_for('admin_safaris.index'),
+                '♧',
+                current_endpoint.startswith('admin_safaris.')
+            ) }}
+
+            {{ nav_item(
+                'Experience Categories',
+                url_for('admin_experience_categories.index'),
+                '▦',
+                current_endpoint.startswith('admin_experience_categories.')
+            ) }}
+
+            {{ nav_item(
+                'Experience Tags',
+                url_for('admin_experience_tags.index'),
+                '✧',
+                current_endpoint.startswith('admin_experience_tags.')
+            ) }}
+
+            {{ nav_item(
+                'Wildlife Species',
+                url_for('admin_wildlife_species.index'),
+                '♧',
+                current_endpoint.startswith('admin_wildlife_species.')
+            ) }}
+
+            {{ nav_item(
+                'Photography Spots',
+                url_for('admin_photography_spots.index'),
+                '◎',
+                current_endpoint.startswith('admin_photography_spots.')
+            ) }}
+
+            {{ nav_item(
+                'Accessibility',
+                url_for('admin_accessibility.index'),
+                '♿',
+                current_endpoint.startswith('admin_accessibility.')
+            ) }}
+
+                        {{ nav_item(
+                'Conservation Stories',
+                url_for('admin_conservation_stories.index'),
+                '❧',
+                current_endpoint.startswith('admin_conservation_stories.')
+            ) }}
+
+            {{ nav_item(
+                'Signature Moments',
+                url_for('admin_signature_moments.index'),
+                '✦',
+                current_endpoint.startswith('admin_signature_moments.')
+            ) }}
+
+            {{ nav_item(
+                'Cancellation Policies',
+                url_for('admin_cancellation_policies.index'),
+                '↺',
+                current_endpoint.startswith('admin_cancellation_policies.')
+            ) }}
+
+            {{ nav_item(
+                'Stays',
+                url_for('admin_stay.index'),
+                '⌂',
+                current_endpoint.startswith('admin_stay.')
+            ) }}
+        </div>
+
+        <!-- Operations -->
+        {{ nav_section('Operations') }}
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'Bookings',
+                url_for('admin_central_bookings.index'),
+                '▣',
+                current_endpoint.startswith('admin_booking.'),
+                pending_booking_count if pending_booking_count is defined else none
+            ) }}
+
+            {{ nav_item(
+                'Enquiries',
+                url_for('contacts.index'),
+                '✉',
+                current_endpoint.startswith('admin_contact.') or current_endpoint.startswith('contacts.'),
+                unread_enquiry_count if unread_enquiry_count is defined else none
+            ) }}
+
+            {{ nav_item(
+                'Newsletter',
+                url_for('admin_newsletter.index'),
+                '✉',
+                current_endpoint.startswith('admin_newsletter.')
+            ) }}
+        </div>
+
+        <a href="{{ url_for('service_inquiries.index') }}"
+   class="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-route-muted transition hover:bg-route-cream hover:text-route-forest">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="h-5 w-5 shrink-0"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="1.7">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.7A2.5 2.5 0 0 1 4 14.5z"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 8h8M8 12h5"/>
+    </svg>
+    <span>Service Enquiries</span>
+</a>
+
+        <!-- People & Access -->
+        {{ nav_section('People & Access') }}
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'Users',
+                url_for('admin_user.index'),
+                '◎',
+                current_endpoint.startswith('admin_user.')
+            ) }}
+
+            {{ nav_item(
+                'Guides',
+                url_for('admin_guide.index'),
+                '♧',
+                current_endpoint.startswith('admin_guide.')
+            ) }}
+
+            {{ nav_item(
+                'Staff',
+                url_for('admin_staff.index'),
+                '♙',
+                current_endpoint.startswith('admin_staff.')
+            ) }}
+
+            {{ nav_item(
+                'Admin & Permissions',
+                url_for('admin.access_control'),
+                '⚿',
+                current_endpoint.startswith('admin.access')
+            ) }}
+        </div>
+
+        <!-- System -->
+        {{ nav_section('System') }}
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'Settings',
+                url_for('admin_settings.index'),
+                '⚙',
+                current_endpoint.startswith('admin_settings.')
+            ) }}
+        </div>
+    </nav>
+
+    <!-- Administrator Footer -->
+    <div class="shrink-0 border-t border-route-white/10 p-3">
+        <div class="mb-3 flex items-center gap-3 rounded-xl border border-route-white/5 bg-route-white/5 p-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-route-gold font-bold text-route-deep">
+                {{ (current_user.first_name or current_user.username or 'A')[0]|upper }}
+            </div>
+
+            <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-route-cream">
+                    {{ current_user.full_name or current_user.username }}
+                </p>
+
+                <p class="mt-1 truncate text-xs capitalize text-route-muted">
+                    {{ current_user.normalized_role }}
+                </p>
+            </div>
+
+            <span
+                class="h-2 w-2 shrink-0 rounded-full bg-emerald-400"
+                title="Signed in"
+            ></span>
+        </div>
+
+        <div class="space-y-1">
+            {{ nav_item(
+                'View Website',
+                url_for('main.home'),
+                '↗',
+                false
+            ) }}
+
+            {{ nav_item(
+                'My Profile',
+                url_for('admin.profile'),
+                '◯',
+                current_endpoint == 'admin.profile'
+            ) }}
+
+            {{ nav_item(
+                'Logout',
+                url_for('admin.logout'),
+                '⇥',
+                false
+            ) }}
+        </div>
+
+        <p class="mt-4 px-3 text-[9px] tracking-wide text-route-muted">
+            THE UNCHARTED ROUTE
+        </p>
+    </div>
+</aside>

@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+{% block title %}Safari Bookings | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">Booking Management</p>
+            <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Safari Bookings</h1>
+            <p class="mt-2 text-sm text-[#66736B]">Manage safari reservations and their central booking records.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_safari_bookings.archived') }}"
+               class="rounded-xl border border-[#E9DDC8] px-4 py-3 font-semibold text-[#12372A] hover:bg-[#F7F1E5]">Archived</a>
+            <a href="{{ url_for('admin_safari_bookings.create') }}"
+               class="rounded-xl bg-[#12372A] px-5 py-3 font-semibold text-white hover:bg-[#1F5138]">+ Create Booking</a>
+        </div>
+    </div>
+
+    <form method="get" class="grid gap-3 rounded-2xl border border-[#E9DDC8] bg-white p-4 md:grid-cols-[1fr_220px_auto]">
+        <input type="search" name="q" value="{{ search }}" placeholder="Search reference, customer, email or phone"
+               class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 focus:border-[#1F5138] focus:outline-none">
+        <select name="status" class="rounded-xl border border-[#E9DDC8] px-4 py-3">
+            {% for value, label in [('all','All statuses'),('pending','Pending'),('awaiting_payment','Awaiting payment'),('confirmed','Confirmed'),('in_progress','In progress'),('completed','Completed'),('cancelled','Cancelled')] %}
+            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="rounded-xl bg-[#D89B24] px-5 py-3 font-semibold text-[#1C2822]">Filter</button>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#E9DDC8]">
+                <thead class="bg-[#F7F1E5] text-left text-xs uppercase tracking-wider text-[#66736B]">
+                    <tr>
+                        <th class="px-5 py-4">Booking</th>
+                        <th class="px-5 py-4">Customer</th>
+                        <th class="px-5 py-4">Safari package</th>
+                        <th class="px-5 py-4">Travel dates</th>
+                        <th class="px-5 py-4">Total</th>
+                        <th class="px-5 py-4">Status</th>
+                        <th class="px-5 py-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E9DDC8]">
+                {% for booking in bookings %}
+                    {% set safari = booking.safari_booking %}
+                    <tr class="hover:bg-[#F7F1E5]/60">
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <a class="font-semibold text-[#12372A] hover:underline"
+                               href="{{ url_for('admin_safari_bookings.detail', booking_id=booking.id) }}">
+                                {{ booking.booking_reference }}
+                            </a>
+                            <p class="mt-1 text-xs text-[#66736B]">{{ booking.created_at.strftime('%d %b %Y') if booking.created_at else '—' }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-[#1C2822]">{{ booking.full_name }}</p>
+                            <p class="text-sm text-[#66736B]">{{ booking.email }}</p>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-[#1C2822]">{{ safari.package_name_snapshot if safari else 'Details unavailable' }}</td>
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-[#66736B]">
+                            {% if safari %}{{ safari.start_date.strftime('%d %b %Y') }} – {{ safari.end_date.strftime('%d %b %Y') }}{% else %}—{% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-5 py-4 font-semibold text-[#12372A]">{{ booking.currency }} {{ '{:,.2f}'.format(booking.total_amount or 0) }}</td>
+                        <td class="px-5 py-4"><span class="inline-flex rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-semibold text-[#12372A]">{{ booking.status|replace('_',' ')|title }}</span></td>
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <a href="{{ url_for('admin_safari_bookings.detail', booking_id=booking.id) }}" class="font-semibold text-[#1F5138] hover:underline">View details →</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="px-5 py-14 text-center">
+                        <p class="font-semibold text-[#12372A]">No safari bookings found</p>
+                        <p class="mt-2 text-sm text-[#66736B]">Try changing the search filters or create a booking.</p>
+                    </td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

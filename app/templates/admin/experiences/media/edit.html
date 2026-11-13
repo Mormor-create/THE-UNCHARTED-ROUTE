@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Experience Media | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+
+    <div>
+        <a
+            href="{{ url_for('admin_experience_media.detail', experience_id=experience.id, media_id=assignment.id) }}"
+            class="text-sm font-medium text-emerald-800 hover:underline"
+        >
+            ← Back to Assignment
+        </a>
+
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+            {{ experience.experience_code }}
+        </p>
+
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+            Edit Media Assignment
+        </h1>
+
+        <p class="mt-2 text-sm text-slate-500">
+            Update how this asset is used on {{ experience.title }}.
+            Changes here do not edit the original Media Library file.
+        </p>
+    </div>
+
+    {% if assignment.media_asset %}
+        <div class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            {% if assignment.media_asset.is_image and assignment.media_asset.browser_url %}
+                <img
+                    src="{{ assignment.media_asset.browser_url }}"
+                    alt="{{ assignment.media_asset.alt_text or assignment.media_asset.title or 'Current media asset' }}"
+                    class="h-20 w-28 rounded-xl object-cover"
+                >
+            {% else %}
+                <div class="flex h-20 w-28 items-center justify-center rounded-xl bg-slate-100 text-xs font-semibold text-slate-600">
+                    {{ assignment.media_asset.media_type|upper }}
+                </div>
+            {% endif %}
+
+            <div>
+                <p class="font-semibold text-slate-900">
+                    {{ assignment.media_asset.title or assignment.media_asset.original_filename }}
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                    Central asset #{{ assignment.media_asset_id }}
+                </p>
+                {% if not assignment.media_asset.active %}
+                    <p class="mt-2 text-xs font-medium text-amber-800">
+                        This central asset is currently inactive. Activate it in the Media Library before saving this assignment.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-6">
+        {% include "admin/experiences/media/_form_fields.html" %}
+
+        <div class="flex flex-wrap justify-end gap-3">
+            <a
+                href="{{ url_for('admin_experience_media.detail', experience_id=experience.id, media_id=assignment.id) }}"
+                class="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                value="Save Changes",
+                class="rounded-xl bg-emerald-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800"
+            ) }}
+        </div>
+    </form>
+
+</div>
+{% endblock %}

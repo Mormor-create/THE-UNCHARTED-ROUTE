@@ -1,0 +1,866 @@
+{% extends "admin/base.html" %}
+
+{% block title %}New Enquiry{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <!-- Page Header -->
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+        <div>
+            <div class="mb-2 flex items-center gap-2 text-sm">
+                <a href="{{ url_for('contacts.index') }}"
+                   class="inline-flex items-center gap-1.5 font-medium text-slate-500 transition hover:text-slate-900">
+                    <i class="bi bi-arrow-left"></i>
+                    Enquiries
+                </a>
+
+                <span class="text-slate-300">/</span>
+
+                <span class="text-slate-500">
+                    New
+                </span>
+            </div>
+
+            <div class="flex items-start gap-3">
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                    <i class="bi bi-envelope-plus text-lg"></i>
+                </div>
+
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+                        Create Enquiry
+                    </h1>
+
+                    <p class="mt-1 max-w-3xl text-sm text-slate-500">
+                        Manually create a customer enquiry or record an enquiry received
+                        through another channel.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="flex shrink-0">
+            <a href="{{ url_for('contacts.index') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300
+                      bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm
+                      transition hover:border-slate-400 hover:bg-slate-50">
+                <i class="bi bi-x-lg"></i>
+                Cancel
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- Validation Summary -->
+    {% if form.errors %}
+    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
+
+        <div class="flex items-start gap-3">
+
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div class="min-w-0">
+
+                <h6 class="font-bold text-rose-900">
+                    Please correct the following errors:
+                </h6>
+
+                <ul class="mt-2 space-y-1 pl-5 text-sm text-rose-800">
+
+                    {% for field_name, errors in form.errors.items() %}
+
+                        {% for error in errors %}
+
+                            <li>
+                                {% if field_name != 'csrf_token' %}
+                                    <strong>
+                                        {{ field_name.replace('_', ' ').title() }}:
+                                    </strong>
+                                {% endif %}
+
+                                {{ error }}
+                            </li>
+
+                        {% endfor %}
+
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+    {% endif %}
+
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+
+        <!-- ========================================================= -->
+        <!-- MAIN FORM -->
+        <!-- ========================================================= -->
+
+        <div class="xl:col-span-8">
+
+            <form method="POST"
+                  action="{{ url_for('contacts.create') }}"
+                  novalidate>
+
+                {{ form.hidden_tag() }}
+
+
+                <!-- ===================================================== -->
+                <!-- CUSTOMER INFORMATION -->
+                <!-- ===================================================== -->
+
+                <div class="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                    <div class="border-b border-slate-100 px-6 py-5">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                                <i class="bi bi-person text-lg"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">
+                                    Customer Information
+                                </h2>
+
+                                <p class="mt-0.5 text-sm text-slate-500">
+                                    Contact details for the person making the enquiry.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="p-6">
+
+                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+
+                            <!-- First Name -->
+                            <div>
+                                {{ form.first_name.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.first_name(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.first_name.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="First name"
+                                ) }}
+
+                                {% for error in form.first_name.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+
+
+                            <!-- Last Name -->
+                            <div>
+                                {{ form.last_name.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.last_name(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.last_name.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="Last name"
+                                ) }}
+
+                                {% for error in form.last_name.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+
+
+                            <!-- Email -->
+                            <div>
+                                {{ form.email.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.email(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.email.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="customer@example.com"
+                                ) }}
+
+                                {% for error in form.email.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+
+
+                            <!-- Phone -->
+                            <div>
+                                {{ form.phone.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.phone(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.phone.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="+254 7XX XXX XXX"
+                                ) }}
+
+                                {% for error in form.phone.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+
+
+                            <!-- Company -->
+                            <div>
+                                {{ form.company.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.company(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.company.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="Company / organisation"
+                                ) }}
+
+                                {% for error in form.company.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+
+
+                            <!-- Country -->
+                            <div>
+                                {{ form.country.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.country(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.country.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="Country"
+                                ) }}
+
+                                {% for error in form.country.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- ENQUIRY DETAILS -->
+                <!-- ========================================================= -->
+
+                <div class="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                    <div class="border-b border-slate-100 px-6 py-5">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                                <i class="bi bi-chat-left-text text-lg"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">
+                                    Enquiry Details
+                                </h2>
+
+                                <p class="mt-0.5 text-sm text-slate-500">
+                                    Record the customer's request and its classification.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="p-6">
+
+                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+
+                            <!-- Subject -->
+                            <div class="md:col-span-2">
+
+                                {{ form.subject.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.subject(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.subject.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="e.g. Maasai Mara Safari enquiry"
+                                ) }}
+
+                                {% for error in form.subject.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Enquiry Type -->
+                            <div>
+
+                                {{ form.enquiry_type.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.enquiry_type(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.enquiry_type.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200")
+                                ) }}
+
+                                {% for error in form.enquiry_type.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Priority -->
+                            <div>
+
+                                {{ form.priority.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.priority(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.priority.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200")
+                                ) }}
+
+                                {% for error in form.priority.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Department -->
+                            <div>
+
+                                {{ form.department.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.department(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.department.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    placeholder="e.g. Sales, Operations, Bookings"
+                                ) }}
+
+                                {% for error in form.department.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Source -->
+                            <div>
+
+                                {{ form.source.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.source(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.source.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200")
+                                ) }}
+
+                                {% for error in form.source.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Message -->
+                            <div class="md:col-span-2">
+
+                                {{ form.message.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.message(
+                                    class="block w-full rounded-xl border px-4 py-2.5 text-sm leading-6 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-2 " +
+                                    ("border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100"
+                                     if form.message.errors
+                                     else
+                                     "border-slate-300 bg-white focus:border-slate-500 focus:ring-slate-200"),
+                                    rows="8",
+                                    placeholder="Enter the customer's enquiry or message..."
+                                ) }}
+
+                                {% for error in form.message.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                                <p class="mt-2 text-xs leading-5 text-slate-500">
+                                    Include the customer's request, questions, requirements,
+                                    or any other information that will help the team handle
+                                    the enquiry.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- MARKETING PREFERENCES -->
+                <!-- ========================================================= -->
+
+                <div class="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                    <div class="border-b border-slate-100 px-6 py-5">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                                <i class="bi bi-megaphone text-lg"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">
+                                    Marketing Preferences
+                                </h2>
+
+                                <p class="mt-0.5 text-sm text-slate-500">
+                                    Record the customer's communication preferences.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="p-6">
+
+                        <div class="flex items-start gap-3">
+
+                            {{ form.newsletter_opt_in(
+                                class="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-slate-900
+                                       focus:ring-2 focus:ring-slate-300" +
+                                (" border-rose-400" if form.newsletter_opt_in.errors else "")
+                            ) }}
+
+                            <div>
+
+                                {{ form.newsletter_opt_in.label(
+                                    class="cursor-pointer text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                <p class="mt-1 text-xs leading-5 text-slate-500">
+                                    Only enable this if the customer has opted in to receive
+                                    newsletters and marketing communications.
+                                </p>
+
+                                {% for error in form.newsletter_opt_in.errors %}
+                                    <p class="mt-1.5 text-sm text-rose-600">
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- FORM ACTIONS -->
+                <!-- ========================================================= -->
+
+                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                    <div class="p-5 sm:p-6">
+
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                            <a href="{{ url_for('contacts.index') }}"
+                               class="inline-flex items-center justify-center gap-2 rounded-xl border
+                                      border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold
+                                      text-slate-700 shadow-sm transition hover:border-slate-400
+                                      hover:bg-slate-50">
+                                <i class="bi bi-x-lg"></i>
+                                Cancel
+                            </a>
+
+
+                            <div class="flex flex-col gap-2 sm:flex-row">
+
+                                <button type="reset"
+                                        class="inline-flex items-center justify-center gap-2 rounded-xl
+                                               border border-slate-300 bg-white px-4 py-2.5 text-sm
+                                               font-semibold text-slate-700 shadow-sm transition
+                                               hover:border-slate-400 hover:bg-slate-50">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                    Reset
+                                </button>
+
+
+                                {{ form.submit(
+                                    class="inline-flex items-center justify-center gap-2 rounded-xl
+                                           bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white
+                                           shadow-sm transition hover:bg-slate-800 focus:outline-none
+                                           focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- SIDEBAR -->
+        <!-- ========================================================= -->
+
+        <div class="space-y-6 xl:col-span-4">
+
+
+            <!-- ===================================================== -->
+            <!-- ENQUIRY GUIDE -->
+            <!-- ===================================================== -->
+
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                <div class="border-b border-slate-100 px-6 py-5">
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                            <i class="bi bi-info-circle text-lg"></i>
+                        </div>
+
+                        <h2 class="text-base font-semibold text-slate-900">
+                            Enquiry Guide
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="p-6">
+
+                    <!-- Step 1 -->
+                    <div class="flex items-start gap-3">
+
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-sm font-bold text-white">
+                            1
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-900">
+                                Capture accurately
+                            </h3>
+
+                            <p class="mt-1 text-sm leading-6 text-slate-500">
+                                Enter the customer's contact information and preserve the
+                                original wording of their request where possible.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="my-4 ml-4 h-5 border-l border-dashed border-slate-300"></div>
+
+
+                    <!-- Step 2 -->
+                    <div class="flex items-start gap-3">
+
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-sm font-bold text-white">
+                            2
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-900">
+                                Classify the enquiry
+                            </h3>
+
+                            <p class="mt-1 text-sm leading-6 text-slate-500">
+                                Select the correct enquiry type, priority, department,
+                                and source so the team can process it efficiently.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="my-4 ml-4 h-5 border-l border-dashed border-slate-300"></div>
+
+
+                    <!-- Step 3 -->
+                    <div class="flex items-start gap-3">
+
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-sm font-bold text-white">
+                            3
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-900">
+                                Follow up
+                            </h3>
+
+                            <p class="mt-1 text-sm leading-6 text-slate-500">
+                                Once created, the enquiry can be assigned, responded to,
+                                followed up, resolved, archived, or reopened.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- WORKFLOW -->
+            <!-- ===================================================== -->
+
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+                <div class="border-b border-slate-100 px-6 py-5">
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                            <i class="bi bi-diagram-3 text-lg"></i>
+                        </div>
+
+                        <h2 class="text-base font-semibold text-slate-900">
+                            Enquiry Workflow
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="p-6">
+
+                    <!-- New -->
+                    <div class="flex items-center gap-3">
+
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50
+                                     text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-200">
+                            1
+                        </span>
+
+                        <span class="text-sm font-medium text-slate-700">
+                            New
+                        </span>
+
+                    </div>
+
+
+                    <div class="my-2 ml-3.5 h-5 border-l border-dashed border-slate-300"></div>
+
+
+                    <!-- Assigned -->
+                    <div class="flex items-center gap-3">
+
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-50
+                                     text-xs font-bold text-cyan-700 ring-1 ring-inset ring-cyan-200">
+                            2
+                        </span>
+
+                        <span class="text-sm font-medium text-slate-700">
+                            Assigned / In Progress
+                        </span>
+
+                    </div>
+
+
+                    <div class="my-2 ml-3.5 h-5 border-l border-dashed border-slate-300"></div>
+
+
+                    <!-- Waiting -->
+                    <div class="flex items-center gap-3">
+
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-50
+                                     text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-200">
+                            3
+                        </span>
+
+                        <span class="text-sm font-medium text-slate-700">
+                            Waiting for Customer
+                        </span>
+
+                    </div>
+
+
+                    <div class="my-2 ml-3.5 h-5 border-l border-dashed border-slate-300"></div>
+
+
+                    <!-- Resolved -->
+                    <div class="flex items-center gap-3">
+
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50
+                                     text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                            4
+                        </span>
+
+                        <span class="text-sm font-medium text-slate-700">
+                            Resolved
+                        </span>
+
+                    </div>
+
+
+                    <div class="my-2 ml-3.5 h-5 border-l border-dashed border-slate-300"></div>
+
+
+                    <!-- Closed -->
+                    <div class="flex items-center gap-3">
+
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100
+                                     text-xs font-bold text-slate-600 ring-1 ring-inset ring-slate-200">
+                            5
+                        </span>
+
+                        <span class="text-sm font-medium text-slate-700">
+                            Closed / Archived
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- IMPORTANT NOTE -->
+            <!-- ===================================================== -->
+
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+
+                <div class="flex items-start gap-3">
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+                    <div>
+
+                        <h3 class="text-sm font-semibold text-emerald-900">
+                            Data handling
+                        </h3>
+
+                        <p class="mt-1 text-sm leading-6 text-emerald-800/80">
+                            Keep customer information accurate and only record information
+                            that is relevant to handling the enquiry.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

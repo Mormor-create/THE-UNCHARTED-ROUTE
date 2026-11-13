@@ -1,0 +1,74 @@
+<div class="space-y-8">
+    <section>
+        <h2 class="text-lg font-semibold text-route-forest">Booking and Identity</h2>
+        <p class="mt-1 text-sm text-route-muted">The booking this traveller belongs to and their basic details.</p>
+
+        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [form.booking_id, form.traveller_reference, form.traveller_number, form.first_name, form.middle_name, form.last_name, form.date_of_birth, form.traveller_type, form.nationality, form.country_of_residence] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-route-forest") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep focus:border-route-gold focus:outline-none focus:ring-2 focus:ring-route-gold/20") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-semibold text-route-forest">Contact Information</h2>
+        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [form.email, form.phone, form.emergency_contact_name, form.emergency_contact_relationship, form.emergency_contact_phone, form.emergency_contact_email] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-route-forest") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm focus:border-route-gold focus:outline-none focus:ring-2 focus:ring-route-gold/20") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-semibold text-route-forest">Operational Requirements</h2>
+        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [form.dietary_requirements, form.accessibility_requirements, form.medical_information, form.special_requirements, form.notes] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-route-forest") }}
+                    {{ field(rows="3", class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm focus:border-route-gold focus:outline-none focus:ring-2 focus:ring-route-gold/20") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-semibold text-route-forest">Waiver and Record Status</h2>
+        <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+                {{ form.waiver_status.label(class="mb-2 block text-sm font-medium text-route-forest") }}
+                {{ form.waiver_status(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+            </div>
+            <div>
+                {{ form.status.label(class="mb-2 block text-sm font-medium text-route-forest") }}
+                {{ form.status(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm") }}
+            </div>
+            <label class="flex items-center gap-3 text-sm text-route-deep">
+                {{ form.waiver_required(class="h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-gold") }}
+                Waiver is required
+            </label>
+        </div>
+    </section>
+</div>
+
+<div class="flex flex-wrap gap-3 border-t border-route-sand pt-6">
+    {{ form.submit(class="cursor-pointer rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white transition hover:bg-route-deep") }}
+    <a href="{{ url_for('admin_booking_travellers.index') }}"
+       class="rounded-xl border border-route-sand px-6 py-3 text-sm font-semibold text-route-deep hover:bg-route-cream">
+        Cancel
+    </a>
+</div>

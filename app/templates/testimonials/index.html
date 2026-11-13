@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Guest Stories | The Uncharted Route{% endblock %}
+
+{% block content %}
+<main class="bg-[#F7F1E5] text-[#1C2822]">
+
+{# ============================================================
+   Testimonials Page Hero — Page Hero CMS
+   ============================================================ #}
+{% set hero_eyebrow = (page_hero.eyebrow if page_hero and page_hero.eyebrow else "Stories from the journey") %}
+{% set hero_heading = (page_hero.heading if page_hero and page_hero.heading else "Experiences worth remembering.") %}
+{% set hero_description = (page_hero.subheading if page_hero and page_hero.subheading else "Every journey leaves a story. Discover the experiences, meaningful connections, and unforgettable moments shared by our guests.") %}
+{% set hero_cta_text = (page_hero.primary_cta_text if page_hero and page_hero.primary_cta_text else "Share your story") %}
+{% set hero_cta_url = (page_hero.primary_cta_url if page_hero and page_hero.primary_cta_url else url_for('main.submit_testimonial')) %}
+{% set hero_image = (page_hero.desktop_image_url if page_hero and page_hero.desktop_image_url else none) %}
+{% set hero_mobile_image = (page_hero.mobile_image_url if page_hero and page_hero.mobile_image_url else hero_image) %}
+{% set hero_overlay = (page_hero.overlay_style if page_hero and page_hero.overlay_style else "dark") %}
+{% set hero_position = (page_hero.image_position if page_hero and page_hero.image_position else "center") %}
+
+<section
+    class="relative isolate overflow-hidden bg-[#12372A] px-6 py-20 text-white md:py-28"
+    {% if hero_image %}
+        style="background-image: url('{{ hero_image }}'); background-position: {{ hero_position }}; background-size: cover;"
+    {% endif %}
+>
+    {% if hero_image %}
+        <picture class="absolute inset-0 -z-10">
+            {% if hero_mobile_image %}
+                <source
+                    media="(max-width: 767px)"
+                    srcset="{{ hero_mobile_image }}"
+                >
+            {% endif %}
+            <img
+                src="{{ hero_image }}"
+                alt=""
+                aria-hidden="true"
+                class="h-full w-full object-cover"
+                style="object-position: {{ hero_position }};"
+            >
+        </picture>
+    {% endif %}
+
+    {% if hero_overlay == "dark" %}
+        <div class="absolute inset-0 -z-0 bg-[#12372A]/75"></div>
+    {% elif hero_overlay == "light" %}
+        <div class="absolute inset-0 -z-0 bg-[#F7F1E5]/75"></div>
+    {% endif %}
+
+    <div class="relative z-10 mx-auto max-w-5xl text-center
+        {% if hero_overlay == 'light' %}text-[#1C2822]{% else %}text-white{% endif %}">
+
+        {% if hero_eyebrow %}
+            <p class="mb-4 text-xs font-bold uppercase tracking-[0.3em]
+                {% if hero_overlay == 'light' %}text-[#1F5138]{% else %}text-[#D89B24]{% endif %}">
+                {{ hero_eyebrow }}
+            </p>
+        {% endif %}
+
+        <h1 class="font-serif text-4xl leading-tight md:text-6xl">
+            {{ hero_heading }}
+        </h1>
+
+        {% if hero_description %}
+            <p class="mx-auto mt-6 max-w-2xl text-base leading-8
+                {% if hero_overlay == 'light' %}text-[#1C2822]/80{% else %}text-[#E9DDC8]{% endif %} md:text-lg">
+                {{ hero_description }}
+            </p>
+        {% endif %}
+
+        {% if hero_cta_text and hero_cta_url %}
+            <a
+                href="{{ hero_cta_url }}"
+                class="mt-9 inline-flex items-center justify-center rounded-full bg-[#D89B24] px-7 py-3.5 font-semibold text-[#1C2822] transition hover:bg-[#E9DDC8] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#12372A]"
+            >
+                {{ hero_cta_text }}
+                <span class="ml-2" aria-hidden="true">→</span>
+            </a>
+        {% endif %}
+
+        {% if page_hero and page_hero.secondary_cta_text and page_hero.secondary_cta_url %}
+            <a
+                href="{{ page_hero.secondary_cta_url }}"
+                class="mt-9 ml-3 inline-flex items-center justify-center rounded-full border border-current px-7 py-3.5 font-semibold transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+            >
+                {{ page_hero.secondary_cta_text }}
+            </a>
+        {% endif %}
+    </div>
+</section>
+
+    <!-- Testimonials -->
+    <section class="px-5 py-16 md:px-8 md:py-24">
+        <div class="mx-auto max-w-7xl">
+            <div class="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+                <div>
+                    <p class="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-[#C96A2C]">
+                        Guest experiences
+                    </p>
+                    <h2 class="font-serif text-3xl text-[#12372A] md:text-4xl">
+                        Words from our travellers
+                    </h2>
+                    <p class="mt-3 max-w-2xl leading-7 text-[#66736B]">
+                        Real stories from people who have explored,
+                        experienced, and remembered the journey.
+                    </p>
+                </div>
+
+                <p class="text-sm text-[#66736B]">
+                    {{ testimonials|length }}
+                    {{ 'story' if testimonials|length == 1 else 'stories' }}
+                </p>
+            </div>
+
+            {% if testimonials %}
+                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {% for item in testimonials %}
+                        <article class="flex h-full flex-col rounded-2xl border border-[#E9DDC8] bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="mb-5 flex items-center justify-between gap-3">
+                                <div class="flex gap-1 text-lg text-[#D89B24]"
+                                     role="img"
+                                     aria-label="{{ item.rating }} out of 5 stars">
+                                    {% for star in range(item.rating or 0) %}
+                                        <span aria-hidden="true">★</span>
+                                    {% endfor %}
+                                    {% for star in range(5 - (item.rating or 0)) %}
+                                        <span class="text-[#E9DDC8]" aria-hidden="true">★</span>
+                                    {% endfor %}
+                                </div>
+
+                                {% if item.verified %}
+                                    <span class="rounded-full bg-[#EAF1E9] px-3 py-1 text-xs font-semibold text-[#1F5138]">
+                                        <span aria-hidden="true">✓</span>
+                                        Verified
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            {% if item.title %}
+                                <h3 class="mb-3 font-serif text-xl leading-snug text-[#12372A]">
+                                    {{ item.title }}
+                                </h3>
+                            {% endif %}
+
+                            <blockquote class="flex-1 text-sm leading-7 text-[#66736B]">
+                                “{{ item.testimonial }}”
+                            </blockquote>
+
+                            <div class="mt-7 border-t border-[#E9DDC8] pt-5">
+                                <div class="flex items-center gap-4">
+                                    {% if item.profile_photo_asset and item.profile_photo_asset.browser_url %}
+                                        <img
+                                            src="{{ item.profile_photo_asset.browser_url }}"
+                                            alt="{{ item.customer_name }}"
+                                            loading="lazy"
+                                            class="h-12 w-12 rounded-full object-cover"
+                                        >
+                                    {% else %}
+                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E9DDC8] font-serif text-lg font-semibold text-[#12372A]"
+                                             aria-hidden="true">
+                                            {{ item.customer_name[:1]|upper }}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="min-w-0">
+                                        <p class="font-semibold text-[#12372A]">
+                                            {{ item.customer_name }}
+                                        </p>
+
+                                        {% if item.position or item.company %}
+                                            <p class="mt-1 text-xs text-[#66736B]">
+                                                {% if item.position %}{{ item.position }}{% endif %}
+                                                {% if item.position and item.company %} · {% endif %}
+                                                {% if item.company %}{{ item.company }}{% endif %}
+                                            </p>
+                                        {% elif item.customer_city or item.customer_country %}
+                                            <p class="mt-1 text-xs text-[#66736B]">
+                                                {% if item.customer_city %}{{ item.customer_city }}{% endif %}
+                                                {% if item.customer_city and item.customer_country %}, {% endif %}
+                                                {% if item.customer_country %}{{ item.customer_country }}{% endif %}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="rounded-2xl border border-dashed border-[#D8C9AC] bg-white px-6 py-16 text-center">
+                    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#F7F1E5] text-3xl text-[#D89B24]"
+                         aria-hidden="true">
+                        ✦
+                    </div>
+
+                    <h3 class="font-serif text-2xl text-[#12372A]">
+                        The next story could be yours.
+                    </h3>
+
+                    <p class="mx-auto mt-3 max-w-lg leading-7 text-[#66736B]">
+                        We're looking forward to sharing more guest
+                        experiences. If you've travelled with us,
+                        we'd love to hear your story.
+                    </p>
+
+                    <a href="{{ url_for('main.submit_testimonial') }}"
+                       class="mt-7 inline-flex rounded-full bg-[#12372A] px-6 py-3 font-semibold text-white transition hover:bg-[#1F5138]">
+                        Share your experience
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Closing CTA -->
+    <section class="px-5 pb-16 md:px-8 md:pb-24">
+        <div class="mx-auto max-w-5xl rounded-3xl bg-[#E9DDC8] px-6 py-12 text-center md:px-12 md:py-16">
+            <p class="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-[#C96A2C]">
+                Your journey matters
+            </p>
+
+            <h2 class="font-serif text-3xl text-[#12372A] md:text-4xl">
+                Have a story to share?
+            </h2>
+
+            <p class="mx-auto mt-4 max-w-xl leading-7 text-[#66736B]">
+                Your experience might inspire someone else's next adventure.
+            </p>
+
+            <a href="{{ url_for('main.submit_testimonial') }}"
+               class="mt-7 inline-flex rounded-full bg-[#12372A] px-7 py-3.5 font-semibold text-white transition hover:bg-[#1F5138]">
+                Write your testimonial
+            </a>
+        </div>
+    </section>
+</main>
+{% endblock %}

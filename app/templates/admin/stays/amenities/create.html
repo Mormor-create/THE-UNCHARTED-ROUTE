@@ -1,0 +1,279 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Amenity · {{ stay.property_name }}{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div>
+
+        <div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+
+            <a
+                href="{{ url_for('admin_stay.index') }}"
+                class="hover:text-slate-900"
+            >
+                Stays
+            </a>
+
+            <span>/</span>
+
+            <a
+                href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                class="hover:text-slate-900"
+            >
+                {{ stay.property_name }}
+            </a>
+
+            <span>/</span>
+
+            <a
+                href="{{ url_for('admin_stay_amenity.index', stay_id=stay.id) }}"
+                class="hover:text-slate-900"
+            >
+                Amenities
+            </a>
+
+            <span>/</span>
+
+            <span>Add</span>
+
+        </div>
+
+        <h1 class="text-2xl font-bold text-slate-900">
+            Add Amenity
+        </h1>
+
+        <p class="mt-1 text-sm text-slate-500">
+            Add an amenity available at {{ stay.property_name }}.
+        </p>
+
+    </div>
+
+
+    <!-- Form -->
+    <form method="POST"
+        class="space-y-6"
+    >
+
+        {{ form.hidden_tag() }}
+
+
+        <!-- Basic Information -->
+        <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-4">
+                <h2 class="font-semibold text-slate-900">
+                    Amenity Information
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    Define the amenity and how it should be presented.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                <!-- Name -->
+                <div class="md:col-span-2">
+
+                    {{ form.name.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.name(
+                        class="block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500",
+                        placeholder="e.g. Swimming Pool"
+                    ) }}
+
+                    {% for error in form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Category -->
+                <div>
+
+                    {{ form.category.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.category(
+                        class="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                    ) }}
+
+                    {% for error in form.category.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Icon -->
+                <div>
+
+                    {{ form.icon.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.icon(
+                        class="block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500",
+                        placeholder="e.g. 🏊"
+                    ) }}
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Optional icon, emoji, or icon identifier.
+                    </p>
+
+                    {% for error in form.icon.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Description -->
+                <div class="md:col-span-2">
+
+                    {{ form.description.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.description(
+                        rows="5",
+                        class="block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500",
+                        placeholder="Describe what this amenity offers guests."
+                    ) }}
+
+                    {% for error in form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Display Configuration -->
+        <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-200 px-6 py-4">
+
+                <h2 class="font-semibold text-slate-900">
+                    Display Configuration
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    Control visibility, featuring, and ordering.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                <!-- Display Order -->
+                <div>
+
+                    {{ form.display_order.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.display_order(
+                        class="block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                    ) }}
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Lower numbers appear first.
+                    </p>
+
+                    {% for error in form.display_order.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Status -->
+                <div class="space-y-4">
+
+                    <label class="flex items-start gap-3">
+
+                        {{ form.active(
+                            class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+                        ) }}
+
+                        <span>
+                            <span class="block text-sm font-medium text-slate-700">
+                                Active
+                            </span>
+
+                            <span class="block text-xs text-slate-500">
+                                Make this amenity available on the property.
+                            </span>
+                        </span>
+
+                    </label>
+
+
+                    <label class="flex items-start gap-3">
+
+                        {{ form.featured(
+                            class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+                        ) }}
+
+                        <span>
+                            <span class="block text-sm font-medium text-slate-700">
+                                Featured
+                            </span>
+
+                            <span class="block text-xs text-slate-500">
+                                Highlight this amenity in featured amenity areas.
+                            </span>
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+
+            <a
+                href="{{ url_for('admin_stay_amenity.index', stay_id=stay.id) }}"
+                class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

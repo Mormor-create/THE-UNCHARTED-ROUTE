@@ -1,0 +1,830 @@
+{# ============================================================================
+   THE UNCHARTED ROUTE
+   Admin — Edit Blog Category
+   Media Library: Blog / Blog Categories (+ descendants)
+============================================================================ #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Blog Category | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+
+    {# ------------------------------------------------------------------
+       Page heading
+    ------------------------------------------------------------------ #}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="mb-2 flex items-center gap-2 text-sm text-gray-500">
+                <a href="{{ url_for('admin_blog.categories') }}"
+                   class="transition hover:text-emerald-700">
+                    Blog Categories
+                </a>
+                <span aria-hidden="true">/</span>
+                <span class="text-gray-700">Edit Category</span>
+            </div>
+
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                Edit Blog Category
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
+                Update this category’s details, appearance, SEO information,
+                and publishing settings.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_blog.categories') }}"
+           class="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300
+                  bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm
+                  transition hover:bg-gray-50">
+            <span aria-hidden="true">←</span>
+            Back to Categories
+        </a>
+    </div>
+
+    {# ------------------------------------------------------------------
+       Flash messages
+    ------------------------------------------------------------------ #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3">
+                {% for category_type, message in messages %}
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category_type in ['success'] %}
+                            border-emerald-200 bg-emerald-50 text-emerald-800
+                        {% elif category_type in ['danger', 'error'] %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% elif category_type == 'warning' %}
+                            border-amber-200 bg-amber-50 text-amber-800
+                        {% else %}
+                            border-gray-200 bg-gray-50 text-gray-700
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {# ------------------------------------------------------------------
+       Edit form
+    ------------------------------------------------------------------ #}
+    <form id="editCategoryForm"
+          method="POST"
+          action="{{ url_for('admin_blog.edit_category', category_id=category.id) }}"
+          class="space-y-8">
+
+        {{ form.hidden_tag() }}
+
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+            {# ==========================================================
+               MAIN COLUMN
+            ========================================================== #}
+            <div class="space-y-8 lg:col-span-2">
+
+                {# ------------------------------------------------------
+                   Basic information
+                ------------------------------------------------------ #}
+                <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-100 px-6 py-5">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            Basic Information
+                        </h2>
+                        <p class="mt-1 text-sm text-gray-500">
+                            The category name and description shown to readers.
+                        </p>
+                    </div>
+
+                    <div class="space-y-6 p-6">
+
+                        <div>
+                            {{ form.name.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                            {{ form.name(
+                                id="name",
+                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                placeholder="e.g. Wildlife & Conservation"
+                            ) }}
+
+                            {% for error in form.name.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div>
+                            {{ form.slug.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                            {{ form.slug(
+                                id="slug",
+                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                placeholder="wildlife-conservation"
+                            ) }}
+
+                            <p class="mt-2 text-xs leading-5 text-gray-500">
+                                Used in the category URL. Keep it lowercase and use hyphens between words.
+                            </p>
+
+                            {% for error in form.slug.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        {% if form.description is defined %}
+                            <div>
+                                {{ form.description.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                {{ form.description(
+                                    id="description",
+                                    rows="5",
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                    placeholder="Describe what readers can expect from this category..."
+                                ) }}
+
+                                {% for error in form.description.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </section>
+
+                {# ------------------------------------------------------
+                   Appearance and media
+                ------------------------------------------------------ #}
+                <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-100 px-6 py-5">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            Appearance & Media
+                        </h2>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Choose the category colour, icon, and banner image.
+                        </p>
+                    </div>
+
+                    <div class="space-y-6 p-6">
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+
+                            {% if form.color is defined %}
+                                <div>
+                                    {{ form.color.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                    {{ form.color(
+                                        id="color",
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                                    ) }}
+
+                                    {% for error in form.color.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if form.icon is defined %}
+                                <div>
+                                    {{ form.icon.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                    {{ form.icon(
+                                        id="icon",
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                        placeholder="e.g. fa-solid fa-leaf"
+                                    ) }}
+
+                                    {% for error in form.icon.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        {# Current image preview #}
+                        {% set current_banner = category.banner_image if category.banner_image is defined else none %}
+
+                        <div id="currentBannerContainer"
+                             class="{% if not current_banner %}hidden{% endif %}">
+                            <label class="mb-2 block text-sm font-semibold text-gray-700">
+                                Current Category Banner
+                            </label>
+
+                            <div class="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                                <img id="currentBannerPreview"
+                                     src="{{ current_banner or '' }}"
+                                     alt="Current category banner"
+                                     class="max-h-72 w-full object-cover"
+                                     onerror="this.closest('#currentBannerContainer').classList.add('hidden');">
+
+                                <div class="border-t border-gray-200 px-4 py-3 text-xs text-gray-500">
+                                    This is the currently saved banner image.
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Media Library selector #}
+                        {% if form.banner_media_asset_id is defined %}
+                            <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+                                <div class="mb-4">
+                                    <h3 class="text-sm font-bold text-gray-900">
+                                        Select from Media Library
+                                    </h3>
+                                    <p class="mt-1 text-sm leading-6 text-gray-600">
+                                        Choose a banner from the
+                                        <span class="font-semibold">Blog / Blog Categories</span>
+                                        folder or one of its subfolders.
+                                    </p>
+                                </div>
+
+                                {{ form.banner_media_asset_id.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                {{ form.banner_media_asset_id(
+                                    id="banner_media_asset_id",
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+                                ) }}
+
+                                {% for error in form.banner_media_asset_id.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+
+                                <p class="mt-2 text-xs leading-5 text-gray-500">
+                                    Leave the selection unchanged if you want to keep the existing banner.
+                                    The selector must be populated by the category route.
+                                </p>
+
+                                <div id="selectedBannerContainer" class="mt-4 hidden">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                        Selected media preview
+                                    </p>
+                                    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+                                        <img id="selectedBannerPreview"
+                                             src=""
+                                             alt="Selected category banner preview"
+                                             class="max-h-72 w-full object-cover">
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {# Legacy URL/path field remains available #}
+                        {% if form.banner_image is defined %}
+                            <details class="rounded-xl border border-gray-200 p-4">
+                                <summary class="cursor-pointer text-sm font-semibold text-gray-700">
+                                    Legacy banner image URL or path
+                                </summary>
+
+                                <div class="mt-4">
+                                    {{ form.banner_image.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                    {{ form.banner_image(
+                                        id="banner_image",
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                        placeholder="Existing image URL or path"
+                                    ) }}
+
+                                    <p class="mt-2 text-xs leading-5 text-gray-500">
+                                        Use this field only when you need to retain or manually update a legacy image path.
+                                        Selecting a Media Library asset requires backend handling to save its URL or asset reference.
+                                    </p>
+
+                                    {% for error in form.banner_image.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        {% endif %}
+
+                    </div>
+                </section>
+
+                {# ------------------------------------------------------
+                   SEO settings
+                ------------------------------------------------------ #}
+                {% if form.meta_title is defined or form.meta_description is defined %}
+                    <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-100 px-6 py-5">
+                            <h2 class="text-lg font-bold text-gray-900">
+                                Search Engine Optimisation
+                            </h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Help search engines understand this category.
+                            </p>
+                        </div>
+
+                        <div class="space-y-6 p-6">
+
+                            {% if form.meta_title is defined %}
+                                <div>
+                                    {{ form.meta_title.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                    {{ form.meta_title(
+                                        id="meta_title",
+                                        maxlength="70",
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                        placeholder="SEO title for this category"
+                                    ) }}
+
+                                    <div class="mt-2 flex justify-between gap-3 text-xs text-gray-500">
+                                        <span>Recommended: around 50–60 characters.</span>
+                                        <span id="metaTitleCount">0 / 70</span>
+                                    </div>
+
+                                    {% for error in form.meta_title.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if form.meta_description is defined %}
+                                <div>
+                                    {{ form.meta_description.label(class="mb-2 block text-sm font-semibold text-gray-700") }}
+
+                                    {{ form.meta_description(
+                                        id="meta_description",
+                                        maxlength="170",
+                                        rows="4",
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100",
+                                        placeholder="A concise description of this category for search results..."
+                                    ) }}
+
+                                    <div class="mt-2 flex justify-between gap-3 text-xs text-gray-500">
+                                        <span>Write a clear, useful description.</span>
+                                        <span id="metaDescriptionCount">0 / 170</span>
+                                    </div>
+
+                                    {% for error in form.meta_description.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </section>
+                {% endif %}
+
+            </div>
+
+            {# ==========================================================
+               SIDEBAR
+            ========================================================== #}
+            <aside class="space-y-8">
+
+                {# ------------------------------------------------------
+                   Publishing settings
+                ------------------------------------------------------ #}
+                <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-100 px-5 py-4">
+                        <h2 class="text-base font-bold text-gray-900">
+                            Publishing Settings
+                        </h2>
+                    </div>
+
+                    <div class="space-y-5 p-5">
+
+                        {% if form.is_active is defined %}
+                            <label class="flex cursor-pointer items-start gap-3">
+                                {{ form.is_active(
+                                    id="is_active",
+                                    class="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-700 focus:ring-emerald-600"
+                                ) }}
+                                <span>
+                                    <span class="block text-sm font-semibold text-gray-800">
+                                        Active category
+                                    </span>
+                                    <span class="mt-1 block text-xs leading-5 text-gray-500">
+                                        Allow this category to appear publicly.
+                                    </span>
+                                </span>
+                            </label>
+
+                            {% for error in form.is_active.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if form.is_featured is defined %}
+                            <label class="flex cursor-pointer items-start gap-3">
+                                {{ form.is_featured(
+                                    id="is_featured",
+                                    class="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-700 focus:ring-emerald-600"
+                                ) }}
+                                <span>
+                                    <span class="block text-sm font-semibold text-gray-800">
+                                        Featured category
+                                    </span>
+                                    <span class="mt-1 block text-xs leading-5 text-gray-500">
+                                        Highlight this category in supported sections of the website.
+                                    </span>
+                                </span>
+                            </label>
+
+                            {% for error in form.is_featured.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                    </div>
+                </section>
+
+                {# ------------------------------------------------------
+                   Category information
+                ------------------------------------------------------ #}
+                <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-100 px-5 py-4">
+                        <h2 class="text-base font-bold text-gray-900">
+                            Category Information
+                        </h2>
+                    </div>
+
+                    <div class="space-y-4 p-5 text-sm">
+                        <div class="flex items-start justify-between gap-4">
+                            <span class="text-gray-500">Category ID</span>
+                            <span class="font-semibold text-gray-800">{{ category.id }}</span>
+                        </div>
+
+                        {% if category.created_at is defined and category.created_at %}
+                            <div class="flex items-start justify-between gap-4">
+                                <span class="text-gray-500">Created</span>
+                                <span class="text-right font-medium text-gray-800">
+                                    {{ category.created_at.strftime('%d %b %Y') if category.created_at.strftime is defined else category.created_at }}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if category.updated_at is defined and category.updated_at %}
+                            <div class="flex items-start justify-between gap-4">
+                                <span class="text-gray-500">Last updated</span>
+                                <span class="text-right font-medium text-gray-800">
+                                    {{ category.updated_at.strftime('%d %b %Y') if category.updated_at.strftime is defined else category.updated_at }}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if category.posts is defined %}
+                            <div class="flex items-start justify-between gap-4">
+                                <span class="text-gray-500">Related posts</span>
+                                <span class="font-semibold text-gray-800">
+                                    {{ category.posts.count() }}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                {# ------------------------------------------------------
+                   Live preview
+                ------------------------------------------------------ #}
+                <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-100 px-5 py-4">
+                        <h2 class="text-base font-bold text-gray-900">
+                            Quick Preview
+                        </h2>
+                    </div>
+
+                    <div class="p-5">
+                        <div id="categoryPreviewCard"
+                             class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+
+                            <div id="categoryPreviewBanner"
+                                 class="{% if not current_banner %}hidden{% endif %} h-32 overflow-hidden bg-gray-100">
+                                <img id="categoryPreviewImage"
+                                     src="{{ current_banner or '' }}"
+                                     alt="Category preview"
+                                     class="h-full w-full object-cover">
+                            </div>
+
+                            <div class="p-4">
+                                <div class="mb-3 flex items-center gap-2">
+                                    <span id="categoryPreviewIcon"
+                                          class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-lg text-emerald-800">
+                                        {{ form.icon.data if form.icon is defined and form.icon.data else '✦' }}
+                                    </span>
+
+                                    <span id="categoryPreviewStatus"
+                                          class="rounded-full px-2.5 py-1 text-xs font-semibold
+                                          {% if form.is_active is defined and form.is_active.data %}
+                                              bg-emerald-100 text-emerald-800
+                                          {% else %}
+                                              bg-gray-100 text-gray-600
+                                          {% endif %}">
+                                        {% if form.is_active is defined and form.is_active.data %}
+                                            Active
+                                        {% else %}
+                                            Inactive
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <h3 id="categoryPreviewName"
+                                    class="break-words text-base font-bold text-gray-900">
+                                    {{ form.name.data or category.name or 'Category Name' }}
+                                </h3>
+
+                                <p id="categoryPreviewDescription"
+                                   class="mt-2 whitespace-pre-line break-words text-sm leading-6 text-gray-600">
+                                    {% if form.description is defined %}
+                                        {{ form.description.data or 'Your category description will appear here.' }}
+                                    {% else %}
+                                        Your category description will appear here.
+                                    {% endif %}
+                                </p>
+
+                                <p id="categoryPreviewSlug"
+                                   class="mt-3 break-all text-xs text-gray-400">
+                                    /blog/category/{{ form.slug.data or category.slug or 'category-slug' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="mt-3 text-xs leading-5 text-gray-500">
+                            This is an approximate preview. The public category page may use a different layout.
+                        </p>
+                    </div>
+                </section>
+
+                {# ------------------------------------------------------
+                   Actions
+                ------------------------------------------------------ #}
+                <div class="space-y-3">
+                    <button type="submit"
+                            id="saveCategoryButton"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl
+                                   bg-emerald-800 px-5 py-3 text-sm font-bold text-white shadow-sm
+                                   transition hover:bg-emerald-900 focus:outline-none focus:ring-2
+                                   focus:ring-emerald-600 focus:ring-offset-2">
+                        <span id="saveButtonText">Save Changes</span>
+                        <span id="saveButtonSpinner" class="hidden" aria-hidden="true">
+                            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"
+                                        class="opacity-25"></circle>
+                                <path d="M4 12a8 8 0 018-8"
+                                      stroke="currentColor" stroke-width="4"
+                                      stroke-linecap="round" class="opacity-75"></path>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <a href="{{ url_for('admin_blog.categories') }}"
+                       class="inline-flex w-full items-center justify-center rounded-xl
+                              border border-gray-300 bg-white px-5 py-3 text-sm font-semibold
+                              text-gray-700 transition hover:bg-gray-50">
+                        Cancel
+                    </a>
+                </div>
+
+            </aside>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('editCategoryForm');
+
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    const descriptionInput = document.getElementById('description');
+    const iconInput = document.getElementById('icon');
+    const activeInput = document.getElementById('is_active');
+
+    const metaTitleInput = document.getElementById('meta_title');
+    const metaDescriptionInput = document.getElementById('meta_description');
+
+    const namePreview = document.getElementById('categoryPreviewName');
+    const slugPreview = document.getElementById('categoryPreviewSlug');
+    const descriptionPreview = document.getElementById('categoryPreviewDescription');
+    const iconPreview = document.getElementById('categoryPreviewIcon');
+    const statusPreview = document.getElementById('categoryPreviewStatus');
+
+    const bannerImageInput = document.getElementById('banner_image');
+    const mediaSelector = document.getElementById('banner_media_asset_id');
+
+    const currentBannerContainer = document.getElementById('currentBannerContainer');
+    const currentBannerPreview = document.getElementById('currentBannerPreview');
+    const selectedBannerContainer = document.getElementById('selectedBannerContainer');
+    const selectedBannerPreview = document.getElementById('selectedBannerPreview');
+
+    const categoryPreviewBanner = document.getElementById('categoryPreviewBanner');
+    const categoryPreviewImage = document.getElementById('categoryPreviewImage');
+
+    const metaTitleCount = document.getElementById('metaTitleCount');
+    const metaDescriptionCount = document.getElementById('metaDescriptionCount');
+
+    const saveButton = document.getElementById('saveCategoryButton');
+    const saveButtonText = document.getElementById('saveButtonText');
+    const saveButtonSpinner = document.getElementById('saveButtonSpinner');
+
+    function makeSlug(value) {
+        return value
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
+    function updateNamePreview() {
+        if (nameInput && namePreview) {
+            namePreview.textContent = nameInput.value.trim() || 'Category Name';
+        }
+    }
+
+    function updateSlugPreview() {
+        if (slugInput && slugPreview) {
+            slugPreview.textContent =
+                '/blog/category/' + (slugInput.value.trim() || 'category-slug');
+        }
+    }
+
+    function updateDescriptionPreview() {
+        if (descriptionInput && descriptionPreview) {
+            descriptionPreview.textContent =
+                descriptionInput.value.trim() ||
+                'Your category description will appear here.';
+        }
+    }
+
+    function updateIconPreview() {
+        if (iconInput && iconPreview) {
+            iconPreview.textContent = iconInput.value.trim() || '✦';
+        }
+    }
+
+    function updateStatusPreview() {
+        if (!activeInput || !statusPreview) return;
+
+        const isActive = activeInput.checked;
+        statusPreview.textContent = isActive ? 'Active' : 'Inactive';
+
+        statusPreview.classList.toggle('bg-emerald-100', isActive);
+        statusPreview.classList.toggle('text-emerald-800', isActive);
+        statusPreview.classList.toggle('bg-gray-100', !isActive);
+        statusPreview.classList.toggle('text-gray-600', !isActive);
+    }
+
+    function updateMetaCounters() {
+        if (metaTitleInput && metaTitleCount) {
+            metaTitleCount.textContent =
+                metaTitleInput.value.length + ' / ' +
+                (metaTitleInput.maxLength > 0 ? metaTitleInput.maxLength : 70);
+        }
+
+        if (metaDescriptionInput && metaDescriptionCount) {
+            metaDescriptionCount.textContent =
+                metaDescriptionInput.value.length + ' / ' +
+                (metaDescriptionInput.maxLength > 0 ? metaDescriptionInput.maxLength : 170);
+        }
+    }
+
+    function showBannerPreview(url) {
+        if (!url) return;
+
+        if (selectedBannerContainer) {
+            selectedBannerContainer.classList.remove('hidden');
+        }
+
+        if (selectedBannerPreview) {
+            selectedBannerPreview.src = url;
+        }
+
+        if (categoryPreviewBanner) {
+            categoryPreviewBanner.classList.remove('hidden');
+        }
+
+        if (categoryPreviewImage) {
+            categoryPreviewImage.src = url;
+        }
+    }
+
+    function hideSelectedBannerPreview() {
+        if (selectedBannerContainer) {
+            selectedBannerContainer.classList.add('hidden');
+        }
+    }
+
+    function updateLegacyBannerPreview() {
+        if (!bannerImageInput) return;
+
+        const url = bannerImageInput.value.trim();
+
+        if (!url) return;
+
+        if (currentBannerContainer) {
+            currentBannerContainer.classList.remove('hidden');
+        }
+
+        if (currentBannerPreview) {
+            currentBannerPreview.src = url;
+        }
+
+        showBannerPreview(url);
+    }
+
+    /*
+     * The selector value is an asset ID, not an image URL.
+     * The backend should expose the corresponding browser URL as a data
+     * attribute or provide a media-preview endpoint if instant preview is
+     * required. This code supports either approach without guessing URLs.
+     */
+    function updateMediaSelectionPreview() {
+        if (!mediaSelector) return;
+
+        const selectedOption = mediaSelector.options[mediaSelector.selectedIndex];
+
+        if (!selectedOption || !selectedOption.value) {
+            hideSelectedBannerPreview();
+            return;
+        }
+
+        const previewUrl =
+            selectedOption.dataset.previewUrl ||
+            selectedOption.dataset.browserUrl ||
+            '';
+
+        if (previewUrl) {
+            showBannerPreview(previewUrl);
+        } else {
+            hideSelectedBannerPreview();
+        }
+    }
+
+    if (nameInput) {
+        nameInput.addEventListener('input', function () {
+            updateNamePreview();
+
+            if (slugInput && !slugInput.dataset.manuallyEdited) {
+                slugInput.value = makeSlug(nameInput.value);
+                updateSlugPreview();
+            }
+        });
+    }
+
+    if (slugInput) {
+        slugInput.addEventListener('input', function () {
+            slugInput.dataset.manuallyEdited = 'true';
+            updateSlugPreview();
+        });
+    }
+
+    if (descriptionInput) {
+        descriptionInput.addEventListener('input', updateDescriptionPreview);
+    }
+
+    if (iconInput) {
+        iconInput.addEventListener('input', updateIconPreview);
+    }
+
+    if (activeInput) {
+        activeInput.addEventListener('change', updateStatusPreview);
+    }
+
+    if (metaTitleInput) {
+        metaTitleInput.addEventListener('input', updateMetaCounters);
+    }
+
+    if (metaDescriptionInput) {
+        metaDescriptionInput.addEventListener('input', updateMetaCounters);
+    }
+
+    if (bannerImageInput) {
+        bannerImageInput.addEventListener('input', updateLegacyBannerPreview);
+    }
+
+    if (mediaSelector) {
+        mediaSelector.addEventListener('change', updateMediaSelectionPreview);
+    }
+
+    if (form && saveButton) {
+        form.addEventListener('submit', function () {
+            if (!form.checkValidity()) return;
+
+            saveButton.disabled = true;
+            saveButton.classList.add('cursor-not-allowed', 'opacity-70');
+
+            if (saveButtonText) {
+                saveButtonText.textContent = 'Saving Changes...';
+            }
+
+            if (saveButtonSpinner) {
+                saveButtonSpinner.classList.remove('hidden');
+            }
+        });
+    }
+
+    updateNamePreview();
+    updateSlugPreview();
+    updateDescriptionPreview();
+    updateIconPreview();
+    updateStatusPreview();
+    updateMetaCounters();
+});
+</script>
+{% endblock %}

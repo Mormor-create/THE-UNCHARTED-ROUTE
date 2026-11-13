@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Testimonial Received | The Uncharted Route{% endblock %}
+
+{% block content %}
+<main class="flex min-h-[70vh] items-center justify-center bg-[#F7F1E5] px-5 py-16 text-[#1C2822]">
+    <section class="w-full max-w-2xl rounded-3xl border border-[#E9DDC8] bg-white px-6 py-12 text-center shadow-sm sm:px-12 sm:py-16">
+
+        <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#EAF1E9] text-4xl text-[#1F5138]"
+             aria-hidden="true">
+            ✓
+        </div>
+
+        <p class="mt-8 text-xs font-bold uppercase tracking-[0.3em] text-[#C96A2C]">
+            Thank you for sharing
+        </p>
+
+        <h1 class="mt-4 font-serif text-4xl leading-tight text-[#12372A] md:text-5xl">
+            Your story is with us.
+        </h1>
+
+        <p class="mx-auto mt-6 max-w-lg text-base leading-8 text-[#66736B]">
+            Thank you for taking the time to share your experience
+            with The Uncharted Route. Your testimonial has been received
+            and will be reviewed by our team before publication.
+        </p>
+
+        <div class="mx-auto mt-8 max-w-md rounded-2xl bg-[#F7F1E5] p-5 text-left">
+            <p class="font-semibold text-[#12372A]">
+                What happens next?
+            </p>
+            <ul class="mt-3 space-y-3 text-sm leading-6 text-[#66736B]">
+                <li class="flex gap-3">
+                    <span class="font-bold text-[#D89B24]" aria-hidden="true">01</span>
+                    Our team reviews your testimonial.
+                </li>
+                <li class="flex gap-3">
+                    <span class="font-bold text-[#D89B24]" aria-hidden="true">02</span>
+                    If approved, your story may be shared on our website.
+                </li>
+                <li class="flex gap-3">
+                    <span class="font-bold text-[#D89B24]" aria-hidden="true">03</span>
+                    We hope to welcome you on another memorable journey.
+                </li>
+            </ul>
+        </div>
+
+        <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="{{ url_for('main.testimonials') }}"
+               class="inline-flex items-center justify-center rounded-full bg-[#12372A] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                Read guest stories
+            </a>
+
+            <a href="{{ url_for('main.home') }}"
+               class="inline-flex items-center justify-center rounded-full border border-[#D8C9AC] bg-white px-7 py-3.5 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                Return home
+            </a>
+        </div>
+
+        <p class="mt-8 text-xs text-[#66736B]">
+            The Uncharted Route · Explore. Experience. Remember.
+        </p>
+    </section>
+</main>
+{% endblock %}

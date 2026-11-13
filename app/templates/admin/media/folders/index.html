@@ -1,0 +1,321 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Media Folders — The Uncharted Route{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- ================================================================ -->
+    <!-- Header -->
+    <!-- ================================================================ -->
+
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+
+        <div>
+
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                Digital Asset Management
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                Media Folders
+            </h1>
+
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+                Organize The Uncharted Route's media library into a structured
+                hierarchy for heroes, destinations, experiences, stays,
+                documents, maps, and other reusable assets.
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-3">
+
+            <a
+                href="{{ url_for('admin_media.index') }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-deep/10 bg-white px-4 py-2.5 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream"
+            >
+                ← Media Library
+            </a>
+
+            <a
+                href="{{ url_for('admin_media.create_folder') }}"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-deep px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-route-forest"
+            >
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 5v14m7-7H5"
+                    />
+                </svg>
+
+                New Folder
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!-- Folder Browser -->
+    <!-- ================================================================ -->
+
+    {% if folders %}
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 bg-route-cream/40 px-6 py-5">
+
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div>
+
+                        <h2 class="text-lg font-semibold text-route-ink">
+                            Folder Structure
+                        </h2>
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            Select a folder to browse its child folders and media.
+                        </p>
+
+                    </div>
+
+                    <div class="text-xs font-medium text-route-muted">
+                        {{ folders|length }} folder{% if folders|length != 1 %}s{% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="divide-y divide-route-deep/10">
+
+                {% for folder in folders %}
+
+                    <a
+                        href="{{ url_for('admin_media.folder_detail', folder_id=folder.id) }}"
+                        class="group block px-6 py-5 transition hover:bg-route-cream/40"
+                    >
+
+                        <div class="flex items-start gap-4">
+
+                            <!-- Folder Icon -->
+
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-route-cream text-route-deep transition group-hover:bg-route-deep group-hover:text-white">
+
+                                <svg
+                                    class="h-6 w-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.6"
+                                        d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+                                    />
+                                </svg>
+
+                            </div>
+
+
+                            <!-- Folder Information -->
+
+                            <div class="min-w-0 flex-1">
+
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+                                    <div class="min-w-0">
+
+                                        <div class="flex flex-wrap items-center gap-2">
+
+                                            <h3 class="truncate text-base font-semibold text-route-ink group-hover:text-route-deep">
+                                                {{ folder.name }}
+                                            </h3>
+
+                                            {% if folder.active %}
+
+                                                <span class="rounded-full bg-route-deep px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                                                    Active
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="rounded-full bg-route-muted/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-route-muted">
+                                                    Inactive
+                                                </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                        <p class="mt-1 truncate text-xs text-route-muted">
+                                            {{ folder.full_path }}
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="flex shrink-0 items-center gap-2 text-xs text-route-muted">
+
+                                        <span>
+                                            {{ folder.total_asset_count }}
+                                            asset{% if folder.total_asset_count != 1 %}s{% endif %}
+                                        </span>
+
+                                        {% if folder.children.count() %}
+
+                                            <span class="h-1 w-1 rounded-full bg-route-muted/50"></span>
+
+                                            <span>
+                                                {{ folder.children.count() }}
+                                                child{% if folder.children.count() != 1 %}ren{% endif %}
+                                            </span>
+
+                                        {% endif %}
+
+                                        <svg
+                                            class="ml-1 h-4 w-4 transition group-hover:translate-x-0.5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m9 5 7 7-7 7"
+                                            />
+                                        </svg>
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if folder.description %}
+
+                                    <p class="mt-3 line-clamp-2 max-w-3xl text-sm leading-6 text-route-muted">
+                                        {{ folder.description }}
+                                    </p>
+
+                                {% endif %}
+
+
+                                <div class="mt-4 flex flex-wrap gap-2">
+
+                                    <span class="rounded-lg bg-route-cream px-2.5 py-1 text-[11px] font-semibold text-route-deep">
+                                        {{ folder.folder_type|replace("_", " ")|title }}
+                                    </span>
+
+                                    {% if folder.parent %}
+
+                                        <span class="rounded-lg bg-white px-2.5 py-1 text-[11px] font-medium text-route-muted ring-1 ring-route-deep/10">
+                                            Parent: {{ folder.parent.name }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="rounded-lg bg-white px-2.5 py-1 text-[11px] font-medium text-route-muted ring-1 ring-route-deep/10">
+                                            Root Folder
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+    {% else %}
+
+        <!-- ============================================================ -->
+        <!-- Empty State -->
+        <!-- ============================================================ -->
+
+        <section class="rounded-2xl border border-dashed border-route-deep/20 bg-white px-6 py-16 text-center shadow-sm">
+
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-route-cream text-route-deep">
+
+                <svg
+                    class="h-8 w-8"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.6"
+                        d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+                    />
+                </svg>
+
+            </div>
+
+
+            <h2 class="mt-5 text-lg font-semibold text-route-ink">
+                No media folders yet
+            </h2>
+
+            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-route-muted">
+                Start by creating your root folders such as Heroes,
+                Destinations, Experiences, and Stays. You can then create
+                child folders inside them.
+            </p>
+
+
+            <a
+                href="{{ url_for('admin_media.create_folder') }}"
+                class="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-route-deep px-5 py-3 text-sm font-semibold text-white transition hover:bg-route-forest"
+            >
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 5v14m7-7H5"
+                    />
+                </svg>
+
+                Create First Folder
+
+            </a>
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

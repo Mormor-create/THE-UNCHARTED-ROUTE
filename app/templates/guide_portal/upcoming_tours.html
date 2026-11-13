@@ -1,0 +1,77 @@
+{% extends "guide_portal/base.html" %}
+
+{% block title %}Upcoming Tours | The Uncharted Route{% endblock %}
+{% block page_heading %}Upcoming tours{% endblock %}
+{% block page_description %}
+See your upcoming experiences, dates, booking references, and assignment status.
+{% endblock %}
+
+{% block content %}
+<section class="mb-6 rounded-2xl border border-sand bg-white p-5 shadow-sm">
+    <p class="text-sm text-muted">Upcoming assigned experiences</p>
+    <p class="mt-2 text-3xl font-bold text-forest">{{ upcoming_bookings|length }}</p>
+</section>
+
+<section>
+    {% if upcoming_bookings %}
+        <div class="overflow-hidden rounded-2xl border border-sand bg-white shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-sand text-left text-sm">
+                    <thead class="bg-cream/60">
+                        <tr class="text-xs uppercase tracking-wider text-muted">
+                            <th class="px-5 py-4 font-semibold">Experience</th>
+                            <th class="px-5 py-4 font-semibold">Date</th>
+                            <th class="px-5 py-4 font-semibold">Booking status</th>
+                            <th class="px-5 py-4 font-semibold">Reference</th>
+                            <th class="px-5 py-4 font-semibold">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-sand">
+                        {% for booking in upcoming_bookings %}
+                            <tr class="transition hover:bg-cream/40">
+                                <td class="px-5 py-4">
+                                    <p class="font-semibold text-forest">
+                                        {% if booking.experience %}
+                                            {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Experience' }}
+                                        {% else %}
+                                            Experience booking
+                                        {% endif %}
+                                    </p>
+                                </td>
+
+                                <td class="whitespace-nowrap px-5 py-4 text-ink">
+                                    {{ booking.experience_date.strftime('%d %b %Y') if booking.experience_date and booking.experience_date.strftime is defined else booking.experience_date or 'To be confirmed' }}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <span class="inline-flex rounded-full bg-cream px-3 py-1 text-xs font-semibold text-forest">
+                                        {{ booking.status or 'Pending' }}
+                                    </span>
+                                </td>
+
+                                <td class="whitespace-nowrap px-5 py-4 font-medium text-ink">
+                                    #{{ booking.id }}
+                                </td>
+
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    <a href="{{ url_for('guide_portal.booking_detail', booking_id=booking.id) }}"
+                                       class="font-semibold text-forest underline decoration-gold decoration-2 underline-offset-4 hover:text-leaf">
+                                        View details
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dashed border-sand bg-white px-6 py-12 text-center">
+            <h2 class="font-display text-xl font-semibold text-forest">No upcoming tours</h2>
+            <p class="mt-2 text-sm text-muted">
+                Tours assigned to you with upcoming dates will appear here.
+            </p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

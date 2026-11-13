@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit {{ addon.name }} | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">
+    <a href="{{ url_for('admin_addon_catalogue.detail', addon_id=addon.id) }}"
+       class="text-sm font-semibold text-[#1F5138]">← Back to Add-on</a>
+
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-widest text-[#C96A2C]">Shared Catalogue</p>
+        <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Edit Add-on</h1>
+        <p class="mt-2 text-sm text-[#66736B]">{{ addon.code }} · {{ addon.name }}</p>
+    </div>
+
+    <form method="POST" class="space-y-6 rounded-2xl border border-[#E9DDC8] bg-white p-6 sm:p-8">
+        {{ form.hidden_tag() }}
+        {% include "admin/addon_catalogue/_form_fields.html" %}
+
+        <div class="flex flex-wrap justify-end gap-3 border-t border-[#E9DDC8] pt-6">
+            <a href="{{ url_for('admin_addon_catalogue.detail', addon_id=addon.id) }}"
+               class="rounded-xl border border-[#E9DDC8] px-5 py-3 text-sm font-semibold text-[#1C2822]">Cancel</a>
+            {{ form.submit(class="cursor-pointer rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1F5138]", value="Save Changes") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

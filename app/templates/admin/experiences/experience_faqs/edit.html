@@ -1,0 +1,159 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit FAQ — {{ experience.name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-8">
+
+    <div>
+        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_experiences.index') }}" class="hover:text-[#1F5138]">Experiences</a>
+            <span>/</span>
+            <span>{{ experience.title }}</span>
+            <span>/</span>
+            <a href="{{ url_for('admin_experience_faqs.index', experience_id=experience.id) }}"
+               class="hover:text-[#1F5138]">FAQs</a>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">Edit</span>
+        </nav>
+
+        <a href="{{ url_for('admin_experience_faqs.index', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span> Back to FAQs
+        </a>
+
+        <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E9DDC8] text-2xl">?</div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#12372A]">Edit Experience FAQ</h1>
+                <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                    Update this FAQ for <strong class="text-[#1C2822]">{{ experience.title }}</strong>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit form -->
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+
+        <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-5">
+                <h2 class="font-semibold text-[#12372A]">FAQ Content</h2>
+                <p class="mt-1 text-sm text-[#66736B]">Update the question and answer shown to guests.</p>
+            </div>
+
+            <div class="space-y-5 p-6">
+                <div>
+                    {{ form.question.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.question(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                    {% for error in form.question.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.answer.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                    {{ form.answer(class="min-h-40 w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                    {% for error in form.answer.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-5">
+                <h2 class="font-semibold text-[#12372A]">Organization</h2>
+                <p class="mt-1 text-sm text-[#66736B]">Manage category, display order and visibility.</p>
+            </div>
+
+            <div class="space-y-6 p-6">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        {{ form.category.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.category(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                        {% for error in form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.display_order(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                        <p class="mt-2 text-xs text-[#66736B]">Lower numbers appear first.</p>
+                        {% for error in form.display_order.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#D89B24]">
+                        {{ form.featured(class="mt-1 h-4 w-4 shrink-0 accent-[#1F5138]") }}
+                        <span>
+                            <span class="block text-sm font-semibold text-[#1C2822]">Featured FAQ</span>
+                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">Highlight this question in featured FAQ sections.</span>
+                        </span>
+                    </label>
+
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#1F5138]">
+                        {{ form.active(class="mt-1 h-4 w-4 shrink-0 accent-[#1F5138]") }}
+                        <span>
+                            <span class="block text-sm font-semibold text-[#1C2822]">Active</span>
+                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">Allow this FAQ to appear on the public experience.</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Record information -->
+        <section class="rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5]/70 p-5">
+            <h2 class="mb-4 text-sm font-semibold text-[#12372A]">Record Information</h2>
+            <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-[#66736B]">FAQ ID</dt>
+                    <dd class="mt-1 font-semibold text-[#1C2822]">#{{ faq.id }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wide text-[#66736B]">Experience</dt>
+                    <dd class="mt-1 font-semibold text-[#1C2822]">{{ experience.title }}</dd>
+                </div>
+            </dl>
+        </section>
+
+        <!-- Edit actions -->
+        <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:justify-end">
+            <a href="{{ url_for('admin_experience_faqs.index', experience_id=experience.id) }}"
+               class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                Cancel
+            </a>
+            {{ form.submit(class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]") }}
+        </div>
+    </form>
+
+    <!-- Separate delete form -->
+    <section class="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="font-semibold text-red-800">Delete this FAQ</h2>
+                <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                    Permanently remove this question and answer from the experience.
+                </p>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('admin_experience_faqs.delete', experience_id=experience.id, faq_id=faq.id) }}"
+                  onsubmit="return confirm('Delete this FAQ permanently?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50">
+                    Delete FAQ
+                </button>
+            </form>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

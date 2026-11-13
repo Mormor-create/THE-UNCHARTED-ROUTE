@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Archive Booking | {{ booking.booking_reference }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl space-y-6">
+    <a href="{{ url_for('admin_experience_bookings.detail', booking_id=booking.id) }}"
+       class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest hover:underline">
+        <i class="bi bi-arrow-left"></i> Back to Booking
+    </a>
+
+    <div class="rounded-2xl border border-amber-200 bg-white p-6 shadow-sm sm:p-8">
+        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+            <i class="bi bi-archive text-xl"></i>
+        </span>
+        <h1 class="mt-4 text-2xl font-bold text-slate-900">Archive this booking?</h1>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+            Booking <strong>{{ booking.booking_reference }}</strong> will leave the active list.
+            Its central record and related history will be retained. You can restore it later.
+        </p>
+
+        <form method="POST" class="mt-6 space-y-4">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.reason.label(class="mb-1.5 block text-sm font-medium text-slate-700") }}
+                {{ form.reason(class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm", rows="4", placeholder="Optional reason for archiving") }}
+            </div>
+            <div class="flex justify-end gap-3 border-t border-slate-100 pt-5">
+                <a href="{{ url_for('admin_experience_bookings.detail', booking_id=booking.id) }}"
+                   class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">Cancel</a>
+                <button type="submit" class="rounded-xl bg-route-forest px-5 py-2.5 text-sm font-semibold text-white hover:bg-route-deep">
+                    Archive Booking
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page.public_title }} | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ page.public_description }}
+{% endblock %}
+
+
+{% block content %}
+
+{% set hero = page.get_section("hero") %}
+{% set content_section = page.get_section("privacy_content") %}
+
+
+<!-- =========================================================================
+     Privacy Hero
+     ========================================================================= -->
+
+<section class="bg-route-deep text-route-white">
+
+    <div class="mx-auto max-w-7xl px-6 py-20 sm:px-8 lg:px-12 lg:py-24">
+
+        {% if hero.eyebrow %}
+
+            <p class="text-sm font-bold uppercase tracking-[0.3em] text-route-gold">
+                {{ hero.eyebrow }}
+            </p>
+
+        {% endif %}
+
+
+        <h1 class="mt-4 font-display text-5xl font-semibold sm:text-6xl">
+            {{ hero.title or page.title }}
+        </h1>
+
+
+        {% if hero.body %}
+
+            <p class="mt-6 max-w-2xl text-lg leading-8 text-route-cream/75">
+                {{ hero.body }}
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================================
+     Privacy Content
+     ========================================================================= -->
+
+<section class="bg-route-white">
+
+    <div class="mx-auto max-w-4xl px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
+
+        <div class="space-y-12 text-route-muted">
+
+            {% for item in content_section.active_items %}
+
+                <section>
+
+                    <h2 class="font-display text-3xl font-semibold text-route-ink">
+                        {{ loop.index }}. {{ item.title }}
+                    </h2>
+
+                    {% if item.body %}
+
+                        <p class="mt-4 whitespace-pre-line leading-8">
+                            {{ item.body }}
+                        </p>
+
+                    {% endif %}
+
+
+                    {% if item.link_label and item.link_url %}
+
+                        <a
+                            href="{{ item.link_url }}"
+                            class="mt-6 inline-flex rounded-full bg-route-forest px-6 py-3 text-sm font-bold text-route-white transition hover:bg-route-deep"
+                        >
+                            {{ item.link_label }}
+                        </a>
+
+                    {% endif %}
+
+                </section>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

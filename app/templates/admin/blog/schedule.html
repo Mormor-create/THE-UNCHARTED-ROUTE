@@ -1,0 +1,970 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Schedule {{ post.title }} · Blog{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- ============================================================
+         HEADER / BREADCRUMB
+    ============================================================= -->
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
+        <div>
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb mb-0">
+
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin_blog.index') }}">
+                            <i class="bi bi-journal-text me-1"></i>
+                            Blog
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}">
+                            {{ post.title|truncate(45, True) }}
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item active" aria-current="page">
+                        Schedule
+                    </li>
+
+                </ol>
+            </nav>
+
+            <h1 class="h3 fw-bold mb-1">
+                Schedule Article
+            </h1>
+
+            <p class="text-muted mb-0">
+                Choose when this article should automatically become published.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Article
+
+        </a>
+
+    </div>
+
+
+    <!-- ============================================================
+         FORM ERRORS
+    ============================================================= -->
+    {% if form.errors %}
+
+        <div class="alert alert-danger border-0 shadow-sm mb-4">
+
+            <div class="fw-semibold mb-2">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Please correct the following errors:
+            </div>
+
+            <ul class="mb-0 small">
+
+                {% for field_name, errors in form.errors.items() %}
+
+                    {% for error in errors %}
+
+                        <li>
+                            <strong>
+                                {{ form[field_name].label.text
+                                   if form[field_name].label
+                                   else field_name }}:
+                            </strong>
+
+                            {{ error }}
+                        </li>
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+    {% endif %}
+
+
+    <div class="row g-4">
+
+        <!-- ========================================================
+             MAIN COLUMN
+        ========================================================= -->
+        <div class="col-xl-8">
+
+            <!-- ARTICLE SUMMARY -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <h2 class="h6 fw-bold mb-0">
+
+                            <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                            Article
+
+                        </h2>
+
+
+                        {% if post.status == "Scheduled" %}
+
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+
+                                <i class="bi bi-calendar-event me-1"></i>
+                                Currently Scheduled
+
+                            </span>
+
+                        {% elif post.status == "Published" %}
+
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+
+                                <i class="bi bi-check-circle me-1"></i>
+                                Published
+
+                            </span>
+
+                        {% elif post.status == "Review" %}
+
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+
+                                <i class="bi bi-hourglass-split me-1"></i>
+                                In Review
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-secondary-subtle text-secondary border">
+
+                                {{ post.status }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-4 align-items-center">
+
+                        <!-- Image -->
+                        <div class="col-md-4">
+
+                            {% if post.featured_image %}
+
+                                <img src="{{ post.featured_image }}"
+                                     alt="{{ post.featured_image_alt or post.title }}"
+                                     class="img-fluid rounded-3 w-100"
+                                     style="height:180px;object-fit:cover;">
+
+                            {% else %}
+
+                                <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-muted"
+                                     style="height:180px;">
+
+                                    <div class="text-center">
+
+                                        <i class="bi bi-image fs-1 d-block mb-2"></i>
+
+                                        <small>
+                                            No featured image
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Article information -->
+                        <div class="col-md-8">
+
+                            {% if post.category %}
+
+                                <span class="badge rounded-pill mb-2"
+                                      style="
+                                          background-color: {{ post.category.color or '#14B8A6' }};
+                                          color:#fff;
+                                      ">
+
+                                    {% if post.category.icon %}
+                                        <i class="bi {{ post.category.icon }} me-1"></i>
+                                    {% endif %}
+
+                                    {{ post.category.name }}
+
+                                </span>
+
+                            {% endif %}
+
+
+                            <h2 class="h4 fw-bold mb-2">
+                                {{ post.title }}
+                            </h2>
+
+
+                            {% if post.subtitle %}
+
+                                <p class="text-muted mb-3">
+                                    {{ post.subtitle }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <div class="d-flex flex-wrap gap-3 small text-muted">
+
+                                {% if post.author %}
+
+                                    <span>
+                                        <i class="bi bi-person me-1"></i>
+                                        {{ post.author }}
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if post.reading_time %}
+
+                                    <span>
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ post.reading_time_text }}
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if post.word_count %}
+
+                                    <span>
+                                        <i class="bi bi-file-text me-1"></i>
+                                        {{ "{:,}".format(post.word_count) }} words
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 SCHEDULE FORM
+            ====================================================== -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+
+                        <i class="bi bi-calendar-plus me-2 text-primary"></i>
+                        Publication Schedule
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <form method="POST"
+                          action="{{ url_for('admin_blog.schedule', post_id=post.id) }}"
+                          id="scheduleForm">
+
+                        {{ form.hidden_tag() }}
+
+
+                        <!-- Scheduled date -->
+                        <div class="mb-4">
+
+                            {{ form.scheduled_for.label(class="form-label fw-semibold") }}
+
+                            <span class="text-danger">*</span>
+
+                            {{ form.scheduled_for(
+                                class="form-control form-control-lg",
+                                id="scheduledFor"
+                            ) }}
+
+                            {% if form.scheduled_for.errors %}
+
+                                <div class="invalid-feedback d-block">
+
+                                    {% for error in form.scheduled_for.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                            <div class="form-text">
+
+                                Select a future date and time.
+                                The article will remain scheduled until publication.
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Current scheduled time -->
+                        {% if post.scheduled_for %}
+
+                            <div class="alert alert-info border-0">
+
+                                <div class="d-flex gap-3">
+
+                                    <i class="bi bi-calendar-check fs-4"></i>
+
+                                    <div>
+
+                                        <div class="fw-semibold mb-1">
+                                            Existing schedule
+                                        </div>
+
+                                        <div class="small">
+
+                                            This article is currently scheduled for
+
+                                            <strong>
+                                                {{ post.scheduled_for.strftime('%d %B %Y at %H:%M') }}
+                                            </strong>.
+
+                                            Saving a new date will replace the existing schedule.
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- Timezone note -->
+                        <div class="alert alert-light border">
+
+                            <div class="d-flex gap-3">
+
+                                <i class="bi bi-globe2 fs-5 text-primary"></i>
+
+                                <div>
+
+                                    <div class="fw-semibold mb-1">
+                                        Timezone
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        The scheduled time is interpreted using the
+                                        application's configured timezone.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Submit -->
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2">
+
+                            <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                               class="btn btn-outline-secondary">
+
+                                Cancel
+
+                            </a>
+
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4"
+                                    id="scheduleButton">
+
+                                <i class="bi bi-calendar-check me-1"></i>
+                                Schedule Article
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 HOW SCHEDULING WORKS
+            ====================================================== -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+
+                        <i class="bi bi-question-circle me-2 text-primary"></i>
+                        How Scheduling Works
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+
+                            <div class="text-center">
+
+                                <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3"
+                                     style="width:52px;height:52px;">
+
+                                    <i class="bi bi-calendar-plus fs-4"></i>
+
+                                </div>
+
+                                <h3 class="h6 fw-bold">
+                                    1. Choose a Date
+                                </h3>
+
+                                <p class="small text-muted mb-0">
+                                    Select the date and time when the article
+                                    should become available.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="text-center">
+
+                                <div class="rounded-circle bg-info-subtle text-info d-inline-flex align-items-center justify-content-center mb-3"
+                                     style="width:52px;height:52px;">
+
+                                    <i class="bi bi-hourglass-split fs-4"></i>
+
+                                </div>
+
+                                <h3 class="h6 fw-bold">
+                                    2. Article Waits
+                                </h3>
+
+                                <p class="small text-muted mb-0">
+                                    The article remains in the
+                                    <strong>Scheduled</strong> state until its
+                                    publication time.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="text-center">
+
+                                <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3"
+                                     style="width:52px;height:52px;">
+
+                                    <i class="bi bi-broadcast-pin fs-4"></i>
+
+                                </div>
+
+                                <h3 class="h6 fw-bold">
+                                    3. Article Publishes
+                                </h3>
+
+                                <p class="small text-muted mb-0">
+                                    When the scheduled time is reached, the
+                                    article can transition to published.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================
+             SIDEBAR
+        ========================================================= -->
+        <div class="col-xl-4">
+
+            <!-- CURRENT SCHEDULE -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+
+                        <i class="bi bi-calendar3 me-2 text-primary"></i>
+                        Current Schedule
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    {% if post.scheduled_for %}
+
+                        <div class="text-center py-2">
+
+                            <div class="rounded-circle bg-info-subtle text-info d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width:64px;height:64px;">
+
+                                <i class="bi bi-calendar-event fs-3"></i>
+
+                            </div>
+
+
+                            <div class="small text-muted mb-1">
+                                Scheduled for
+                            </div>
+
+
+                            <div class="h5 fw-bold mb-1">
+
+                                {{ post.scheduled_for.strftime('%d %B %Y') }}
+
+                            </div>
+
+
+                            <div class="text-info fw-semibold">
+
+                                {{ post.scheduled_for.strftime('%H:%M') }}
+
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-3">
+
+                            <div class="rounded-circle bg-light text-muted d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width:64px;height:64px;">
+
+                                <i class="bi bi-calendar-x fs-3"></i>
+
+                            </div>
+
+                            <h3 class="h6 fw-bold">
+                                Not Scheduled
+                            </h3>
+
+                            <p class="small text-muted mb-0">
+                                This article does not currently have a publication schedule.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- ARTICLE STATUS -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+
+                        <i class="bi bi-info-circle me-2 text-primary"></i>
+                        Article Status
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="text-muted small">
+                            Status
+                        </span>
+
+
+                        {% if post.status == "Published" %}
+
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                Published
+                            </span>
+
+                        {% elif post.status == "Scheduled" %}
+
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                Scheduled
+                            </span>
+
+                        {% elif post.status == "Review" %}
+
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                Review
+                            </span>
+
+                        {% elif post.status == "Archived" %}
+
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                Archived
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-light text-dark border">
+                                Draft
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="text-muted small">
+                            Category
+                        </span>
+
+                        <span class="small fw-semibold text-end">
+
+                            {% if post.category %}
+                                {{ post.category.name }}
+                            {% else %}
+                                <span class="text-danger">
+                                    Not assigned
+                                </span>
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="text-muted small">
+                            Featured
+                        </span>
+
+                        {% if post.featured %}
+
+                            <span class="text-warning small">
+                                <i class="bi bi-star-fill me-1"></i>
+                                Yes
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-muted small">
+                                No
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <span class="text-muted small">
+                            Pinned
+                        </span>
+
+                        {% if post.pinned %}
+
+                            <span class="text-primary small">
+                                <i class="bi bi-pin-angle-fill me-1"></i>
+                                Yes
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-muted small">
+                                No
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SCHEDULING GUIDELINES -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+
+                        <i class="bi bi-lightbulb me-2 text-warning"></i>
+                        Scheduling Guidelines
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <ul class="small text-muted ps-3 mb-0">
+
+                        <li class="mb-2">
+                            Choose a future publication date and time.
+                        </li>
+
+                        <li class="mb-2">
+                            Review the article before scheduling it.
+                        </li>
+
+                        <li class="mb-2">
+                            Confirm the featured image and SEO information.
+                        </li>
+
+                        <li class="mb-2">
+                            Avoid scheduling duplicate articles for the same campaign.
+                        </li>
+
+                        <li>
+                            Update the schedule if your publishing plan changes.
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <!-- OTHER ACTIONS -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+
+                        <i class="bi bi-lightning-charge me-2 text-primary"></i>
+                        Other Actions
+
+                    </h2>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="d-grid gap-2">
+
+                        <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                           class="btn btn-outline-primary text-start">
+
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Article
+
+                        </a>
+
+
+                        <a href="{{ url_for('admin_blog.publish', post_id=post.id) }}"
+                           class="btn btn-outline-success text-start">
+
+                            <i class="bi bi-send me-2"></i>
+                            Publish Now
+
+                        </a>
+
+
+                        <a href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                           class="btn btn-outline-secondary text-start">
+
+                            <i class="bi bi-search me-2"></i>
+                            Edit SEO
+
+                        </a>
+
+
+                        <a href="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+                           class="btn btn-outline-secondary text-start">
+
+                            <i class="bi bi-megaphone me-2"></i>
+                            Edit Call to Action
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("scheduleForm");
+    const button = document.getElementById("scheduleButton");
+    const scheduledFor = document.getElementById("scheduledFor");
+
+
+    /*
+     * Set a sensible default only when the route has not already
+     * populated an existing scheduled date.
+     */
+    if (scheduledFor && !scheduledFor.value) {
+
+        const now = new Date();
+
+        // Default to one hour from the current browser time.
+        now.setHours(now.getHours() + 1);
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+
+        scheduledFor.value =
+            `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    }
+
+
+    /*
+     * Prevent selecting a date in the past on the client side.
+     * Server-side WTForms validation remains authoritative.
+     */
+    if (scheduledFor) {
+
+        function updateMinimumDate() {
+
+            const now = new Date();
+
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+            const hours = String(now.getHours()).padStart(2, "0");
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+
+            scheduledFor.min =
+                `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        }
+
+        updateMinimumDate();
+
+    }
+
+
+    /*
+     * Prevent accidental double submission.
+     */
+    if (form) {
+
+        form.addEventListener("submit", function (event) {
+
+            if (!form.checkValidity()) {
+                return;
+            }
+
+            if (scheduledFor && scheduledFor.value) {
+
+                const selectedTime =
+                    new Date(scheduledFor.value).getTime();
+
+                const currentTime =
+                    new Date().getTime();
+
+                if (selectedTime <= currentTime) {
+
+                    event.preventDefault();
+
+                    alert(
+                        "Please choose a future date and time for publication."
+                    );
+
+                    scheduledFor.focus();
+
+                    return;
+
+                }
+
+            }
+
+
+            if (button) {
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" ' +
+                    'role="status" aria-hidden="true"></span>' +
+                    'Scheduling...';
+
+            }
+
+        });
+
+    }
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,108 @@
+<div class="space-y-8">
+    {% macro field_errors(field) %}
+        {% if field.errors %}
+            <div class="mt-1 text-sm text-red-600">
+                {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endmacro %}
+
+    {% set input_class = "w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20" %}
+
+    <section>
+        <h2 class="text-lg font-semibold text-[#12372A]">Basic Information</h2>
+        <p class="mt-1 text-sm text-[#66736B]">
+            Identify the add-on and describe what the customer receives.
+        </p>
+
+        <div class="mt-5 grid gap-5 md:grid-cols-2">
+            {% for field in [form.code, form.name, form.slug, form.short_description] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                    {{ field(class=input_class) }}
+                    {{ field_errors(field) }}
+                </div>
+            {% endfor %}
+
+            <div>
+                {{ form.category.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                {{ form.category(class=input_class) }}
+                {{ field_errors(form.category) }}
+            </div>
+
+            <div>
+                {{ form.image_url.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                {{ form.image_url(class=input_class, placeholder="Optional image URL") }}
+                {{ field_errors(form.image_url) }}
+            </div>
+
+            <div class="md:col-span-2">
+                {{ form.description.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                {{ form.description(class=input_class, rows="4") }}
+                {{ field_errors(form.description) }}
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-[#E9DDC8] pt-6">
+        <h2 class="text-lg font-semibold text-[#12372A]">Service Applicability</h2>
+        <p class="mt-1 text-sm text-[#66736B]">
+            Select every service type that may offer this add-on.
+        </p>
+
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            {% for value, label in form.applicable_services.choices %}
+                <label class="flex items-center gap-3 rounded-xl border border-[#E9DDC8] p-4">
+                    <input
+                        type="checkbox"
+                        name="{{ form.applicable_services.name }}"
+                        value="{{ value }}"
+                        {% if value in (form.applicable_services.data or []) %}checked{% endif %}
+                        class="rounded border-[#66736B] text-[#12372A] focus:ring-[#D89B24]"
+                    >
+                    <span class="text-sm font-medium text-[#1C2822]">{{ label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        {{ field_errors(form.applicable_services) }}
+    </section>
+
+    <section class="border-t border-[#E9DDC8] pt-6">
+        <h2 class="text-lg font-semibold text-[#12372A]">Pricing & Quantity</h2>
+
+        <div class="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {% for field in [
+                form.pricing_basis, form.unit_price, form.currency,
+                form.minimum_quantity, form.maximum_quantity,
+                form.available_quantity, form.available_from,
+                form.available_until, form.display_order
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-[#1C2822]") }}
+                    {{ field(class=input_class) }}
+                    {{ field_errors(field) }}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="border-t border-[#E9DDC8] pt-6">
+        <h2 class="text-lg font-semibold text-[#12372A]">Catalogue Settings</h2>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            {% for field in [
+                form.is_optional,
+                form.can_be_booked_independently,
+                form.requires_confirmation,
+                form.featured,
+                form.active
+            ] %}
+                <label class="flex items-center gap-3 rounded-xl bg-[#F7F1E5] p-4">
+                    {{ field(class="rounded border-[#66736B] text-[#12372A] focus:ring-[#D89B24]") }}
+                    <span class="text-sm font-medium text-[#1C2822]">{{ field.label.text }}</span>
+                </label>
+            {% endfor %}
+        </div>
+    </section>
+</div>

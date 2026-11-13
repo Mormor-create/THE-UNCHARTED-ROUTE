@@ -1,0 +1,637 @@
+{% extends "admin/base.html" %}
+{% block title %}Guide Availability{% endblock %}
+{% block content %}
+
+{% set guide_id = guide.id if guide and guide.id else none %}
+{% set availability_records = availability|default([], true) %}
+
+<div class="space-y-6">
+
+    {# ================================================================ #}
+    {# PAGE HEADER                                                       #}
+    {# ================================================================ #}
+
+    <section class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+        <div class="min-w-0">
+            <nav class="mb-3 flex items-center gap-2 text-sm"
+                 aria-label="Breadcrumb">
+
+                <a href="{{ url_for('admin_guide.index') }}"
+                   class="inline-flex items-center gap-2 text-gray-500 transition hover:text-[#1F5138]">
+                    <svg class="h-4 w-4"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Guides
+                </a>
+
+                <svg class="h-4 w-4 text-gray-300"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9 5l7 7-7 7"/>
+                </svg>
+
+                <span class="font-medium text-gray-700">
+                    Availability
+                </span>
+            </nav>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                    Guide Availability
+                </h1>
+
+                <span class="inline-flex items-center rounded-full bg-[#E8F0E9] px-3 py-1 text-xs font-semibold text-[#1F5138]">
+                    Scheduling
+                </span>
+            </div>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+                Manage availability and scheduling information for
+                <span class="font-medium text-gray-700">
+                    {{ guide.name if guide.name else guide.full_name if guide.full_name else 'this guide' }}
+                </span>.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+
+            {% if guide_id %}
+            <a href="{{ url_for('admin_guide.detail', guide_id=guide_id) }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50">
+
+                <svg class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15 19.128a9.38 9.38 0 003.75-.72 3.75 3.75 0 00-6.75-2.1M15 19.128v-.003a6.375 6.375 0 00-9.75 0v.003m9.75 0a9.38 9.38 0 01-3.75.75 9.38 9.38 0 01-3.75-.75m7.5-11.25a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+                </svg>
+
+                Guide Profile
+            </a>
+
+            <a href="{{ url_for('admin_guide.schedule', guide_id=guide_id) }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A]">
+
+                <svg class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                </svg>
+
+                View Schedule
+            </a>
+            {% endif %}
+
+        </div>
+    </section>
+
+
+    {# ================================================================ #}
+    {# GUIDE SUMMARY                                                     #}
+    {# ================================================================ #}
+
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        {# Guide status #}
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+
+                <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-500">
+                        Guide Status
+                    </p>
+
+                    <p class="mt-2 text-xl font-bold text-gray-900">
+                        {{ guide.status|replace('_', ' ')|title if guide.status else 'Unknown' }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-400">
+                        Current profile status
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#E8F0E9] text-[#1F5138]">
+                    <svg class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m16 0v-2a4 4 0 00-3-3.87M14 3.13a4 4 0 010 7.75M14 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+
+
+        {# Availability records #}
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+                    <p class="text-sm font-medium text-gray-500">
+                        Availability Records
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900">
+                        {{ availability_records|length }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-400">
+                        Recorded availability periods
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                    <svg class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M8 14h3m-3 4h5"/>
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+
+
+        {# Current assignments #}
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+                    <p class="text-sm font-medium text-gray-500">
+                        Current Assignments
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900">
+                        {% if guide.assignments is defined and guide.assignments is not none %}
+                            {% if guide.assignments.count is defined %}
+                                {{ guide.assignments.count() }}
+                            {% else %}
+                                {{ guide.assignments|length }}
+                            {% endif %}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-400">
+                        Assignments associated with this guide
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+                    <svg class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <rect x="3" y="7" width="18" height="14" rx="2"/>
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 12h18m-11 0v2h4v-2"/>
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+
+
+        {# Availability flag #}
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+                    <p class="text-sm font-medium text-gray-500">
+                        General Availability
+                    </p>
+
+                    {% if guide.available is defined and guide.available is not none %}
+                        {% if guide.available %}
+                        <p class="mt-2 text-xl font-bold text-emerald-700">
+                            Available
+                        </p>
+                        <p class="mt-1 text-xs text-gray-400">
+                            Marked as available
+                        </p>
+                        {% else %}
+                        <p class="mt-2 text-xl font-bold text-red-700">
+                            Unavailable
+                        </p>
+                        <p class="mt-1 text-xs text-gray-400">
+                            Marked as unavailable
+                        </p>
+                        {% endif %}
+                    {% else %}
+                    <p class="mt-2 text-xl font-bold text-gray-500">
+                        Not Specified
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">
+                        No general availability flag
+                    </p>
+                    {% endif %}
+                </div>
+
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
+                    <svg class="h-5 w-5"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M12 7v5l3 2"/>
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+
+    {# ================================================================ #}
+    {# AVAILABILITY TABLE                                                #}
+    {# ================================================================ #}
+
+    <section class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+
+        <div class="flex flex-col gap-4 border-b border-gray-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+            <div>
+                <h2 class="text-lg font-bold text-gray-900">
+                    Availability Calendar
+                </h2>
+
+                <p class="mt-1 text-sm text-gray-500">
+                    Review the guide's recorded availability periods and notes.
+                </p>
+            </div>
+
+            {% if guide_id %}
+            <a href="{{ url_for('admin_guide.schedule', guide_id=guide_id) }}"
+               class="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-[#1F5138] hover:bg-[#F7F1E5] hover:text-[#1F5138] sm:self-auto">
+
+                <svg class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                </svg>
+
+                Manage Schedule
+            </a>
+            {% endif %}
+
+        </div>
+
+
+        {% if availability_records %}
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 sm:px-6">
+                            Date
+                        </th>
+
+                        <th scope="col"
+                            class="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Day
+                        </th>
+
+                        <th scope="col"
+                            class="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Availability
+                        </th>
+
+                        <th scope="col"
+                            class="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Start Time
+                        </th>
+
+                        <th scope="col"
+                            class="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            End Time
+                        </th>
+
+                        <th scope="col"
+                            class="min-w-[200px] px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Notes
+                        </th>
+
+                        <th scope="col"
+                            class="whitespace-nowrap px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 sm:px-6">
+                            Record Status
+                        </th>
+                    </tr>
+                </thead>
+
+
+                <tbody class="divide-y divide-gray-100 bg-white">
+
+                    {% for item in availability_records %}
+
+                    {% set availability_status = item.status if item.status is defined and item.status else item.availability if item.availability is defined and item.availability else 'available' %}
+                    {% set normalized_status = availability_status|string|lower|replace(' ', '_') %}
+
+                    <tr class="transition hover:bg-gray-50/80">
+
+                        {# Date #}
+                        <td class="whitespace-nowrap px-5 py-4 sm:px-6">
+                            <p class="text-sm font-semibold text-gray-900">
+                                {% if item.date %}
+                                    {{ item.date.strftime('%d %b %Y') }}
+                                {% elif item.start_date %}
+                                    {{ item.start_date.strftime('%d %b %Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </p>
+                        </td>
+
+
+                        {# Day #}
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <span class="text-sm text-gray-600">
+                                {% if item.date %}
+                                    {{ item.date.strftime('%A') }}
+                                {% elif item.start_date %}
+                                    {{ item.start_date.strftime('%A') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </td>
+
+
+                        {# Availability status #}
+                        <td class="whitespace-nowrap px-5 py-4">
+
+                            {% if normalized_status in ['available', 'free'] %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                Available
+                            </span>
+
+                            {% elif normalized_status in ['unavailable', 'busy'] %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                Unavailable
+                            </span>
+
+                            {% elif normalized_status in ['leave', 'on_leave'] %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                On Leave
+                            </span>
+
+                            {% else %}
+
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                                {{ availability_status|replace('_', ' ')|title }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Start time #}
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <span class="text-sm text-gray-600">
+                                {% if item.start_time %}
+                                    {% if item.start_time.strftime is defined %}
+                                        {{ item.start_time.strftime('%H:%M') }}
+                                    {% else %}
+                                        {{ item.start_time }}
+                                    {% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </td>
+
+
+                        {# End time #}
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <span class="text-sm text-gray-600">
+                                {% if item.end_time %}
+                                    {% if item.end_time.strftime is defined %}
+                                        {{ item.end_time.strftime('%H:%M') }}
+                                    {% else %}
+                                        {{ item.end_time }}
+                                    {% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </td>
+
+
+                        {# Notes #}
+                        <td class="px-5 py-4">
+                            {% if item.notes %}
+                            <p class="max-w-sm whitespace-normal text-sm leading-5 text-gray-600">
+                                {{ item.notes }}
+                            </p>
+                            {% else %}
+                            <span class="text-sm text-gray-400">No notes</span>
+                            {% endif %}
+                        </td>
+
+
+                        {# Record status #}
+                        <td class="whitespace-nowrap px-5 py-4 text-right sm:px-6">
+
+                            {% if item.active is defined and item.active is not none %}
+
+                                {% if item.active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                    Inactive
+                                </span>
+                                {% endif %}
+
+                            {% else %}
+
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                Active
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+
+        {# Table footer #}
+        <div class="flex flex-col gap-2 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+            <p>
+                Showing
+                <span class="font-semibold text-gray-700">{{ availability_records|length }}</span>
+                availability record{% if availability_records|length != 1 %}s{% endif %}
+            </p>
+
+            <p>
+                Availability records are used to support scheduling decisions.
+            </p>
+
+        </div>
+
+
+        {% else %}
+
+        {# ============================================================ #}
+        {# EMPTY STATE                                                    #}
+        {# ============================================================ #}
+
+        <div class="px-6 py-16 text-center">
+
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F1E5] text-[#1F5138]">
+                <svg class="h-8 w-8"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.6">
+                    <rect x="3" y="4" width="18" height="17" rx="2"/>
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M16 2v4M8 2v4M3 10h18m4 4l-4 4m0-4l4 4"/>
+                </svg>
+            </div>
+
+            <h3 class="mt-5 text-lg font-bold text-gray-900">
+                No Availability Records
+            </h3>
+
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
+                There are no availability records for this guide yet.
+                Review the guide's schedule to manage their working periods
+                and avoid scheduling conflicts.
+            </p>
+
+            {% if guide_id %}
+            <div class="mt-6">
+                <a href="{{ url_for('admin_guide.schedule', guide_id=guide_id) }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A]">
+
+                    <svg class="h-4 w-4"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M12 14v4m-2-2h4"/>
+                    </svg>
+
+                    Manage Schedule
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    {# ================================================================ #}
+    {# AVAILABILITY GUIDANCE                                             #}
+    {# ================================================================ #}
+
+    <section class="rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-5 sm:p-6">
+
+        <div class="flex items-start gap-4">
+
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#1F5138] shadow-sm">
+                <svg class="h-5 w-5"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 11v5m0-8h.01"/>
+                </svg>
+            </div>
+
+            <div class="min-w-0">
+                <h2 class="text-sm font-bold text-gray-900">
+                    Availability Management
+                </h2>
+
+                <p class="mt-1.5 max-w-3xl text-sm leading-6 text-gray-600">
+                    Use availability records alongside the guide's schedule
+                    and assignments before confirming an experience. Check
+                    for unavailable periods, leave, overlapping bookings,
+                    and existing commitments to help prevent scheduling
+                    conflicts.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

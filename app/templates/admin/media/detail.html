@@ -1,0 +1,683 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ asset.title or asset.original_filename }} — Media Asset
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+
+        <div>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-route-muted">
+                <a
+                    href="{{ url_for('admin_media.index') }}"
+                    class="font-medium transition hover:text-route-deep"
+                >
+                    Media Library
+                </a>
+
+                <span>/</span>
+
+                <span>Asset #{{ asset.id }}</span>
+            </div>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                {{ asset.title or asset.original_filename }}
+            </h1>
+
+            <p class="mt-1 break-all text-sm text-route-muted">
+                {{ asset.original_filename }}
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+
+            <a
+                href="{{ url_for('admin_media.edit', asset_id=asset.id) }}"
+                class="inline-flex items-center justify-center rounded-xl bg-route-deep px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-route-forest"
+            >
+                Edit Asset
+            </a>
+
+            <a
+                href="{{ url_for('admin_media.index') }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-deep/10 bg-white px-4 py-2.5 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream"
+            >
+                Back to Library
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Status -->
+    <div class="flex flex-wrap gap-2">
+
+        {% if asset.active %}
+            <span class="rounded-full bg-route-deep px-3 py-1 text-xs font-semibold text-white">
+                Active
+            </span>
+        {% else %}
+            <span class="rounded-full bg-route-muted/15 px-3 py-1 text-xs font-semibold text-route-muted">
+                Inactive
+            </span>
+        {% endif %}
+
+        {% if asset.featured %}
+            <span class="rounded-full bg-route-gold px-3 py-1 text-xs font-bold text-route-deep">
+                Featured
+            </span>
+        {% endif %}
+
+        {% if asset.downloadable %}
+            <span class="rounded-full bg-route-forest/10 px-3 py-1 text-xs font-semibold text-route-forest">
+                Downloadable
+            </span>
+        {% endif %}
+
+        <span class="rounded-full bg-route-cream px-3 py-1 text-xs font-semibold text-route-deep">
+            {{ asset.media_type|replace("_", " ")|title }}
+        </span>
+
+    </div>
+
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 gap-8 xl:grid-cols-3">
+
+        <!-- Preview -->
+        <div class="xl:col-span-2">
+
+            <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+                <div class="border-b border-route-deep/10 px-6 py-4">
+                    <h2 class="font-semibold text-route-ink">
+                        Preview
+                    </h2>
+                </div>
+
+                <div class="flex min-h-[460px] items-center justify-center bg-route-cream/60 p-6">
+
+                    {% set media_src = asset.file_url or url_for(
+                        'admin_media.serve_media',
+                        filename=asset.filename
+                    ) %}
+
+                    {% if asset.is_image %}
+
+                        <img
+                            src="{{ media_src }}"
+                            alt="{{ asset.alt_text or asset.title or asset.original_filename }}"
+                            class="max-h-[650px] max-w-full rounded-xl object-contain shadow-sm"
+                            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                        >
+
+                        <div class="hidden flex-col items-center justify-center text-center">
+
+                            <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-route-sand text-route-deep">
+                                🖼️
+                            </div>
+
+                            <p class="font-semibold text-route-ink">
+                                Image Preview Unavailable
+                            </p>
+
+                            <p class="mt-1 text-sm text-route-muted">
+                                {{ asset.original_filename }}
+                            </p>
+
+                        </div>
+
+                    {% elif asset.is_video %}
+
+                        <video
+                            controls
+                            playsinline
+                            preload="metadata"
+                            class="max-h-[650px] max-w-full rounded-xl shadow-sm"
+                        >
+                            <source
+                                src="{{ media_src }}"
+                                type="{{ asset.mime_type }}"
+                            >
+                            Your browser does not support video playback.
+                        </video>
+
+                    {% else %}
+
+                        <div class="flex flex-col items-center justify-center text-center">
+
+                            <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-route-sand text-route-deep">
+                                {% if asset.is_document %}
+                                    📄
+                                {% elif asset.media_type == "audio" %}
+                                    🎵
+                                {% elif asset.media_type == "map" %}
+                                    🗺️
+                                {% elif asset.media_type == "icon" %}
+                                    ✦
+                                {% else %}
+                                    📁
+                                {% endif %}
+                            </div>
+
+                            <p class="font-semibold text-route-ink">
+                                {{ asset.media_type|replace("_", " ")|title }} Asset
+                            </p>
+
+                            <p class="mt-1 text-sm text-route-muted">
+                                {{ asset.original_filename }}
+                            </p>
+
+                            {% if media_src %}
+                                <a
+                                    href="{{ media_src }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="mt-5 inline-flex rounded-xl bg-route-deep px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-route-forest"
+                                >
+                                    Open File
+                                </a>
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- Information -->
+        <div class="space-y-6">
+
+            <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+                <div class="border-b border-route-deep/10 px-6 py-4">
+                    <h2 class="font-semibold text-route-ink">
+                        Asset Information
+                    </h2>
+                </div>
+
+                <div class="divide-y divide-route-deep/10">
+
+                    <div class="px-6 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                            File Name
+                        </p>
+
+                        <p class="mt-1 break-all text-sm text-route-ink">
+                            {{ asset.filename }}
+                        </p>
+                    </div>
+
+                    <div class="px-6 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                            Original Name
+                        </p>
+
+                        <p class="mt-1 break-all text-sm text-route-ink">
+                            {{ asset.original_filename }}
+                        </p>
+                    </div>
+
+                    <div class="px-6 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                            Media Type
+                        </p>
+
+                        <p class="mt-1 text-sm text-route-ink">
+                            {{ asset.media_type|replace("_", " ")|title }}
+                        </p>
+                    </div>
+
+                    <div class="px-6 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                            MIME Type
+                        </p>
+
+                        <p class="mt-1 break-all text-sm text-route-ink">
+                            {{ asset.mime_type }}
+                        </p>
+                    </div>
+
+                    <div class="px-6 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                            File Size
+                        </p>
+
+                        <p class="mt-1 text-sm text-route-ink">
+                            {{ asset.formatted_size }}
+                        </p>
+                    </div>
+
+                    <div class="px-6 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                            Extension
+                        </p>
+
+                        <p class="mt-1 text-sm text-route-ink">
+                            .{{ asset.file_extension }}
+                        </p>
+                    </div>
+
+                    {% if asset.width and asset.height %}
+                        <div class="px-6 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                                Dimensions
+                            </p>
+
+                            <p class="mt-1 text-sm text-route-ink">
+                                {{ asset.width }} × {{ asset.height }} px
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {% if asset.duration %}
+                        <div class="px-6 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                                Duration
+                            </p>
+
+                            <p class="mt-1 text-sm text-route-ink">
+                                {{ asset.duration }} seconds
+                            </p>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- Folders -->
+            <section class="rounded-2xl border border-route-deep/10 bg-white p-6 shadow-sm">
+
+                <h2 class="font-semibold text-route-ink">
+                    Media Folders
+                </h2>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+
+                    {% if asset.folder_assignments.count() %}
+
+                        {% for link in asset.folder_assignments.all() %}
+                            <span
+                                class="rounded-full px-3 py-1.5 text-xs font-semibold
+                                {% if link.is_primary %}
+                                    bg-route-gold text-route-deep
+                                {% else %}
+                                    bg-route-cream text-route-deep
+                                {% endif %}"
+                            >
+                                {{ link.folder.name }}
+
+                                {% if link.is_primary %}
+                                    <span class="ml-1 opacity-70">Primary</span>
+                                {% endif %}
+                            </span>
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-sm text-route-muted">
+                            No folders assigned.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- Quick Actions -->
+            <section class="rounded-2xl border border-route-deep/10 bg-white p-6 shadow-sm">
+
+                <h2 class="font-semibold text-route-ink">
+                    Quick Actions
+                </h2>
+
+                <div class="mt-4 space-y-3">
+
+                    {% if asset.active %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_media.deactivate', asset_id=asset.id) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="w-full rounded-xl border border-route-gold/40 px-4 py-2.5 text-sm font-semibold text-route-deep transition hover:bg-route-gold/10"
+                            >
+                                Deactivate Asset
+                            </button>
+                        </form>
+
+                    {% else %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_media.activate', asset_id=asset.id) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="w-full rounded-xl border border-route-forest/30 px-4 py-2.5 text-sm font-semibold text-route-forest transition hover:bg-route-forest/10"
+                            >
+                                Activate Asset
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if asset.featured %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_media.unfeature', asset_id=asset.id) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="w-full rounded-xl border border-route-deep/10 px-4 py-2.5 text-sm font-semibold text-route-deep transition hover:bg-route-cream"
+                            >
+                                Remove Featured Status
+                            </button>
+                        </form>
+
+                    {% else %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('admin_media.feature', asset_id=asset.id) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="w-full rounded-xl border border-route-gold/40 px-4 py-2.5 text-sm font-semibold text-route-deep transition hover:bg-route-gold/10"
+                            >
+                                Feature Asset
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if media_src %}
+
+                        <a
+                            href="{{ media_src }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="block w-full rounded-xl border border-route-deep/10 px-4 py-2.5 text-center text-sm font-semibold text-route-deep transition hover:bg-route-cream"
+                        >
+                            Open File
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+
+    <!-- Content Metadata -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+
+        <section class="rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-4">
+                <h2 class="font-semibold text-route-ink">
+                    Content Metadata
+                </h2>
+            </div>
+
+            <div class="space-y-6 p-6">
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        Alt Text
+                    </p>
+
+                    <p class="mt-1 text-sm leading-6 text-route-ink">
+                        {{ asset.alt_text or "No alt text provided." }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        Caption
+                    </p>
+
+                    <p class="mt-1 whitespace-pre-line text-sm leading-6 text-route-ink">
+                        {{ asset.caption or "No caption provided." }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        Description
+                    </p>
+
+                    <p class="mt-1 whitespace-pre-line text-sm leading-6 text-route-ink">
+                        {{ asset.description or "No description provided." }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        Credit
+                    </p>
+
+                    <p class="mt-1 text-sm text-route-ink">
+                        {{ asset.credit or "No credit provided." }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        Tags
+                    </p>
+
+                    {% if asset.tags %}
+
+                        <div class="mt-2 flex flex-wrap gap-2">
+
+                            {% for tag in asset.tags.split(",") %}
+
+                                <span class="rounded-full bg-route-cream px-3 py-1 text-xs font-medium text-route-deep">
+                                    {{ tag.strip() }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            No tags assigned.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SEO -->
+        <section class="rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-4">
+                <h2 class="font-semibold text-route-ink">
+                    SEO Metadata
+                </h2>
+            </div>
+
+            <div class="space-y-6 p-6">
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        SEO Title
+                    </p>
+
+                    <p class="mt-1 text-sm text-route-ink">
+                        {{ asset.seo_title or "No SEO title provided." }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                        SEO Description
+                    </p>
+
+                    <p class="mt-1 whitespace-pre-line text-sm leading-6 text-route-ink">
+                        {{ asset.seo_description or "No SEO description provided." }}
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- Technical Information -->
+    <section class="rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+        <div class="border-b border-route-deep/10 px-6 py-4">
+            <h2 class="font-semibold text-route-ink">
+                Technical & Audit Information
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-4">
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Asset ID
+                </p>
+
+                <p class="mt-1 text-sm font-medium text-route-ink">
+                    #{{ asset.id }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Created
+                </p>
+
+                <p class="mt-1 text-sm text-route-ink">
+                    {{ asset.created_at.strftime("%d %b %Y, %H:%M") if asset.created_at else "—" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Last Updated
+                </p>
+
+                <p class="mt-1 text-sm text-route-ink">
+                    {{ asset.updated_at.strftime("%d %b %Y, %H:%M") if asset.updated_at else "—" }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Checksum
+                </p>
+
+                <p class="mt-1 break-all font-mono text-xs text-route-muted">
+                    {{ asset.checksum or "Not available" }}
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Delete -->
+    <section class="rounded-2xl border border-route-terracotta/25 bg-route-terracotta/5 p-6">
+
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+            <div>
+                <h2 class="font-semibold text-route-terracotta">
+                    Delete Media Asset
+                </h2>
+
+                <p class="mt-1 max-w-2xl text-sm leading-6 text-route-terracotta/80">
+                    Deleting an asset removes its DAM record and its folder associations.
+                    Make sure it is no longer required by another CMS feature.
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_media.delete', asset_id=asset.id) }}"
+                onsubmit="return confirm('Are you sure you want to delete this media asset?');"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-xl bg-route-terracotta px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                >
+                    Delete Asset
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

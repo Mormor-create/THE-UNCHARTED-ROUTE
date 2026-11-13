@@ -1,0 +1,573 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Search Destinations | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    Search destinations across The Uncharted Route's travel collection.
+{% endblock %}
+
+{% block og_title %}
+    Search Destinations | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block og_description %}
+    Find your next destination with The Uncharted Route.
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =====================================================================
+     Search Form
+     ===================================================================== -->
+
+<section class="border-b border-route-sand bg-route-white">
+
+    <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+
+        <form
+            method="GET"
+            action="{{ url_for('destinations.search') }}"
+            class="flex flex-col gap-3 sm:flex-row"
+        >
+
+            <label
+                for="destination-search"
+                class="sr-only"
+            >
+                Search destinations
+            </label>
+
+            <input
+                id="destination-search"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="e.g. Nairobi, coast, Maasai Mara..."
+                class="
+                    w-full
+                    rounded-full
+                    border
+                    border-route-sand
+                    bg-route-white
+                    px-5
+                    py-3.5
+                    text-sm
+                    text-route-ink
+                    outline-none
+                    transition
+                    placeholder:text-route-muted
+                    focus:border-route-forest
+                    focus:ring-2
+                    focus:ring-route-forest/10
+                "
+            >
+
+            <button
+                type="submit"
+                class="
+                    rounded-full
+                    bg-route-forest
+                    px-7
+                    py-3.5
+                    text-sm
+                    font-semibold
+                    text-route-white
+                    shadow-sm
+                    transition
+                    hover:bg-route-deep
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-route-forest/30
+                "
+            >
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================================
+     Search Results
+     ===================================================================== -->
+
+<section class="bg-route-cream">
+
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+
+        {% if query %}
+
+            <div class="mb-8">
+
+                <p class="text-sm text-route-muted">
+                    Search results for
+                </p>
+
+                <h1 class="mt-1 font-display text-3xl font-semibold text-route-ink">
+                    "{{ query }}"
+                </h1>
+
+                <p class="mt-2 text-sm text-route-muted">
+
+                    {{ destinations|length }}
+
+                    {% if destinations|length == 1 %}
+                        destination
+                    {% else %}
+                        destinations
+                    {% endif %}
+
+                    found
+
+                </p>
+
+            </div>
+
+
+            {% if destinations %}
+
+                <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+
+                    {% for destination in destinations %}
+
+                        <article
+                            class="
+                                group
+                                overflow-hidden
+                                rounded-route
+                                bg-route-white
+                                shadow-route
+                                ring-1
+                                ring-route-sand
+                                transition
+                                duration-300
+                                hover:-translate-y-1
+                                hover:shadow-route-lg
+                            "
+                        >
+
+                            <a
+                                href="{{ url_for('destinations.detail', slug=destination.slug) }}"
+                                class="block"
+                            >
+
+                                <!-- =================================================
+                                     Destination Image
+                                     ================================================= -->
+
+                                <div
+                                    class="
+                                        relative
+                                        aspect-[16/10]
+                                        overflow-hidden
+                                        bg-route-sand
+                                    "
+                                >
+
+                                    {% if destination.featured_image_asset
+                                          and destination.featured_image_asset.browser_url %}
+
+                                        <img
+                                            src="{{ destination.featured_image_asset.browser_url }}"
+                                            alt="{{ destination.name }}"
+                                            class="
+                                                h-full
+                                                w-full
+                                                object-cover
+                                                transition
+                                                duration-500
+                                                group-hover:scale-105
+                                            "
+                                            loading="lazy"
+                                            decoding="async"
+                                            onerror="
+                                                this.style.display='none';
+                                                this.nextElementSibling.classList.remove('hidden');
+                                            "
+                                        >
+
+                                        <div
+                                            class="
+                                                absolute
+                                                inset-0
+                                                hidden
+                                                items-center
+                                                justify-center
+                                                bg-route-sand
+                                                text-route-forest
+                                            "
+                                        >
+
+                                            <svg
+                                                class="h-14 w-14"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M3 20l6-9 4 5 3-4 5 8M5 6h.01M19 6h.01"
+                                                />
+                                            </svg>
+
+                                        </div>
+
+                                    {% else %}
+
+                                        <div
+                                            class="
+                                                absolute
+                                                inset-0
+                                                flex
+                                                items-center
+                                                justify-center
+                                                bg-route-sand
+                                                text-route-forest
+                                            "
+                                        >
+
+                                            <svg
+                                                class="h-14 w-14"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M3 20l6-9 4 5 3-4 5 8M5 6h.01M19 6h.01"
+                                                />
+                                            </svg>
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- =================================================
+                                     Destination Information
+                                     ================================================= -->
+
+                                <div class="p-6">
+
+                                    {% if destination.region
+                                          or destination.county
+                                          or destination.country %}
+
+                                        <p
+                                            class="
+                                                text-xs
+                                                font-semibold
+                                                uppercase
+                                                tracking-[0.15em]
+                                                text-route-safari
+                                            "
+                                        >
+                                            {{ destination.region
+                                                or destination.county
+                                                or destination.country }}
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    <h2
+                                        class="
+                                            mt-2
+                                            font-display
+                                            text-2xl
+                                            font-semibold
+                                            text-route-ink
+                                        "
+                                    >
+                                        {{ destination.name }}
+                                    </h2>
+
+
+                                    {% if destination.short_description %}
+
+                                        <p
+                                            class="
+                                                mt-3
+                                                line-clamp-3
+                                                text-sm
+                                                leading-6
+                                                text-route-muted
+                                            "
+                                        >
+                                            {{ destination.short_description }}
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    <div
+                                        class="
+                                            mt-5
+                                            flex
+                                            items-center
+                                            justify-between
+                                        "
+                                    >
+
+                                        <span class="text-sm text-route-muted">
+
+                                            {{ destination.experience_count }}
+
+                                            {% if destination.experience_count == 1 %}
+                                                experience
+                                            {% else %}
+                                                experiences
+                                            {% endif %}
+
+                                        </span>
+
+
+                                        <span
+                                            class="
+                                                text-sm
+                                                font-semibold
+                                                text-route-forest
+                                            "
+                                        >
+                                            Explore
+
+                                            <span
+                                                aria-hidden="true"
+                                                class="
+                                                    ml-1
+                                                    transition-transform
+                                                    group-hover:translate-x-1
+                                                "
+                                            >
+                                                →
+                                            </span>
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </a>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <!-- =============================================================
+                     No Results
+                     ============================================================= -->
+
+                <div
+                    class="
+                        rounded-route
+                        border
+                        border-dashed
+                        border-route-sand
+                        bg-route-white
+                        px-6
+                        py-16
+                        text-center
+                        shadow-route
+                    "
+                >
+
+                    <div class="mx-auto max-w-xl">
+
+                        <div
+                            class="
+                                mx-auto
+                                flex
+                                h-14
+                                w-14
+                                items-center
+                                justify-center
+                                rounded-full
+                                bg-route-cream
+                                ring-1
+                                ring-route-sand
+                            "
+                        >
+
+                            <span
+                                aria-hidden="true"
+                                class="text-2xl text-route-safari"
+                            >
+                                ×
+                            </span>
+
+                        </div>
+
+
+                        <h2
+                            class="
+                                mt-5
+                                font-display
+                                text-2xl
+                                font-semibold
+                                text-route-ink
+                            "
+                        >
+                            No destinations found
+                        </h2>
+
+
+                        <p
+                            class="
+                                mt-3
+                                text-sm
+                                leading-6
+                                text-route-muted
+                            "
+                        >
+                            We couldn't find a destination matching
+                            "{{ query }}". Try searching for a different
+                            destination, region, county, or country.
+                        </p>
+
+
+                        <a
+                            href="{{ url_for('destinations.index') }}"
+                            class="
+                                mt-6
+                                inline-flex
+                                rounded-full
+                                bg-route-forest
+                                px-6
+                                py-3
+                                text-sm
+                                font-semibold
+                                text-route-white
+                                transition
+                                hover:bg-route-deep
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-route-forest/30
+                            "
+                        >
+                            View All Destinations
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+        {% else %}
+
+            <!-- =============================================================
+                 Empty Search State
+                 ============================================================= -->
+
+            <div
+                class="
+                    rounded-route
+                    border
+                    border-route-sand
+                    bg-route-white
+                    px-6
+                    py-16
+                    text-center
+                    shadow-route
+                "
+            >
+
+                <div class="mx-auto max-w-xl">
+
+                    <div
+                        class="
+                            mx-auto
+                            flex
+                            h-14
+                            w-14
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-route-cream
+                            ring-1
+                            ring-route-sand
+                        "
+                    >
+
+                        <svg
+                            class="h-6 w-6 text-route-safari"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="6.5"
+                            ></circle>
+
+                            <path
+                                d="m16 16 4.5 4.5"
+                            ></path>
+
+                        </svg>
+
+                    </div>
+
+
+                    <h2
+                        class="
+                            mt-5
+                            font-display
+                            text-2xl
+                            font-semibold
+                            text-route-ink
+                        "
+                    >
+                        What are you looking for?
+                    </h2>
+
+
+                    <p
+                        class="
+                            mx-auto
+                            mt-3
+                            max-w-xl
+                            text-sm
+                            leading-6
+                            text-route-muted
+                        "
+                    >
+                        Search for a destination to discover the experiences
+                        available there.
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

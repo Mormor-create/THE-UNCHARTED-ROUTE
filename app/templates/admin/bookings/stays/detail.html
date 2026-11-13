@@ -1,0 +1,141 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ booking.booking_reference }} | Stay Booking{% endblock %}
+{% block content %}
+{% set stay = booking.stay_booking %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <a href="{{ url_for('admin_stay_bookings.index') }}" class="text-sm font-semibold text-[#1F5138] hover:underline">← Stay Bookings</a>
+
+    <div class="flex flex-col gap-4 rounded-2xl border border-[#E9DDC8] bg-white p-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">Accommodation Reservation</p>
+            <h1 class="mt-2 text-3xl font-bold text-[#12372A]">{{ booking.booking_reference }}</h1>
+            <p class="mt-2 text-sm text-[#66736B]">{{ booking.full_name }} · {{ booking.email }}</p>
+            <span class="mt-3 inline-flex rounded-full bg-[#F7F1E5] px-3 py-1 text-sm font-semibold text-[#12372A]">{{ booking.status|replace('_',' ')|title }}</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('admin_stay_bookings.edit', booking_id=booking.id) }}" class="rounded-xl bg-[#12372A] px-4 py-3 font-semibold text-white">Edit Booking</a>
+            <a href="{{ url_for('admin_stay_bookings.change_status', booking_id=booking.id) }}" class="rounded-xl border border-[#E9DDC8] px-4 py-3 font-semibold text-[#12372A]">Change Status</a>
+            <a href="{{ url_for('admin_stay_bookings.communicate', booking_id=booking.id) }}" class="rounded-xl border border-[#E9DDC8] px-4 py-3 font-semibold text-[#12372A]">Contact Guest</a>
+            <a href="{{ url_for('admin_stay_bookings.request_information', booking_id=booking.id) }}" class="rounded-xl border border-[#E9DDC8] px-4 py-3 font-semibold text-[#12372A]">Request Information</a>
+        </div>
+    </div>
+
+    {% if stay %}
+    <div class="grid gap-6 lg:grid-cols-3">
+        <div class="space-y-6 lg:col-span-2">
+            <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6">
+                <h2 class="text-xl font-bold text-[#12372A]">Accommodation Details</h2>
+                <dl class="mt-5 grid gap-5 sm:grid-cols-2">
+                    {% for label, value in [
+                        ('Accommodation', stay.stay_name_snapshot),
+                        ('Location', stay.property_location_snapshot),
+                        ('Room Type', stay.room_name_snapshot),
+                        ('Meal Plan', stay.meal_plan_snapshot or stay.meal_plan),
+                        ('Check-in', stay.check_in.strftime('%d %B %Y')),
+                        ('Check-out', stay.check_out.strftime('%d %B %Y')),
+                        ('Length of Stay', stay.nights|string ~ ' night(s)'),
+                        ('Rooms Reserved', stay.rooms_count),
+                        ('Expected Arrival', stay.arrival_time),
+                        ('Expected Departure', stay.departure_time),
+                        ('Availability Reference', stay.availability_reference),
+                        ('Rate Name', stay.rate_name_snapshot),
+                    ] %}
+                    <div>
+                        <dt class="text-sm text-[#66736B]">{{ label }}</dt>
+                        <dd class="mt-1 font-semibold text-[#1C2822]">{{ value or '—' }}</dd>
+                    </div>
+                    {% endfor %}
+                </dl>
+                {% if stay.room_description_snapshot %}
+                <div class="mt-5 border-t border-[#E9DDC8] pt-5">
+                    <h3 class="font-semibold text-[#12372A]">Room Description</h3>
+                    <p class="mt-2 whitespace-pre-line text-sm leading-6 text-[#66736B]">{{ stay.room_description_snapshot }}</p>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6">
+                <h2 class="text-xl font-bold text-[#12372A]">Guest Occupancy</h2>
+                <div class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    {% for label, value in [('Adults', stay.adults),('Children', stay.children),('Infants', stay.infants),('Rooms', stay.rooms_count)] %}
+                    <div class="rounded-xl bg-[#F7F1E5] p-4">
+                        <p class="text-sm text-[#66736B]">{{ label }}</p>
+                        <p class="mt-1 text-2xl font-bold text-[#12372A]">{{ value }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if stay.occupancy_snapshot %}
+                <div class="mt-5">
+                    <h3 class="font-semibold text-[#12372A]">Occupancy Snapshot</h3>
+                    <dl class="mt-2 grid grid-cols-2 gap-3 text-sm">
+                        {% for key, value in stay.occupancy_snapshot.items() %}
+                        <div><dt class="text-[#66736B]">{{ key|replace('_',' ')|title }}</dt><dd class="font-semibold">{{ value }}</dd></div>
+                        {% endfor %}
+                    </dl>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6">
+                <h2 class="text-xl font-bold text-[#12372A]">Guest & Operational Requirements</h2>
+                {% for label, value in [
+                    ('Guest Special Requests', stay.special_requests or booking.special_requests),
+                    ('Accessibility Requirements', stay.accessibility_requirements or booking.accessibility_requirements),
+                    ('Dietary Requirements', booking.dietary_requirements),
+                    ('Customer Notes', booking.customer_notes),
+                    ('Internal Notes', booking.internal_notes),
+                ] %}
+                <div class="border-b border-[#E9DDC8] py-4 last:border-0">
+                    <h3 class="text-sm font-semibold text-[#12372A]">{{ label }}</h3>
+                    <p class="mt-1 whitespace-pre-line text-sm leading-6 text-[#66736B]">{{ value or 'None provided.' }}</p>
+                </div>
+                {% endfor %}
+            </section>
+        </div>
+
+        <aside class="space-y-6">
+            <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6">
+                <h2 class="text-xl font-bold text-[#12372A]">Payment Summary</h2>
+                <dl class="mt-5 space-y-4">
+                    <div class="flex justify-between gap-3"><dt class="text-sm text-[#66736B]">Nightly Rate</dt><dd class="font-semibold">{{ stay.currency }} {{ '{:,.2f}'.format(stay.nightly_rate or 0) }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-sm text-[#66736B]">Rate Basis</dt><dd class="text-right font-semibold">{{ stay.rate_basis|replace('_',' ')|title }}</dd></div>
+                    <div class="flex justify-between gap-3 border-t border-[#E9DDC8] pt-4"><dt class="font-semibold text-[#12372A]">Booking Total</dt><dd class="font-bold text-[#12372A]">{{ booking.currency }} {{ '{:,.2f}'.format(booking.total_amount or 0) }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-sm text-[#66736B]">Paid</dt><dd class="font-semibold">{{ booking.currency }} {{ '{:,.2f}'.format(booking.amount_paid or 0) }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-sm text-[#66736B]">Balance Due</dt><dd class="font-bold text-[#C96A2C]">{{ booking.currency }} {{ '{:,.2f}'.format(booking.balance_due or 0) }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-sm text-[#66736B]">Payment Status</dt><dd class="font-semibold">{{ booking.payment_status|replace('_',' ')|title }}</dd></div>
+                </dl>
+            </section>
+
+            <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6">
+                <h2 class="text-xl font-bold text-[#12372A]">Guest Contact</h2>
+                <dl class="mt-4 space-y-3 text-sm">
+                    <div><dt class="text-[#66736B]">Name</dt><dd class="font-semibold">{{ booking.full_name }}</dd></div>
+                    <div><dt class="text-[#66736B]">Email</dt><dd class="break-words font-semibold">{{ booking.email }}</dd></div>
+                    <div><dt class="text-[#66736B]">Phone</dt><dd class="font-semibold">{{ booking.phone or '—' }}</dd></div>
+                    <div><dt class="text-[#66736B]">Nationality</dt><dd class="font-semibold">{{ booking.nationality or '—' }}</dd></div>
+                    <div><dt class="text-[#66736B]">Booking Source</dt><dd class="font-semibold">{{ booking.source|replace('_',' ')|title }}</dd></div>
+                    <div><dt class="text-[#66736B]">Created</dt><dd class="font-semibold">{{ booking.created_at.strftime('%d %b %Y, %H:%M') if booking.created_at else '—' }}</dd></div>
+                </dl>
+            </section>
+
+            <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6">
+                <h2 class="font-bold text-[#12372A]">Booking Actions</h2>
+                {% if booking.status != 'archived' %}
+                <form method="post" action="{{ url_for('admin_stay_bookings.archive', booking_id=booking.id) }}" class="mt-4" onsubmit="return confirm('Archive this booking? Its history will be preserved.');">
+                    <button class="w-full rounded-xl border border-[#C96A2C]/40 px-4 py-3 font-semibold text-[#C96A2C]">Archive Booking</button>
+                </form>
+                {% else %}
+                <form method="post" action="{{ url_for('admin_stay_bookings.restore', booking_id=booking.id) }}">
+                    <button class="mt-4 w-full rounded-xl bg-[#12372A] px-4 py-3 font-semibold text-white">Restore Booking</button>
+                </form>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+    {% else %}
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
+        Stay-specific details are missing for this central booking. The booking history is preserved, but the accommodation detail record needs reconciliation.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

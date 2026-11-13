@@ -1,0 +1,289 @@
+{% extends "guide_portal/base.html" %}
+
+{% block title %}Ready to Book | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-6">
+
+    <div>
+        <a
+            href="{{ url_for('guide_portal.enquiry_detail', contact_id=contact.id) }}"
+            class="inline-flex items-center gap-2 text-sm font-medium text-route-forest hover:underline"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back to enquiry
+        </a>
+
+        <p class="mt-4 text-sm font-semibold uppercase tracking-widest text-route-gold">
+            Guide portal · Booking handoff
+        </p>
+
+        <h1 class="mt-2 text-3xl font-bold text-route-forest">
+            Ready to Book
+        </h1>
+
+        <p class="mt-2 text-sm leading-6 text-route-muted">
+            Record the proposed details agreed with the client so the
+            administration team can review the request.
+        </p>
+    </div>
+
+    <div class="rounded-2xl border border-route-gold/40 bg-route-sand/50 p-5">
+        <div class="flex items-start gap-3">
+            <i class="bi bi-info-circle-fill mt-1 text-route-gold"></i>
+            <div>
+                <h2 class="font-semibold text-route-forest">
+                    This is a request, not a reservation
+                </h2>
+                <p class="mt-1 text-sm leading-6 text-route-muted">
+                    Submitting this form does not create a booking, confirm
+                    availability, confirm a reservation or collect payment.
+                    The admin team will review the details and handle the
+                    booking through the existing Booking Management system.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-route-forest">
+            Client enquiry
+        </h2>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Client
+                </p>
+                <p class="mt-1 font-medium text-route-deep">
+                    {{ contact.full_name }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Email
+                </p>
+                <p class="mt-1 break-words text-route-deep">
+                    {{ contact.email }}
+                </p>
+            </div>
+
+            <div class="sm:col-span-2">
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Original enquiry
+                </p>
+                <p class="mt-1 font-medium text-route-deep">
+                    {{ contact.subject }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <form
+        method="POST"
+        action="{{ url_for('guide_portal.ready_to_book', contact_id=contact.id) }}"
+        class="space-y-6 rounded-2xl border border-route-sand bg-white p-6 shadow-sm"
+    >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div>
+            <h2 class="text-lg font-semibold text-route-forest">
+                Proposed booking details
+            </h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Enter the details discussed with the client. The admin team
+                will verify the final price and availability.
+            </p>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+
+            <div>
+                <label for="booking_type"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Booking category <span class="text-red-600">*</span>
+                </label>
+
+                <select
+                    id="booking_type"
+                    name="booking_type"
+                    required
+                    class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+                    <option value="">Select a category</option>
+                    <option value="experience"
+                        {% if form_data.get('booking_type') == 'experience' %}selected{% endif %}>
+                        Experience
+                    </option>
+                    <option value="destination_journey"
+                        {% if form_data.get('booking_type') == 'destination_journey' %}selected{% endif %}>
+                        Destination journey
+                    </option>
+                    <option value="stay"
+                        {% if form_data.get('booking_type') == 'stay' %}selected{% endif %}>
+                        Stay
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="service_name"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Agreed service / experience <span class="text-red-600">*</span>
+                </label>
+
+                <input
+                    id="service_name"
+                    name="service_name"
+                    type="text"
+                    maxlength="255"
+                    required
+                    value="{{ form_data.get('service_name', '') }}"
+                    placeholder="e.g. Nairobi National Park experience"
+                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+            </div>
+
+            <div>
+                <label for="preferred_start_date"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Preferred start date
+                </label>
+
+                <input
+                    id="preferred_start_date"
+                    name="preferred_start_date"
+                    type="date"
+                    value="{{ form_data.get('preferred_start_date', '') }}"
+                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+            </div>
+
+            <div>
+                <label for="preferred_end_date"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Preferred end date
+                </label>
+
+                <input
+                    id="preferred_end_date"
+                    name="preferred_end_date"
+                    type="date"
+                    value="{{ form_data.get('preferred_end_date', '') }}"
+                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+            </div>
+
+            <div>
+                <label for="adults"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Adults
+                </label>
+
+                <input
+                    id="adults"
+                    name="adults"
+                    type="number"
+                    min="1"
+                    required
+                    value="{{ form_data.get('adults', '1') }}"
+                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+            </div>
+
+            <div>
+                <label for="children"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Children
+                </label>
+
+                <input
+                    id="children"
+                    name="children"
+                    type="number"
+                    min="0"
+                    required
+                    value="{{ form_data.get('children', '0') }}"
+                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+            </div>
+
+            <div>
+                <label for="infants"
+                       class="mb-2 block text-sm font-medium text-route-deep">
+                    Infants
+                </label>
+
+                <input
+                    id="infants"
+                    name="infants"
+                    type="number"
+                    min="0"
+                    required
+                    value="{{ form_data.get('infants', '0') }}"
+                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+                >
+            </div>
+        </div>
+
+        <div>
+            <label for="request_details"
+                   class="mb-2 block text-sm font-medium text-route-deep">
+                Agreed details and handoff notes
+                <span class="text-red-600">*</span>
+            </label>
+
+            <textarea
+                id="request_details"
+                name="request_details"
+                rows="5"
+                required
+                placeholder="Summarise what the client wants, the dates discussed, preferences, pickup arrangements and any details the admin team should know."
+                class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none focus:ring-2 focus:ring-route-forest/20"
+            >{{ form_data.get('request_details', '') }}</textarea>
+
+            <p class="mt-2 text-xs text-route-muted">
+                Do not enter payment card details or unnecessary sensitive information.
+            </p>
+        </div>
+
+        <div class="rounded-xl bg-route-cream p-4">
+            <label class="flex items-start gap-3">
+                <input
+                    type="checkbox"
+                    name="client_agreed"
+                    value="yes"
+                    required
+                    {% if form_data.get('client_agreed') == 'yes' %}checked{% endif %}
+                    class="mt-1 rounded border-route-sand text-route-forest focus:ring-route-forest"
+                >
+
+                <span class="text-sm leading-6 text-route-deep">
+                    I confirm that I have discussed these proposed details
+                    with the client and am submitting them for administrative
+                    review. I understand that this does not confirm a booking.
+                </span>
+            </label>
+        </div>
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <a
+                href="{{ url_for('guide_portal.enquiry_detail', contact_id=contact.id) }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-sand px-5 py-3 text-sm font-semibold text-route-deep hover:bg-route-cream"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2"
+            >
+                <i class="bi bi-send"></i>
+                Submit for admin review
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

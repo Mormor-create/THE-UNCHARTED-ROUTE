@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+
+{% block admin_title %}
+    Page Not Found
+{% endblock %}
+
+{% block admin_heading %}
+    Page Not Found
+{% endblock %}
+
+{% block admin_content %}
+
+<div class="flex min-h-[60vh] items-center justify-center">
+
+    <div class="max-w-xl text-center">
+
+        <p
+            class="
+                font-display
+                text-8xl
+                font-semibold
+                text-route-gold
+            "
+        >
+            404
+        </p>
+
+        <h2
+            class="
+                mt-5
+                font-display
+                text-3xl
+                font-semibold
+                text-route-ink
+            "
+        >
+            We couldn't find that page.
+        </h2>
+
+        <p
+            class="
+                mx-auto
+                mt-4
+                max-w-md
+                text-sm
+                leading-7
+                text-route-muted
+            "
+        >
+            The administrative page you're looking for doesn't
+            exist or may have moved.
+        </p>
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="
+                mt-8
+                inline-flex
+                items-center
+                rounded-full
+                bg-route-gold
+                px-6
+                py-3
+                text-sm
+                font-bold
+                text-route-deep
+                transition
+                hover:bg-route-forest
+                hover:text-route-white
+            "
+        >
+            Return to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

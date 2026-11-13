@@ -1,0 +1,323 @@
+{% extends "admin/base.html" %}
+{% block title %}Create Media Folder — The Uncharted Route{% endblock %}
+{% block content %}
+
+<div class="mx-auto max-w-4xl space-y-8">
+
+    <!-- ================================================================ -->
+    <!-- Header -->
+    <!-- ================================================================ -->
+
+    <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+
+        <div>
+
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                Digital Asset Management
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                Create Media Folder
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                Create a folder that will organize reusable media assets
+                inside the central Digital Asset Management library.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('admin_media.folders') }}"
+            class="inline-flex items-center justify-center rounded-xl border border-route-deep/10 bg-white px-4 py-2.5 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream"
+        >
+            ← Back to Folders
+        </a>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Form -->
+    <!-- ================================================================ -->
+    <form
+        method="POST"
+        action="{{ url_for('admin_media.create_folder') }}"
+        class="space-y-8"
+    >
+
+        {{ form.hidden_tag() }}
+
+
+        <!-- ============================================================ -->
+        <!-- Basic Information -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Folder Information
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Define the folder's name, slug, and purpose.
+                </p>
+
+            </div>
+
+
+            <div class="grid gap-6 p-6 md:grid-cols-2">
+
+                <!-- Name -->
+
+                <div>
+
+                    {{ form.name.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.name(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition placeholder:text-route-muted/60 focus:border-route-gold focus:ring-2 focus:ring-route-gold/20",
+                        placeholder="e.g. Heroes"
+                    ) }}
+
+                    {% for error in form.name.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Slug -->
+
+                <div>
+
+                    {{ form.slug.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.slug(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition placeholder:text-route-muted/60 focus:border-route-gold focus:ring-2 focus:ring-route-gold/20",
+                        placeholder="e.g. heroes"
+                    ) }}
+
+                    {% for error in form.slug.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Description -->
+
+                <div class="md:col-span-2">
+
+                    {{ form.description.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.description(
+                        rows="4",
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition placeholder:text-route-muted/60 focus:border-route-gold focus:ring-2 focus:ring-route-gold/20",
+                        placeholder="Describe what this folder is intended to contain."
+                    ) }}
+
+                    {% for error in form.description.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Hierarchy -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Folder Structure
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Decide where this folder belongs in the DAM hierarchy.
+                </p>
+
+            </div>
+
+
+            <div class="grid gap-6 p-6 md:grid-cols-2">
+
+                <!-- Parent -->
+
+                <div>
+
+                    {{ form.parent_id.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.parent_id(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                    ) }}
+
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Choose a parent when this is a child folder.
+                        Use the root option when creating a top-level folder.
+                    </p>
+
+                    <p class="mt-2 rounded-lg bg-route-cream/70 px-3 py-2 text-xs leading-5 text-route-deep">
+
+                        <strong>Example:</strong>
+                        Create <strong>Heroes</strong> as a root folder.
+                        Then create <strong>Homepage</strong> with
+                        <strong>Heroes</strong> as its parent.
+
+                    </p>
+
+                    {% for error in form.parent_id.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Folder Type -->
+
+                <div>
+
+                    {{ form.folder_type.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.folder_type(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                    ) }}
+
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Classifies the folder for DAM organization and future
+                        filtering.
+                    </p>
+
+                    {% for error in form.folder_type.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Display Order -->
+
+                <div>
+
+                    {{ form.display_order.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ form.display_order(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20",
+                        min="0"
+                    ) }}
+
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Lower numbers appear first when folders are ordered.
+                    </p>
+
+                    {% for error in form.display_order.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Status -->
+        <!-- ============================================================ -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+
+            <div class="border-b border-route-deep/10 px-6 py-5">
+
+                <h2 class="text-lg font-semibold text-route-ink">
+                    Folder Status
+                </h2>
+
+            </div>
+
+
+            <div class="p-6">
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-route-deep/10 p-4 transition hover:border-route-gold/40 hover:bg-route-cream/50">
+
+                    {{ form.active(
+                        class="mt-1 h-4 w-4 rounded border-route-deep/20 text-route-deep focus:ring-route-gold"
+                    ) }}
+
+                    <span>
+
+                        <span class="block text-sm font-semibold text-route-ink">
+                            Active Folder
+                        </span>
+
+                        <span class="mt-1 block text-xs leading-5 text-route-muted">
+                            Allow this folder to appear as an available
+                            organization option when managing media.
+                        </span>
+
+                    </span>
+
+                </label>
+
+                {% for error in form.active.errors %}
+                    <p class="mt-1 text-xs text-red-600">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================ -->
+        <!-- Actions -->
+        <!-- ============================================================ -->
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+            <a
+                href="{{ url_for('admin_media.folders') }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-deep/10 bg-white px-5 py-3 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream">
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-xl bg-route-deep px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-forest"
+            >
+                Create Folder
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

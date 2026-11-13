@@ -1,0 +1,67 @@
+{% if breadcrumbs %}
+
+<nav
+    aria-label="Breadcrumb"
+    class="mb-6"
+>
+
+    <ol
+        class="
+            flex
+            flex-wrap
+            items-center
+            gap-2
+            text-sm
+        "
+    >
+
+        {% for breadcrumb in breadcrumbs %}
+
+            <li class="flex items-center gap-2">
+
+                {% if not loop.first %}
+
+                    <span
+                        class="text-slate-400"
+                        aria-hidden="true"
+                    >
+                        /
+                    </span>
+
+                {% endif %}
+
+                {% if breadcrumb.url and not loop.last %}
+
+                    <a
+                        href="{{ breadcrumb.url }}"
+                        class="
+                            text-slate-500
+                            transition
+                            hover:text-slate-900
+                        "
+                    >
+                        {{ breadcrumb.label }}
+                    </a>
+
+                {% else %}
+
+                    <span
+                        class="
+                            font-medium
+                            text-slate-900
+                        "
+                    >
+                        {{ breadcrumb.label }}
+                    </span>
+
+                {% endif %}
+
+            </li>
+
+        {% endfor %}
+
+    </ol>
+
+</nav>
+
+{% endif %}

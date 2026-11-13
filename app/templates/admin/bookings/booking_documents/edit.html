@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% block title %}Edit Booking Document | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6 px-4 py-8">
+    <a href="{{ url_for('booking_documents.detail', document_id=document.id) }}" class="text-sm font-medium text-[#1F5138] hover:underline">← Back to Document</a>
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-wider text-[#C96A2C]">Booking Management</p>
+        <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Edit Document</h1>
+        <p class="mt-2 text-[#66736B]">Record #{{ document.id }} · {{ document.title }}</p>
+    </div>
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+        {% include "admin/bookings/booking_documents/_form_fields.html" %}
+    </form>
+</div>
+{% endblock %}

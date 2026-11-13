@@ -1,0 +1,420 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+
+<div class="mx-auto max-w-4xl space-y-8 pb-10">
+
+    <!-- Page Header -->
+    <div>
+        <a
+            href="{{ url_for('admin_homepage.sections') }}"
+            class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900"
+        >
+            <span aria-hidden="true">←</span>
+            Back to Homepage Sections
+        </a>
+
+        <h1 class="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+            {{ page_title }}
+        </h1>
+
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+            Configure the content, presentation, media, and visibility of this homepage section.
+        </p>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+
+        <!-- Section Identity -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Section Identity
+                </h2>
+                <p class="mt-1 text-sm text-slate-500">
+                    Define the type and heading of this homepage section.
+                </p>
+            </div>
+
+            <div class="mt-6 space-y-6">
+
+                <div>
+                    {{ form.section_type.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.section_type(
+                        id="section_type",
+                        class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.section_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.title.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.title(
+                        placeholder="Enter section title",
+                        class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.subtitle.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.subtitle(
+                        placeholder="Enter an optional subtitle",
+                        class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.subtitle.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section Content -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <h2 class="text-lg font-semibold text-slate-900">
+                Section Content
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Add the main content displayed by this section.
+            </p>
+
+            <div class="mt-6">
+                {{ form.content.label(
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.content(
+                    rows="7",
+                    placeholder="Write the section content...",
+                    class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                ) }}
+
+                {% for error in form.content.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Call To Action -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <h2 class="text-lg font-semibold text-slate-900">
+                Call To Action
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Optionally provide a button label and destination.
+            </p>
+
+            <div class="mt-6 grid gap-6 md:grid-cols-2">
+
+                <div>
+                    {{ form.cta_text.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.cta_text(
+                        placeholder="Explore Now",
+                        class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.cta_text.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.cta_url.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.cta_url(
+                        placeholder="/experiences/example",
+                        class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.cta_url.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Media Selection -->
+        <section
+            id="media-section"
+            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+        >
+            <h2 class="text-lg font-semibold text-slate-900">
+                Media
+            </h2>
+
+            <p id="media-description" class="mt-1 text-sm leading-6 text-slate-500">
+                Select media from the appropriate Homepage folder in the central Media Library.
+            </p>
+
+            <div class="mt-6">
+                {{ form.media_asset_id.label(
+                    class="mb-2 block text-sm font-medium text-slate-700"
+                ) }}
+
+                {{ form.media_asset_id(
+                    id="media_asset_id",
+                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                ) }}
+
+                {% for error in form.media_asset_id.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+
+                <p id="media-folder-hint" class="mt-2 text-xs text-slate-500">
+                    Available assets depend on the selected section type.
+                </p>
+            </div>
+        </section>
+
+        <!-- Heading-only Information -->
+        <section
+            id="heading-notice"
+            class="hidden rounded-2xl border border-slate-200 bg-slate-50 p-6"
+        >
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-lg text-slate-500" aria-hidden="true">ⓘ</span>
+
+                <div>
+                    <h2 class="text-base font-semibold text-slate-900">
+                        Heading-only Section
+                    </h2>
+
+                    <p class="mt-1 text-sm leading-6 text-slate-600">
+                        This section introduces a group of cards and does not require its own media asset. Manage the cards as separate homepage sections.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Display Configuration -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <h2 class="text-lg font-semibold text-slate-900">
+                Display Configuration
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Control the section's order and public visibility.
+            </p>
+
+            <div class="mt-6 grid gap-6 md:grid-cols-2">
+
+                <div>
+                    {{ form.display_order.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.display_order(
+                        min="0",
+                        class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.display_order.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+
+                    <p class="mt-2 text-xs text-slate-400">
+                        Lower numbers appear earlier on the homepage.
+                    </p>
+                </div>
+
+                <div class="flex items-start gap-3 md:pt-9">
+                    {{ form.is_visible(
+                        class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+                    ) }}
+
+                    <div>
+                        {{ form.is_visible(
+                            id="is_visible"
+                        ) if false else "" }}
+
+                        {{ form.is_visible.label(
+                            class="font-medium text-slate-900"
+                        ) }}
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Show this section on the public homepage.
+                        </p>
+
+                        {% for error in form.is_visible.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Form Actions -->
+        <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
+            <a
+                href="{{ url_for('admin_homepage.sections') }}"
+                class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+            ) }}
+        </div>
+
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sectionType = document.getElementById("section_type");
+    const mediaSection = document.getElementById("media-section");
+    const headingNotice = document.getElementById("heading-notice");
+    const mediaDescription = document.getElementById("media-description");
+    const mediaFolderHint = document.getElementById("media-folder-hint");
+    const mediaSelect = document.getElementById("media_asset_id");
+
+    if (!sectionType || !mediaSection || !headingNotice || !mediaSelect) {
+        return;
+    }
+
+    const headingTypes = [
+        "featured_experiences",
+        "destinations"
+    ];
+
+    const folderByType = {
+        "hero": "Homepage / Hero",
+        "featured_experience_card": "Homepage / Featured Experiences",
+        "destination_card": "Homepage / Destinations"
+    };
+
+    let requestNumber = 0;
+
+    async function loadMediaAssets() {
+        const type = sectionType.value;
+        const currentRequest = ++requestNumber;
+        const previousValue = mediaSelect.value;
+        const isHeading = headingTypes.includes(type);
+
+        mediaSection.classList.toggle("hidden", isHeading);
+        headingNotice.classList.toggle("hidden", !isHeading);
+
+        if (isHeading) {
+            mediaSelect.replaceChildren(
+                new Option("No Media Asset", "0")
+            );
+            return;
+        }
+
+        mediaDescription.textContent = type === "hero"
+            ? "Select the image or video used by the homepage hero."
+            : "Select an optional image or video from the central Media Library.";
+
+        mediaFolderHint.textContent = folderByType[type]
+            ? "Loading assets from " + folderByType[type] + "..."
+            : "No media folder is configured for this section type.";
+
+        mediaSelect.replaceChildren(
+            new Option("Loading media assets...", "")
+        );
+        mediaSelect.disabled = true;
+
+        try {
+            const response = await fetch(
+                {{ url_for('admin_homepage.section_media_assets') | tojson }}
+                + "?section_type=" + encodeURIComponent(type),
+                {
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Unable to load media assets.");
+            }
+
+            const data = await response.json();
+
+            // Ignore outdated responses if the section type changed again.
+            if (currentRequest !== requestNumber) {
+                return;
+            }
+
+            const assets = data.assets || [];
+
+            mediaSelect.replaceChildren(
+                new Option("No Media Asset", "0")
+            );
+
+            assets.forEach(function (asset) {
+                mediaSelect.add(
+                    new Option(asset.title, String(asset.id))
+                );
+            });
+
+            // Keep an existing selection when it is still available.
+            if (assets.some(
+                asset => String(asset.id) === previousValue
+            )) {
+                mediaSelect.value = previousValue;
+            }
+
+            mediaFolderHint.textContent = assets.length
+                ? assets.length + " media asset(s) available in "
+                    + folderByType[type] + "."
+                : "No active image or video assets found in "
+                    + folderByType[type] + ".";
+
+        } catch (error) {
+            if (currentRequest !== requestNumber) {
+                return;
+            }
+
+            mediaSelect.replaceChildren(
+                new Option("Unable to load media assets", "")
+            );
+
+            mediaFolderHint.textContent =
+                "Could not load media. Please refresh and try again.";
+
+            console.error("Homepage media selector:", error);
+
+        } finally {
+            if (currentRequest === requestNumber) {
+                mediaSelect.disabled = false;
+            }
+        }
+    }
+
+    sectionType.addEventListener("change", loadMediaAssets);
+
+    // Load the correct folder when creating or editing a section.
+    loadMediaAssets();
+});
+</script>
+
+{% endblock %}

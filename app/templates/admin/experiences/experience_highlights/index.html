@@ -1,0 +1,445 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Experience Highlights · {{ experience.title }}
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F7F1E5]/60 py-8">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+                <a href="{{ url_for('admin_experiences.index') }}"
+                   class="transition hover:text-[#1F5138]">
+                    Experiences
+                </a>
+
+                <span>/</span>
+                <span class="text-[#1C2822]">{{ experience.title }}</span>
+                <span>/</span>
+                <span class="font-medium text-[#1F5138]">Highlights</span>
+            </nav>
+            <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span> Back to {{ experience.title }}
+        </a>
+
+            <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#12372A] text-2xl text-[#D89B24] shadow-sm">
+                        ✦
+                    </div>
+                    <div>
+                        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#5C6B32]">
+                            Experience Management
+                        </p>
+                        <h1 class="text-2xl font-bold tracking-tight text-[#12372A] sm:text-3xl">
+                            Experience Highlights
+                        </h1>
+                        <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                            Manage the key features and selling points of
+                            <span class="font-semibold text-[#1C2822]">{{ experience.title }}</span>.
+                        </p>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('admin_experience_highlights.create', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/20">
+                    <span class="text-xl leading-none">+</span>
+                    Add Highlight
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-medium text-[#66736B]">Total Highlights</p>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9DDC8] text-lg text-[#12372A]">✦</span>
+                </div>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-[#12372A]">{{ total_count }}</p>
+                <p class="mt-1 text-xs text-[#66736B]">All records for this experience</p>
+            </div>
+
+            <div class="rounded-2xl border border-[#D8E6D9] bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-medium text-[#66736B]">Active</p>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF4EC] text-lg text-[#1F5138]">✓</span>
+                </div>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-[#1F5138]">{{ active_count }}</p>
+                <p class="mt-1 text-xs text-[#66736B]">Available for active experience content</p>
+            </div>
+
+            <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-medium text-[#66736B]">Inactive</p>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F0F0EB] text-lg text-[#66736B]">○</span>
+                </div>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-[#66736B]">{{ inactive_count }}</p>
+                <p class="mt-1 text-xs text-[#66736B]">Retained but not currently active</p>
+            </div>
+
+            <div class="rounded-2xl border border-[#F0DFAE] bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-medium text-[#66736B]">Featured</p>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FBF1D5] text-lg text-[#8A6415]">★</span>
+                </div>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-[#8A6415]">{{ featured_count }}</p>
+                <p class="mt-1 text-xs text-[#66736B]">Marked as especially important</p>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="mb-6 overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/70 px-5 py-4 sm:px-6">
+                <h2 class="font-semibold text-[#12372A]">Find Highlights</h2>
+                <p class="mt-1 text-sm text-[#66736B]">Search and filter this experience's highlights.</p>
+            </div>
+
+            <form method="GET"
+                  action="{{ url_for('admin_experience_highlights.index', experience_id=experience.id) }}"
+                  class="grid grid-cols-1 gap-4 p-5 sm:p-6 md:grid-cols-2 xl:grid-cols-4">
+
+                <div>
+                    <label for="search" class="mb-2 block text-sm font-semibold text-[#1C2822]">Search</label>
+                    <input type="text"
+                           id="search"
+                           name="search"
+                           value="{{ search_term }}"
+                           placeholder="Search highlights..."
+                           class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] placeholder:text-[#9AA198] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10">
+                </div>
+
+                <div>
+                    <label for="highlight_type" class="mb-2 block text-sm font-semibold text-[#1C2822]">Highlight Type</label>
+                    <select id="highlight_type"
+                            name="highlight_type"
+                            class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10">
+                        <option value="">All Types</option>
+                        {% for value, label in highlight_types %}
+                            <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="status" class="mb-2 block text-sm font-semibold text-[#1C2822]">Status</label>
+                    <select id="status"
+                            name="status"
+                            class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10">
+                        <option value="active" {% if selected_status == "active" %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+                        <option value="all" {% if selected_status == "all" %}selected{% endif %}>All</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end gap-2">
+                    <button type="submit"
+                            class="inline-flex flex-1 items-center justify-center rounded-xl bg-[#1F5138] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                        Filter
+                    </button>
+                    <a href="{{ url_for('admin_experience_highlights.index', experience_id=experience.id) }}"
+                       class="inline-flex items-center justify-center rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        {% if highlights %}
+
+        <!-- Reorder form: kept separate from each row's action forms -->
+        <form method="POST"
+              action="{{ url_for('admin_experience_highlights.reorder_bulk', experience_id=experience.id) }}"
+              id="highlight-reorder-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
+
+        <!-- Desktop Table -->
+        <section class="mb-6 hidden overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm md:block">
+            <div class="flex flex-col gap-2 border-b border-[#E9DDC8] bg-[#F7F1E5]/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div>
+                    <h2 class="font-semibold text-[#12372A]">Highlight Records</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Review, manage, and reorder your highlights.</p>
+                </div>
+                <span class="inline-flex w-fit items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1F5138] ring-1 ring-[#D8D9CF]">
+                    {{ highlights|length }} shown
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[#E9DDC8]">
+                    <thead class="bg-[#F7F1E5]/50">
+                        <tr>
+                            <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Order</th>
+                            <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Highlight</th>
+                            <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Type</th>
+                            <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Status</th>
+                            <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Featured</th>
+                            <th class="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-[#66736B]">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-[#F0E8D9]">
+                        {% for highlight in highlights %}
+                        <tr class="transition hover:bg-[#F7F1E5]/50">
+                            <td class="whitespace-nowrap px-4 py-5 align-top">
+                                <input type="hidden"
+                                       name="highlight_ids[]"
+                                       value="{{ highlight.id }}"
+                                       form="highlight-reorder-form">
+                                <span class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg bg-[#E9DDC8] px-2 text-sm font-bold text-[#12372A]">
+                                    {{ highlight.display_order }}
+                                </span>
+                            </td>
+
+                            <td class="px-4 py-5 align-top">
+                                <div class="flex min-w-[220px] items-start gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#12372A] text-lg text-[#D89B24]">
+                                        ✦
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-semibold text-[#12372A]">{{ highlight.title }}</p>
+                                        {% if highlight.description %}
+                                            <p class="mt-1 max-w-xl text-sm leading-5 text-[#66736B]">{{ highlight.description }}</p>
+                                        {% endif %}
+                                        {% if highlight.icon %}
+                                            <p class="mt-2 text-xs text-[#66736B]">
+                                                Icon: <span class="font-medium text-[#5C6B32]">{{ highlight.icon }}</span>
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="px-4 py-5 align-top">
+                                <span class="inline-flex rounded-lg bg-[#E9DDC8]/70 px-2.5 py-1.5 text-xs font-semibold text-[#1C2822]">
+                                    {{ highlight.highlight_type }}
+                                </span>
+                            </td>
+
+                            <td class="whitespace-nowrap px-4 py-5 align-top">
+                                {% if highlight.active %}
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-[#EAF4EC] px-2.5 py-1.5 text-xs font-semibold text-[#1F5138]">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[#1F5138]"></span>
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-[#F0F0EB] px-2.5 py-1.5 text-xs font-semibold text-[#66736B]">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[#9AA198]"></span>
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="whitespace-nowrap px-4 py-5 align-top">
+                                {% if highlight.featured %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-[#FBF1D5] px-2.5 py-1.5 text-xs font-semibold text-[#8A6415]">
+                                        <span>★</span> Featured
+                                    </span>
+                                {% else %}
+                                    <span class="text-sm text-[#9AA198]">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-4 py-5 align-top">
+                                <div class="flex min-w-[270px] flex-wrap justify-end gap-2">
+                                    <a href="{{ url_for('admin_experience_highlights.edit', experience_id=experience.id, highlight_id=highlight.id) }}"
+                                       class="inline-flex items-center justify-center rounded-lg border border-[#D8D9CF] bg-white px-3 py-2 text-xs font-semibold text-[#1F5138] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+                                        Edit
+                                    </a>
+
+                                    <form method="POST"
+                                          action="{% if highlight.active %}{{ url_for('admin_experience_highlights.deactivate', experience_id=experience.id, highlight_id=highlight.id) }}{% else %}{{ url_for('admin_experience_highlights.activate', experience_id=experience.id, highlight_id=highlight.id) }}{% endif %}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex items-center justify-center rounded-lg border border-[#D8D9CF] bg-white px-3 py-2 text-xs font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+                                            {% if highlight.active %}Deactivate{% else %}Activate{% endif %}
+                                        </button>
+                                    </form>
+
+                                    <form method="POST"
+                                          action="{% if highlight.featured %}{{ url_for('admin_experience_highlights.unfeature', experience_id=experience.id, highlight_id=highlight.id) }}{% else %}{{ url_for('admin_experience_highlights.feature', experience_id=experience.id, highlight_id=highlight.id) }}{% endif %}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex items-center justify-center rounded-lg border border-[#E8D59B] bg-[#FFF9E9] px-3 py-2 text-xs font-semibold text-[#8A6415] transition hover:bg-[#FBF1D5]">
+                                            {% if highlight.featured %}Unfeature{% else %}Feature{% endif %}
+                                        </button>
+                                    </form>
+
+                                    <form method="POST"
+                                          action="{{ url_for('admin_experience_highlights.delete', experience_id=experience.id, highlight_id=highlight.id) }}"
+                                          onsubmit="return confirm('Are you sure you want to permanently delete this highlight?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex items-center justify-center rounded-lg border border-[#EBC9BE] bg-white px-3 py-2 text-xs font-semibold text-[#A54832] transition hover:bg-[#FCEDE8]">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-col gap-3 border-t border-[#E9DDC8] bg-[#F7F1E5]/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <p class="text-xs leading-5 text-[#66736B]">
+                    Save the display order after arranging the highlight records.
+                </p>
+                <button type="submit"
+                        form="highlight-reorder-form"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                    <span>↕</span>
+                    Save Display Order
+                </button>
+            </div>
+        </section>
+
+        <!-- Mobile Cards -->
+        <section class="space-y-4 md:hidden">
+            <div class="rounded-2xl border border-[#E9DDC8] bg-white px-5 py-4 shadow-sm">
+                <h2 class="font-semibold text-[#12372A]">Highlight Records</h2>
+                <p class="mt-1 text-sm text-[#66736B]">Manage your highlights below.</p>
+            </div>
+
+            {% for highlight in highlights %}
+            <article class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#12372A] text-lg text-[#D89B24]">✦</div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-[#12372A]">{{ highlight.title }}</h3>
+                            <p class="mt-1 text-xs font-medium text-[#5C6B32]">{{ highlight.highlight_type }}</p>
+                        </div>
+                    </div>
+                    <span class="shrink-0 rounded-lg bg-[#E9DDC8] px-2.5 py-1.5 text-xs font-bold text-[#12372A]">
+                        #{{ highlight.display_order }}
+                    </span>
+                </div>
+
+                {% if highlight.description %}
+                    <p class="mt-4 text-sm leading-6 text-[#66736B]">{{ highlight.description }}</p>
+                {% endif %}
+
+                {% if highlight.icon %}
+                    <p class="mt-3 text-xs text-[#66736B]">Icon: <span class="font-medium text-[#5C6B32]">{{ highlight.icon }}</span></p>
+                {% endif %}
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    {% if highlight.active %}
+                        <span class="rounded-full bg-[#EAF4EC] px-2.5 py-1.5 text-xs font-semibold text-[#1F5138]">Active</span>
+                    {% else %}
+                        <span class="rounded-full bg-[#F0F0EB] px-2.5 py-1.5 text-xs font-semibold text-[#66736B]">Inactive</span>
+                    {% endif %}
+
+                    {% if highlight.featured %}
+                        <span class="rounded-full bg-[#FBF1D5] px-2.5 py-1.5 text-xs font-semibold text-[#8A6415]">★ Featured</span>
+                    {% endif %}
+                </div>
+
+                <div class="mt-5 grid grid-cols-2 gap-2">
+                    <a href="{{ url_for('admin_experience_highlights.edit', experience_id=experience.id, highlight_id=highlight.id) }}"
+                       class="inline-flex items-center justify-center rounded-xl border border-[#D8D9CF] px-3 py-2.5 text-sm font-semibold text-[#1F5138] transition hover:bg-[#F7F1E5]">
+                        Edit
+                    </a>
+
+                    <form method="POST"
+                          action="{{ url_for('admin_experience_highlights.toggle', experience_id=experience.id, highlight_id=highlight.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit"
+                                class="w-full rounded-xl border border-[#D8D9CF] px-3 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                            {% if highlight.active %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                    </form>
+
+                    <form method="POST"
+                          action="{{ url_for('admin_experience_highlights.toggle_featured', experience_id=experience.id, highlight_id=highlight.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit"
+                                class="w-full rounded-xl border border-[#E8D59B] bg-[#FFF9E9] px-3 py-2.5 text-sm font-semibold text-[#8A6415] transition hover:bg-[#FBF1D5]">
+                            {% if highlight.featured %}Unfeature{% else %}Feature{% endif %}
+                        </button>
+                    </form>
+
+                    <form method="POST"
+                          action="{{ url_for('admin_experience_highlights.delete', experience_id=experience.id, highlight_id=highlight.id) }}"
+                          onsubmit="return confirm('Are you sure you want to permanently delete this highlight?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit"
+                                class="w-full rounded-xl border border-[#EBC9BE] px-3 py-2.5 text-sm font-semibold text-[#A54832] transition hover:bg-[#FCEDE8]">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </article>
+            {% endfor %}
+
+            <div class="rounded-2xl border border-[#E9DDC8] bg-white p-4 shadow-sm">
+                <p class="mb-3 text-sm leading-5 text-[#66736B]">
+                    Save the display order after arranging the highlight records.
+                </p>
+                <button type="submit"
+                        form="highlight-reorder-form"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                    <span>↕</span>
+                    Save Display Order
+                </button>
+            </div>
+        </section>
+
+        {% else %}
+
+        <!-- Empty State -->
+        <section class="rounded-2xl border border-[#E9DDC8] bg-white px-6 py-12 text-center shadow-sm sm:px-10">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#12372A] text-3xl text-[#D89B24]">
+                ✦
+            </div>
+
+            <h2 class="mt-5 text-xl font-bold text-[#12372A]">No highlights found</h2>
+
+            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#66736B]">
+                {% if search_term or selected_type or selected_status != "active" %}
+                    No highlights match your current filters. Try adjusting your search or clearing the filters.
+                {% else %}
+                    This experience does not have any highlights yet. Add the first one to start building its key selling points.
+                {% endif %}
+            </p>
+
+            <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                {% if search_term or selected_type or selected_status != "active" %}
+                    <a href="{{ url_for('admin_experience_highlights.index', experience_id=experience.id) }}"
+                       class="inline-flex items-center justify-center rounded-xl border border-[#D8D9CF] bg-white px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+                        Clear Filters
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('admin_experience_highlights.create', experience_id=experience.id) }}"
+                       class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                        + Add First Highlight
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+
+        {% endif %}
+
+        <!-- Back to Experience -->
+        <div class="mt-8">
+            <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+               class="inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#12372A]">
+                <span aria-hidden="true">←</span>
+                Back to Experience
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

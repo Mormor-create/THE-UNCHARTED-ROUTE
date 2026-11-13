@@ -1,0 +1,828 @@
+{% extends "admin/base.html" %}
+{% block title %}
+    {{ contact.subject or "Enquiry Details" }} · Contact Enquiries
+{% endblock %}
+
+{% block content %}
+{% set status = contact.status or "New" %}
+{% set priority = contact.priority or "Normal" %}
+
+<div class="space-y-6">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div class="min-w-0">
+            <div class="mb-3 flex flex-wrap items-center gap-2 text-sm">
+                <a href="{{ url_for('contacts.index') }}"
+                   aria-label="Back to contact enquiries"
+                   class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-600 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+
+                <span class="text-slate-500">Contact Enquiries</span>
+                <i class="bi bi-chevron-right text-xs text-slate-400"></i>
+                <span class="font-medium text-slate-700">#{{ contact.id }}</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <h1 class="break-words text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                    {{ contact.subject or "No Subject" }}
+                </h1>
+
+                {% if status == "New" %}
+                    <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">New</span>
+                {% elif status == "Assigned" %}
+                    <span class="inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700 ring-1 ring-inset ring-cyan-200">Assigned</span>
+                {% elif status == "In Progress" %}
+                    <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">In Progress</span>
+                {% elif status == "Waiting for Customer" %}
+                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-200">Waiting for Customer</span>
+                {% elif status == "Resolved" %}
+                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">Resolved</span>
+                {% elif status == "Closed" %}
+                    <span class="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-white">Closed</span>
+                {% else %}
+                    <span class="inline-flex items-center rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-200">{{ status }}</span>
+                {% endif %}
+
+                {% if priority == "Urgent" %}
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-200">
+                        <i class="bi bi-exclamation-triangle"></i> Urgent
+                    </span>
+                {% elif priority == "High" %}
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
+                        <i class="bi bi-arrow-up"></i> High
+                    </span>
+                {% elif priority == "Low" %}
+                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
+                {% else %}
+                    <span class="inline-flex items-center rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-200">Normal</span>
+                {% endif %}
+            </div>
+
+            <p class="mt-2 text-sm text-slate-500">
+                Enquiry received
+                {% if contact.created_at %}
+                    <span class="font-medium text-slate-600">{{ contact.created_at.strftime("%d %B %Y at %H:%M") }}</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- HEADER ACTIONS -->
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('contacts.reply', contact_id=contact.id) }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-forest/30">
+                <i class="bi bi-reply"></i> Reply
+            </a>
+
+            <a href="{{ url_for('contacts.edit', contact_id=contact.id) }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+
+            <div class="dropdown">
+                <button class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i> More
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% if status != "Resolved" %}
+                        <li>
+                            <form method="POST" action="{{ url_for('contacts.resolve', contact_id=contact.id) }}">
+                                {{ resolution_form.hidden_tag() }}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-check-circle me-2 text-success"></i> Resolve Enquiry
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li>
+                            <form method="POST" action="{{ url_for('contacts.reopen', contact_id=contact.id) }}">
+                                {{ resolution_form.hidden_tag() }}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i> Reopen Enquiry
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
+
+                    {% if status != "Closed" %}
+                        <li>
+                            <form method="POST" action="{{ url_for('contacts.close', contact_id=contact.id) }}">
+                                {{ resolution_form.hidden_tag() }}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-x-circle me-2"></i> Close Enquiry
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                        <form method="POST" action="{{ url_for('contacts.archive', contact_id=contact.id) }}">
+                            {{ archive_form.hidden_tag() }}
+                            <button type="submit" class="dropdown-item text-warning">
+                                <i class="bi bi-archive me-2"></i> Archive
+                            </button>
+                        </form>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                        <form method="POST"
+                              action="{{ url_for('contacts.delete', contact_id=contact.id) }}"
+                              onsubmit="return confirm('Permanently delete this enquiry? This cannot be undone.');">
+                            {{ archive_form.hidden_tag() }}
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="bi bi-trash me-2"></i> Delete Permanently
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <i class="bi bi-person text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Customer</div>
+                    <div class="mt-1 truncate font-semibold text-slate-900">{{ contact.full_name }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+                    <i class="bi bi-envelope text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Email</div>
+                    <div class="mt-1 truncate font-semibold text-slate-900">{{ contact.email }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <i class="bi bi-person-check text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Assigned To</div>
+                    <div class="mt-1 truncate font-semibold text-slate-900">
+                        {% if contact.assigned_user is defined and contact.assigned_user %}
+                            {{ contact.assigned_user.full_name }}
+                        {% elif contact.assigned_to %}
+                            {{ contact.assigned_to }}
+                        {% else %}
+                            <span class="font-normal text-slate-400">Unassigned</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <i class="bi bi-clock-history text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-xs font-medium uppercase tracking-wide text-slate-500">Last Response</div>
+                    <div class="mt-1 truncate font-semibold text-slate-900">
+                        {% if contact.last_response_at %}
+                            {{ contact.last_response_at.strftime("%d %b %Y, %H:%M") }}
+                        {% else %}
+                            <span class="font-normal text-slate-400">No response yet</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+        <div class="space-y-6 xl:col-span-8">
+
+            <!-- CONVERSATION -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                                <i class="bi bi-chat-left-text"></i>
+                            </div>
+                            <h2 class="text-base font-semibold text-slate-900">Conversation</h2>
+                        </div>
+                        <p class="mt-1 text-sm text-slate-500">Original enquiry, team replies, and messages received from the customer.</p>
+                    </div>
+
+                    <span class="inline-flex shrink-0 items-center rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
+                        {{ replies|length + 1 }} {{ "message" if replies|length + 1 == 1 else "messages" }}
+                    </span>
+                </div>
+
+                <div class="p-6">
+                    <!-- ORIGINAL ENQUIRY -->
+                    <div class="mb-6 flex gap-3">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                <div class="min-w-0">
+                                    <span class="font-semibold text-slate-900">{{ contact.full_name }}</span>
+                                    <span class="ml-2 break-all text-sm text-slate-500">{{ contact.email }}</span>
+                                    <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">Original Enquiry</span>
+                                </div>
+
+                                {% if contact.created_at %}
+                                    <span class="text-xs text-slate-500">{{ contact.created_at.strftime("%d %b %Y, %H:%M") }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-inset ring-slate-100">
+                                {% if contact.message %}
+                                    <div class="break-words whitespace-pre-wrap text-sm leading-6 text-slate-700">{{ contact.message }}</div>
+                                {% else %}
+                                    <span class="text-sm text-slate-400">No message provided.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INBOUND AND OUTBOUND REPLIES -->
+                    {% for reply in replies %}
+                        {% set incoming = (reply.direction|default("outgoing", true)|lower == "incoming") %}
+                        {% set message_time = (reply.received_at if incoming and reply.received_at else reply.sent_at if reply.sent_at else reply.created_at) %}
+
+                        <div class="mb-6 flex gap-3">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
+                                {% if incoming %}bg-route-gold/15 text-route-forest{% else %}bg-emerald-50 text-emerald-600{% endif %}">
+                                <i class="bi {% if incoming %}bi-person-check{% else %}bi-headset{% endif %}"></i>
+                            </div>
+
+                            <div class="min-w-0 flex-1">
+                                <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <span class="font-semibold text-slate-900">
+                                            {% if incoming %}
+                                                {{ reply.sender_name or contact.full_name }}
+                                            {% else %}
+                                                {{ reply.author_name|default(reply.sender_name, true) or "The Uncharted Route Team" }}
+                                            {% endif %}
+                                        </span>
+
+                                        {% if incoming %}
+                                            <span class="ml-2 inline-flex items-center rounded-full bg-route-gold/15 px-2.5 py-1 text-xs font-semibold text-route-forest ring-1 ring-inset ring-route-gold/30">
+                                                <i class="bi bi-envelope-arrow-down mr-1"></i> Client Reply
+                                            </span>
+                                        {% else %}
+                                            <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                                <i class="bi bi-reply mr-1"></i> Team Reply
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if message_time %}
+                                        <span class="text-xs text-slate-500">{{ message_time.strftime("%d %b %Y, %H:%M") }}</span>
+                                    {% endif %}
+                                </div>
+
+                                {% if incoming and reply.sender_email %}
+                                    <div class="mb-2 break-all text-xs text-slate-500">
+                                        From: {{ reply.sender_email }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="rounded-2xl p-4 ring-1 ring-inset
+                                    {% if incoming %}border border-route-gold/30 bg-route-sand/30 ring-route-gold/10{% else %}border border-slate-200 bg-white ring-slate-100{% endif %}">
+                                    {% if reply.subject %}
+                                        <div class="mb-2 break-words font-semibold text-slate-900">{{ reply.subject }}</div>
+                                    {% endif %}
+
+                                    <div class="break-words whitespace-pre-wrap text-sm leading-6 text-slate-700">{{ reply.message or "No message content." }}</div>
+                                </div>
+
+                                {% if not incoming %}
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        {% set delivery_status = (reply.delivery_status or "")|lower %}
+
+                                        {% if delivery_status in ["delivered", "success"] %}
+                                            <span class="inline-flex items-center text-xs font-medium text-emerald-600">
+                                                <i class="bi bi-check2-all mr-1"></i> Delivered
+                                            </span>
+                                        {% elif delivery_status in ["sent", "received"] %}
+                                            <span class="inline-flex items-center text-xs font-medium text-emerald-600">
+                                                <i class="bi bi-check2 mr-1"></i> Sent
+                                            </span>
+                                        {% elif delivery_status in ["failed", "failure", "undelivered"] %}
+                                            <span class="inline-flex items-center text-xs font-medium text-rose-600">
+                                                <i class="bi bi-exclamation-circle mr-1"></i> Failed
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center text-xs font-medium text-amber-600">
+                                                <i class="bi bi-clock mr-1"></i>
+                                                {{ reply.delivery_status or "Pending" }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if reply.delivery_method %}
+                                            <span class="text-xs text-slate-400">· {{ reply.delivery_method }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center text-xs font-medium text-route-forest">
+                                            <i class="bi bi-check-circle mr-1"></i> Received in mailbox
+                                        </span>
+                                        {% if reply.delivery_method %}
+                                            <span class="text-xs text-slate-400">· {{ reply.delivery_method }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="border-t border-slate-100 py-4 text-center">
+                            <span class="text-sm text-slate-400">No replies have been recorded yet.</span>
+                        </div>
+                    {% endfor %}
+
+                    <div class="border-t border-slate-100 pt-5 text-center">
+                        <a href="{{ url_for('contacts.reply', contact_id=contact.id) }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900">
+                            <i class="bi bi-reply"></i> Reply to Customer
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INTERNAL NOTES -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-route-gold/15 text-route-forest">
+                                <i class="bi bi-sticky"></i>
+                            </div>
+                            <h2 class="text-base font-semibold text-slate-900">Internal Notes</h2>
+                        </div>
+                        <p class="mt-1 text-sm text-slate-500">Private notes visible only to your team.</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">{{ notes|length }}</span>
+                </div>
+
+                <div class="p-6">
+                    {% if notes %}
+                        {% for note in notes|sort(attribute="created_at", reverse=true) %}
+                            <div class="mb-3 rounded-2xl border p-4 {% if note.is_important %}border-amber-300 bg-amber-50/30{% else %}border-slate-200{% endif %}">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex min-w-0 gap-3">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+                                            <i class="bi bi-sticky"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="font-semibold text-slate-900">
+                                                {{ note.created_by_name }}
+                                                {% if note.is_important %}
+                                                    <span class="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                        <i class="bi bi-star-fill mr-1"></i> Important
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="mt-0.5 text-xs text-slate-500">
+                                                {% if note.note_type %}{{ note.note_type }}{% endif %}
+                                                {% if note.created_at %} · {{ note.created_at.strftime("%d %b %Y, %H:%M") }}{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 break-words whitespace-pre-wrap text-sm leading-6 text-slate-700">{{ note.note }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="py-6 text-center">
+                            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                                <i class="bi bi-sticky text-xl"></i>
+                            </div>
+                            <p class="mt-3 text-sm text-slate-500">No internal notes have been added.</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-6 border-t border-slate-100 pt-6">
+                        <h3 class="mb-4 text-sm font-semibold text-slate-900">Add Internal Note</h3>
+                        <form method="POST" action="{{ url_for('contacts.add_note', contact_id=contact.id) }}">
+                            {{ note_form.hidden_tag() }}
+                            <div class="mb-4">
+                                {{ note_form.note(
+                                    class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-route-forest focus:ring-2 focus:ring-route-forest/20",
+                                    rows="4",
+                                    placeholder="Add a private note for your team..."
+                                ) }}
+                            </div>
+                            <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-12">
+                                <div class="md:col-span-5">
+                                    <label class="mb-2 block text-sm font-semibold text-slate-700">Note Type</label>
+                                    {{ note_form.note_type(class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20") }}
+                                </div>
+                                <div class="md:col-span-4">
+                                    <label class="flex cursor-pointer items-center gap-2 pb-2.5 text-sm text-slate-700">
+                                        {{ note_form.is_important(class="h-4 w-4 rounded border-slate-300 text-route-forest focus:ring-2 focus:ring-route-forest/20") }}
+                                        <span>Mark as important</span>
+                                    </label>
+                                </div>
+                                <div class="md:col-span-3 md:text-right">
+                                    {{ note_form.submit(class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep md:w-auto") }}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACTIVITY HISTORY -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Activity History</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    {% if history %}
+                        <div class="space-y-5">
+                            {% for item in history|sort(attribute="created_at", reverse=true) %}
+                                <div class="flex gap-3">
+                                    <div class="flex shrink-0 flex-col items-center">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
+                                            <i class="bi bi-circle-fill text-[7px] text-route-forest"></i>
+                                        </div>
+                                        {% if not loop.last %}
+                                            <div class="mt-1 w-px flex-1 bg-slate-200"></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="min-w-0 flex-1 pb-1">
+                                        <div class="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <span class="font-semibold text-slate-900">{{ item.note_type or "Activity" }}</span>
+                                                <span class="text-sm text-slate-500">by {{ item.created_by_name }}</span>
+                                            </div>
+                                            {% if item.created_at %}
+                                                <span class="text-xs text-slate-500">{{ item.created_at.strftime("%d %b %Y, %H:%M") }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-500">{{ item.note }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="py-6 text-center">
+                            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                                <i class="bi bi-clock-history text-xl"></i>
+                            </div>
+                            <p class="mt-3 text-sm text-slate-500">No activity history available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <aside class="space-y-6 xl:col-span-4">
+
+            <!-- CUSTOMER INFORMATION -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <i class="bi bi-person-vcard"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Customer Information</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="mb-5 flex items-center gap-3">
+                        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                            <i class="bi bi-person text-2xl"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="truncate font-semibold text-slate-900">{{ contact.full_name }}</h3>
+                            {% if contact.company %}
+                                <div class="mt-0.5 truncate text-sm text-slate-500">{{ contact.company }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Email</div>
+                            <a href="mailto:{{ contact.email }}" class="flex items-start gap-2 break-all text-sm font-medium text-slate-700 transition hover:text-route-forest">
+                                <i class="bi bi-envelope mt-0.5 shrink-0"></i>{{ contact.email }}
+                            </a>
+                        </div>
+
+                        {% if contact.phone %}
+                            <div>
+                                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Phone</div>
+                                <a href="tel:{{ contact.phone }}" class="flex items-center gap-2 text-sm font-medium text-slate-700 transition hover:text-route-forest">
+                                    <i class="bi bi-telephone"></i>{{ contact.phone }}
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if contact.country %}
+                            <div>
+                                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Country</div>
+                                <div class="flex items-center gap-2 text-sm text-slate-700"><i class="bi bi-globe2"></i>{{ contact.country }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if contact.company %}
+                            <div>
+                                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Company</div>
+                                <div class="flex items-center gap-2 text-sm text-slate-700"><i class="bi bi-building"></i>{{ contact.company }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-5 border-t border-slate-100 pt-5">
+                        <a href="{{ url_for('contacts.edit', contact_id=contact.id) }}"
+                           class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                            <i class="bi bi-pencil"></i> Edit Customer Information
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ENQUIRY INFORMATION -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Enquiry Information</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-5">
+                        <div>
+                            <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Enquiry Type</div>
+                            <div class="text-sm font-semibold text-slate-900">{{ contact.enquiry_type or "—" }}</div>
+                        </div>
+                        <div>
+                            <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Source</div>
+                            <div class="text-sm font-semibold text-slate-900">{{ contact.source or "—" }}</div>
+                        </div>
+                        <div>
+                            <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Department</div>
+                            <div class="text-sm font-semibold text-slate-900">{{ contact.department or "—" }}</div>
+                        </div>
+                        <div>
+                            <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Newsletter</div>
+                            {% if contact.newsletter_opt_in %}
+                                <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">Opted in</span>
+                            {% else %}
+                                <span class="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">Not opted in</span>
+                            {% endif %}
+                        </div>
+                        {% if contact.ip_address %}
+                            <div class="col-span-2">
+                                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">IP Address</div>
+                                <code class="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-700">{{ contact.ip_address }}</code>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- ASSIGNMENT -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Assignment</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <form method="POST" action="{{ url_for('contacts.assign', contact_id=contact.id) }}">
+                        {{ assignment_form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Assigned To</label>
+                            {{ assignment_form.assigned_user_id(class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20") }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Department</label>
+                            {{ assignment_form.department(class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20", placeholder="Department") }}
+                        </div>
+
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep">
+                            <i class="bi bi-person-check"></i> Update Assignment
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ENQUIRY CONTROLS -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                            <i class="bi bi-sliders"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Enquiry Controls</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <form method="POST" action="{{ url_for('contacts.status', contact_id=contact.id) }}" class="mb-5">
+                        {{ status_form.hidden_tag() }}
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Status</label>
+                        <div class="flex">
+                            {{ status_form.status(class="block min-w-0 flex-1 rounded-l-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/20") }}
+                            <button type="submit" aria-label="Update status" class="-ml-px inline-flex items-center justify-center rounded-r-xl border border-slate-300 bg-white px-4 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900">
+                                <i class="bi bi-check2"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <form method="POST" action="{{ url_for('contacts.priority', contact_id=contact.id) }}">
+                        {{ priority_form.hidden_tag() }}
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Priority</label>
+                        <div class="flex">
+                            {{ priority_form.priority(class="block min-w-0 flex-1 rounded-l-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/20") }}
+                            <button type="submit" aria-label="Update priority" class="-ml-px inline-flex items-center justify-center rounded-r-xl border border-slate-300 bg-white px-4 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900">
+                                <i class="bi bi-check2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- FOLLOW-UP -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Follow-up</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    {% if contact.follow_up_required %}
+                        <div class="mb-4 rounded-xl border border-cyan-200 bg-cyan-50 p-4">
+                            <div class="flex gap-3">
+                                <i class="bi bi-calendar-event mt-0.5 text-cyan-600"></i>
+                                <div>
+                                    <div class="text-sm font-semibold text-cyan-900">Follow-up scheduled</div>
+                                    {% if contact.follow_up_date %}
+                                        <div class="mt-1 text-xs text-cyan-700">{{ contact.follow_up_date.strftime("%d %B %Y at %H:%M") }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ url_for('contacts.cancel_follow_up', contact_id=contact.id) }}" class="mb-5">
+                            {{ follow_up_form.hidden_tag() }}
+                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-600 shadow-sm transition hover:bg-rose-50">
+                                <i class="bi bi-calendar-x"></i> Cancel Follow-up
+                            </button>
+                        </form>
+                        <div class="mb-5 border-t border-slate-100"></div>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('contacts.follow_up', contact_id=contact.id) }}">
+                        {{ follow_up_form.hidden_tag() }}
+                        <div class="mb-4">
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">
+                                {% if contact.follow_up_required %}Reschedule Follow-up{% else %}Schedule Follow-up{% endif %}
+                            </label>
+                            {{ follow_up_form.follow_up_date(class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/20") }}
+                        </div>
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep">
+                            <i class="bi bi-calendar-plus"></i> Schedule Follow-up
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- RESPONSE METRICS -->
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-5">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+                        <h2 class="text-base font-semibold text-slate-900">Response Metrics</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                        <span class="text-sm text-slate-500">First response</span>
+                        <span class="text-right text-sm font-semibold text-slate-900">
+                            {% if contact.first_response_at %}{{ contact.first_response_at.strftime("%d %b %Y, %H:%M") }}{% else %}<span class="font-normal text-slate-400">Pending</span>{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3">
+                        <span class="text-sm text-slate-500">Last response</span>
+                        <span class="text-right text-sm font-semibold text-slate-900">
+                            {% if contact.last_response_at %}{{ contact.last_response_at.strftime("%d %b %Y, %H:%M") }}{% else %}<span class="font-normal text-slate-400">None</span>{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 pt-3">
+                        <span class="text-sm text-slate-500">Conversation replies</span>
+                        <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">{{ replies|length }}</span>
+                    </div>
+
+                    <p class="mt-3 text-xs leading-5 text-slate-500">Includes incoming client messages and outgoing team replies when both are stored in the conversation.</p>
+                </div>
+            </section>
+
+            <!-- RESOLUTION -->
+            {% if contact.resolution_notes or contact.resolved_at or status == "Resolved" %}
+                <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-100 px-6 py-5">
+                        <div class="flex items-center gap-2">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <h2 class="text-base font-semibold text-slate-900">Resolution</h2>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        {% if contact.resolved_at %}
+                            <div class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Resolved on</div>
+                            <div class="mb-5 text-sm font-semibold text-slate-900">{{ contact.resolved_at.strftime("%d %B %Y at %H:%M") }}</div>
+                        {% endif %}
+
+                        {% if contact.resolution_notes %}
+                            <div class="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">Resolution Notes</div>
+                            <div class="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700 ring-1 ring-inset ring-slate-100">{{ contact.resolution_notes }}</div>
+                        {% endif %}
+
+                        {% if status == "Resolved" %}
+                            <form method="POST" action="{{ url_for('contacts.reopen', contact_id=contact.id) }}" class="mt-4">
+                                {{ resolution_form.hidden_tag() }}
+                                <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reopen Enquiry
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+
+            <!-- ARCHIVE / CLOSE -->
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="space-y-2">
+                    {% if status != "Closed" %}
+                        <form method="POST" action="{{ url_for('contacts.close', contact_id=contact.id) }}">
+                            {{ resolution_form.hidden_tag() }}
+                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                                <i class="bi bi-x-circle"></i> Close Enquiry
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('contacts.archive', contact_id=contact.id) }}">
+                        {{ archive_form.hidden_tag() }}
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-2.5 text-sm font-semibold text-amber-700 shadow-sm transition hover:bg-amber-50">
+                            <i class="bi bi-archive"></i> Archive Enquiry
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

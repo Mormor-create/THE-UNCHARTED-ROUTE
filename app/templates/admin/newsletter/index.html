@@ -1,0 +1,243 @@
+{% extends "admin/base.html" %}
+{% block title %}Newsletter CMS | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.25em] text-[#C96A2C]">
+                Communications
+            </p>
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-[#12372A]">
+                Newsletter CMS
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                Manage subscribers, monitor your audience and send updates about
+                experiences, destinations and stories from The Uncharted Route.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_newsletter.subscribers') }}"
+               class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                View subscribers
+            </a>
+            <a href="{{ url_for('admin_newsletter.compose') }}"
+               class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138]">
+                + Compose newsletter
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-[#66736B]">All subscribers</p>
+                    <p class="mt-3 text-3xl font-bold text-[#12372A]">
+                        {{ total_subscribers }}
+                    </p>
+                </div>
+                <div class="rounded-xl bg-[#F7F1E5] p-3 text-[#12372A]">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1.8"
+                              d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m16-13a4 4 0 11-8 0 4 4 0 018 0zm4 13v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-[#66736B]">Every recorded subscriber</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-[#66736B]">Subscribed</p>
+                    <p class="mt-3 text-3xl font-bold text-[#12372A]">
+                        {{ subscribed_count }}
+                    </p>
+                </div>
+                <div class="rounded-xl bg-[#E8F1E9] p-3 text-[#1F5138]">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-[#66736B]">Currently subscribed</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-[#66736B]">Verified</p>
+                    <p class="mt-3 text-3xl font-bold text-[#12372A]">
+                        {{ verified_count }}
+                    </p>
+                </div>
+                <div class="rounded-xl bg-[#FBF0D9] p-3 text-[#8A6110]">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1.8"
+                              d="M9 12l2 2 4-4m5-1a8 8 0 11-16 0 8 8 0 0116 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-[#66736B]">Email addresses verified</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#D7E5D9] bg-[#F1F7F1] p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-[#1F5138]">
+                        Eligible recipients
+                    </p>
+                    <p class="mt-3 text-3xl font-bold text-[#12372A]">
+                        {{ eligible_count }}
+                    </p>
+                </div>
+                <div class="rounded-xl bg-white p-3 text-[#1F5138]">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1.8"
+                              d="M3 8l9 6 9-6M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                    </svg>
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-[#1F5138]">
+                Subscribed and email-verified
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Main content -->
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+        <!-- Recent subscribers -->
+        <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm xl:col-span-2">
+            <div class="flex flex-col justify-between gap-3 border-b border-[#E9DDC8] px-6 py-5 sm:flex-row sm:items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-[#12372A]">Recent subscribers</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        The latest additions to your audience.
+                    </p>
+                </div>
+                <a href="{{ url_for('admin_newsletter.subscribers') }}"
+                   class="text-sm font-semibold text-[#1F5138] hover:text-[#C96A2C]">
+                    View all &rarr;
+                </a>
+            </div>
+
+            {% if recent_subscribers %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[#E9DDC8]">
+                    <thead class="bg-[#F7F1E5]">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Subscriber</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Subscription</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">Verification</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-[#66736B]">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#F0E8DA]">
+                        {% for subscriber in recent_subscribers %}
+                        <tr class="transition hover:bg-[#FCFAF6]">
+                            <td class="whitespace-nowrap px-6 py-4">
+                                <p class="text-sm font-semibold text-[#12372A]">
+                                    {{ subscriber.full_name }}
+                                </p>
+                                <p class="mt-1 text-xs text-[#66736B]">
+                                    {{ subscriber.email }}
+                                </p>
+                            </td>
+                            <td class="whitespace-nowrap px-6 py-4">
+                                {% if subscriber.subscribed %}
+                                <span class="inline-flex rounded-full bg-[#E8F1E9] px-3 py-1 text-xs font-semibold text-[#1F5138]">Subscribed</span>
+                                {% else %}
+                                <span class="inline-flex rounded-full bg-[#FBEAE5] px-3 py-1 text-xs font-semibold text-[#A9432C]">Unsubscribed</span>
+                                {% endif %}
+                            </td>
+                            <td class="whitespace-nowrap px-6 py-4">
+                                {% if subscriber.verified %}
+                                <span class="inline-flex rounded-full bg-[#E8F1E9] px-3 py-1 text-xs font-semibold text-[#1F5138]">Verified</span>
+                                {% else %}
+                                <span class="inline-flex rounded-full bg-[#FBF0D9] px-3 py-1 text-xs font-semibold text-[#8A6110]">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="whitespace-nowrap px-6 py-4 text-right">
+                                <a href="{{ url_for('admin_newsletter.subscriber_detail', subscriber_id=subscriber.id) }}"
+                                   class="text-sm font-semibold text-[#1F5138] hover:text-[#C96A2C]">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="px-6 py-14 text-center">
+                <h3 class="text-base font-semibold text-[#12372A]">No subscribers yet</h3>
+                <p class="mt-2 text-sm text-[#66736B]">
+                    Subscribers will appear here as they join your mailing list.
+                </p>
+                <a href="{{ url_for('admin_newsletter.create_subscriber') }}"
+                   class="mt-5 inline-flex rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                    Add a subscriber
+                </a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Quick actions -->
+        <aside class="space-y-5">
+            <div class="rounded-2xl bg-[#12372A] p-6 text-white shadow-sm">
+                <p class="text-xs font-bold uppercase tracking-[0.22em] text-[#E9C46A]">
+                    Campaigns
+                </p>
+                <h2 class="mt-3 text-xl font-bold">Share your next story.</h2>
+                <p class="mt-2 text-sm leading-6 text-white/75">
+                    Prepare a newsletter for your verified, subscribed audience.
+                </p>
+                <a href="{{ url_for('admin_newsletter.compose') }}"
+                   class="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#D89B24] px-4 py-3 text-sm font-bold text-[#1C2822] transition hover:bg-[#E9B84F]">
+                    Compose newsletter
+                </a>
+            </div>
+
+            <div class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+                <h2 class="text-base font-bold text-[#12372A]">Manage your audience</h2>
+                <div class="mt-4 space-y-3">
+                    <a href="{{ url_for('admin_newsletter.subscribers') }}"
+                       class="flex items-center justify-between rounded-xl bg-[#F7F1E5] px-4 py-3 text-sm font-semibold text-[#12372A] hover:bg-[#E9DDC8]">
+                        Browse subscribers <span>&rarr;</span>
+                    </a>
+                    <a href="{{ url_for('admin_newsletter.create_subscriber') }}"
+                       class="flex items-center justify-between rounded-xl border border-[#E9DDC8] px-4 py-3 text-sm font-semibold text-[#12372A] hover:bg-[#FCFAF6]">
+                        Add subscriber <span>+</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5] p-5">
+                <h3 class="text-sm font-bold text-[#12372A]">Sending reminder</h3>
+                <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                    Before sending a campaign, confirm that your recipients have
+                    provided appropriate marketing consent and that your message
+                    includes a working unsubscribe option.
+                </p>
+            </div>
+        </aside>
+
+    </div>
+</div>
+{% endblock %}

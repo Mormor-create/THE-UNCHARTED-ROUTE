@@ -1,0 +1,369 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Enquiry | The Uncharted Route{% endblock %}
+
+{% block content %}
+{% set data = form_data or {} %}
+
+{% macro field_value(name, current=None) -%}
+    {{ data.get(name, current if current is not none else '') }}
+{%- endmacro %}
+
+{% macro date_value(name, current=None) -%}
+    {% set value = data.get(name, current) %}
+    {% if value %}
+        {{ value.strftime('%Y-%m-%d') if value.strftime is defined else value }}
+    {% endif %}
+{%- endmacro %}
+
+<div class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- Page heading -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <a href="{{ url_for('service_inquiries.detail', service_type=service_type, inquiry_id=inquiry.id) }}"
+               class="inline-flex items-center gap-2 text-sm font-semibold text-route-muted transition hover:text-route-forest">
+                <i class="bi bi-arrow-left"></i>
+                Back to enquiry
+            </a>
+
+            <h1 class="mt-3 text-2xl font-bold tracking-tight text-route-forest sm:text-3xl">
+                Edit Service Enquiry
+            </h1>
+
+            <p class="mt-2 text-sm text-route-muted">
+                Update the customer's information and request details without changing the linked service.
+            </p>
+        </div>
+
+        <span class="inline-flex w-fit items-center rounded-full border border-route-gold/40 bg-route-gold/10 px-4 py-2 text-sm font-semibold text-route-forest">
+            {{ item.reference }}
+        </span>
+    </div>
+
+    <!-- Validation errors -->
+    {% if errors %}
+    <div class="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800">
+        <div class="flex items-start gap-3">
+            <i class="bi bi-exclamation-triangle-fill mt-0.5"></i>
+            <div>
+                <h2 class="font-semibold">Please correct the following</h2>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Linked service summary -->
+    <section class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm sm:p-6">
+        <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-route-forest text-xl text-route-cream">
+                {% if service_type == 'safari' %}
+                    <i class="bi bi-compass"></i>
+                {% elif service_type == 'stay' %}
+                    <i class="bi bi-house-heart"></i>
+                {% else %}
+                    <i class="bi bi-map"></i>
+                {% endif %}
+            </div>
+
+            <div class="min-w-0">
+                <p class="text-xs font-semibold uppercase tracking-widest text-route-muted">
+                    Linked {{ service_label }}
+                </p>
+                <h2 class="mt-1 text-lg font-bold text-route-forest">
+                    {{ item.target }}
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Reference: {{ item.reference }}
+                </p>
+                <p class="mt-2 text-sm text-route-muted">
+                    The linked service and enquiry reference cannot be changed here.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <form method="POST"
+          action="{{ url_for('service_inquiries.edit', service_type=service_type, inquiry_id=inquiry.id) }}"
+          class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Customer information -->
+        <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+            <div class="border-b border-route-sand bg-route-cream/70 px-5 py-4 sm:px-6">
+                <h2 class="font-bold text-route-forest">
+                    <i class="bi bi-person-lines-fill mr-2"></i>
+                    Customer Information
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Contact details for following up on this enquiry.
+                </p>
+            </div>
+
+            <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+                <div>
+                    <label for="full_name" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Full name <span class="text-red-600">*</span>
+                    </label>
+                    <input id="full_name"
+                           name="full_name"
+                           type="text"
+                           required
+                           maxlength="{{ 180 if service_type == 'safari' else 150 }}"
+                           value="{{ field_value('full_name', inquiry.full_name) }}"
+                           class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div>
+                    <label for="email" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Email address <span class="text-red-600">*</span>
+                    </label>
+                    <input id="email"
+                           name="email"
+                           type="email"
+                           required
+                           maxlength="{{ 255 if service_type == 'stay' else 254 }}"
+                           value="{{ field_value('email', inquiry.email) }}"
+                           class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div>
+                    <label for="phone" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Phone number
+                    </label>
+                    <input id="phone"
+                           name="phone"
+                           type="text"
+                           maxlength="40"
+                           value="{{ field_value('phone', inquiry.phone) }}"
+                           class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                {% if service_type in ['stay', 'experience'] %}
+                <div>
+                    <label for="country" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Country
+                    </label>
+                    <input id="country"
+                           name="country"
+                           type="text"
+                           value="{{ field_value('country', inquiry.country) }}"
+                           class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+                {% endif %}
+
+                <div>
+                    <label for="preferred_currency" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Preferred currency <span class="text-red-600">*</span>
+                    </label>
+                    {% set selected_currency = field_value('preferred_currency', inquiry.preferred_currency) %}
+                    <select id="preferred_currency"
+                            name="preferred_currency"
+                            required
+                            class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                        {% for currency in ['KES', 'USD', 'EUR', 'GBP', 'UGX', 'TZS', 'ZAR', 'NGN', 'GHS'] %}
+                        <option value="{{ currency }}" {% if selected_currency == currency %}selected{% endif %}>
+                            {{ currency }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Request details -->
+        <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+            <div class="border-b border-route-sand bg-route-cream/70 px-5 py-4 sm:px-6">
+                <h2 class="font-bold text-route-forest">
+                    <i class="bi bi-calendar2-week mr-2"></i>
+                    Request Details
+                </h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Update the requested dates and party composition.
+                </p>
+            </div>
+
+            <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+                <div>
+                    <label for="adults" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Adults <span class="text-red-600">*</span>
+                    </label>
+                    <input id="adults"
+                           name="adults"
+                           type="number"
+                           min="1"
+                           required
+                           value="{{ field_value('adults', inquiry.adults) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div>
+                    <label for="children" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Children
+                    </label>
+                    <input id="children"
+                           name="children"
+                           type="number"
+                           min="0"
+                           value="{{ field_value('children', inquiry.children) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                {% if service_type in ['safari', 'experience'] %}
+                <div>
+                    <label for="infants" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Infants
+                    </label>
+                    <input id="infants"
+                           name="infants"
+                           type="number"
+                           min="0"
+                           value="{{ field_value('infants', inquiry.infants) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+                {% endif %}
+
+                {% if service_type == 'safari' %}
+                <div>
+                    <label for="preferred_start_date" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Preferred start date
+                    </label>
+                    <input id="preferred_start_date"
+                           name="preferred_start_date"
+                           type="date"
+                           value="{{ date_value('preferred_start_date', inquiry.preferred_start_date) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div>
+                    <label for="preferred_end_date" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Preferred end date
+                    </label>
+                    <input id="preferred_end_date"
+                           name="preferred_end_date"
+                           type="date"
+                           value="{{ date_value('preferred_end_date', inquiry.preferred_end_date) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="children_ages" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Children's ages
+                    </label>
+                    <input id="children_ages"
+                           name="children_ages"
+                           type="text"
+                           value="{{ field_value('children_ages', inquiry.children_ages) }}"
+                           placeholder="e.g. 6, 10"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                {% elif service_type == 'stay' %}
+                <div>
+                    <label for="check_in" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Check-in <span class="text-red-600">*</span>
+                    </label>
+                    <input id="check_in"
+                           name="check_in"
+                           type="date"
+                           required
+                           value="{{ date_value('check_in', inquiry.check_in) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div>
+                    <label for="check_out" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Check-out <span class="text-red-600">*</span>
+                    </label>
+                    <input id="check_out"
+                           name="check_out"
+                           type="date"
+                           required
+                           value="{{ date_value('check_out', inquiry.check_out) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="preferred_room_type" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Preferred room type
+                    </label>
+                    <input id="preferred_room_type"
+                           name="preferred_room_type"
+                           type="text"
+                           value="{{ field_value('preferred_room_type', inquiry.preferred_room_type) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+
+                {% else %}
+                <div>
+                    <label for="preferred_date" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Preferred experience date
+                    </label>
+                    <input id="preferred_date"
+                           name="preferred_date"
+                           type="date"
+                           value="{{ date_value('preferred_date', inquiry.preferred_date) }}"
+                           class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Notes -->
+        <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+            <div class="border-b border-route-sand bg-route-cream/70 px-5 py-4 sm:px-6">
+                <h2 class="font-bold text-route-forest">
+                    <i class="bi bi-journal-text mr-2"></i>
+                    Requests & Internal Notes
+                </h2>
+            </div>
+
+            <div class="space-y-5 p-5 sm:p-6">
+                <div>
+                    <label for="special_requests" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Customer's special requests
+                    </label>
+                    <textarea id="special_requests"
+                              name="special_requests"
+                              rows="4"
+                              class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">{{ field_value('special_requests', inquiry.special_requests) }}</textarea>
+                </div>
+
+                {% if service_type in ['safari', 'experience'] %}
+                <div>
+                    <label for="internal_notes" class="mb-2 block text-sm font-semibold text-route-deep">
+                        Internal notes
+                    </label>
+                    <textarea id="internal_notes"
+                              name="internal_notes"
+                              rows="4"
+                              class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">{{ field_value('internal_notes', inquiry.internal_notes) }}</textarea>
+                    <p class="mt-2 text-xs text-route-muted">
+                        Internal notes are for your team, not the customer.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <a href="{{ url_for('service_inquiries.detail', service_type=service_type, inquiry_id=inquiry.id) }}"
+               class="inline-flex items-center justify-center rounded-xl border border-route-sand bg-white px-5 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2">
+                <i class="bi bi-check2-circle"></i>
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

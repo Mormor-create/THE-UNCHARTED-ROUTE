@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Enquire About {{ experience.title }} | The Uncharted Route{% endblock %}
+
+{% block content %}
+<section class="min-h-screen bg-route-cream px-4 py-12 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
+
+        <a
+            href="{{ url_for('experiences.detail', slug=experience.slug) }}"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest transition hover:text-route-gold"
+        >
+            <span aria-hidden="true">&larr;</span>
+            Back to Experience
+        </a>
+
+        <div class="mt-8 grid items-start gap-8 lg:grid-cols-5">
+
+            <!-- Experience summary -->
+            <aside class="overflow-hidden rounded-3xl border border-route-sand bg-white shadow-sm lg:col-span-2">
+                {% if experience.primary_image_url %}
+                    <img
+                        src="{{ experience.primary_image_url }}"
+                        alt="{{ experience.title }}"
+                        class="h-64 w-full object-cover"
+                    >
+                {% endif %}
+
+                <div class="p-6 sm:p-8">
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                        Your next experience
+                    </p>
+
+                    <h1 class="mt-3 text-2xl font-bold leading-tight text-route-forest sm:text-3xl">
+                        {{ experience.title }}
+                    </h1>
+
+                    {% if experience.short_description %}
+                        <p class="mt-4 text-sm leading-7 text-route-muted">
+                            {{ experience.short_description }}
+                        </p>
+                    {% endif %}
+
+                    {% if experience.location %}
+                        <div class="mt-5 flex items-start gap-3 text-sm text-route-muted">
+                            <span aria-hidden="true">📍</span>
+                            <span>{{ experience.location }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if experience.duration %}
+                        <div class="mt-3 flex items-start gap-3 text-sm text-route-muted">
+                            <span aria-hidden="true">◷</span>
+                            <span>{{ experience.duration }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-6 border-t border-route-sand pt-5">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                            Starting from
+                        </p>
+                        <p class="mt-1 text-2xl font-bold text-route-forest">
+                            {{ experience.formatted_price }}
+                        </p>
+                        <p class="mt-2 text-xs leading-5 text-route-muted">
+                            Final pricing and availability will be discussed
+                            with our team. Submitting this enquiry does not
+                            confirm a booking.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Enquiry form -->
+            <div class="rounded-3xl border border-route-sand bg-white p-6 shadow-sm sm:p-8 lg:col-span-3">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                    Let's plan your experience
+                </p>
+
+                <h2 class="mt-3 text-3xl font-bold text-route-forest">
+                    Make an enquiry
+                </h2>
+
+                <p class="mt-3 text-sm leading-7 text-route-muted">
+                    Share a few details and our team will get in touch to
+                    discuss your preferred date, group, and experience.
+                </p>
+
+                {% if form.errors %}
+                    <div class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">
+                        <p class="font-semibold">
+                            Please check the following fields:
+                        </p>
+                        <ul class="mt-2 list-inside list-disc space-y-1">
+                            {% for field_name, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <form method="POST" class="mt-8 space-y-6">
+                    {{ form.hidden_tag() }}
+
+                    <div>
+                        {{ form.full_name.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                        {{ form.full_name(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", placeholder="Your full name", autocomplete="name") }}
+                        {% for error in form.full_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div>
+                            {{ form.email.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                            {{ form.email(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", placeholder="you@example.com", autocomplete="email") }}
+                            {% for error in form.email.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div>
+                            {{ form.phone.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                            {{ form.phone(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", placeholder="+254 7XX XXX XXX", autocomplete="tel") }}
+                            {% for error in form.phone.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ form.country.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                        {{ form.country(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", placeholder="Country of residence", autocomplete="country-name") }}
+                        {% for error in form.country.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.preferred_date.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                        {{ form.preferred_date(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10") }}
+                        <p class="mt-2 text-xs text-route-muted">
+                            Leave this blank if your dates are flexible.
+                        </p>
+                        {% for error in form.preferred_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <p class="mb-3 text-sm font-semibold text-route-forest">
+                            How many people are travelling?
+                        </p>
+
+                        <div class="grid gap-4 sm:grid-cols-3">
+                            <div>
+                                {{ form.adults.label(class="mb-2 block text-sm text-route-muted") }}
+                                {{ form.adults(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", min="1", max="100") }}
+                                {% for error in form.adults.errors %}
+                                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.children.label(class="mb-2 block text-sm text-route-muted") }}
+                                {{ form.children(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", min="0", max="100") }}
+                                {% for error in form.children.errors %}
+                                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.infants.label(class="mb-2 block text-sm text-route-muted") }}
+                                {{ form.infants(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", min="0", max="100") }}
+                                {% for error in form.infants.errors %}
+                                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ form.preferred_currency.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                        {{ form.preferred_currency(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10") }}
+                        {% for error in form.preferred_currency.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.special_requests.label(class="mb-2 block text-sm font-semibold text-route-forest") }}
+                        {{ form.special_requests(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm leading-6 outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", placeholder="Tell us about your interests, special requirements, or questions.") }}
+                        {% for error in form.special_requests.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="rounded-xl bg-route-cream p-4 text-sm leading-6 text-route-muted">
+                        Your enquiry is a request for information, not a confirmed
+                        reservation. Our team will follow up to discuss availability
+                        and pricing.
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="flex w-full items-center justify-center rounded-xl bg-route-forest px-6 py-4 text-sm font-bold text-white transition hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2"
+                    >
+                        Send Experience Enquiry
+                        <span class="ml-2" aria-hidden="true">&rarr;</span>
+                    </button>
+
+                    <p class="text-center text-xs leading-5 text-route-muted">
+                        By submitting, you agree that The Uncharted Route may
+                        contact you about this enquiry.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

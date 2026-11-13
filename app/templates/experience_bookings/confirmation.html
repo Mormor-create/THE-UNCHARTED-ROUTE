@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Request Received | The Uncharted Route{% endblock %}
+
+{% block content %}
+<section class="min-h-[70vh] bg-route-cream px-4 py-16">
+    <div class="mx-auto max-w-2xl rounded-3xl bg-white p-8 text-center shadow-sm sm:p-12">
+
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-route-forest text-3xl text-white">
+            ✓
+        </div>
+
+        <p class="mt-6 text-sm font-bold uppercase tracking-[0.2em] text-route-gold">
+            The Uncharted Route
+        </p>
+
+        <h1 class="mt-3 text-3xl font-bold text-route-forest">
+            Booking request received
+        </h1>
+
+        <p class="mt-4 leading-7 text-route-muted">
+            Thank you, {{ booking.first_name }}. Your request for
+            {{ experience_booking.experience_name_snapshot if experience_booking else 'your experience' }}
+            has been received.
+        </p>
+
+        <div class="mt-8 rounded-2xl bg-route-cream p-5 text-left">
+            <div class="flex justify-between gap-4 py-2">
+                <span class="text-route-muted">Reference</span>
+                <strong class="text-route-forest">{{ booking.booking_reference }}</strong>
+            </div>
+
+            <div class="flex justify-between gap-4 py-2">
+                <span class="text-route-muted">Status</span>
+                <strong class="text-route-forest">{{ booking.status }}</strong>
+            </div>
+
+            <div class="flex justify-between gap-4 py-2">
+                <span class="text-route-muted">Travellers</span>
+                <strong class="text-route-forest">{{ booking.total_guests }}</strong>
+            </div>
+
+            <div class="flex justify-between gap-4 py-2">
+                <span class="text-route-muted">Estimated total</span>
+                <strong class="text-route-forest">
+                    {{ booking.currency }} {{ "{:,.2f}".format(booking.total_amount) }}
+                </strong>
+            </div>
+        </div>
+
+        <p class="mt-6 text-sm leading-6 text-route-muted">
+            This is a pending request, not a confirmed reservation. Keep your
+            reference number for follow-up. Payment and confirmation instructions
+            can be provided by the team.
+        </p>
+
+        <a href="{{ url_for('experiences.index') }}"
+           class="mt-8 inline-flex rounded-full bg-route-forest px-7 py-3 font-semibold text-white hover:bg-route-deep">
+            Explore more experiences
+        </a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Stay Media{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <a href="{{ url_for('admin_stay.index') }}" class="hover:text-gray-900">
+                    Stays
+                </a>
+                <span>/</span>
+                <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+                   class="hover:text-gray-900">
+                    {{ stay.property_name }}
+                </a>
+                <span>/</span>
+                <span>Media</span>
+            </div>
+
+            <h1 class="mt-2 text-2xl font-semibold text-gray-900">
+                Stay Media
+            </h1>
+
+            <p class="mt-1 text-sm text-gray-500">
+                Manage photographs, banners, hero images and gallery media for this stay.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_stay_media.create', stay_id=stay.id) }}"
+           class="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5
+                  text-sm font-medium text-white hover:bg-gray-800">
+            + Add Media
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-gray-500">Total Media</p>
+            <p class="mt-2 text-2xl font-semibold text-gray-900">
+                {{ media_items|length }}
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-gray-500">Active</p>
+            <p class="mt-2 text-2xl font-semibold text-emerald-600">
+                {{ media_items|selectattr('active')|list|length }}
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-gray-500">Inactive</p>
+            <p class="mt-2 text-2xl font-semibold text-gray-600">
+                {{ media_items|rejectattr('active')|list|length }}
+            </p>
+        </div>
+    </div>
+
+    {% if media_items %}
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Media
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Usage
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Order
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in media_items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="h-16 w-20 overflow-hidden rounded-lg bg-gray-100">
+                                    {% if item.media_asset %}
+                                        {% if item.media_asset.file_url %}
+                                            <img src="{{ item.media_asset.file_url }}"
+                                                 alt="{{ item.caption or stay.property_name }}"
+                                                 class="h-full w-full object-cover">
+                                        {% elif item.media_asset.filename %}
+                                            <div class="flex h-full items-center justify-center text-xs text-gray-400">
+                                                Media
+                                            </div>
+                                        {% else %}
+                                            <div class="flex h-full items-center justify-center text-xs text-gray-400">
+                                                Media
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="flex h-full items-center justify-center text-xs text-gray-400">
+                                            Media
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <p class="font-medium text-gray-900">
+                                        {{ item.media_asset.filename if item.media_asset and item.media_asset.filename else 'Media Asset' }}
+                                    </p>
+
+                                    {% if item.caption %}
+                                        <p class="mt-1 max-w-md text-sm text-gray-500">
+                                            {{ item.caption }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ item.usage|title }}
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ item.display_order }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {% if item.active %}
+                                <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-right">
+                            <a href="{{ url_for('admin_stay_media.detail', media_id=item.id) }}"
+                               class="text-sm font-medium text-gray-900 hover:underline">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+        <div class="mx-auto max-w-md">
+            <h3 class="text-lg font-semibold text-gray-900">
+                No media added yet
+            </h3>
+
+            <p class="mt-2 text-sm text-gray-500">
+                Add photographs, banners or gallery media for {{ stay.property_name }}.
+            </p>
+
+            <a href="{{ url_for('admin_stay_media.create', stay_id=stay.id) }}"
+               class="mt-5 inline-flex rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800">
+                Add First Media
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

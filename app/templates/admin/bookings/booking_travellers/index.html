@@ -1,0 +1,110 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Booking Travellers | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-route-gold">Booking Management</p>
+            <h1 class="mt-2 text-3xl font-bold text-route-forest">Booking Travellers</h1>
+            <p class="mt-2 text-sm text-route-muted">Manage traveller identity, contacts and operational requirements.</p>
+        </div>
+        <a href="{{ url_for('admin_booking_travellers.create') }}"
+           class="inline-flex items-center justify-center rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white hover:bg-route-deep">
+            + Add Traveller
+        </a>
+    </div>
+
+    <form method="GET" class="grid grid-cols-1 gap-3 rounded-2xl border border-route-sand bg-white p-5 md:grid-cols-4">
+        <input type="search" name="q" value="{{ search }}" placeholder="Search name, email, phone..."
+               class="rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-gold focus:outline-none">
+
+        <select name="booking_id" class="rounded-xl border border-route-sand bg-white px-4 py-3 text-sm">
+            <option value="">All bookings</option>
+            {% for booking in bookings %}
+                <option value="{{ booking.id }}" {% if selected_booking_id == booking.id %}selected{% endif %}>
+                    Booking #{{ booking.id }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="status" class="rounded-xl border border-route-sand bg-white px-4 py-3 text-sm">
+            <option value="">All statuses</option>
+            <option value="active" {% if selected_status == "active" %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button class="flex-1 rounded-xl bg-route-forest px-4 py-3 text-sm font-semibold text-white">Filter</button>
+            <a href="{{ url_for('admin_booking_travellers.index') }}"
+               class="rounded-xl border border-route-sand px-4 py-3 text-sm font-semibold text-route-deep">Reset</a>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-route-sand">
+                <thead class="bg-route-cream">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        <th class="px-5 py-4">Traveller</th>
+                        <th class="px-5 py-4">Booking</th>
+                        <th class="px-5 py-4">Type</th>
+                        <th class="px-5 py-4">Contact</th>
+                        <th class="px-5 py-4">Status</th>
+                        <th class="px-5 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-route-sand">
+                    {% for traveller in travellers %}
+                    <tr class="hover:bg-route-cream/50">
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-route-forest">{{ traveller.full_name }}</p>
+                            <p class="mt-1 text-xs text-route-muted">
+                                {{ traveller.traveller_reference or ("Traveller #" ~ traveller.id) }}
+                            </p>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-route-deep">
+                            <a class="font-medium hover:text-route-gold"
+                               href="{{ url_for('admin_booking_travellers.index', booking_id=traveller.booking_id) }}">
+                                #{{ traveller.booking_id }}
+                            </a>
+                        </td>
+                        <td class="px-5 py-4 text-sm capitalize text-route-deep">{{ traveller.traveller_type }}</td>
+                        <td class="px-5 py-4 text-sm text-route-muted">
+                            <div>{{ traveller.email or "—" }}</div>
+                            <div class="mt-1">{{ traveller.phone or "" }}</div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                {% if traveller.status == 'active' %}
+                                    bg-green-100 text-green-800
+                                {% else %}
+                                    bg-route-cream text-route-muted
+                                {% endif %}">
+                                {{ traveller.status|replace("_", " ")|title }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="flex justify-end gap-3 text-sm font-semibold">
+                                <a href="{{ url_for('admin_booking_travellers.detail', traveller_id=traveller.id) }}"
+                                   class="text-route-forest hover:text-route-gold">View</a>
+                                <a href="{{ url_for('admin_booking_travellers.edit', traveller_id=traveller.id) }}"
+                                   class="text-route-forest hover:text-route-gold">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <p class="font-semibold text-route-forest">No travellers found</p>
+                            <p class="mt-2 text-sm text-route-muted">Try changing your filters or add a traveller to a booking.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

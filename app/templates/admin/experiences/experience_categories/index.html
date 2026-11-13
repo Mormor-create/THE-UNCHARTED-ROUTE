@@ -1,0 +1,292 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Experience Categories{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+        <div>
+            <p class="text-sm font-medium text-teal-600">
+                Experience Management
+            </p>
+
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+                Experience Categories
+            </h1>
+
+            <p class="mt-2 text-sm text-slate-500">
+                Manage the categories used to organize The Uncharted Route experiences.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_experience_categories.create') }}"
+            class="inline-flex items-center justify-center rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800"
+        >
+            + Create Category
+        </a>
+
+    </div>
+
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3">
+                {% for category, message in messages %}
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-emerald-200 bg-emerald-50 text-emerald-700
+                        {% elif category == 'danger' %}
+                            border-red-200 bg-red-50 text-red-700
+                        {% else %}
+                            border-slate-200 bg-slate-50 text-slate-700
+                        {% endif %}
+                    ">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- Filters -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_experience_categories.index') }}"
+            class="grid gap-4 lg:grid-cols-4"
+        >
+
+            <div class="lg:col-span-2">
+                <label class="mb-2 block text-sm font-medium text-slate-700">
+                    Search
+                </label>
+
+                {{ form.search(
+                    class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100",
+                    placeholder="Search categories..."
+                ) }}
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-700">
+                    Status
+                </label>
+
+                {{ form.status(
+                    class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                ) }}
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-700">
+                    Featured
+                </label>
+
+                {{ form.featured(
+                    class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                ) }}
+            </div>
+
+            <div class="lg:col-span-4 flex justify-end">
+                {{ form.submit(
+                    class="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                ) }}
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- Categories -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        {% if categories %}
+
+            <div class="overflow-x-auto">
+
+                <table class="min-w-full divide-y divide-slate-200">
+
+                    <thead class="bg-slate-50">
+
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Category
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Experiences
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Status
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Featured
+                            </th>
+
+                            <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Actions
+                            </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody class="divide-y divide-slate-100">
+
+                        {% for category in categories %}
+
+                            <tr class="transition hover:bg-slate-50">
+
+                                <td class="px-6 py-5">
+
+
+<div class="flex items-center gap-4">
+
+    {% if category.icon %}
+        <img
+            src="{{ category.icon }}"
+            alt="{{ category.name }} icon"
+            class="h-14 w-14 shrink-0 rounded-xl border border-slate-200 bg-white p-2 object-contain"
+            loading="lazy"
+        >
+    {% elif category.featured_image %}
+        <img
+            src="{{ category.featured_image }}"
+            alt="{{ category.name }}"
+            class="h-14 w-14 shrink-0 rounded-xl object-cover"
+            loading="lazy"
+        >
+    {% else %}
+        <div
+            class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-xl font-bold text-white"
+            style="background-color: {{ category.color or '#0F766E' }};"
+        >
+            {{ category.name[:1] }}
+        </div>
+    {% endif %}
+
+    <div class="min-w-0">
+        <a
+            href="{{ url_for('admin_experience_categories.detail', category_id=category.id) }}"
+            class="font-semibold text-slate-900 hover:text-teal-700"
+        >
+            {{ category.name }}
+        </a>
+
+        <p class="mt-1 text-xs text-slate-500">
+            /{{ category.slug }}
+        </p>
+    </div>
+
+</div>
+
+                                </td>
+
+                                <td class="px-6 py-5">
+                                    <span class="font-semibold text-slate-900">
+                                        {{ category.experience_count }}
+                                    </span>
+                                </td>
+
+                                <td class="px-6 py-5">
+
+                                    {% if category.active %}
+                                        <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="px-6 py-5">
+
+                                    {% if category.featured %}
+                                        <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                                            Featured
+                                        </span>
+                                    {% else %}
+                                        <span class="text-sm text-slate-400">
+                                            —
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="px-6 py-5">
+
+                                    <div class="flex justify-end gap-2">
+
+                                        <a
+                                            href="{{ url_for('admin_experience_categories.detail', category_id=category.id) }}"
+                                            class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                        >
+                                            View
+                                        </a>
+
+                                        <a
+                                            href="{{ url_for('admin_experience_categories.edit', category_id=category.id) }}"
+                                            class="rounded-lg bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-700 hover:bg-teal-100"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="px-6 py-16 text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                    📁
+                </div>
+
+                <h2 class="mt-4 text-lg font-semibold text-slate-900">
+                    No experience categories found
+                </h2>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Create your first experience category to begin organizing experiences.
+                </p>
+
+                <a
+                    href="{{ url_for('admin_experience_categories.create') }}"
+                    class="mt-6 inline-flex rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800"
+                >
+                    Create Category
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

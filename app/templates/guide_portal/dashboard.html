@@ -1,0 +1,535 @@
+{% extends "guide_portal/base.html" %}
+
+{% block title %}Guide Dashboard | The Uncharted Route{% endblock %}
+
+{% block page_header %}
+<header class="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+    <div>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-moss">
+            Your field desk
+        </p>
+        <h1 class="mt-2 font-display text-3xl font-semibold text-forest sm:text-4xl">
+            Welcome, {{ guide.user.first_name if guide.user and guide.user.first_name else guide_name }}
+        </h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
+            Your assignments, upcoming experiences, and schedule — all in one place.
+        </p>
+    </div>
+
+    <div class="rounded-2xl border border-sand bg-white px-5 py-4 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-muted">Today</p>
+        <p class="mt-1 font-semibold text-forest">
+            {{ today.strftime('%A, %d %B %Y') }}
+        </p>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+
+<!-- Guide profile -->
+<section class="mb-7 overflow-hidden rounded-2xl bg-forest p-6 text-white shadow-sm sm:p-8">
+    <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+                Your guide profile
+            </p>
+            <h2 class="mt-2 font-display text-2xl font-semibold">{{ guide_name }}</h2>
+
+            <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/75">
+                {% if guide.employee_number %}
+                    <span>Staff ID: {{ guide.employee_number }}</span>
+                {% endif %}
+                {% if guide.department %}
+                    <span>{{ guide.department }}</span>
+                {% endif %}
+                {% if guide.job_title %}
+                    <span>{{ guide.job_title }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <span class="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
+            {{ guide.status or 'Guide' }}
+        </span>
+    </div>
+</section>
+
+<!-- Overview -->
+<section class="mb-10">
+    <div class="mb-4 flex items-center justify-between">
+        <h2 class="font-display text-2xl font-semibold text-forest">Your overview</h2>
+        <span class="text-xs text-muted">Personal activity</span>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+            <p class="text-sm text-muted">Upcoming tours</p>
+            <p class="mt-4 text-3xl font-bold text-forest">
+                {{ statistics.get('upcoming_bookings', upcoming_bookings|length) }}
+            </p>
+            <p class="mt-1 text-xs text-muted">Scheduled experiences ahead</p>
+        </article>
+
+        <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+            <p class="text-sm text-muted">In progress</p>
+            <p class="mt-4 text-3xl font-bold text-forest">
+                {{ statistics.get('current_bookings', current_bookings|length) }}
+            </p>
+            <p class="mt-1 text-xs text-muted">Current experiences</p>
+        </article>
+
+        <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+            <p class="text-sm text-muted">Awaiting response</p>
+            <p class="mt-4 text-3xl font-bold text-forest">
+                {{ pending_assignments|length }}
+            </p>
+            <p class="mt-1 text-xs text-muted">Assignments to review</p>
+        </article>
+
+        <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+            <p class="text-sm text-muted">Completed tours</p>
+            <p class="mt-4 text-3xl font-bold text-forest">
+                {{ statistics.get('completed_bookings', 0) }}
+            </p>
+            <p class="mt-1 text-xs text-muted">Experiences completed</p>
+        </article>
+    </div>
+</section>
+
+<!-- Assigned enquiries -->
+<section id="assigned-enquiries" class="mb-10 scroll-mt-6">
+    <div class="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-clay">
+                Customer enquiries
+            </p>
+            <h2 class="mt-1 font-display text-2xl font-semibold text-forest">
+                Assigned enquiries
+            </h2>
+        </div>
+        <a href="{{ url_for('guide_portal.enquiries') }}"
+           class="text-sm font-semibold text-forest underline decoration-gold decoration-2 underline-offset-4 hover:text-leaf">
+            View all enquiries
+        </a>
+    </div>
+
+    {% if assigned_contacts %}
+        <div class="space-y-4">
+            {% for contact in assigned_contacts[:5] %}
+                <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm sm:p-6">
+                    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-forest">
+                                    {{ contact.status or 'New' }}
+                                </span>
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+                                    {{ contact.priority or 'Normal' }} priority
+                                </span>
+                                {% if not contact.is_read %}
+                                    <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800">
+                                        Unread
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="mt-3 text-lg font-semibold text-forest">
+                                {{ contact.subject or 'Customer enquiry' }}
+                            </h3>
+
+                            <p class="mt-1 text-sm text-muted">
+                                {{ contact.full_name }}
+                                <span class="mx-1">·</span>
+                                {{ contact.enquiry_type or 'General' }}
+                            </p>
+
+                            <p class="mt-3 text-sm leading-6 text-ink">
+                                {{ contact.message|truncate(240, True, '…') }}
+                            </p>
+
+                            <p class="mt-3 text-xs text-muted">
+                                Received:
+                                {{ contact.created_at.strftime('%d %b %Y, %H:%M') if contact.created_at else 'Date unavailable' }}
+                            </p>
+                        </div>
+
+                        <a href="{{ url_for('guide_portal.enquiry_detail', contact_id=contact.id) }}"
+                           class="inline-flex shrink-0 items-center justify-center rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-leaf">
+                            Open enquiry
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dashed border-sand bg-white/70 px-6 py-10 text-center">
+            <p class="font-semibold text-forest">No assigned enquiries yet.</p>
+            <p class="mt-2 text-sm text-muted">
+                Enquiries allocated to your account will appear here.
+            </p>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Pending assignments -->
+<section id="pending-assignments" class="mb-10 scroll-mt-6">
+    <div class="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-clay">Action required</p>
+            <h2 class="mt-1 font-display text-2xl font-semibold text-forest">New assignments</h2>
+        </div>
+        <a href="{{ url_for('guide_portal.assignments') }}"
+           class="text-sm font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+            View all assignments
+        </a>
+    </div>
+
+    {% if pending_assignments %}
+        <div class="space-y-4">
+            {% for assignment in pending_assignments %}
+                {% set booking = assignment.booking if assignment.booking is defined else none %}
+                <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm sm:p-6">
+                    <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+                                    {{ assignment.status or 'Assigned' }}
+                                </span>
+                                {% if assignment.role %}
+                                    <span class="rounded-full bg-cream px-3 py-1 text-xs font-medium text-forest">
+                                        {{ assignment.role }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="mt-3 text-lg font-semibold text-forest">
+                                {% if booking and booking.experience %}
+                                    {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Assigned experience' }}
+                                {% elif booking %}
+                                    Booking #{{ booking.id }}
+                                {% else %}
+                                    Assignment #{{ assignment.id }}
+                                {% endif %}
+                            </h3>
+
+                            {% if booking %}
+                                <p class="mt-1 text-sm text-muted">
+                                    Booking reference: #{{ booking.id }}
+                                    {% if booking.experience_date %}
+                                        · {{ booking.experience_date.strftime('%d %b %Y') if booking.experience_date.strftime is defined else booking.experience_date }}
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+
+                            {% if assignment.notes %}
+                                <p class="mt-3 max-w-2xl text-sm leading-6 text-muted">
+                                    {{ assignment.notes }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ url_for('guide_portal.assignment_detail', assignment_id=assignment.id) }}"
+                               class="rounded-xl border border-sand px-4 py-2.5 text-sm font-semibold text-forest transition hover:bg-cream">
+                                Details
+                            </a>
+
+                            <form method="POST" action="{{ url_for('guide_portal.accept', assignment_id=assignment.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit"
+                                        class="rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-leaf">
+                                    Accept
+                                </button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{{ url_for('guide_portal.decline', assignment_id=assignment.id) }}"
+                                  onsubmit="return confirm('Are you sure you want to decline this assignment?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit"
+                                        class="rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50">
+                                    Decline
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dashed border-sand bg-white/70 px-6 py-10 text-center">
+            <p class="font-semibold text-forest">You're all caught up.</p>
+            <p class="mt-2 text-sm text-muted">New assignments will appear here when they are allocated to you.</p>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Current experiences -->
+<section class="mb-10">
+    <div class="mb-4">
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">On the ground</p>
+        <h2 class="mt-1 font-display text-2xl font-semibold text-forest">Current experiences</h2>
+    </div>
+
+    {% if current_bookings %}
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            {% for booking in current_bookings %}
+                <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+                        Booking #{{ booking.id }}
+                    </p>
+
+                    <h3 class="mt-2 text-lg font-semibold text-forest">
+                        {% if booking.experience %}
+                            {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Experience' }}
+                        {% else %}
+                            Assigned experience
+                        {% endif %}
+                    </h3>
+
+                    {% if booking.experience_date %}
+                        <p class="mt-3 text-sm text-muted">
+                            {{ booking.experience_date.strftime('%A, %d %B %Y') if booking.experience_date.strftime is defined else booking.experience_date }}
+                        </p>
+                    {% endif %}
+
+                    <a href="{{ url_for('guide_portal.booking_detail', booking_id=booking.id) }}"
+                       class="mt-5 inline-flex text-sm font-semibold text-forest underline decoration-gold decoration-2 underline-offset-4 hover:text-leaf">
+                        Open booking details
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-sand bg-white p-6 text-sm text-muted">
+            You have no experiences marked as currently in progress.
+        </div>
+    {% endif %}
+</section>
+
+<!-- Upcoming tours -->
+<section id="upcoming-tours" class="mb-10 scroll-mt-6">
+    <div class="mb-4 flex items-end justify-between gap-3">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">Coming up</p>
+            <h2 class="mt-1 font-display text-2xl font-semibold text-forest">Upcoming tours</h2>
+        </div>
+        <a href="{{ url_for('guide_portal.upcoming_tours') }}"
+           class="text-sm font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+            View all
+        </a>
+    </div>
+
+    {% if upcoming_bookings %}
+        <div class="overflow-hidden rounded-2xl border border-sand bg-white shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-sand text-left text-sm">
+                    <thead>
+                        <tr class="bg-white text-xs uppercase tracking-wider text-muted">
+                            <th class="px-5 py-4 font-semibold">Experience</th>
+                            <th class="px-5 py-4 font-semibold">Date</th>
+                            <th class="px-5 py-4 font-semibold">Status</th>
+                            <th class="px-5 py-4 font-semibold">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-sand">
+                        {% for booking in upcoming_bookings[:5] %}
+                            <tr class="transition hover:bg-cream/50">
+                                <td class="px-5 py-4">
+                                    <p class="font-semibold text-forest">
+                                        {% if booking.experience %}
+                                            {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Experience' }}
+                                        {% else %}
+                                            Experience booking
+                                        {% endif %}
+                                    </p>
+                                    <p class="mt-1 text-xs text-muted">Reference #{{ booking.id }}</p>
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    {{ booking.experience_date.strftime('%d %b %Y') if booking.experience_date and booking.experience_date.strftime is defined else booking.experience_date or 'To be confirmed' }}
+                                </td>
+                                <td class="px-5 py-4">
+                                    <span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-forest">
+                                        {{ booking.status or 'Pending' }}
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    <a href="{{ url_for('guide_portal.booking_detail', booking_id=booking.id) }}"
+                                       class="font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+                                        View booking
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-sand bg-white p-6 text-sm text-muted">
+            No upcoming tours are currently assigned to you.
+        </div>
+    {% endif %}
+</section>
+
+<!-- Schedule and availability previews -->
+<div class="grid grid-cols-1 gap-8 xl:grid-cols-2">
+
+    <section id="my-schedule" class="scroll-mt-6">
+        <div class="mb-4 flex items-end justify-between gap-3">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">Your calendar</p>
+                <h2 class="mt-1 font-display text-2xl font-semibold text-forest">My schedule</h2>
+            </div>
+            <a href="{{ url_for('guide_portal.schedule') }}"
+               class="text-sm font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+                Full schedule
+            </a>
+        </div>
+
+        {% if schedules %}
+            <div class="space-y-3">
+                {% for item in schedules[:4] %}
+                    <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+                        <h3 class="font-semibold text-forest">{{ item.title or 'Scheduled activity' }}</h3>
+
+                        {% if item.start_datetime %}
+                            <p class="mt-2 text-sm text-muted">
+                                {{ item.start_datetime.strftime('%a, %d %b %Y · %H:%M') if item.start_datetime.strftime is defined else item.start_datetime }}
+                            </p>
+                        {% endif %}
+
+                        {% if item.location %}
+                            <p class="mt-2 text-sm text-muted">Location: {{ item.location }}</p>
+                        {% endif %}
+
+                        <span class="mt-3 inline-flex rounded-full bg-cream px-3 py-1 text-xs font-semibold text-forest">
+                            {{ item.status or 'Scheduled' }}
+                        </span>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-2xl border border-sand bg-white p-6 text-sm text-muted">
+                No schedule entries are available at the moment.
+            </div>
+        {% endif %}
+    </section>
+
+    <section id="my-availability" class="scroll-mt-6">
+        <div class="mb-4 flex items-end justify-between gap-3">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">Your working status</p>
+                <h2 class="mt-1 font-display text-2xl font-semibold text-forest">Availability</h2>
+            </div>
+            <a href="{{ url_for('guide_portal.availability') }}"
+               class="text-sm font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+                Manage
+            </a>
+        </div>
+
+        {% if availability %}
+            <div class="space-y-3">
+                {% for item in availability[:4] %}
+                    <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+                        <p class="font-semibold text-forest">
+                            {{ item.date.strftime('%d %b %Y') if item.date and item.date.strftime is defined else item.date or 'Availability entry' }}
+                        </p>
+
+                        {% if item.start_time or item.end_time %}
+                            <p class="mt-2 text-sm text-muted">
+                                {{ item.start_time or 'Start time not set' }} – {{ item.end_time or 'End time not set' }}
+                            </p>
+                        {% endif %}
+
+                        {% if item.reason %}
+                            <p class="mt-2 text-sm text-muted">{{ item.reason }}</p>
+                        {% endif %}
+
+                        <span class="mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold
+                            {% if item.status == 'Available' %}
+                                bg-green-50 text-green-800
+                            {% elif item.status == 'Unavailable' %}
+                                bg-red-50 text-red-800
+                            {% else %}
+                                bg-cream text-forest
+                            {% endif %}">
+                            {{ item.status or 'Not specified' }}
+                        </span>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-2xl border border-sand bg-white p-6 text-sm leading-6 text-muted">
+                No availability records were found for today. Contact your coordinator if your availability needs updating.
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- All assigned booking -->
+<section id="all-assigned-bookings" class="mt-10 scroll-mt-6">
+    <div class="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">Your assignment history</p>
+            <h2 class="mt-1 font-display text-2xl font-semibold text-forest">All assigned bookings</h2>
+            <p class="mt-2 text-sm text-muted">Review the reservations assigned to your guide account.</p>
+        </div>
+        <a href="{{ url_for('guide_portal.bookings') }}"
+           class="inline-flex items-center justify-center gap-2 rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-leaf">
+            View all bookings
+            <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+        </a>
+    </div>
+
+    {% if bookings %}
+        <div class="overflow-hidden rounded-2xl border border-sand bg-white shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-sand text-left text-sm">
+                    <thead>
+                        <tr class="bg-white text-xs uppercase tracking-wider text-muted">
+                            <th class="px-5 py-4 font-semibold">Reference</th>
+                            <th class="px-5 py-4 font-semibold">Experience</th>
+                            <th class="px-5 py-4 font-semibold">Date</th>
+                            <th class="px-5 py-4 font-semibold">Status</th>
+                            <th class="px-5 py-4 font-semibold">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-sand">
+                        {% for booking in bookings %}
+                            <tr class="hover:bg-cream/50">
+                                <td class="whitespace-nowrap px-5 py-4 font-semibold text-forest">
+                                    #{{ booking.id }}
+                                </td>
+                                <td class="px-5 py-4">
+                                    {% if booking.experience %}
+                                        {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Experience' }}
+                                    {% else %}
+                                        Experience booking
+                                    {% endif %}
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    {{ booking.experience_date.strftime('%d %b %Y') if booking.experience_date and booking.experience_date.strftime is defined else booking.experience_date or '—' }}
+                                </td>
+                                <td class="px-5 py-4">{{ booking.status or '—' }}</td>
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    <a href="{{ url_for('guide_portal.booking_detail', booking_id=booking.id) }}"
+                                       class="font-semibold text-forest underline decoration-gold underline-offset-4 hover:text-leaf">
+                                        Details
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-sand bg-white p-6 text-sm text-muted">
+            Your assigned bookings will appear here.
+        </div>
+    {% endif %}
+</section>
+
+{% endblock %}

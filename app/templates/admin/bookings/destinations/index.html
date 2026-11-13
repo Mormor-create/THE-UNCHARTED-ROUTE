@@ -1,0 +1,136 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Destination Bookings | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-route-gold">
+                Booking management
+            </p>
+            <h1 class="mt-1 text-3xl font-bold text-route-deep">
+                Destination Journey Bookings
+            </h1>
+            <p class="mt-2 text-sm text-route-muted">
+                Manage multi-destination journeys, traveller preferences, dates and payments.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin_destination_bookings.archived') }}"
+               class="rounded-xl border border-route-sand px-4 py-3 text-sm font-semibold text-route-deep hover:bg-route-cream">
+                Archived bookings
+            </a>
+            <a href="{{ url_for('admin_destination_bookings.create') }}"
+               class="rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white hover:bg-route-deep">
+                + Create booking
+            </a>
+        </div>
+    </div>
+
+    <form method="GET"
+          class="grid grid-cols-1 gap-3 rounded-2xl border border-route-sand bg-white p-5 md:grid-cols-3">
+        <input type="search" name="q" value="{{ search }}"
+               placeholder="Search reference, customer or journey"
+               class="rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none">
+
+        <select name="status"
+                class="rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none">
+            <option value="">All statuses</option>
+            {% for value, label in [
+                ('pending', 'Pending'),
+                ('awaiting_payment', 'Awaiting payment'),
+                ('confirmed', 'Confirmed'),
+                ('in_progress', 'In progress'),
+                ('completed', 'Completed'),
+                ('cancelled', 'Cancelled'),
+                ('refunded', 'Refunded')
+            ] %}
+                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <div class="flex gap-2">
+            <button type="submit"
+                    class="flex-1 rounded-xl bg-route-forest px-4 py-3 text-sm font-semibold text-white">
+                Search
+            </button>
+            <a href="{{ url_for('admin_destination_bookings.index') }}"
+               class="rounded-xl border border-route-sand px-4 py-3 text-sm font-semibold text-route-deep">
+                Reset
+            </a>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-route-sand bg-white">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-route-sand">
+                <thead class="bg-route-cream">
+                    <tr class="text-left text-xs uppercase tracking-wider text-route-muted">
+                        <th class="px-5 py-4">Booking</th>
+                        <th class="px-5 py-4">Customer</th>
+                        <th class="px-5 py-4">Journey</th>
+                        <th class="px-5 py-4">Travel dates</th>
+                        <th class="px-5 py-4">Travellers</th>
+                        <th class="px-5 py-4">Total</th>
+                        <th class="px-5 py-4">Status</th>
+                        <th class="px-5 py-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-route-sand">
+                    {% for booking in bookings %}
+                        {% set detail = booking.destination_booking %}
+                        <tr class="text-sm">
+                            <td class="whitespace-nowrap px-5 py-4">
+                                <p class="font-bold text-route-deep">{{ booking.booking_reference }}</p>
+                                <p class="mt-1 text-xs text-route-muted">
+                                    {{ booking.booking_date.strftime('%d %b %Y') if booking.booking_date else '—' }}
+                                </p>
+                            </td>
+                            <td class="px-5 py-4">
+                                <p class="font-semibold text-route-deep">{{ booking.full_name }}</p>
+                                <p class="mt-1 text-xs text-route-muted">{{ booking.email }}</p>
+                            </td>
+                            <td class="px-5 py-4 font-medium text-route-deep">
+                                {{ detail.journey_name_snapshot if detail else 'Journey unavailable' }}
+                            </td>
+                            <td class="whitespace-nowrap px-5 py-4 text-route-muted">
+                                {{ detail.start_date.strftime('%d %b %Y') if detail and detail.start_date else '—' }}
+                                <span class="mx-1">–</span>
+                                {{ detail.end_date.strftime('%d %b %Y') if detail and detail.end_date else '—' }}
+                            </td>
+                            <td class="px-5 py-4">{{ detail.travellers_count if detail else booking.total_guests }}</td>
+                            <td class="whitespace-nowrap px-5 py-4 font-semibold text-route-deep">
+                                {{ booking.currency }} {{ "%.2f"|format(booking.total_amount or 0) }}
+                            </td>
+                            <td class="px-5 py-4">
+                                <span class="inline-flex rounded-full bg-route-cream px-3 py-1 text-xs font-semibold text-route-deep">
+                                    {{ booking.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td class="whitespace-nowrap px-5 py-4">
+                                <a href="{{ url_for('admin_destination_bookings.detail', booking_id=booking.id) }}"
+                                   class="font-semibold text-route-forest hover:text-route-gold">
+                                    View booking →
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="px-5 py-12 text-center">
+                                <p class="font-semibold text-route-deep">No destination bookings found</p>
+                                <p class="mt-2 text-sm text-route-muted">
+                                    Try another search or create a destination journey booking.
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

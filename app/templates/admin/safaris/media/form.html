@@ -1,0 +1,400 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ 'Edit' if media_item else 'Attach' }} Property Media | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+{# Breadcrumb navigation #}
+<nav aria-label="Breadcrumb" class="mb-6">
+    <ol class="flex flex-wrap items-center gap-2 text-sm">
+        <li>
+            <a href="{{ url_for('admin_safaris.properties') }}"
+               class="font-medium text-[#66736B] transition hover:text-[#1F5138]">
+                Safari properties
+            </a>
+        </li>
+
+        <li class="text-[#D8C9AE]" aria-hidden="true">/</li>
+
+        <li>
+            {% if selected_property %}
+                <a href="{{ url_for('admin_safaris.property_media', property_id=selected_property.id) }}"
+                   class="font-medium text-[#66736B] transition hover:text-[#1F5138]">
+                    {{ selected_property.name }} media
+                </a>
+            {% else %}
+                <a href="{{ url_for('admin_safaris.property_media') }}"
+                   class="font-medium text-[#66736B] transition hover:text-[#1F5138]">
+                    All property media
+                </a>
+            {% endif %}
+        </li>
+
+        <li class="text-[#D8C9AE]" aria-hidden="true">/</li>
+
+        <li class="font-semibold text-[#12372A]" aria-current="page">
+            {{ 'Edit association' if media_item else 'Attach media' }}
+        </li>
+    </ol>
+</nav>
+
+    {# Header #}
+    <div class="mb-8">
+        {% if selected_property %}
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-[#5C6B32]">
+                {{ selected_property.name }}
+            </p>
+        {% else %}
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-[#5C6B32]">
+                Digital Asset Management
+            </p>
+        {% endif %}
+
+        <h1 class="text-3xl font-semibold tracking-tight text-[#12372A] sm:text-4xl">
+            {{ 'Edit media association' if media_item else 'Attach property media' }}
+        </h1>
+
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#66736B] sm:text-base">
+            Connect an existing asset from your central media library to a
+            safari property. Your original DAM file will not be duplicated.
+        </p>
+    </div>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    {# Form card #}
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/60 px-5 py-5 sm:px-8">
+            <h2 class="text-base font-semibold text-[#12372A]">
+                Media association details
+            </h2>
+
+            <p class="mt-1 text-sm leading-5 text-[#66736B]">
+                Choose the property, DAM asset and how the image should be used.
+            </p>
+        </div>
+
+        <form method="post" class="space-y-7 p-5 sm:p-8">
+            {{ form.hidden_tag() }}
+            <div class="route-container mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <div>
+    <label
+        for="property_id"
+        class="mb-2 block text-sm font-semibold text-[#1C2822]"
+    >
+        Safari property
+    </label>
+
+    <select
+        id="property_id"
+        name="property_id"
+        required
+        class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20"
+    >
+        <option value="">Select a property</option>
+
+        {% for item in properties %}
+            <option
+                value="{{ item.id }}"
+                {% if selected_property and selected_property.id == item.id %}
+                    selected
+                {% endif %}
+            >
+                {{ item.name }}
+                {% if item.destination %}
+                    — {{ item.destination.name }}
+                {% endif %}
+            </option>
+        {% endfor %}
+    </select>
+
+    <p class="mt-1 text-xs text-[#66736B]">
+        Choose the property this image belongs to.
+    </p>
+</div>
+
+            {# Main association fields #}
+            <div class="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+
+                {% for name in [
+                  'media_asset_id',
+                  'usage',
+                  'caption',
+                  'alt_text',
+                  'display_order',
+                  'is_primary',
+                  'active'
+                ] %}
+
+                    {% if form[name] is defined %}
+
+                        <div class="{% if name in ['caption', 'alt_text'] %}md:col-span-2{% endif %}">
+
+                            {% if form[name].type == 'BooleanField' %}
+
+                                <label for="{{ form[name].id }}"
+                                       class="flex h-full min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/40 px-4 py-3 transition hover:border-[#D8C9AE]">
+
+                                    {{ form[name](class_="h-4 w-4 rounded border-[#D8C9AE] text-[#1F5138] focus:ring-[#5C6B32]") }}
+
+                                    <span>
+                                        <span class="block text-sm font-semibold text-[#12372A]">
+                                            {{ form[name].label.text }}
+                                        </span>
+
+                                        {% if name == 'is_primary' %}
+                                            <span class="mt-0.5 block text-xs leading-5 text-[#66736B]">
+                                                Mark this asset as the primary image for its property.
+                                            </span>
+                                        {% elif name == 'active' %}
+                                              <span class="mt-0.5 block text-xs leading-5 text-[#66736B]">
+                                                Active images are available for use on the website.
+                                              </span>
+                                        {% endif %}
+                                    </span>
+                                </label>
+
+                            {% else %}
+
+                                <label for="{{ form[name].id }}"
+                                       class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                    {{ form[name].label.text }}
+
+                                    {% if form[name].flags.required %}
+                                        <span class="text-[#C96A2C]">*</span>
+                                    {% endif %}
+                                </label>
+
+                                {% if name == 'media_asset_id' %}
+
+    <select
+        id="{{ form[name].id }}"
+        name="{{ form[name].name }}"
+        required
+        class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+    >
+        {% for value, label in form[name].choices %}
+            {% set asset_url = namespace(url='') %}
+
+            {% for asset in media_assets|default([]) %}
+                {% if asset.id|string == value|string %}
+                    {% set asset_url.url = asset.browser_url or '' %}
+                {% endif %}
+            {% endfor %}
+
+            <option
+                value="{{ value }}"
+                data-preview-url="{{ asset_url.url }}"
+                {% if form[name].data|string == value|string %}
+                    selected
+                {% endif %}
+            >
+                {{ label }}
+            </option>
+        {% endfor %}
+    </select>
+
+    {# Live image preview #}
+    <div
+        id="mediaAssetPreview"
+        class="mt-4 overflow-hidden rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5]/60"
+        hidden
+    >
+        <div class="border-b border-[#E9DDC8] px-4 py-3">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-[#5C6B32]">
+                Image preview
+            </p>
+            <p
+                id="mediaAssetPreviewName"
+                class="mt-1 text-sm font-medium text-[#12372A]"
+            ></p>
+        </div>
+
+        <div class="flex min-h-48 items-center justify-center bg-[#F7F1E5] p-3 sm:min-h-64">
+            <img
+                id="mediaAssetPreviewImage"
+                src=""
+                alt="Selected media asset preview"
+                class="max-h-96 w-full rounded-xl object-contain"
+                hidden
+            >
+
+            <p
+                id="mediaAssetPreviewEmpty"
+                class="px-4 py-10 text-center text-sm text-[#66736B]"
+            >
+                Select an image to preview it here.
+            </p>
+        </div>
+
+        <div
+            id="mediaAssetPreviewError"
+            class="hidden px-4 py-3 text-sm text-[#9A4529]"
+            role="status"
+        >
+            The preview could not be loaded. Please check the asset in the Media Library.
+        </div>
+    </div>
+
+                              {% elif form[name].type == 'SelectField' %}
+
+                                {{ form[name](
+                                      class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                                ) }}
+
+                                {% elif form[name].type in ['TextAreaField', 'TextArea'] %}
+                                    {{ form[name](
+                                        class_="min-h-28 w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                                    ) }}
+
+                                {% else %}
+
+                                    {{ form[name](
+                                        class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                                    ) }}
+
+                                {% endif %}
+
+                            {% endif %}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-2 flex items-start gap-2 text-sm leading-5 text-[#9A4529]">
+                                    <span aria-hidden="true">!</span>
+                                    <span>{{ error }}</span>
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+            {# Guidance panel #}
+            <div class="rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 sm:p-5">
+                <div class="flex items-start gap-3">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#5C6B32]">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.6"
+                             class="h-5 w-5"
+                             aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M12 11v5m0-8h.01"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-[#12372A]">
+                            A note on your media library
+                        </h3>
+
+                        <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                            This form associates a Digital Asset Management
+                            asset with a property. Select an appropriate usage
+                            category, provide useful alternative text for
+                            accessibility, and use captions to add context
+                            where needed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {# Actions #}
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:items-center sm:justify-between">
+
+                {% if selected_property %}
+                    <a href="{{ url_for('admin_safaris.property_media', property_id=selected_property.id) }}"
+                       class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+                        Cancel
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('admin_safaris.property_media') }}"
+                       class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+                        Cancel
+                    </a>
+                {% endif %}
+
+                <button type="submit"
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+                    {% if media_item %}
+                        Save changes
+                    {% else %}
+                        Attach asset
+                    {% endif %}
+                    <span aria-hidden="true">→</span>
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const assetSelect = document.getElementById("media_asset_id");
+    const previewPanel = document.getElementById("mediaAssetPreview");
+    const previewImage = document.getElementById("mediaAssetPreviewImage");
+    const previewName = document.getElementById("mediaAssetPreviewName");
+    const emptyMessage = document.getElementById("mediaAssetPreviewEmpty");
+    const errorMessage = document.getElementById("mediaAssetPreviewError");
+
+    if (!assetSelect || !previewPanel || !previewImage) {
+        return;
+    }
+
+    function updatePreview() {
+        const option = assetSelect.options[assetSelect.selectedIndex];
+        const imageUrl = option ? option.dataset.previewUrl : "";
+        const label = option ? option.textContent.trim() : "";
+
+        previewImage.onload = null;
+        previewImage.onerror = null;
+
+        previewImage.removeAttribute("src");
+        previewImage.hidden = true;
+        emptyMessage.hidden = false;
+        errorMessage.classList.add("hidden");
+
+        if (!imageUrl || !assetSelect.value) {
+            previewPanel.hidden = true;
+            previewName.textContent = "";
+            return;
+        }
+
+        previewPanel.hidden = false;
+        previewName.textContent = label;
+        emptyMessage.textContent = "Loading image preview…";
+
+        previewImage.onload = function () {
+            previewImage.hidden = false;
+            emptyMessage.hidden = true;
+            errorMessage.classList.add("hidden");
+        };
+
+        previewImage.onerror = function () {
+            previewImage.hidden = true;
+            emptyMessage.hidden = true;
+            errorMessage.classList.remove("hidden");
+        };
+
+        previewImage.src = imageUrl;
+    }
+
+    assetSelect.addEventListener("change", updatePreview);
+
+    // Also display the selected image when editing an existing association.
+    updatePreview();
+});
+</script>
+
+{% endblock %}

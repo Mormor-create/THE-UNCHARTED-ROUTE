@@ -1,0 +1,552 @@
+{% extends "admin/base.html" %}
+{% block title %}Enquiry {{ item.reference }} | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-route-cream px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl space-y-6">
+
+        {# ------------------------------------------------------------------ #}
+        {# Navigation                                                         #}
+        {# ------------------------------------------------------------------ #}
+        <div class="flex flex-wrap items-center justify-between gap-3">
+
+            {% if is_archived %}
+                <a href="{{ url_for('service_inquiries.archived') }}"
+                   class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest transition hover:text-route-deep">
+                    <span aria-hidden="true">&larr;</span>
+                    Back to Archived Enquiries
+                </a>
+            {% else %}
+                <a href="{{ url_for('service_inquiries.index') }}"
+                   class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest transition hover:text-route-deep">
+                    <span aria-hidden="true">&larr;</span>
+                    Back to Service Enquiries
+                </a>
+            {% endif %}
+
+            <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide
+                {% if is_archived %}
+                    border border-amber-200 bg-amber-50 text-amber-800
+                {% else %}
+                    border border-route-sand bg-white text-route-forest
+                {% endif %}">
+                {% if is_archived %}
+                    Archived enquiry
+                {% else %}
+                    Active enquiry
+                {% endif %}
+            </span>
+        </div>
+
+
+        {# ------------------------------------------------------------------ #}
+        {# Enquiry Header                                                     #}
+        {# ------------------------------------------------------------------ #}
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm sm:p-8">
+            <div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
+
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+
+                        <span class="rounded-full bg-route-cream px-3 py-1 text-xs font-bold uppercase tracking-wide text-route-forest">
+                            {{ item.service_label }}
+                        </span>
+
+                        <span class="rounded-full bg-route-cream px-3 py-1 text-xs font-semibold text-route-muted">
+                            {{ item.source or "Website" }}
+                        </span>
+
+                        {% if is_archived %}
+                            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">
+                                Archived
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <h1 class="mt-4 break-words text-2xl font-bold tracking-tight text-route-deep sm:text-3xl">
+                        {{ item.reference }}
+                    </h1>
+
+                    <p class="mt-2 text-sm text-route-muted">
+                        Submitted
+                        {% if item.created_at %}
+                            {{ item.created_at.strftime("%d %B %Y at %H:%M") }}
+                        {% else %}
+                            date unavailable
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="rounded-2xl bg-route-cream px-5 py-4 lg:min-w-48">
+                    <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                        Current status
+                    </p>
+
+                    <p class="mt-2 text-lg font-bold text-route-deep">
+                        {{ item.status or "Unknown" }}
+                    </p>
+
+                    {% if is_archived %}
+                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                            This enquiry is archived and excluded from the active workflow.
+                        </p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </section>
+
+
+        {# ------------------------------------------------------------------ #}
+        {# Archived Notice                                                     #}
+        {# ------------------------------------------------------------------ #}
+        {% if is_archived %}
+            <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                <div class="flex items-start gap-3">
+
+                    <span class="mt-0.5 text-amber-800" aria-hidden="true">
+                        ⓘ
+                    </span>
+
+                    <div>
+                        <h2 class="font-bold text-amber-900">
+                            This enquiry has been archived
+                        </h2>
+
+                        <p class="mt-1 text-sm leading-6 text-amber-900/80">
+                            The record has been retained. Restore it to return it to the active enquiries list and resume status updates.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+        {% endif %}
+
+
+        {# ------------------------------------------------------------------ #}
+        {# Main Layout                                                         #}
+        {# ------------------------------------------------------------------ #}
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+
+            {# ================================================================= #}
+            {# Main Enquiry Information                                         #}
+            {# ================================================================= #}
+            <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm lg:col-span-2 sm:p-7">
+
+                <div>
+                    <h2 class="text-lg font-bold text-route-deep">
+                        Enquiry details
+                    </h2>
+
+                    <p class="mt-1 text-sm text-route-muted">
+                        Customer information and requested service details.
+                    </p>
+                </div>
+
+{# ------------------------------------------------------------------ #}
+{# Stay Context                                                       #}
+{# ------------------------------------------------------------------ #}
+{% if service_type == "stay" %}
+
+    <div class="mt-5 rounded-2xl border border-route-sand bg-route-cream/60 p-5">
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Accommodation
+                </p>
+
+                <h3 class="mt-1 text-lg font-bold text-route-deep">
+                    {{ item.target or item.stay_name or "Stay not specified" }}
+                </h3>
+            </div>
+
+            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-route-forest">
+                Stay enquiry
+            </span>
+
+        </div>
+
+
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+            <div class="rounded-xl border border-route-sand bg-white p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Stay
+                </p>
+
+                <p class="mt-2 break-words text-sm font-semibold leading-6 text-route-deep">
+                    {{ item.target or item.stay_name or "Not specified" }}
+                </p>
+            </div>
+
+
+            <div class="rounded-xl border border-route-sand bg-white p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                    Room
+                </p>
+
+                <p class="mt-2 break-words text-sm font-semibold leading-6 text-route-deep">
+                    {{ item.room_name or "Any suitable room" }}
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+{% endif %}
+ {# ---------------------------------------------------------------- #}
+{# General Enquiry Details                                          #}
+{# ---------------------------------------------------------------- #}
+<dl class="mt-5 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+
+    {% for label, value in details %}
+
+        <div class="min-w-0 border-b border-route-sand py-4">
+
+            <dt class="text-xs font-semibold uppercase tracking-wide text-route-muted">
+                {{ label }}
+            </dt>
+
+            <dd class="mt-2 break-words text-sm font-medium leading-6 text-route-deep">
+
+                {% if service_type == "stay" and label == "Stay" %}
+                    {{ item.target or item.stay_name or "Not specified" }}
+
+                {% elif service_type == "stay" and label == "Room" %}
+                    {{ item.room_name or "Any suitable room" }}
+
+                {% elif value is not none and value != "" %}
+                    {{ value }}
+
+                {% else %}
+                    Not provided
+                {% endif %}
+
+            </dd>
+
+        </div>
+
+    {% endfor %}
+
+</dl>
+                {# ---------------------------------------------------------------- #}
+                {# Special Requests                                                   #}
+                {# ---------------------------------------------------------------- #}
+                <div class="mt-7">
+
+                    <h3 class="text-sm font-bold uppercase tracking-wide text-route-muted">
+                        Customer's special requests
+                    </h3>
+
+                    <div class="mt-3 whitespace-pre-line break-words rounded-xl bg-route-cream/70 p-4 text-sm leading-7 text-route-deep">
+                        {{ special_requests or "No special requests provided." }}
+                    </div>
+
+                </div>
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Safari Children's Ages                                             #}
+                {# ---------------------------------------------------------------- #}
+                {% if service_type == "safari" and inquiry.children_ages %}
+
+                    <div class="mt-6">
+
+                        <h3 class="text-sm font-bold uppercase tracking-wide text-route-muted">
+                            Children's ages
+                        </h3>
+
+                        <p class="mt-2 whitespace-pre-line text-sm leading-6 text-route-deep">
+                            {{ inquiry.children_ages }}
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Internal Notes                                                     #}
+                {# ---------------------------------------------------------------- #}
+                {% if internal_notes %}
+
+                    <div class="mt-6">
+
+                        <h3 class="text-sm font-bold uppercase tracking-wide text-route-muted">
+                            Internal notes
+                        </h3>
+
+                        <div class="mt-3 whitespace-pre-line break-words rounded-xl border border-route-sand bg-white p-4 text-sm leading-7 text-route-deep">
+                            {{ internal_notes }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+
+            {# ================================================================= #}
+            {# Management Sidebar                                                 #}
+            {# ================================================================= #}
+            <aside class="space-y-6">
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Status Management                                                 #}
+                {# ---------------------------------------------------------------- #}
+                <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+
+                    <h2 class="text-lg font-bold text-route-deep">
+                        Manage enquiry
+                    </h2>
+
+                    <p class="mt-1 text-sm leading-6 text-route-muted">
+
+                        {% if is_archived %}
+                            Restore this enquiry before changing its status.
+                        {% else %}
+                            Update the enquiry's progress as your team follows up.
+                        {% endif %}
+
+                    </p>
+
+
+                    {% if not is_archived %}
+
+                        <form method="POST"
+                              action="{{ url_for('service_inquiries.detail', service_type=service_type, inquiry_id=inquiry.id) }}"
+                              class="mt-5 space-y-4">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+
+                            <div>
+
+                                <label for="status"
+                                       class="mb-2 block text-sm font-semibold text-route-deep">
+                                    Enquiry status
+                                </label>
+
+                                <select id="status"
+                                        name="status"
+                                        required
+                                        class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10">
+
+                                    {% for value, label in status_options %}
+
+                                        <option value="{{ value }}"
+                                                {% if inquiry.status == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <button type="submit"
+                                    class="w-full rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-route-deep">
+                                Save status
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <p class="mt-4 rounded-xl bg-route-cream p-4 text-sm leading-6 text-route-muted">
+                            Status changes are disabled while this enquiry is archived.
+                        </p>
+
+                    {% endif %}
+
+                </section>
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Enquiry Actions                                                   #}
+                {# ---------------------------------------------------------------- #}
+                <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+
+                    <h2 class="text-lg font-bold text-route-deep">
+                        Enquiry actions
+                    </h2>
+
+                    <p class="mt-1 text-sm leading-6 text-route-muted">
+                        Manage this record without creating a booking or payment.
+                    </p>
+
+
+                    <a href="{{ url_for('service_inquiries.edit', service_type=service_type, inquiry_id=inquiry.id) }}"
+                       class="mt-4 flex w-full items-center justify-center rounded-xl border border-route-forest px-4 py-3 text-sm font-semibold text-route-forest transition hover:bg-route-cream">
+                        Edit enquiry
+                    </a>
+
+
+                    {% if is_archived %}
+
+                        <form method="POST"
+                              action="{{ url_for('service_inquiries.restore', service_type=service_type, inquiry_id=inquiry.id) }}"
+                              class="mt-3"
+                              onsubmit="return confirm('Restore this enquiry to the active enquiries list?');">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="w-full rounded-xl bg-route-forest px-4 py-3 text-sm font-semibold text-white transition hover:bg-route-deep">
+                                Restore enquiry
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <form method="POST"
+                              action="{{ url_for('service_inquiries.archive', service_type=service_type, inquiry_id=inquiry.id) }}"
+                              class="mt-3"
+                              onsubmit="return confirm('Archive this enquiry? It will remain saved and can be restored later.');">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button type="submit"
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                                Archive enquiry
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </section>
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Customer Contact                                                  #}
+                {# ---------------------------------------------------------------- #}
+                <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+
+                    <h2 class="text-lg font-bold text-route-deep">
+                        Contact customer
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        Follow up directly using the contact information supplied.
+                    </p>
+
+
+                    {% if item.email %}
+
+                        <a href="mailto:{{ item.email }}"
+                           class="mt-4 flex w-full items-center justify-center rounded-xl border border-route-forest px-4 py-3 text-sm font-semibold text-route-forest transition hover:bg-route-cream">
+                            Email customer
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if item.phone %}
+
+                        <a href="tel:{{ item.phone }}"
+                           class="mt-3 flex w-full items-center justify-center rounded-xl border border-route-sand px-4 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                            Call customer
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if not item.email and not item.phone %}
+
+                        <p class="mt-4 rounded-xl bg-route-cream p-3 text-sm text-route-muted">
+                            No email address or phone number is available.
+                        </p>
+
+                    {% endif %}
+
+                </section>
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Permanent Deletion                                                 #}
+                {# ---------------------------------------------------------------- #}
+                <section class="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+
+                    <h2 class="text-lg font-bold text-red-800">
+                        Permanent deletion
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        Permanently delete this enquiry only when you are certain it is no longer needed. This action cannot be undone.
+                    </p>
+
+
+                    <form method="POST"
+                          action="{{ url_for('service_inquiries.delete', service_type=service_type, inquiry_id=inquiry.id) }}"
+                          class="mt-4 space-y-3"
+                          onsubmit="return confirm('PERMANENTLY DELETE this enquiry? This cannot be undone.');">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+
+                        <label for="delete-confirmation"
+                               class="block text-sm font-semibold text-route-deep">
+                            Type <span class="font-bold">{{ item.reference }}</span> to confirm
+                        </label>
+
+
+                        <input id="delete-confirmation"
+                               name="confirmation"
+                               type="text"
+                               required
+                               autocomplete="off"
+                               placeholder="Enter enquiry reference"
+                               class="w-full rounded-xl border border-red-200 bg-white px-4 py-3 text-sm text-route-deep outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100">
+
+
+                        <button type="submit"
+                                class="w-full rounded-xl bg-red-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-800">
+                            Permanently delete
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                {# ---------------------------------------------------------------- #}
+                {# Business Rule Reminder                                            #}
+                {# ---------------------------------------------------------------- #}
+                <section class="rounded-2xl border border-route-sand bg-route-cream p-5">
+
+                    <p class="text-sm font-bold text-route-deep">
+                        Service enquiry only
+                    </p>
+
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        This record is not a booking confirmation. A status change, edit, archive, or restore does not create a reservation or initiate a payment.
+                    </p>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

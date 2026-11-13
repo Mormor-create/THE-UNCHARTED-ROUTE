@@ -1,0 +1,410 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Edit Accessibility Profile
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-6xl space-y-8">
+
+    <!-- =====================================================================
+         HEADER
+         ===================================================================== -->
+
+    <div>
+
+        <div class="flex flex-wrap items-center gap-3">
+
+            <a
+                href="{{ url_for('admin_accessibility.index') }}"
+                class="text-sm font-semibold text-route-muted hover:text-route-forest"
+            >
+                ← Accessibility Profiles
+            </a>
+
+            <span class="text-route-sand">/</span>
+
+            <a
+                href="{{ url_for('admin_accessibility.detail', profile_id=profile.id) }}"
+                class="text-sm font-semibold text-route-muted hover:text-route-forest"
+            >
+                {{ profile.name }}
+            </a>
+
+        </div>
+
+        <p class="mt-6 text-xs font-bold uppercase tracking-[0.25em] text-route-safari">
+            Accessibility CMS
+        </p>
+
+        <h1 class="mt-2 font-display text-3xl font-semibold text-route-ink">
+            Edit Accessibility Profile
+        </h1>
+
+        <p class="mt-2 text-sm leading-6 text-route-muted">
+            Update the reusable accessibility profile and its guest
+            suitability information.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================================
+         FORM
+         ===================================================================== -->
+
+    <form method="POST" class="space-y-8">
+
+        {{ form.hidden_tag() }}
+
+
+        <!-- BASIC -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Basic Information
+            </h2>
+
+            <div class="mt-6 grid gap-6 md:grid-cols-2">
+
+                <div>
+
+                    {{ form.name.label(
+                        class="mb-2 block text-sm font-semibold text-route-forest"
+                    ) }}
+
+                    {{ form.name(
+                        class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                    ) }}
+
+                    {% for error in form.name.errors %}
+
+                    <p class="mt-1 text-xs text-route-terracotta">
+                        {{ error }}
+                    </p>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.slug.label(
+                        class="mb-2 block text-sm font-semibold text-route-forest"
+                    ) }}
+
+                    {{ form.slug(
+                        class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                    ) }}
+
+                </div>
+
+
+                <div class="md:col-span-2">
+
+                    {{ form.summary.label(
+                        class="mb-2 block text-sm font-semibold text-route-forest"
+                    ) }}
+
+                    {{ form.summary(
+                        rows="4",
+                        class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                    ) }}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MOBILITY -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Mobility
+            </h2>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for field in [
+                    form.wheelchair_accessible,
+                    form.stroller_friendly,
+                    form.walking_required,
+                    form.hiking_required,
+                    form.uneven_terrain,
+                    form.stairs_required
+                ] %}
+
+                <label class="flex items-center gap-3 rounded-lg border border-route-border p-4 hover:bg-route-cream">
+
+                    {{ field(
+                        class="h-4 w-4 rounded border-route-border text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-medium text-route-forest">
+                        {{ field.label.text }}
+                    </span>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- GUEST SUITABILITY -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Guest Suitability
+            </h2>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+                {% for field in [
+                    form.child_friendly,
+                    form.elderly_friendly,
+                    form.pregnancy_friendly,
+                    form.pet_friendly
+                ] %}
+
+                <label class="flex items-center gap-3 rounded-lg border border-route-border p-4 hover:bg-route-cream">
+
+                    {{ field(
+                        class="h-4 w-4 rounded border-route-border text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-medium text-route-forest">
+                        {{ field.label.text }}
+                    </span>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- PHYSICAL -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Physical Requirements
+            </h2>
+
+            <div class="mt-6 grid gap-6 md:grid-cols-2">
+
+                <div>
+
+                    {{ form.minimum_fitness_level.label(
+                        class="mb-2 block text-sm font-semibold text-route-forest"
+                    ) }}
+
+                    {{ form.minimum_fitness_level(
+                        class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                    ) }}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.maximum_altitude_meters.label(
+                        class="mb-2 block text-sm font-semibold text-route-forest"
+                    ) }}
+
+                    {{ form.maximum_altitude_meters(
+                        class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                    ) }}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FACILITIES -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Facilities & Support
+            </h2>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for field in [
+                    form.accessible_restrooms,
+                    form.changing_facilities,
+                    form.medical_support_available
+                ] %}
+
+                <label class="flex items-center gap-3 rounded-lg border border-route-border p-4 hover:bg-route-cream">
+
+                    {{ field(
+                        class="h-4 w-4 rounded border-route-border text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-medium text-route-forest">
+                        {{ field.label.text }}
+                    </span>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- DIETARY -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Dietary Support
+            </h2>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for field in [
+                    form.vegetarian_available,
+                    form.vegan_available,
+                    form.halal_available,
+                    form.kosher_available,
+                    form.gluten_free_available,
+                    form.allergy_support
+                ] %}
+
+                <label class="flex items-center gap-3 rounded-lg border border-route-border p-4 hover:bg-route-cream">
+
+                    {{ field(
+                        class="h-4 w-4 rounded border-route-border text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-medium text-route-forest">
+                        {{ field.label.text }}
+                    </span>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- COMMUNICATION -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Communication Support
+            </h2>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+                {% for field in [
+                    form.multilingual_guides,
+                    form.sign_language_available,
+                    form.braille_materials,
+                    form.audio_guides
+                ] %}
+
+                <label class="flex items-center gap-3 rounded-lg border border-route-border p-4 hover:bg-route-cream">
+
+                    {{ field(
+                        class="h-4 w-4 rounded border-route-border text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-medium text-route-forest">
+                        {{ field.label.text }}
+                    </span>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- NOTES -->
+
+        <section class="rounded-xl border border-route-border bg-route-white p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-route-ink">
+                Additional Information
+            </h2>
+
+            <div class="mt-6 space-y-6">
+
+                <div>
+
+                    {{ form.notes.label(
+                        class="mb-2 block text-sm font-semibold text-route-forest"
+                    ) }}
+
+                    {{ form.notes(
+                        rows="5",
+                        class="w-full rounded-lg border border-route-border px-3 py-2.5 text-sm text-route-ink focus:border-route-forest focus:outline-none focus:ring-1 focus:ring-route-forest"
+                    ) }}
+
+                </div>
+
+
+                <label class="flex items-center gap-3">
+
+                    {{ form.active(
+                        class="h-4 w-4 rounded border-route-border text-route-forest focus:ring-route-forest"
+                    ) }}
+
+                    <span class="text-sm font-semibold text-route-forest">
+                        Active
+                    </span>
+
+                </label>
+
+            </div>
+
+        </section>
+
+
+        <!-- ACTIONS -->
+
+        <div class="flex flex-col-reverse gap-3 border-t border-route-border pt-6 sm:flex-row sm:justify-end">
+
+            <a
+                href="{{ url_for('admin_accessibility.detail', profile_id=profile.id) }}"
+                class="rounded-lg border border-route-border px-5 py-2.5 text-center text-sm font-semibold text-route-forest hover:bg-route-cream"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                value="Save Changes",
+                class="rounded-lg bg-route-deep px-5 py-2.5 text-sm font-semibold text-white hover:bg-route-forest"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

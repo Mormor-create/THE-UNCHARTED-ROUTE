@@ -1,0 +1,270 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Safari Packages | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-2 text-sm">
+            <li>
+                <a href="{{ url_for('admin_safaris.properties') }}"
+                   class="font-medium text-[#66736B] transition hover:text-[#1F5138]">
+                    Safari properties
+                </a>
+            </li>
+            <li class="text-[#D8C9AE]" aria-hidden="true">/</li>
+            <li class="font-semibold text-[#12372A]" aria-current="page">
+                Safari packages
+            </li>
+        </ol>
+    </nav>
+
+    <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-[#5C6B32]">
+                Safari catalogue
+            </p>
+            <h1 class="text-3xl font-semibold tracking-tight text-[#12372A] sm:text-4xl">
+                Packages and durations
+            </h1>
+            <p class="mt-3 max-w-2xl text-sm leading-6 text-[#66736B] sm:text-base">
+                Manage safari package options, durations, itineraries, rates
+                and publication status across your properties.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_safaris.package_create', property_id=selected_property.id) if selected_property else url_for('admin_safaris.package_create') }}"
+           class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+            <span aria-hidden="true">+</span>
+            Add package
+        </a>
+    </header>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <section class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Total packages</p>
+            <p class="mt-2 text-3xl font-semibold text-[#12372A]">
+                {{ packages|length }}
+            </p>
+            <p class="mt-1 text-xs text-[#66736B]">
+                In the current selection
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Active packages</p>
+            <p class="mt-2 text-3xl font-semibold text-[#1F5138]">
+                {{ packages|selectattr('active')|list|length }}
+            </p>
+            <p class="mt-1 text-xs text-[#66736B]">
+                Currently marked active
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Inactive packages</p>
+            <p class="mt-2 text-3xl font-semibold text-[#9A4529]">
+                {{ packages|rejectattr('active')|list|length }}
+            </p>
+            <p class="mt-1 text-xs text-[#66736B]">
+                Not currently active
+            </p>
+        </div>
+    </section>
+
+    <form method="get"
+          action="{{ url_for('admin_safaris.packages') }}"
+          class="mb-6 flex flex-col gap-4 rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm sm:flex-row sm:items-end">
+
+        <div class="flex-1">
+            <label for="property_id"
+                   class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                Filter by safari property
+            </label>
+
+            <select id="property_id"
+                    name="property_id"
+                    class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15">
+                <option value="">All properties</option>
+
+                {% for item in properties %}
+                    <option value="{{ item.id }}"
+                        {% if selected_property and selected_property.id == item.id %}selected{% endif %}>
+                        {{ item.name }}
+                        {% if item.destination %} — {{ item.destination.name }}{% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="submit"
+                    class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                Apply filter
+            </button>
+
+            <a href="{{ url_for('admin_safaris.packages') }}"
+               class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                Clear
+            </a>
+        </div>
+    </form>
+
+    <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+        <div class="flex flex-col gap-2 border-b border-[#E9DDC8] bg-[#F7F1E5]/60 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+                <h2 class="text-base font-semibold text-[#12372A]">
+                    Package catalogue
+                </h2>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    {{ selected_property.name if selected_property else 'All safari properties' }}
+                </p>
+            </div>
+
+            <span class="inline-flex w-fit rounded-full border border-[#E9DDC8] bg-white px-3 py-1 text-xs font-semibold text-[#66736B]">
+                {{ packages|length }} package(s)
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#E9DDC8] text-sm">
+                <thead class="bg-[#F7F1E5]/50 text-left text-xs uppercase tracking-wider text-[#66736B]">
+                    <tr>
+                        <th scope="col" class="px-5 py-4 font-semibold">Package</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Property</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Duration</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Itinerary</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Status</th>
+                        <th scope="col" class="px-5 py-4 text-right font-semibold">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-[#E9DDC8]">
+                    {% for package in packages %}
+                        <tr class="transition hover:bg-[#F7F1E5]/40">
+                            <td class="px-5 py-4">
+                                <p class="font-semibold text-[#12372A]">
+                                    {{ package.name }}
+                                </p>
+                                {% if package.summary %}
+                                    <p class="mt-1 max-w-xs text-xs leading-5 text-[#66736B]">
+                                        {{ package.summary }}
+                                    </p>
+                                {% endif %}
+                                <span class="mt-2 inline-block text-xs font-medium text-[#5C6B32]">
+                                    {{ package.display_currency }}
+                                </span>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                <p class="font-medium text-[#1C2822]">
+                                    {{ package.property.name if package.property else 'Property unavailable' }}
+                                </p>
+                                {% if package.property and package.property.destination %}
+                                    <p class="mt-1 text-xs text-[#66736B]">
+                                        {{ package.property.destination.name }}
+                                    </p>
+                                {% endif %}
+                            </td>
+
+                            <td class="whitespace-nowrap px-5 py-4">
+                                <p class="font-medium text-[#1C2822]">
+                                    {{ package.duration_days }} days
+                                </p>
+                                <p class="mt-1 text-xs text-[#66736B]">
+                                    {{ package.duration_nights }} nights
+                                </p>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                <span class="inline-flex rounded-lg bg-[#F7F1E5] px-3 py-1.5 text-xs font-semibold text-[#1C2822]">
+                                    {{ package.itinerary_days|length }} day(s)
+                                </span>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                {% if package.active %}
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-[#E8F0E7] px-3 py-1.5 text-xs font-semibold text-[#1F5138]">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[#1F5138]"></span>
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-[#F7F1E5] px-3 py-1.5 text-xs font-semibold text-[#66736B]">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[#66736B]"></span>
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-5 py-4">
+                                <div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-3">
+                                    <a class="font-semibold text-[#1F5138] transition hover:text-[#12372A] hover:underline"
+                                       href="{{ url_for(
+                                           'admin_safaris.package_edit',
+                                           property_id=package.property_id,
+                                           option_id=package.id
+                                       ) }}">
+                                        Edit
+                                    </a>
+
+                                    <a class="font-semibold text-[#66736B] transition hover:text-[#12372A] hover:underline"
+                                       href="{{ url_for('admin_safaris.itinerary',property_id=package.property_id,option_id=package.id) }}"
+                                        Itinerary
+                                    </a>
+
+                                    <a href="{{ url_for('admin_safaris.rates',property_id=package.property_id,option_id=package.id) }}"
+                                       class="font-semibold text-[#1F5138] hover:underline">
+                                       Manage rates →
+                                    </>
+
+                                    <form method="post"
+                                          action="{{ url_for(
+                                              'admin_safaris.package_toggle',
+                                              property_id=package.property_id,
+                                              option_id=package.id
+                                          ) }}">
+                                        <input type="hidden"
+                                               name="csrf_token"
+                                               value="{{ csrf_token() }}">
+
+                                        <button type="submit"
+                                                class="rounded-lg border border-[#E9DDC8] px-3 py-2 text-xs font-semibold transition hover:border-[#D89B24] hover:bg-[#F7F1E5] {{ 'text-[#9A4529]' if package.active else 'text-[#1F5138]' }}"
+                                                onclick="return confirm('{{ 'Deactivate' if package.active else 'Activate' }} this package?')">
+                                            {{ 'Deactivate' if package.active else 'Activate' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="px-5 py-16 text-center">
+                                <div class="mx-auto max-w-md">
+                                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F7F1E5] text-xl text-[#5C6B32]">
+                                        +
+                                    </div>
+                                    <h3 class="mt-4 text-base font-semibold text-[#12372A]">
+                                        No packages found
+                                    </h3>
+                                    <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                                        Create a package for a safari property to begin
+                                        setting up its durations, itinerary and rates.
+                                    </p>
+                                    <a href="{{ url_for('admin_safaris.package_create', property_id=selected_property.id) if selected_property else url_for('admin_safaris.package_create') }}"
+                                       class="mt-5 inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                                        Add first package
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

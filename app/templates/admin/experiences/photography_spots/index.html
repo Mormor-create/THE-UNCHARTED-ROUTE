@@ -1,0 +1,552 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Photography Spots | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-emerald-700">
+                Experience CMS
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                Photography Spots
+            </h1>
+
+            <p class="mt-2 text-sm text-slate-500">
+                Manage reusable photography locations, destination assignments
+                and experience associations.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_photography_spots.create') }}"
+           class="inline-flex items-center justify-center rounded-xl bg-emerald-800 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-900">
+            + Add Photography Spot
+        </a>
+    </div>
+
+
+    <!-- PHOTOGRAPHY SPOTS STATISTICS -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <!-- Total Spots -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Total Photography Spots
+                    </p>
+
+                    <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                        {{ total_spots }}
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        All registered locations
+                    </p>
+                </div>
+
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.7">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M3 7.5A2.5 2.5 0 015.5 5h2.2l1.6 2H18.5A2.5 2.5 0 0121 9.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 18.5v-11z"/>
+                        <circle cx="12" cy="13" r="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Active Spots -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Active Spots
+                    </p>
+
+                    <h3 class="mt-3 text-3xl font-bold tracking-tight text-emerald-700">
+                        {{ active_spots }}
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Currently active
+                    </p>
+                </div>
+
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M5 12.5l4.5 4.5L19 7.5"/>
+                        <circle cx="12" cy="12" r="9"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Inactive Spots -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Inactive Spots
+                    </p>
+
+                    <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-700">
+                        {{ inactive_spots }}
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Saved but not active
+                    </p>
+                </div>
+
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.7">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M9 9l6 6m0-6l-6 6"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Featured Spots -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">
+                        Featured Spots
+                    </p>
+
+                    <h3 class="mt-3 text-3xl font-bold tracking-tight text-amber-700">
+                        {{ featured_spots }}
+                    </h3>
+
+                    <p class="mt-1 text-xs text-slate-500">
+                        Marked as featured
+                    </p>
+                </div>
+
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.7">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9L12 3z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- FILTERS -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+        <form method="GET" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+
+            <!-- Search -->
+            <div class="lg:col-span-2">
+                <label for="search"
+                       class="mb-1.5 block text-sm font-medium text-slate-700">
+                    Search Photography Spots
+                </label>
+
+                <input id="search"
+                       name="search"
+                       type="text"
+                       value="{{ search }}"
+                       placeholder="Name, location, destination, type..."
+                       class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100">
+            </div>
+
+
+            <!-- Destination -->
+            <div>
+                <label for="destination"
+                       class="mb-1.5 block text-sm font-medium text-slate-700">
+                    Destination
+                </label>
+
+                <select id="destination"
+                        name="destination"
+                        class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100">
+
+                    <option value="all"
+                            {% if destination_filter == "all" %}selected{% endif %}>
+                        All Destinations
+                    </option>
+
+                    {% for destination_item in destinations %}
+                        <option value="{{ destination_item.id }}"
+                                {% if destination_filter == destination_item.id|string %}selected{% endif %}>
+                            {{ destination_item.name }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+
+            <!-- Status -->
+            <div>
+                <label for="status"
+                       class="mb-1.5 block text-sm font-medium text-slate-700">
+                    Status
+                </label>
+
+                <select id="status"
+                        name="status"
+                        class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100">
+
+                    <option value="all" {% if status == "all" %}selected{% endif %}>
+                        All Spots
+                    </option>
+
+                    <option value="active" {% if status == "active" %}selected{% endif %}>
+                        Active
+                    </option>
+
+                    <option value="inactive" {% if status == "inactive" %}selected{% endif %}>
+                        Inactive
+                    </option>
+
+                </select>
+            </div>
+
+
+            <!-- Featured -->
+            <div>
+                <label for="featured"
+                       class="mb-1.5 block text-sm font-medium text-slate-700">
+                    Featured
+                </label>
+
+                <select id="featured"
+                        name="featured"
+                        class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100">
+
+                    <option value="all" {% if featured == "all" %}selected{% endif %}>
+                        All
+                    </option>
+
+                    <option value="yes" {% if featured == "yes" %}selected{% endif %}>
+                        Featured
+                    </option>
+
+                    <option value="no" {% if featured == "no" %}selected{% endif %}>
+                        Not Featured
+                    </option>
+
+                </select>
+            </div>
+
+
+            <!-- Filter Actions -->
+            <div class="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-5">
+
+                <button type="submit"
+                        class="rounded-xl bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-900">
+                    Apply Filters
+                </button>
+
+                <a href="{{ url_for('admin_photography_spots.index') }}"
+                   class="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                    Clear Filters
+                </a>
+
+            </div>
+
+        </form>
+    </div>
+
+
+    <!-- PHOTOGRAPHY SPOTS TABLE -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="flex flex-col gap-2 border-b border-slate-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+                <h2 class="font-semibold text-slate-900">
+                    All Photography Spots
+                </h2>
+
+                <p class="mt-1 text-xs text-slate-500">
+                    Photography locations and their associated experiences.
+                </p>
+            </div>
+
+            <span class="text-sm font-medium text-slate-500">
+                {{ spots|length }} result(s)
+            </span>
+
+        </div>
+
+
+        {% if spots %}
+
+            <div class="overflow-x-auto">
+
+                <table class="min-w-full divide-y divide-slate-200">
+
+                    <thead class="bg-slate-50">
+                        <tr>
+
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Photography Spot
+                            </th>
+
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Destination
+                            </th>
+
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Specific Location
+                            </th>
+
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Type
+                            </th>
+
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Difficulty
+                            </th>
+
+                            <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Experiences
+                            </th>
+
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Status
+                            </th>
+
+                            <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Actions
+                            </th>
+
+                        </tr>
+                    </thead>
+
+
+                    <tbody class="divide-y divide-slate-100">
+
+                        {% for spot in spots %}
+
+                            <tr class="transition hover:bg-slate-50">
+
+                                <!-- Spot -->
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-900">
+                                        {{ spot.name }}
+                                    </div>
+
+                                    <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+
+                                        <span>
+                                            {{ spot.slug or "No slug" }}
+                                        </span>
+
+                                        {% if spot.featured %}
+                                            <span class="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800">
+                                                Featured
+                                            </span>
+                                        {% endif %}
+
+                                    </div>
+                                </td>
+
+
+                                <!-- Destination -->
+                                <td class="px-6 py-4">
+                                    {% if spot.destination %}
+                                        <span class="text-sm font-medium text-slate-800">
+                                            {{ spot.destination.name }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-sm text-slate-400">
+                                            Not assigned
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+
+                                <!-- Specific Location -->
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-slate-600">
+                                        {{ spot.location or "—" }}
+                                    </span>
+                                </td>
+
+
+                                <!-- Photography Type -->
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-slate-600">
+                                        {{ spot.photography_type or "—" }}
+                                    </span>
+                                </td>
+
+
+                                <!-- Difficulty -->
+                                <td class="px-6 py-4">
+                                    {% if spot.difficulty == "Easy" %}
+                                        <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                            Easy
+                                        </span>
+                                    {% elif spot.difficulty == "Moderate" %}
+                                        <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                            Moderate
+                                        </span>
+                                    {% elif spot.difficulty == "Advanced" %}
+                                        <span class="rounded-full bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-800">
+                                            Advanced
+                                        </span>
+                                    {% else %}
+                                        <span class="text-sm text-slate-500">
+                                            {{ spot.difficulty or "—" }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+
+                                <!-- Experience Count -->
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex min-w-8 items-center justify-center rounded-lg bg-slate-100 px-2.5 py-1 text-sm font-semibold text-slate-700">
+                                        {{ spot.experience_count }}
+                                    </span>
+                                </td>
+
+
+                                <!-- Status -->
+                                <td class="px-6 py-4">
+
+                                    {% if spot.active %}
+                                        <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Actions -->
+                                <td class="px-6 py-4 text-right">
+
+                                    <div class="inline-flex items-center gap-3">
+
+                                        <a href="{{ url_for('admin_photography_spots.detail', spot_id=spot.id) }}"
+                                           class="text-sm font-semibold text-slate-700 transition hover:text-emerald-800">
+                                            View Details
+                                        </a>
+
+                                        <a href="{{ url_for('admin_photography_spots.edit', spot_id=spot.id) }}"
+                                           class="text-sm font-semibold text-emerald-800 transition hover:text-emerald-950">
+                                            Edit
+                                        </a>
+
+                                        <form method="POST"
+                                              action="{{ url_for('admin_photography_spots.delete', spot_id=spot.id) }}"
+                                              onsubmit="return confirm('Delete this photography spot and its experience associations?');">
+
+                                            <input type="hidden"
+                                                   name="csrf_token"
+                                                   value="{{ csrf_token() }}">
+
+                                            <button type="submit"
+                                                    class="text-sm font-semibold text-red-600 transition hover:text-red-800">
+                                                Delete
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- EMPTY STATE -->
+            <div class="px-6 py-16 text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-7 w-7"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="1.7">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M3 7.5A2.5 2.5 0 015.5 5h2.2l1.6 2H18.5A2.5 2.5 0 0121 9.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 18.5v-11z"/>
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M8 15l2.5-2.5L13 15l2-2 3 3"/>
+                    </svg>
+                </div>
+
+                <h3 class="mt-4 text-lg font-semibold text-slate-900">
+                    No Photography Spots Found
+                </h3>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    No photography spots match the selected filters.
+                    Create a new spot or clear your filters to see all records.
+                </p>
+
+                <a href="{{ url_for('admin_photography_spots.create') }}"
+                   class="mt-5 inline-flex rounded-xl bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-900">
+                    + Create Photography Spot
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Create Guide Account | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <a href="{{ url_for('admin_user.index') }}"
+       class="text-sm font-medium text-emerald-800 hover:underline">
+        &larr; Back to User Management
+    </a>
+
+    <div class="mt-5">
+        <h1 class="text-3xl font-semibold text-gray-900">
+            Create Guide Account
+        </h1>
+        <p class="mt-2 text-sm text-gray-600">
+            Register a new guide and send them a secure account invitation.
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mt-6 space-y-3">
+                {% for category, message in messages %}
+                    <div class="rounded-lg border p-4 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category == 'warning' %}
+                            border-amber-200 bg-amber-50 text-amber-800
+                        {% else %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST"
+          class="mt-8 space-y-8 rounded-xl border border-gray-200
+                 bg-white p-6 shadow-sm">
+
+        {{ form.hidden_tag() }}
+
+        <section>
+            <h2 class="text-lg font-semibold text-gray-900">
+                Personal and account details
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {% for field in [
+                    form.first_name,
+                    form.last_name,
+                    form.email,
+                    form.phone
+                ] %}
+                    <div>
+                        {{ field.label(
+                            class="mb-2 block text-sm font-medium text-gray-700"
+                        ) }}
+
+                        {{ field(
+                            class="w-full rounded-lg border border-gray-300 "
+                                  "px-3 py-2.5 focus:border-emerald-700 "
+                                  "focus:outline-none focus:ring-2 "
+                                  "focus:ring-emerald-100"
+                        ) }}
+
+                        {% for error in field.errors %}
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-lg font-semibold text-gray-900">
+                Employment details
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {% for field in [
+                    form.employee_number,
+                    form.department,
+                    form.job_title,
+                    form.employment_type
+                ] %}
+                    <div>
+                        {{ field.label(
+                            class="mb-2 block text-sm font-medium text-gray-700"
+                        ) }}
+
+                        {{ field(
+                            class="w-full rounded-lg border border-gray-300 "
+                                  "bg-white px-3 py-2.5 focus:border-emerald-700 "
+                                  "focus:outline-none focus:ring-2 "
+                                  "focus:ring-emerald-100"
+                        ) }}
+
+                        {% for error in field.errors %}
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div class="rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
+            The account will be created with the Guide role and remain
+            inactive until the guide accepts the emailed invitation and
+            creates their password.
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            {{ form.submit(
+                class="rounded-lg bg-emerald-900 px-5 py-3 text-sm "
+                       "font-semibold text-white hover:bg-emerald-800"
+            ) }}
+
+            <a href="{{ url_for('admin_user.index') }}"
+               class="rounded-lg border border-gray-300 px-5 py-3
+                      text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

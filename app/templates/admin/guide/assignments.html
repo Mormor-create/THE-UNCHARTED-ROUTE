@@ -1,0 +1,651 @@
+{% extends "admin/base.html" %}
+{% block title %}Guide Assignments | The Uncharted Route{% endblock %}
+
+{% block content %}
+{% set assignment_list = assignments|default([], true) %}
+{% set selected_guide_id = request.view_args.get('guide_id') if request.view_args else none %}
+
+<div class="space-y-6">
+
+    {# =========================================================================
+       PAGE HEADER
+       ========================================================================= #}
+    <section class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="mb-2 flex items-center gap-2 text-sm text-gray-500">
+                <a href="{{ url_for('admin.dashboard') }}"
+                   class="transition hover:text-gray-900">
+                    Admin
+                </a>
+                <span>/</span>
+                <a href="{{ url_for('admin_guide.index') }}"
+                   class="transition hover:text-gray-900">
+                    Guide Management
+                </a>
+                <span>/</span>
+                <span class="font-medium text-gray-700">Assignments</span>
+            </div>
+
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                Guide Assignments
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+                Review guide-to-booking allocations, track assignment status,
+                and find the records that need attention.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ url_for('admin_guide.index') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 19l-7-7 7-7"/>
+                </svg>
+                Guide Dashboard
+            </a>
+
+            {% if selected_guide_id %}
+                <a href="{{ url_for('admin_guide.schedule', guide_id=selected_guide_id) }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-4 w-4"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         aria-hidden="true">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Schedule
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+
+    {# =========================================================================
+       FLASH MESSAGES
+       ========================================================================= #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category in ['danger', 'error'] %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% elif category == 'warning' %}
+                            border-yellow-200 bg-yellow-50 text-yellow-800
+                        {% else %}
+                            border-blue-200 bg-blue-50 text-blue-800
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    {# =========================================================================
+       SUMMARY
+       These counts describe the records supplied to this page.
+       ========================================================================= #}
+    {% set status_counts = namespace(active=0, upcoming=0, completed=0, cancelled=0) %}
+
+    {% for assignment in assignment_list %}
+        {% set current_status = assignment.status|default('assigned', true)|lower|replace(' ', '_') %}
+
+        {% if current_status in ['assigned', 'confirmed', 'active', 'pending'] %}
+            {% set status_counts.active = status_counts.active + 1 %}
+        {% endif %}
+
+        {% if current_status in ['scheduled', 'upcoming'] %}
+            {% set status_counts.upcoming = status_counts.upcoming + 1 %}
+        {% endif %}
+
+        {% if current_status == 'completed' %}
+            {% set status_counts.completed = status_counts.completed + 1 %}
+        {% endif %}
+
+        {% if current_status in ['cancelled', 'canceled'] %}
+            {% set status_counts.cancelled = status_counts.cancelled + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <section>
+        <div class="mb-3">
+            <h2 class="text-lg font-semibold text-gray-900">Overview</h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Assignment records in the current view.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
+
+            <article class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">
+                            Total Assignments
+                        </p>
+                        <p class="mt-2 text-2xl font-bold text-gray-900">
+                            {{ assignment_list|length }}
+                        </p>
+                    </div>
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             aria-hidden="true">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m12-13a4 4 0 11-8 0 4 4 0 018 0zm2 4a4 4 0 014 4v2"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <article class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">
+                            Active / Assigned
+                        </p>
+                        <p class="mt-2 text-2xl font-bold text-green-700">
+                            {{ status_counts.active }}
+                        </p>
+                    </div>
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             aria-hidden="true">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <article class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">
+                            Upcoming
+                        </p>
+                        <p class="mt-2 text-2xl font-bold text-blue-700">
+                            {{ status_counts.upcoming }}
+                        </p>
+                    </div>
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             aria-hidden="true">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <article class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">
+                            Completed
+                        </p>
+                        <p class="mt-2 text-2xl font-bold text-gray-900">
+                            {{ status_counts.completed }}
+                        </p>
+                    </div>
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-5 w-5"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             aria-hidden="true">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M9 12l2 2 4-4m5 2a8 8 0 11-16 0 8 8 0 0116 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+
+    {# =========================================================================
+       FILTERS
+       ========================================================================= #}
+    <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900">
+                    Find Assignments
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Filter by guide, status, date, or booking and guest details.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_guide.assignments', guide_id=selected_guide_id) if selected_guide_id else url_for('admin_guide.assignments') }}"
+               class="inline-flex items-center gap-2 self-start text-sm font-semibold text-gray-600 transition hover:text-gray-900">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     aria-hidden="true">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0117 6l3 3M4 15l3 3a7 7 0 0011.5-3"/>
+                </svg>
+                Reset filters
+            </a>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('admin_guide.assignments', guide_id=selected_guide_id) if selected_guide_id else url_for('admin_guide.assignments') }}"
+              class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+            {% if not selected_guide_id %}
+                <div>
+                    <label for="guide_id"
+                           class="mb-2 block text-sm font-medium text-gray-700">
+                        Guide
+                    </label>
+                    <select id="guide_id"
+                            name="guide_id"
+                            class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10">
+                        <option value="">All Guides</option>
+                        {% for item in guides|default([], true) %}
+                            <option value="{{ item.id }}"
+                                {% if request.args.get('guide_id', '') == item.id|string %}selected{% endif %}>
+                                {{ item.name|default(item.full_name|default('Guide'), true) }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+            <div>
+                <label for="status"
+                       class="mb-2 block text-sm font-medium text-gray-700">
+                    Status
+                </label>
+                <select id="status"
+                        name="status"
+                        class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10">
+                    <option value="">All Statuses</option>
+                    {% for status_option in [
+                        ('assigned', 'Assigned'),
+                        ('confirmed', 'Confirmed'),
+                        ('completed', 'Completed'),
+                        ('cancelled', 'Cancelled')
+                    ] %}
+                        <option value="{{ status_option[0] }}"
+                            {% if request.args.get('status', '') == status_option[0] %}selected{% endif %}>
+                            {{ status_option[1] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="date"
+                       class="mb-2 block text-sm font-medium text-gray-700">
+                    Assignment Date
+                </label>
+                <input type="date"
+                       id="date"
+                       name="date"
+                       value="{{ request.args.get('date', '') }}"
+                       class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10">
+            </div>
+
+            <div>
+                <label for="search"
+                       class="mb-2 block text-sm font-medium text-gray-700">
+                    Search
+                </label>
+                <input type="search"
+                       id="search"
+                       name="search"
+                       value="{{ request.args.get('search', '') }}"
+                       placeholder="Booking reference or guest..."
+                       class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10">
+            </div>
+
+            <div class="flex items-end md:col-span-2 xl:col-span-4">
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-4 w-4"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         aria-hidden="true">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    Apply Filters
+                </button>
+            </div>
+
+        </form>
+    </section>
+
+
+    {# =========================================================================
+       ASSIGNMENTS TABLE
+       ========================================================================= #}
+    <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+
+        <div class="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900">
+                    Current Assignments
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    {{ assignment_list|length }}
+                    assignment{{ '' if assignment_list|length == 1 else 's' }}
+                    in the current view.
+                </p>
+            </div>
+
+            <span class="inline-flex w-fit items-center rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700">
+                {{ assignment_list|length }} records
+            </span>
+        </div>
+
+        {% if assignment_list %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Guide
+                            </th>
+                            <th scope="col" class="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Booking
+                            </th>
+                            <th scope="col" class="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Guest
+                            </th>
+                            <th scope="col" class="min-w-44 px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Experience
+                            </th>
+                            <th scope="col" class="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Date
+                            </th>
+                            <th scope="col" class="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Status
+                            </th>
+                            <th scope="col" class="whitespace-nowrap px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        {% for assignment in assignment_list %}
+                            {% set assignment_guide = assignment.guide if assignment.guide is defined else none %}
+                            {% set assignment_booking = assignment.booking if assignment.booking is defined else none %}
+                            {% set assignment_status = assignment.status|default('assigned', true)|lower|replace('_', ' ') %}
+                            {% set guide_name = assignment_guide.name|default(assignment_guide.full_name|default('Guide', true), true) if assignment_guide else 'Unassigned Guide' %}
+
+                            <tr class="transition hover:bg-gray-50">
+
+                                {# Guide #}
+                                <td class="px-5 py-4">
+                                    {% if assignment_guide %}
+                                        <a href="{{ url_for('admin_guide.detail', guide_id=assignment_guide.id) }}"
+                                           class="flex min-w-0 items-center gap-3">
+                                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-700">
+                                                {{ guide_name[:1]|upper }}
+                                            </span>
+                                            <span class="min-w-0">
+                                                <span class="block max-w-44 truncate font-semibold text-gray-900 hover:underline">
+                                                    {{ guide_name }}
+                                                </span>
+                                                <span class="mt-0.5 block text-xs text-gray-400">
+                                                    {{ assignment_guide.employee_number|default('Guide', true) }}
+                                                </span>
+                                            </span>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-gray-400">No guide linked</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Booking #}
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    {% if assignment_booking %}
+                                        <a href="{{ url_for('admin_booking.detail', booking_id=assignment_booking.id) }}"
+                                           class="font-semibold text-gray-800 underline-offset-4 hover:text-gray-500 hover:underline">
+                                            {{ assignment_booking.booking_reference|default('#' ~ assignment_booking.id, true) }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-gray-400">—</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Guest #}
+                                <td class="px-5 py-4 text-gray-600">
+                                    {% if assignment_booking %}
+                                        {% if assignment_booking.customer_name is defined and assignment_booking.customer_name %}
+                                            {{ assignment_booking.customer_name }}
+                                        {% elif assignment_booking.guest_name is defined and assignment_booking.guest_name %}
+                                            {{ assignment_booking.guest_name }}
+                                        {% elif assignment_booking.user is defined and assignment_booking.user %}
+                                            {{ assignment_booking.user.full_name|default(assignment_booking.user.name|default('Guest', true), true) }}
+                                        {% else %}
+                                            <span class="text-gray-400">—</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-gray-400">—</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Experience #}
+                                <td class="px-5 py-4">
+                                    {% if assignment_booking and assignment_booking.experience %}
+                                        <span class="font-medium text-gray-900">
+                                            {{ assignment_booking.experience.title|default('Untitled Experience') }}
+                                        </span>
+                                    {% elif assignment.experience is defined and assignment.experience %}
+                                        <span class="font-medium text-gray-900">
+                                            {{ assignment.experience.title|default('Untitled Experience') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-gray-400">—</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Date #}
+                                <td class="whitespace-nowrap px-5 py-4 text-gray-600">
+                                    {% if assignment.date is defined and assignment.date %}
+                                        {{ assignment.date.strftime('%d %b %Y') }}
+                                    {% elif assignment.experience_date is defined and assignment.experience_date %}
+                                        {{ assignment.experience_date.strftime('%d %b %Y') }}
+                                    {% elif assignment.assigned_date is defined and assignment.assigned_date %}
+                                        {{ assignment.assigned_date.strftime('%d %b %Y') }}
+                                    {% elif assignment_booking and assignment_booking.experience_date is defined and assignment_booking.experience_date %}
+                                        {{ assignment_booking.experience_date.strftime('%d %b %Y') }}
+                                    {% elif assignment_booking and assignment_booking.start_date is defined and assignment_booking.start_date %}
+                                        {{ assignment_booking.start_date.strftime('%d %b %Y') }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                {# Status #}
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold
+                                        {% if assignment_status == 'completed' %}
+                                            bg-green-100 text-green-700
+                                        {% elif assignment_status in ['cancelled', 'canceled'] %}
+                                            bg-red-100 text-red-700
+                                        {% elif assignment_status in ['confirmed', 'active'] %}
+                                            bg-blue-100 text-blue-700
+                                        {% elif assignment_status in ['assigned', 'scheduled'] %}
+                                            bg-emerald-50 text-emerald-800
+                                        {% else %}
+                                            bg-yellow-100 text-yellow-800
+                                        {% endif %}">
+                                        {{ assignment_status|title }}
+                                    </span>
+                                </td>
+
+                                {# Actions #}
+                                <td class="whitespace-nowrap px-5 py-4 text-right">
+                                    <div class="inline-flex items-center gap-2">
+                                        {% if assignment_booking %}
+                                            <a href="{{ url_for('admin_booking.detail', booking_id=assignment_booking.id) }}"
+                                               class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100">
+                                                View Booking
+                                            </a>
+                                        {% endif %}
+
+                                        {% if assignment_guide %}
+                                            <a href="{{ url_for('admin_guide.detail', guide_id=assignment_guide.id) }}"
+                                               class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100">
+                                                Guide
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <div class="px-6 py-14 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6 text-gray-400"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         aria-hidden="true">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="1.7"
+                              d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m12-13a4 4 0 11-8 0 4 4 0 018 0zm2 4a4 4 0 014 4v2"/>
+                    </svg>
+                </div>
+
+                <h3 class="mt-4 text-base font-semibold text-gray-900">
+                    No assignments found
+                </h3>
+
+                <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-gray-500">
+                    No assignment records match the current view. Try changing
+                    your filters or return to Guide Management.
+                </p>
+
+                <a href="{{ url_for('admin_guide.assignments', guide_id=selected_guide_id) if selected_guide_id else url_for('admin_guide.assignments') }}"
+                   class="mt-5 inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                    Clear Filters
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+
+    {# =========================================================================
+       QUICK NAVIGATION
+       ========================================================================= #}
+    <section>
+        <div class="mb-3">
+            <h2 class="text-lg font-semibold text-gray-900">Guide Operations</h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Open the relevant guide tools.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('admin_guide.index') }}"
+               class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                Guide Dashboard
+                <span aria-hidden="true">→</span>
+            </a>
+
+            <a href="{{ url_for('admin_guide.list_guides') }}"
+               class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                Guide Catalogue
+                <span aria-hidden="true">→</span>
+            </a>
+
+            {% if selected_guide_id %}
+                <a href="{{ url_for('admin_guide.schedule', guide_id=selected_guide_id) }}"
+                   class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                    Schedule
+                    <span aria-hidden="true">→</span>
+                </a>
+
+                <a href="{{ url_for('admin_guide.availability', guide_id=selected_guide_id) }}"
+                   class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                    Availability
+                    <span aria-hidden="true">→</span>
+                </a>
+
+                <a href="{{ url_for('admin_guide.performance', guide_id=selected_guide_id) }}"
+                   class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                    Performance
+                    <span aria-hidden="true">→</span>
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+
+    {# =========================================================================
+       FOOTER
+       ========================================================================= #}
+    <footer class="border-t border-gray-200 pt-4">
+        <div class="flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+            <p>Guide assignments are managed through the Guide Service.</p>
+            <p class="font-medium tracking-wide">
+                THE UNCHARTED ROUTE · Explore. Experience. Remember.
+            </p>
+        </div>
+    </footer>
+
+</div>
+{% endblock %}

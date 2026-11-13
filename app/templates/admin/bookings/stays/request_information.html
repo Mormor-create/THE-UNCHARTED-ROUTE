@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block title %}Request Guest Information{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-6 px-4 py-8">
+    <a href="{{ url_for('admin_stay_bookings.detail', booking_id=booking.id) }}" class="text-sm font-semibold text-[#1F5138] hover:underline">← Back to Booking</a>
+    <div class="rounded-2xl border border-[#E9DDC8] bg-white p-6 sm:p-8">
+        <h1 class="text-2xl font-bold text-[#12372A]">Request Additional Information</h1>
+        <p class="mt-2 text-sm text-[#66736B]">The request will be sent to {{ booking.email }}.</p>
+        <form method="post" class="mt-6 space-y-5">
+            {{ form.hidden_tag() }}
+            <div>
+                <label for="message" class="mb-2 block text-sm font-semibold text-[#1C2822]">Information Needed</label>
+                {{ form.message(class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3", rows="8", placeholder="Explain which guest, arrival, rooming or accessibility details are needed…") }}
+                {% for error in form.message.errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+            </div>
+            {{ form.submit(class="cursor-pointer rounded-xl bg-[#12372A] px-5 py-3 font-semibold text-white") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

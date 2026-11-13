@@ -1,0 +1,117 @@
+<div class="space-y-8">
+    <section>
+        <h2 class="text-lg font-bold text-route-deep">Customer details</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [
+                form.first_name, form.last_name, form.email, form.phone,
+                form.nationality, form.country_of_residence
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none") }}
+                    {% for error in field. errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-bold text-route-deep">Journey and dates</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [
+                form.journey_id, form.start_date, form.end_date,
+                form.duration_days, form.duration_nights, form.travellers_count
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-bold text-route-deep">Journey preferences</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [
+                form.rooming_preferences, form.transport_preferences,
+                form.preferred_stops, form.bespoke_requirements
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+                    {{ field(class="min-h-28 w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none", rows="4") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <label class="flex items-center gap-3 rounded-xl bg-route-cream p-4 text-sm font-semibold text-route-deep">
+                {{ form.bespoke(class="h-4 w-4 accent-route-forest") }}
+                Bespoke itinerary
+            </label>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-bold text-route-deep">Pricing</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [
+                form.pricing_basis, form.unit_price, form.currency,
+                form.total_amount, form.amount_paid
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-bold text-route-deep">Booking management</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [
+                form.booking_date, form.status, form.payment_status, form.source
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-lg font-bold text-route-deep">Additional information</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {% for field in [
+                form.dietary_requirements, form.medical_information,
+                form.accessibility_requirements, form.special_requests,
+                form.customer_notes, form.internal_notes
+            ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+                    {{ field(class="min-h-24 w-full rounded-xl border border-route-sand px-4 py-3 text-sm focus:border-route-forest focus:outline-none", rows="3") }}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if form.csrf_token %}
+        {{ form.csrf_token }}
+    {% endif %}
+</div>

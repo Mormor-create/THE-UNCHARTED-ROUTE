@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details | The Uncharted Route</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: "#12372A",
+                        leaf: "#1F5138",
+                        moss: "#5C6B32",
+                        gold: "#D89B24",
+                        clay: "#C96A2C",
+                        cream: "#F7F1E5",
+                        sand: "#E9DDC8",
+                        ink: "#1C2822",
+                        muted: "#66736B"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Playfair Display", "serif"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="min-h-screen bg-cream font-sans text-ink">
+
+{% set experience = booking.experience if booking.experience is defined else none %}
+{% set experience_name = experience.name if experience and experience.name is defined else experience.title if experience and experience.title is defined else 'Experience booking' %}
+
+<div class="min-h-screen lg:flex">
+
+    <!-- Sidebar -->
+    <aside class="flex w-full flex-col bg-forest text-white lg:fixed lg:inset-y-0 lg:w-72">
+        <div class="border-b border-white/10 px-6 py-7">
+            <a href="{{ url_for('guide_portal.dashboard') }}" class="block">
+                <p class="font-display text-2xl font-semibold tracking-wide">
+                    The Uncharted Route
+                </p>
+                <p class="mt-1 text-xs uppercase tracking-[0.25em] text-white/60">
+                    Guide Portal
+                </p>
+            </a>
+        </div>
+
+        <nav class="flex flex-wrap gap-2 px-4 py-5 lg:flex-col">
+            <a href="{{ url_for('guide_portal.dashboard') }}"
+               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-white/75 transition hover:bg-white/10 hover:text-white">
+                <span aria-hidden="true">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('guide_portal.dashboard') }}#upcoming-tours"
+               class="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white">
+                <span aria-hidden="true">◷</span>
+                Assigned tours
+            </a>
+        </nav>
+
+        <div class="mt-auto hidden border-t border-white/10 p-6 lg:block">
+            <p class="text-sm font-semibold">
+                {{ guide.user.full_name if guide.user and guide.user.full_name else 'Guide' }}
+            </p>
+            <p class="mt-1 text-xs text-white/60">
+                {{ guide.job_title or 'Experience Guide' }}
+            </p>
+            <p class="mt-4 text-xs leading-5 text-white/55">
+                Explore. Experience. Remember.
+            </p>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:ml-72 lg:px-10 lg:py-9">
+
+        <!-- Breadcrumb -->
+        <div class="mb-7">
+            <a href="{{ url_for('guide_portal.dashboard') }}"
+               class="text-sm font-semibold text-muted transition hover:text-forest">
+                ← Back to dashboard
+            </a>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for category, message in messages %}
+                        <div class="rounded-xl border px-4 py-3 text-sm
+                            {% if category == 'success' %}
+                                border-green-200 bg-green-50 text-green-800
+                            {% elif category == 'danger' or category == 'error' %}
+                                border-red-200 bg-red-50 text-red-800
+                            {% else %}
+                                border-amber-200 bg-amber-50 text-amber-900
+                            {% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Booking heading -->
+        <section class="mb-8 overflow-hidden rounded-2xl bg-forest p-6 text-white shadow-sm sm:p-8">
+            <div class="flex flex-col justify-between gap-5 md:flex-row md:items-start">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+                        Assigned booking
+                    </p>
+
+                    <h1 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">
+                        {{ experience_name }}
+                    </h1>
+
+                    <p class="mt-3 text-sm text-white/70">
+                        Booking reference #{{ booking.id }}
+                    </p>
+
+                    {% if booking.experience_date %}
+                        <p class="mt-2 text-sm text-white/85">
+                            {{ booking.experience_date.strftime('%A, %d %B %Y') if booking.experience_date.strftime is defined else booking.experience_date }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
+                        Booking: {{ booking.status or 'Not specified' }}
+                    </span>
+
+                    {% if assignment %}
+                        <span class="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
+                            Assignment: {{ assignment.status or 'Not specified' }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+            <!-- Main booking information -->
+            <div class="space-y-6 xl:col-span-2">
+
+                <!-- Experience -->
+                <section class="rounded-2xl border border-sand bg-white p-6 shadow-sm sm:p-7">
+                    <div class="mb-5">
+                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">
+                            The experience
+                        </p>
+                        <h2 class="mt-1 font-display text-2xl font-semibold text-forest">
+                            Experience overview
+                        </h2>
+                    </div>
+
+                    {% if experience %}
+                        {% if experience.short_description is defined and experience.short_description %}
+                            <p class="text-sm leading-7 text-muted">
+                                {{ experience.short_description }}
+                            </p>
+                        {% endif %}
+
+                        {% if experience.description is defined and experience.description %}
+                            <div class="mt-4 whitespace-pre-line text-sm leading-7 text-ink">
+                                {{ experience.description }}
+                            </div>
+                        {% endif %}
+
+                        {% if experience.location is defined and experience.location %}
+                            <div class="mt-5 rounded-xl bg-cream p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                    Experience location
+                                </p>
+                                <p class="mt-1 font-semibold text-forest">
+                                    {{ experience.location }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-sm leading-6 text-muted">
+                            Experience information has not been linked to this booking.
+                            Contact your coordinator if you need further details.
+                        </p>
+                    {% endif %}
+                </section>
+
+                <!-- Booking information -->
+                <section class="rounded-2xl border border-sand bg-white p-6 shadow-sm sm:p-7">
+                    <div class="mb-5">
+                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">
+                            Booking record
+                        </p>
+                        <h2 class="mt-1 font-display text-2xl font-semibold text-forest">
+                            Booking information
+                        </h2>
+                    </div>
+
+                    <dl class="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                Booking reference
+                            </dt>
+                            <dd class="mt-1 font-semibold text-forest">
+                                #{{ booking.id }}
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                Booking status
+                            </dt>
+                            <dd class="mt-1 font-semibold text-forest">
+                                {{ booking.status or 'Not specified' }}
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                Experience date
+                            </dt>
+                            <dd class="mt-1 font-semibold text-forest">
+                                {{ booking.experience_date.strftime('%d %B %Y') if booking.experience_date and booking.experience_date.strftime is defined else booking.experience_date or 'To be confirmed' }}
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                Booking created
+                            </dt>
+                            <dd class="mt-1 font-semibold text-forest">
+                                {{ booking.booking_date.strftime('%d %B %Y') if booking.booking_date and booking.booking_date.strftime is defined else booking.booking_date or 'Not available' }}
+                            </dd>
+                        </div>
+
+                        {% if booking.number_of_guests is defined and booking.number_of_guests is not none %}
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                    Guests
+                                </dt>
+                                <dd class="mt-1 font-semibold text-forest">
+                                    {{ booking.number_of_guests }}
+                                </dd>
+                            </div>
+                        {% elif booking.guest_count is defined and booking.guest_count is not none %}
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                    Guests
+                                </dt>
+                                <dd class="mt-1 font-semibold text-forest">
+                                    {{ booking.guest_count }}
+                                </dd>
+                            </div>
+                        {% endif %}
+                    </dl>
+                </section>
+
+                <!-- Guest details -->
+                <section class="rounded-2xl border border-sand bg-white p-6 shadow-sm sm:p-7">
+                    <div class="mb-5">
+                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">
+                            Guest care
+                        </p>
+                        <h2 class="mt-1 font-display text-2xl font-semibold text-forest">
+                            Guest information
+                        </h2>
+                        <p class="mt-2 text-sm leading-6 text-muted">
+                            Use guest information only for coordinating and delivering the assigned experience.
+                        </p>
+                    </div>
+
+                    {% set guest = booking.guest if booking.guest is defined else none %}
+                    {% set customer = booking.customer if booking.customer is defined else none %}
+
+                    {% if guest or customer %}
+                        <dl class="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+                            {% if guest and guest.full_name is defined and guest.full_name %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Guest name
+                                    </dt>
+                                    <dd class="mt-1 font-semibold text-forest">
+                                        {{ guest.full_name }}
+                                    </dd>
+                                </div>
+                            {% elif customer and customer.full_name is defined and customer.full_name %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Guest name
+                                    </dt>
+                                    <dd class="mt-1 font-semibold text-forest">
+                                        {{ customer.full_name }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if guest and guest.email is defined and guest.email %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Email
+                                    </dt>
+                                    <dd class="mt-1 break-words text-forest">
+                                        {{ guest.email }}
+                                    </dd>
+                                </div>
+                            {% elif customer and customer.email is defined and customer.email %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Email
+                                    </dt>
+                                    <dd class="mt-1 break-words text-forest">
+                                        {{ customer.email }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if guest and guest.phone is defined and guest.phone %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Phone
+                                    </dt>
+                                    <dd class="mt-1 text-forest">
+                                        {{ guest.phone }}
+                                    </dd>
+                                </div>
+                            {% elif customer and customer.phone is defined and customer.phone %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Phone
+                                    </dt>
+                                    <dd class="mt-1 text-forest">
+                                        {{ customer.phone }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+                        </dl>
+                    {% elif booking.guest_name is defined and booking.guest_name %}
+                        <dl class="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                    Guest name
+                                </dt>
+                                <dd class="mt-1 font-semibold text-forest">
+                                    {{ booking.guest_name }}
+                                </dd>
+                            </div>
+
+                            {% if booking.guest_email is defined and booking.guest_email %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Email
+                                    </dt>
+                                    <dd class="mt-1 break-words text-forest">
+                                        {{ booking.guest_email }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if booking.guest_phone is defined and booking.guest_phone %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Phone
+                                    </dt>
+                                    <dd class="mt-1 text-forest">
+                                        {{ booking.guest_phone }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+                        </dl>
+                    {% else %}
+                        <div class="rounded-xl bg-cream p-4 text-sm leading-6 text-muted">
+                            Guest contact details are not available through the current booking record.
+                            If you need guest contact information to deliver this experience, contact your coordinator.
+                        </div>
+                    {% endif %}
+                </section>
+
+                <!-- Assignment notes -->
+                {% if assignment %}
+                    <section class="rounded-2xl border border-sand bg-white p-6 shadow-sm sm:p-7">
+                        <div class="mb-5">
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">
+                                Coordination
+                            </p>
+                            <h2 class="mt-1 font-display text-2xl font-semibold text-forest">
+                                Assignment details
+                            </h2>
+                        </div>
+
+                        <dl class="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                    Assignment status
+                                </dt>
+                                <dd class="mt-1 font-semibold text-forest">
+                                    {{ assignment.status or 'Not specified' }}
+                                </dd>
+                            </div>
+
+                            {% if assignment.role %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Assignment role
+                                    </dt>
+                                    <dd class="mt-1 font-semibold text-forest">
+                                        {{ assignment.role }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if assignment.is_primary is defined %}
+                                <div>
+                                    <dt class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                        Lead guide
+                                    </dt>
+                                    <dd class="mt-1 font-semibold text-forest">
+                                        {{ 'Yes' if assignment.is_primary else 'No' }}
+                                    </dd>
+                                </div>
+                            {% endif %}
+                        </dl>
+
+                        {% if assignment.notes %}
+                            <div class="mt-5 rounded-xl bg-cream p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+                                    Coordinator's notes
+                                </p>
+                                <p class="mt-2 whitespace-pre-line text-sm leading-7 text-ink">
+                                    {{ assignment.notes }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </section>
+                {% endif %}
+            </div>
+
+            <!-- Right-hand action panel -->
+            <aside class="space-y-6">
+
+                <section class="rounded-2xl border border-sand bg-white p-6 shadow-sm">
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">
+                        Assignment actions
+                    </p>
+
+                    <h2 class="mt-2 font-display text-xl font-semibold text-forest">
+                        Manage this tour
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-muted">
+                        Update the status of your assignment as the experience progresses.
+                    </p>
+
+                    {% if assignment %}
+                        <div class="mt-5 space-y-3">
+
+                            {% if assignment.status == 'Assigned' %}
+                                <form method="POST"
+                                      action="{{ url_for('guide_portal.accept', assignment_id=assignment.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="w-full rounded-xl bg-forest px-4 py-3 text-sm font-semibold text-white transition hover:bg-leaf">
+                                        Accept assignment
+                                    </button>
+                                </form>
+
+                                <form method="POST"
+                                      action="{{ url_for('guide_portal.decline', assignment_id=assignment.id) }}"
+                                      onsubmit="return confirm('Are you sure you want to decline this assignment?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="w-full rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50">
+                                        Decline assignment
+                                    </button>
+                                </form>
+
+                            {% elif assignment.status == 'Accepted' %}
+                                <form method="POST"
+                                      action="{{ url_for('guide_portal.start', assignment_id=assignment.id) }}"
+                                      onsubmit="return confirm('Start this experience now?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="w-full rounded-xl bg-forest px-4 py-3 text-sm font-semibold text-white transition hover:bg-leaf">
+                                        Start experience
+                                    </button>
+                                </form>
+
+                            {% elif assignment.status == 'In Progress' %}
+                                <form method="POST"
+                                      action="{{ url_for('guide_portal.complete', assignment_id=assignment.id) }}"
+                                      onsubmit="return confirm('Mark this assignment as completed?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="w-full rounded-xl bg-forest px-4 py-3 text-sm font-semibold text-white transition hover:bg-leaf">
+                                        Mark as completed
+                                    </button>
+                                </form>
+
+                            {% elif assignment.status == 'Completed' %}
+                                <div class="rounded-xl bg-green-50 p-4 text-sm leading-6 text-green-800">
+                                    This assignment has been completed.
+                                </div>
+
+                            {% elif assignment.status == 'Declined' or assignment.status == 'Cancelled' %}
+                                <div class="rounded-xl bg-cream p-4 text-sm leading-6 text-muted">
+                                    This assignment is {{ assignment.status|lower }}. Contact your coordinator if you believe this is incorrect.
+                                </div>
+
+                            {% else %}
+                                <div class="rounded-xl bg-cream p-4 text-sm leading-6 text-muted">
+                                    No action is available for the current assignment status.
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="mt-5 rounded-xl bg-cream p-4 text-sm leading-6 text-muted">
+                            No assignment record was found for this booking.
+                        </div>
+                    {% endif %}
+                </section>
+
+                <!-- Key reminders -->
+                <section class="rounded-2xl border border-sand bg-white p-6 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-cream text-lg text-forest">
+                            ✓
+                        </span>
+                        <h2 class="font-display text-xl font-semibold text-forest">
+                            Before the experience
+                        </h2>
+                    </div>
+
+                    <ul class="mt-5 space-y-3 text-sm leading-6 text-muted">
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 text-gold">•</span>
+                            Review the experience and booking details.
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 text-gold">•</span>
+                            Confirm operational arrangements with your coordinator when needed.
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 text-gold">•</span>
+                            Keep guest information confidential.
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 text-gold">•</span>
+                            Update your assignment status at the appropriate time.
+                        </li>
+                    </ul>
+                </section>
+
+                <a href="{{ url_for('guide_portal.dashboard') }}"
+                   class="flex w-full items-center justify-center rounded-xl border border-sand bg-white px-4 py-3 text-sm font-semibold text-forest transition hover:bg-cream">
+                    ← Return to dashboard
+                </a>
+            </aside>
+        </div>
+
+        <footer class="mt-12 border-t border-sand py-6 text-center text-xs text-muted">
+            The Uncharted Route · Guide Portal · Explore. Experience. Remember.
+        </footer>
+    </main>
+</div>
+</body>
+</html>

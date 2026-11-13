@@ -1,0 +1,366 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Experience Wildlife | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F1E5] px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
+
+        <!-- Breadcrumbs -->
+        <nav class="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+                <a href="{{ url_for('admin_experiences.index') }}" class="transition hover:text-[#1F5138]">Experiences</a>
+                <span>/</span>
+                <span>{{ experience.title }}</span>
+                <span>/</span>
+                <span class="font-medium text-[#1C2822]">Experience Wildlife</span>
+            </nav>
+            <div>
+        <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+           class="inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#12372A]">
+            <span aria-hidden="true">←</span> Back to {{ experience.title }}
+        </a>
+    </div>
+
+        <!-- Header -->
+        <div class="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#C96A2C]">
+                    Experiences · Nature · Conservation
+                </p>
+                <h1 class="text-3xl font-bold tracking-tight text-[#12372A] sm:text-4xl">
+                    Experience Wildlife
+                </h1>
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                    Manage wildlife associated with your experiences, including sighting
+                    expectations, seasonal guidance, photography advice and featured species.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_experience_wildlife.create') }}"
+               class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A]">
+                <span class="mr-2 text-lg leading-none">+</span>
+                Add Wildlife Entry
+            </a>
+        </div>
+
+        <!-- Intro panel -->
+        <div class="mb-8 overflow-hidden rounded-2xl bg-[#12372A] p-6 text-white shadow-sm sm:p-8">
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div class="max-w-2xl">
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#E8BD62]">
+                        The Conservation Story
+                    </p>
+                    <h2 class="mt-2 text-xl font-bold sm:text-2xl">
+                        Make every wildlife encounter meaningful.
+                    </h2>
+                    <p class="mt-2 text-sm leading-6 text-white/75">
+                        Accurate sighting guidance helps set guest expectations and supports
+                        responsible wildlife experiences. Keep notes informative and avoid
+                        promising sightings that cannot be guaranteed.
+                    </p>
+                </div>
+                <div class="hidden shrink-0 text-5xl sm:block" aria-hidden="true">🌿</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <section class="mb-6 rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm sm:p-6">
+            <div class="mb-4">
+                <h2 class="text-lg font-bold text-[#12372A]">Filter Wildlife Entries</h2>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Narrow the list by experience, status or featured setting.
+                </p>
+            </div>
+
+            <form method="GET"
+                  action="{{ url_for('admin_experience_wildlife.index') }}"
+                  class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+                <div>
+                    <label for="experience_id"
+                           class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                        Experience ID
+                    </label>
+                    <input type="number"
+                           id="experience_id"
+                           name="experience_id"
+                           min="1"
+                           value="{{ selected_experience_id or '' }}"
+                           placeholder="All experiences"
+                           class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10">
+                </div>
+
+                <div>
+                    <label for="status"
+                           class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                        Status
+                    </label>
+                    <select id="status"
+                            name="status"
+                            class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10">
+                        <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All statuses</option>
+                        <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active only</option>
+                        <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive only</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="featured"
+                           class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                        Featured
+                    </label>
+                    <select id="featured"
+                            name="featured"
+                            class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10">
+                        <option value="" {% if not selected_featured %}selected{% endif %}>All entries</option>
+                        <option value="yes" {% if selected_featured == 'yes' %}selected{% endif %}>Featured only</option>
+                        <option value="no" {% if selected_featured == 'no' %}selected{% endif %}>Not featured</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end gap-3">
+                    <button type="submit"
+                            class="inline-flex flex-1 items-center justify-center rounded-xl bg-[#1F5138] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                        Apply Filters
+                    </button>
+                    <a href="{{ url_for('admin_experience_wildlife.index') }}"
+                       class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm font-semibold text-[#66736B] transition hover:bg-[#FCFAF5] hover:text-[#1C2822]">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <!-- Wildlife table -->
+        <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="flex flex-col gap-2 border-b border-[#E9DDC8] bg-[#FCFAF5] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div>
+                    <h2 class="text-lg font-bold text-[#12372A]">Wildlife Entries</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Review and manage species linked to your experiences.
+                    </p>
+                </div>
+                <span class="w-fit rounded-full bg-[#E9DDC8] px-3 py-1 text-xs font-bold text-[#12372A]">
+                    {{ wildlife|length }} {{ 'entry' if wildlife|length == 1 else 'entries' }}
+                </span>
+            </div>
+
+            {% if wildlife %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[#E9DDC8]">
+                    <thead class="bg-white">
+                        <tr>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Species
+                            </th>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Experience
+                            </th>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Sighting Probability
+                            </th>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Best Time
+                            </th>
+                            <th scope="col" class="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Order
+                            </th>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Status
+                            </th>
+                            <th scope="col" class="px-5 py-4 text-right text-xs font-bold uppercase tracking-wider text-[#66736B]">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-[#F0E8DA]">
+                        {% for item in wildlife %}
+                        <tr class="transition hover:bg-[#FCFAF5]">
+
+                            <!-- Species -->
+                            <td class="px-5 py-5 align-top">
+                                <div class="min-w-40">
+                                    <p class="font-semibold text-[#1C2822]">
+                                        {{ item.species.common_name if item.species else 'Unknown species' }}
+                                    </p>
+
+                                    {% if item.species and item.species.scientific_name %}
+                                    <p class="mt-1 text-xs italic text-[#66736B]">
+                                        {{ item.species.scientific_name }}
+                                    </p>
+                                    {% endif %}
+
+                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                                        {% if item.featured %}
+                                        <span class="inline-flex rounded-full bg-[#FFF1CC] px-2.5 py-1 text-xs font-semibold text-[#805A0B]">
+                                            ★ Featured
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Experience -->
+                            <td class="px-5 py-5 align-top">
+                                <p class="min-w-36 text-sm font-medium text-[#1C2822]">
+                                    {{ item.experience.title if item.experience else 'Unassigned' }}
+                                </p>
+                                {% if item.experience and item.experience.code %}
+                                <p class="mt-1 text-xs font-semibold text-[#66736B]">
+                                    {{ item.experience.code }}
+                                </p>
+                                {% endif %}
+                            </td>
+
+                            <!-- Probability -->
+                            <td class="px-5 py-5 align-top">
+                                {% set probability = item.sighting_probability or 'Not specified' %}
+                                {% if probability == 'Guaranteed' %}
+                                    {% set probability_class = 'bg-[#FCE8E6] text-[#9B2C2C]' %}
+                                {% elif probability == 'Very Common' %}
+                                    {% set probability_class = 'bg-[#DCECE0] text-[#1F5138]' %}
+                                {% elif probability == 'Common' %}
+                                    {% set probability_class = 'bg-[#E8F0DC] text-[#526329]' %}
+                                {% elif probability == 'Occasional' %}
+                                    {% set probability_class = 'bg-[#FFF1CC] text-[#805A0B]' %}
+                                {% elif probability == 'Rare' %}
+                                    {% set probability_class = 'bg-[#F8E5D8] text-[#93451E]' %}
+                                {% else %}
+                                    {% set probability_class = 'bg-[#F0F0EC] text-[#66736B]' %}
+                                {% endif %}
+
+                                <span class="inline-flex whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold {{ probability_class }}">
+                                    {{ probability }}
+                                </span>
+                            </td>
+
+                            <!-- Best time -->
+                            <td class="px-5 py-5 align-top">
+                                <span class="text-sm text-[#1C2822]">
+                                    {{ item.best_time_of_day or 'Not specified' }}
+                                </span>
+                            </td>
+
+                            <!-- Display order -->
+                            <td class="px-5 py-5 text-center align-top">
+                                <span class="inline-flex min-w-8 items-center justify-center rounded-lg bg-[#F7F1E5] px-2.5 py-1.5 text-sm font-semibold text-[#1C2822]">
+                                    {{ item.display_order if item.display_order is not none else 0 }}
+                                </span>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="px-5 py-5 align-top">
+                                {% if item.active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-[#DCECE0] px-3 py-1.5 text-xs font-semibold text-[#1F5138]">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-[#1F5138]"></span>
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-[#F0F0EC] px-3 py-1.5 text-xs font-semibold text-[#66736B]">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-[#66736B]"></span>
+                                    Inactive
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-5 py-5 text-right align-top">
+                                <div class="flex min-w-36 flex-col items-end gap-2">
+
+                                    <a href="{{ url_for('admin_experience_wildlife.edit', wildlife_id=item.id) }}"
+                                       class="inline-flex w-28 items-center justify-center rounded-lg border border-[#D8E4D9] bg-white px-3 py-2 text-xs font-semibold text-[#1F5138] transition hover:bg-[#EEF4EC]">
+                                        Edit Entry
+                                    </a>
+
+                                    {% if item.active %}
+                                    <form method="POST"
+                                          action="{{ url_for('admin_experience_wildlife.deactivate', wildlife_id=item.id) }}"
+                                          onsubmit="return confirm('Deactivate this wildlife entry?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex w-28 items-center justify-center rounded-lg border border-[#E9DDC8] bg-white px-3 py-2 text-xs font-semibold text-[#66736B] transition hover:bg-[#FCFAF5]">
+                                            Deactivate
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST"
+                                          action="{{ url_for('admin_experience_wildlife.activate', wildlife_id=item.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex w-28 items-center justify-center rounded-lg bg-[#1F5138] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#12372A]">
+                                            Activate
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                    {% if item.featured %}
+                                    <form method="POST"
+                                          action="{{ url_for('admin_experience_wildlife.unfeature', wildlife_id=item.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex w-28 items-center justify-center rounded-lg border border-[#E9DDC8] bg-white px-3 py-2 text-xs font-semibold text-[#805A0B] transition hover:bg-[#FFF8E7]">
+                                            Unfeature
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST"
+                                          action="{{ url_for('admin_experience_wildlife.feature', wildlife_id=item.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex w-28 items-center justify-center rounded-lg border border-[#E9DDC8] bg-white px-3 py-2 text-xs font-semibold text-[#805A0B] transition hover:bg-[#FFF8E7]">
+                                            Feature
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                    <form method="POST"
+                                          action="{{ url_for('admin_experience_wildlife.delete', wildlife_id=item.id) }}"
+                                          onsubmit="return confirm('Permanently delete this wildlife entry? This action cannot be undone.');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="inline-flex w-28 items-center justify-center rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-50">
+                                            Delete
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="border-t border-[#E9DDC8] bg-[#FCFAF5] px-5 py-4 text-sm text-[#66736B] sm:px-6">
+                Showing {{ wildlife|length }} {{ 'wildlife entry' if wildlife|length == 1 else 'wildlife entries' }}.
+            </div>
+
+            {% else %}
+            <div class="px-6 py-16 text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EEF4EC] text-3xl" aria-hidden="true">
+                    🌿
+                </div>
+                <h3 class="mt-5 text-lg font-bold text-[#12372A]">No wildlife entries found</h3>
+                <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#66736B]">
+                    There are no entries matching your current filters. Try resetting the filters
+                    or create a wildlife entry for one of your experiences.
+                </p>
+                <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                    <a href="{{ url_for('admin_experience_wildlife.index') }}"
+                       class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#FCFAF5]">
+                        Reset Filters
+                    </a>
+                    <a href="{{ url_for('admin_experience_wildlife.create') }}"
+                       class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                        + Add Wildlife Entry
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+    </div>
+</div>
+{% endblock %}

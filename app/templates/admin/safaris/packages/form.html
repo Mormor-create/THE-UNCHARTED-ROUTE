@@ -1,0 +1,260 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ 'Edit' if package else 'Add' }} Safari Package | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+
+    {% if selected_property %}
+        {% set back_url = url_for(
+            'admin_safaris.packages',
+            property_id=selected_property.id
+        ) %}
+    {% else %}
+        {% set back_url = url_for('admin_safaris.packages') %}
+    {% endif %}
+
+    <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-2 text-sm">
+            <li>
+                <a href="{{ url_for('admin_safaris.properties') }}"
+                   class="font-medium text-[#66736B] hover:text-[#1F5138]">
+                    Safari properties
+                </a>
+            </li>
+            <li class="text-[#D8C9AE]" aria-hidden="true">/</li>
+            <li>
+                <a href="{{ back_url }}"
+                   class="font-medium text-[#66736B] hover:text-[#1F5138]">
+                    Packages
+                </a>
+            </li>
+            <li class="text-[#D8C9AE]" aria-hidden="true">/</li>
+            <li class="font-semibold text-[#12372A]" aria-current="page">
+                {{ 'Edit package' if package else 'Add package' }}
+            </li>
+        </ol>
+    </nav>
+
+    <header class="mb-8">
+        <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-[#5C6B32]">
+            Safari catalogue
+        </p>
+        <h1 class="text-3xl font-semibold tracking-tight text-[#12372A] sm:text-4xl">
+            {{ 'Edit package' if package else 'Create a safari package' }}
+        </h1>
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#66736B] sm:text-base">
+            Configure the experience duration, guest-facing description,
+            inclusions, conditions and availability.
+        </p>
+    </header>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <form method="post"
+          class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        {{ form.hidden_tag() }}
+
+        <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/60 px-5 py-5 sm:px-8">
+            <h2 class="text-base font-semibold text-[#12372A]">
+                Package details
+            </h2>
+            <p class="mt-1 text-sm leading-5 text-[#66736B]">
+                Choose the property this package belongs to, then enter its details.
+            </p>
+        </div>
+
+        <div class="space-y-8 p-5 sm:p-8">
+
+            <section>
+                <div class="mb-5">
+                    <h2 class="text-lg font-semibold text-[#12372A]">
+                        Property and package information
+                    </h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        The selected property determines where this package is listed.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                    {% if form.property_id is defined %}
+                        <div class="md:col-span-2">
+                            <label for="{{ form.property_id.id }}"
+                                   class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                Safari property
+                                <span class="text-[#C96A2C]">*</span>
+                            </label>
+
+                            {{ form.property_id(
+                                class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15",
+                                required=true
+                            ) }}
+
+                            {% for error in form.property_id.errors %}
+                                <p class="mt-2 text-sm text-[#9A4529]">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="md:col-span-2">
+                            <label for="property_id"
+                                   class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                Safari property
+                                <span class="text-[#C96A2C]">*</span>
+                            </label>
+
+                            <select id="property_id"
+                                    name="property_id"
+                                    required
+                                    class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15">
+                                <option value="">Select a property</option>
+                                {% for item in properties %}
+                                    <option value="{{ item.id }}"
+                                        {% if selected_property and selected_property.id == item.id %}selected{% endif %}>
+                                        {{ item.name }}
+                                        {% if item.destination %} — {{ item.destination.name }}{% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    {% set groups = [
+                        ('name', 'slug', 'summary', 'description'),
+                        ('duration_days', 'duration_nights', 'display_currency', 'display_order')
+                    ] %}
+
+                    {% for group in groups %}
+                        {% for name in group %}
+                            {% if form[name] is defined %}
+                                <div class="{% if name in ['summary', 'description'] %}md:col-span-2{% endif %}">
+                                    <label for="{{ form[name].id }}"
+                                           class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                        {{ form[name].label.text }}
+                                        {% if form[name].flags.required %}
+                                            <span class="text-[#C96A2C]">*</span>
+                                        {% endif %}
+                                    </label>
+
+                                    {% if form[name].type in ['TextAreaField', 'TextArea'] %}
+                                        {{ form[name](
+                                            class_="min-h-28 w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15",
+                                            rows=4
+                                        ) }}
+                                    {% elif form[name].type == 'SelectField' %}
+                                        {{ form[name](
+                                            class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                                        ) }}
+                                    {% else %}
+                                        {{ form[name](
+                                            class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15"
+                                        ) }}
+                                    {% endif %}
+
+                                    {% for error in form[name].errors %}
+                                        <p class="mt-2 text-sm text-[#9A4529]">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="border-t border-[#E9DDC8] pt-7">
+                <h2 class="mb-5 text-lg font-semibold text-[#12372A]">
+                    Inclusions and conditions
+                </h2>
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {% for name in [
+                        'inclusions',
+                        'exclusions',
+                        'transport_information',
+                        'meals_information',
+                        'important_information'
+                    ] %}
+                        {% if form[name] is defined %}
+                            <div class="md:col-span-2">
+                                <label for="{{ form[name].id }}"
+                                       class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                                    {{ form[name].label.text }}
+                                </label>
+
+                                {{ form[name](
+                                    class_="min-h-28 w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none focus:border-[#5C6B32] focus:ring-2 focus:ring-[#5C6B32]/15",
+                                    rows=4
+                                ) }}
+
+                                {% for error in form[name].errors %}
+                                    <p class="mt-2 text-sm text-[#9A4529]">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="border-t border-[#E9DDC8] pt-7">
+                <h2 class="mb-2 text-lg font-semibold text-[#12372A]">
+                    Publication settings
+                </h2>
+                <p class="mb-5 text-sm leading-6 text-[#66736B]">
+                    Choose whether this package is available and whether it should be highlighted.
+                </p>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {% for name, description in [
+                        ('is_active', 'Active packages can be offered to guests.'),
+                        ('is_featured', 'Feature this package in relevant listings.')
+                    ] %}
+                        {% if form[name] is defined %}
+                            <label for="{{ form[name].id }}"
+                                   class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/40 p-4 transition hover:border-[#D89B24]">
+                                {{ form[name](
+                                    class_="mt-1 h-4 w-4 rounded border-[#D8C9AE] text-[#1F5138] focus:ring-[#5C6B32]"
+                                ) }}
+                                <span>
+                                    <span class="block text-sm font-semibold text-[#12372A]">
+                                        {{ form[name].label.text }}
+                                    </span>
+                                    <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                                        {{ description }}
+                                    </span>
+                                </span>
+                            </label>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            <div class="rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/70 p-4 text-sm leading-6 text-[#1C2822]">
+                <p class="font-semibold text-[#12372A]">Duration requirements</p>
+                <p class="mt-1 text-[#66736B]">
+                    Packages must be between 3 and 10 days. Nights must be at least
+                    2 and fewer than the number of days. Add matching itinerary days
+                    and rates after saving.
+                </p>
+            </div>
+
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ back_url }}"
+                   class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+                    {{ 'Save changes' if package else 'Create package' }}
+                    <span class="ml-2" aria-hidden="true">→</span>
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+{% endblock %}

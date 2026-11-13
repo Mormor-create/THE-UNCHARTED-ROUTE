@@ -1,0 +1,176 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Add Highlight · {{ experience.title }}
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F7F1E5]/60 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Breadcrumbs -->
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-[#66736B] mb-6">
+            <a href="{{ url_for('admin_experience_highlights.index', experience_id=experience.id) }}"
+               class="hover:text-[#1F5138] transition">
+                Experiences
+            </a>
+            <span>/</span>
+            <span class="text-[#1C2822]">{{ experience.title }}</span>
+            <span>/</span>
+            <a href="{{ url_for('admin_experience_highlights.index', experience_id=experience.id) }}"
+               class="hover:text-[#1F5138] transition">
+                Highlights
+            </a>
+            <span>/</span>
+            <span class="font-medium text-[#1F5138]">Add</span>
+        </nav>
+
+        <!-- Page Heading -->
+        <div class="mb-8">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#12372A] text-[#D89B24] text-2xl shadow-sm">
+                    ✦
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#5C6B32] mb-2">
+                        Experience Management
+                    </p>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#12372A]">
+                        Add Experience Highlight
+                    </h1>
+                    <p class="mt-2 text-sm leading-6 text-[#66736B] max-w-2xl">
+                        Add a key feature, selling point, or memorable element of
+                        <span class="font-semibold text-[#1C2822]">{{ experience.title }}</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {{ form.hidden_tag() }}
+
+            <!-- Highlight Information -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/70 px-6 py-5">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E9DDC8] text-[#12372A]">
+                            <span class="text-lg">✧</span>
+                        </span>
+                        <div>
+                            <h2 class="font-semibold text-[#12372A]">Highlight Information</h2>
+                            <p class="mt-1 text-sm text-[#66736B]">
+                                Describe the feature guests should notice most.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-5 p-6">
+                    <div>
+                        {{ form.title.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.title(class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] placeholder:text-[#9AA198] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10") }}
+                        {% for error in form.title.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.description.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.description(class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] placeholder:text-[#9AA198] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10") }}
+                        {% for error in form.description.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.highlight_type.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.highlight_type(class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10") }}
+                        {% for error in form.highlight_type.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.icon.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.icon(class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] placeholder:text-[#9AA198] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10") }}
+                        <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                            Enter the icon identifier used by your frontend, such as
+                            <span class="font-semibold text-[#1F5138]">sparkles</span>,
+                            <span class="font-semibold text-[#1F5138]">camera</span>, or
+                            <span class="font-semibold text-[#1F5138]">car</span>.
+                        </p>
+                        {% for error in form.icon.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Display Settings -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/70 px-6 py-5">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F8EAC5] text-[#8A6415]">
+                            <span class="text-lg">⚙</span>
+                        </span>
+                        <div>
+                            <h2 class="font-semibold text-[#12372A]">Display Settings</h2>
+                            <p class="mt-1 text-sm text-[#66736B]">
+                                Control where and how this highlight appears.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 p-6">
+                    <div>
+                        {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.display_order(class="w-full rounded-xl border border-[#D8D9CF] bg-white px-4 py-3 text-sm text-[#1C2822] focus:border-[#1F5138] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/10") }}
+                        <p class="mt-2 text-xs text-[#66736B]">Lower numbers appear first.</p>
+                        {% for error in form.display_order.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] p-4 transition hover:bg-[#F7F1E5]/60">
+                        <span class="mt-0.5 flex h-5 items-center">
+                            {{ form.featured(class="h-4 w-4 rounded border-[#C9CBBF] text-[#1F5138] focus:ring-[#1F5138]") }}
+                        </span>
+                        <span>
+                            <span class="block text-sm font-semibold text-[#1C2822]">Featured highlight</span>
+                            <span class="mt-1 block text-sm leading-5 text-[#66736B]">
+                                Mark this highlight as especially important.
+                            </span>
+                        </span>
+                    </label>
+
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] p-4 transition hover:bg-[#F7F1E5]/60">
+                        <span class="mt-0.5 flex h-5 items-center">
+                            {{ form.active(class="h-4 w-4 rounded border-[#C9CBBF] text-[#1F5138] focus:ring-[#1F5138]") }}
+                        </span>
+                        <span>
+                            <span class="block text-sm font-semibold text-[#1C2822]">Active</span>
+                            <span class="mt-1 block text-sm leading-5 text-[#66736B]">
+                                Active highlights can appear on the experience.
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ url_for('admin_experience_highlights.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8D9CF] bg-white px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+
+                {{ form.submit(class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/20") }}
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

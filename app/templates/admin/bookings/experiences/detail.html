@@ -1,0 +1,306 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ booking.booking_reference }} | Experience Booking{% endblock %}
+{% set getattr = namespace(fn=None) %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+            <a href="{{ url_for('admin_experience_bookings.index') }}"
+               class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest hover:underline">
+                <i class="bi bi-arrow-left"></i> Experience Bookings
+            </a>
+            <div class="mt-3 flex flex-wrap items-center gap-3">
+                <h1 class="text-3xl font-bold text-slate-900">{{ booking.booking_reference }}</h1>
+                <span class="rounded-full bg-route-cream px-3 py-1 text-xs font-semibold text-route-forest">
+                    {{ booking.status|replace('_',' ')|title }}
+                </span>
+            </div>
+            <p class="mt-2 text-sm text-slate-600">
+                {{ booking.full_name }} · Created {{ booking.created_at.strftime('%d %b %Y, %H:%M') if booking.created_at else '—' }}
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('admin_experience_bookings.edit', booking_id=booking.id) }}"
+               class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-route-cream">
+                <i class="bi bi-pencil mr-1"></i> Edit
+            </a>
+            <a href="{{ url_for('admin_experience_bookings.assign', booking_id=booking.id) }}"
+               class="rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-deep">
+                <i class="bi bi-person-plus mr-1"></i> Assign Staff
+            </a>
+            <a href="{{ url_for('admin_experience_bookings.communicate', booking_id=booking.id) }}"
+               class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-route-cream">
+                <i class="bi bi-envelope mr-1"></i> Email Customer
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Booking total</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ booking.currency }} {{ '%.2f'|format(booking.total_amount or 0) }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Paid</p>
+            <p class="mt-2 text-2xl font-bold text-route-forest">{{ booking.currency }} {{ '%.2f'|format(booking.total_paid or 0) }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Balance due</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ booking.currency }} {{ '%.2f'|format(booking.amount_remaining or 0) }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <p class="text-sm text-slate-500">Travellers</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ booking.total_guests }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div class="space-y-6 xl:col-span-2">
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+                <h2 class="text-lg font-semibold text-slate-900">Experience details</h2>
+                {% set detail = booking.experience_booking %}
+                {% if detail %}
+                <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm text-slate-500">Experience</dt>
+                        <dd class="mt-1 font-semibold text-slate-900">{{ detail.experience_name_snapshot }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Experience code</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.experience_code_snapshot or '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Location</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.location_snapshot or '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Meeting point</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.meeting_point_snapshot or '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Scheduled start</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.scheduled_start_at.strftime('%d %b %Y, %H:%M') if detail.scheduled_start_at else 'Flexible / not set' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Scheduled end</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.scheduled_end_at.strftime('%d %b %Y, %H:%M') if detail.scheduled_end_at else '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Pickup</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.pickup_location or '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Drop-off</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.dropoff_location or '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Price basis</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.price_basis|replace('_',' ')|title }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Unit price × quantity</dt>
+                        <dd class="mt-1 text-slate-800">{{ detail.currency }} {{ '%.2f'|format(detail.unit_price or 0) }} × {{ detail.quantity }}</dd>
+                    </div>
+                    {% if detail.customer_instructions %}
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm text-slate-500">Customer instructions</dt>
+                        <dd class="mt-1 whitespace-pre-line text-slate-800">{{ detail.customer_instructions }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+                {% else %}
+                <p class="mt-4 text-sm text-amber-700">The experience detail record is missing.</p>
+                {% endif %}
+            </section>
+
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+                <h2 class="text-lg font-semibold text-slate-900">Customer and travellers</h2>
+                <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div><dt class="text-sm text-slate-500">Full name</dt><dd class="mt-1 font-medium text-slate-900">{{ booking.full_name }}</dd></div>
+                    <div><dt class="text-sm text-slate-500">Email</dt><dd class="mt-1 text-slate-800">{{ booking.email }}</dd></div>
+                    <div><dt class="text-sm text-slate-500">Phone</dt><dd class="mt-1 text-slate-800">{{ booking.phone or '—' }}</dd></div>
+                    <div><dt class="text-sm text-slate-500">Nationality</dt><dd class="mt-1 text-slate-800">{{ booking.nationality or '—' }}</dd></div>
+                    <div><dt class="text-sm text-slate-500">Country of residence</dt><dd class="mt-1 text-slate-800">{{ booking.country_of_residence or '—' }}</dd></div>
+                    <div><dt class="text-sm text-slate-500">Group composition</dt><dd class="mt-1 text-slate-800">{{ booking.adults }} adults · {{ booking.children }} children · {{ booking.infants }} infants · {{ booking.seniors }} seniors · {{ booking.students }} students</dd></div>
+                </dl>
+
+                {% if booking.travellers %}
+                <div class="mt-6 border-t border-slate-100 pt-5">
+                    <h3 class="font-semibold text-slate-900">Traveller records</h3>
+                    <div class="mt-3 space-y-3">
+                        {% for traveller in booking.travellers %}
+                        <div class="rounded-xl bg-route-cream/50 p-4">
+                            <p class="font-medium text-slate-900">
+                                {{ getattr(traveller, 'full_name', None) or getattr(traveller, 'first_name', None) or ('Traveller ' ~ loop.index) }}
+                            </p>
+                            <p class="mt-1 text-sm text-slate-600">
+                                {{ getattr(traveller, 'email', None) or '' }}
+                                {% if getattr(traveller, 'nationality', None) %} · {{ traveller.nationality }}{% endif %}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+                <h2 class="text-lg font-semibold text-slate-900">Payments and add-ons</h2>
+                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="rounded-xl bg-route-cream/50 p-4">
+                        <p class="text-sm text-slate-500">Payment status</p>
+                        <p class="mt-1 font-semibold text-slate-900">{{ booking.payment_status|replace('_',' ')|title }}</p>
+                    </div>
+                    <div class="rounded-xl bg-route-cream/50 p-4">
+                        <p class="text-sm text-slate-500">Add-on total</p>
+                        <p class="mt-1 font-semibold text-slate-900">{{ booking.currency }} {{ '%.2f'|format(booking.addons_total or 0) }}</p>
+                    </div>
+                </div>
+
+                {% if booking.payments %}
+                <div class="mt-5 overflow-x-auto">
+                    <table class="min-w-full text-left text-sm">
+                        <thead class="text-xs uppercase tracking-wide text-slate-500">
+                            <tr><th class="py-2 pr-4">Payment</th><th class="py-2 pr-4">Status</th><th class="py-2">Amount</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for payment in booking.payments %}
+                            <tr>
+                                <td class="py-3 pr-4">{{ getattr(payment, 'reference', None) or getattr(payment, 'transaction_reference', None) or ('Payment #' ~ payment.id) }}</td>
+                                <td class="py-3 pr-4">{{ getattr(payment, 'status', '—')|replace('_',' ')|title }}</td>
+                                <td class="py-3">{{ getattr(payment, 'currency', booking.currency) }} {{ '%.2f'|format(getattr(payment, 'amount', 0) or 0) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="mt-4 text-sm text-slate-500">No payment transactions have been recorded.</p>
+                {% endif %}
+
+                {% if booking.addons %}
+                <div class="mt-5 space-y-3">
+                    {% for addon in booking.addons %}
+                    <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-100 p-3">
+                        <span class="text-sm font-medium text-slate-800">{{ getattr(addon, 'name_snapshot', None) or getattr(addon, 'name', None) or ('Add-on #' ~ addon.id) }}</span>
+                        <span class="text-sm font-semibold text-slate-900">{{ booking.currency }} {{ '%.2f'|format(getattr(addon, 'line_total', 0) or 0) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+                <h2 class="text-lg font-semibold text-slate-900">Documents and notes</h2>
+                <div class="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <div>
+                        <h3 class="font-medium text-slate-800">Documents</h3>
+                        {% if booking.documents %}
+                        <ul class="mt-3 space-y-2">
+                            {% for document in booking.documents %}
+                            <li class="rounded-xl bg-route-cream/50 p-3 text-sm">
+                                {{ getattr(document, 'title', None) or getattr(document, 'filename', None) or ('Document #' ~ document.id) }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="mt-2 text-sm text-slate-500">No documents attached.</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-slate-800">Booking notes</h3>
+                        {% if booking.notes %}
+                        <ul class="mt-3 space-y-2">
+                            {% for note in booking.notes %}
+                            <li class="rounded-xl bg-route-cream/50 p-3">
+                                <p class="whitespace-pre-line text-sm text-slate-800">{{ getattr(note, 'body', None) or getattr(note, 'content', None) or getattr(note, 'note', None) or 'Booking note' }}</p>
+                                <p class="mt-1 text-xs text-slate-500">{{ note.created_at.strftime('%d %b %Y %H:%M') if getattr(note, 'created_at', None) else '' }}</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="mt-2 text-sm text-slate-500">No separate booking notes recorded.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if booking.customer_notes or booking.internal_notes or booking.special_requests %}
+                <div class="mt-5 border-t border-slate-100 pt-5 space-y-4">
+                    {% for label, value in [('Customer notes', booking.customer_notes), ('Special requests', booking.special_requests), ('Internal notes / communication history', booking.internal_notes)] %}
+                    {% if value %}
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-700">{{ label }}</h3>
+                        <p class="mt-1 whitespace-pre-line text-sm text-slate-600">{{ value }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <aside class="space-y-6">
+            <section class="rounded-2xl border border-slate-200 bg-white p-5">
+                <h2 class="font-semibold text-slate-900">Booking actions</h2>
+                <form method="POST" action="{{ url_for('admin_experience_bookings.change_status', booking_id=booking.id) }}" class="mt-4 space-y-3">
+                    {{ status_form.hidden_tag() }}
+                    <label for="status" class="block text-sm font-medium text-slate-700">Update status</label>
+                    {{ status_form.status(class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm") }}
+                    <label for="cancellation_reason" class="block text-sm font-medium text-slate-700">Cancellation reason (if applicable)</label>
+                    {{ status_form.cancellation_reason(class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm", rows="3") }}
+                    <button class="w-full rounded-xl bg-route-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-route-deep" type="submit">Update Status</button>
+                </form>
+                <div class="mt-4 space-y-2 border-t border-slate-100 pt-4">
+                    <a class="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-route-cream"
+                       href="{{ url_for('admin_experience_bookings.request_information', booking_id=booking.id) }}">
+                        <i class="bi bi-question-circle"></i> Request Information
+                    </a>
+                    <a class="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-route-cream"
+                       href="{{ url_for('admin_experience_bookings.archive', booking_id=booking.id) }}">
+                        <i class="bi bi-archive"></i> Archive Booking
+                    </a>
+                </div>
+            </section>
+
+            <section class="rounded-2xl border border-slate-200 bg-white p-5">
+                <h2 class="font-semibold text-slate-900">Assigned team</h2>
+                {% if booking.staff_assignments %}
+                <div class="mt-4 space-y-3">
+                    {% for assignment in booking.staff_assignments %}
+                    <div class="rounded-xl bg-route-cream/50 p-3">
+                        <p class="font-medium text-slate-900">
+                            {% set staff = getattr(assignment, 'staff', None) or getattr(assignment, 'user', None) %}
+                            {{ getattr(staff, 'full_name', None) or getattr(staff, 'email', None) or ('Staff #' ~ (getattr(assignment, 'staff_id', None) or getattr(assignment, 'user_id', '—'))) }}
+                        </p>
+                        <p class="mt-1 text-xs text-slate-500">
+                            {{ getattr(assignment, 'role', None) or getattr(assignment, 'assignment_role', None) or 'Assigned team member' }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="mt-3 text-sm text-amber-700">No staff assignment recorded.</p>
+                {% endif %}
+                <a href="{{ url_for('admin_experience_bookings.assign', booking_id=booking.id) }}"
+                   class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-route-forest px-4 py-2.5 text-sm font-semibold text-route-forest hover:bg-route-cream">
+                    <i class="bi bi-person-plus"></i> Assign / Reassign Staff
+                </a>
+            </section>
+
+            <section class="rounded-2xl border border-slate-200 bg-white p-5">
+                <h2 class="font-semibold text-slate-900">Booking information</h2>
+                <dl class="mt-4 space-y-4 text-sm">
+                    <div><dt class="text-slate-500">Source</dt><dd class="mt-1 font-medium text-slate-800">{{ booking.source|replace('_',' ')|title }}</dd></div>
+                    <div><dt class="text-slate-500">Booking date</dt><dd class="mt-1 font-medium text-slate-800">{{ booking.booking_date.strftime('%d %b %Y %H:%M') if booking.booking_date else '—' }}</dd></div>
+                    <div><dt class="text-slate-500">Last updated</dt><dd class="mt-1 font-medium text-slate-800">{{ booking.updated_at.strftime('%d %b %Y %H:%M') if booking.updated_at else '—' }}</dd></div>
+                    <div><dt class="text-slate-500">Confirmation sent</dt><dd class="mt-1 font-medium text-slate-800">{{ 'Yes' if booking.confirmation_sent else 'No' }}</dd></div>
+                    {% if booking.source_request %}
+                    <div><dt class="text-slate-500">Original staff request</dt><dd class="mt-1 font-medium text-route-forest">{{ booking.source_request.request_reference }}</dd></div>
+                    {% endif %}
+                </dl>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Experience Wildlife | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F1E5] px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl">
+
+        <!-- Breadcrumbs -->
+        <nav class="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin.dashboard') }}" class="hover:text-[#1F5138]">Admin</a>
+            <span>/</span>
+            <a href="{{ url_for('admin_experience_wildlife.index') }}"
+               class="hover:text-[#1F5138]">Experience Wildlife</a>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">Add Wildlife</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#C96A2C]">
+                    Wildlife Management
+                </p>
+                <h1 class="text-3xl font-bold tracking-tight text-[#12372A] sm:text-4xl">
+                    Add Experience Wildlife
+                </h1>
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                    Connect a wildlife species to an experience and describe when and how
+                    guests are most likely to encounter it.
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_experience_wildlife.index') }}"
+               class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8]
+                      bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2822]
+                      transition hover:border-[#1F5138] hover:text-[#1F5138]">
+                <span class="mr-2">←</span> Back to Wildlife
+            </a>
+        </div>
+
+        <!-- Form -->
+        <form method="POST"
+              action="{{ url_for('admin_experience_wildlife.create') }}"
+              class="space-y-6">
+            {{ form.hidden_tag() }}
+
+            <!-- Species and experience -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FCFAF5] px-6 py-5">
+                    <h2 class="text-lg font-bold text-[#12372A]">Experience and Species</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Select the experience and the species associated with it.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 p-6 md:grid-cols-2">
+                    {% for field in [form.experience_id, form.species_id] %}
+                    <div>
+                        {{ field.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ field(class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10") }}
+                        {% if field.description %}
+                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">{{ field.description }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <p class="mt-1.5 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Sighting details -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FCFAF5] px-6 py-5">
+                    <h2 class="text-lg font-bold text-[#12372A]">Sighting Details</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Help guests understand the likelihood and timing of wildlife sightings.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 p-6 md:grid-cols-2">
+                    {% for field in [form.sighting_probability, form.best_time_of_day, form.best_season] %}
+                    <div>
+                        {{ field.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ field(class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10") }}
+                        {% if field.description %}
+                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">{{ field.description }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <p class="mt-1.5 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div>
+                        {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.display_order(class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10") }}
+                        {% if form.display_order.description %}
+                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">{{ form.display_order.description }}</p>
+                        {% endif %}
+                        {% for error in form.display_order.errors %}
+                        <p class="mt-1.5 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Guide and photography notes -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FCFAF5] px-6 py-5">
+                    <h2 class="text-lg font-bold text-[#12372A]">Field Notes</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Add useful guidance for the experience team and visitors.
+                    </p>
+                </div>
+
+                <div class="space-y-6 p-6">
+                    {% for field in [form.guide_notes, form.photography_notes] %}
+                    <div>
+                        {{ field.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ field(class="min-h-28 w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/10", rows=4) }}
+                        {% if field.description %}
+                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">{{ field.description }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <p class="mt-1.5 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Visibility -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FCFAF5] px-6 py-5">
+                    <h2 class="text-lg font-bold text-[#12372A]">Visibility and Highlights</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Choose whether this wildlife entry is active and featured.
+                    </p>
+                </div>
+
+                <div class="grid gap-4 p-6 sm:grid-cols-2">
+                    {% for field in [form.featured, form.active] %}
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] p-4 transition hover:border-[#1F5138] hover:bg-[#FCFAF5]">
+                        {{ field(class="mt-1 h-4 w-4 rounded border-[#C7CFC8] text-[#1F5138] focus:ring-[#1F5138]") }}
+                        <span>
+                            <span class="block text-sm font-semibold text-[#1C2822]">{{ field.label.text }}</span>
+                            {% if field.description %}
+                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">{{ field.description }}</span>
+                            {% endif %}
+                            {% for error in field.errors %}
+                            <span class="mt-1 block text-sm text-red-600">{{ error }}</span>
+                            {% endfor %}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:justify-end">
+                <a href="{{ url_for('admin_experience_wildlife.index') }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-6 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#FCFAF5]">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138] focus:ring-offset-2">
+                    Save Wildlife Entry
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

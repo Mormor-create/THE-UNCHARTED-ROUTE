@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ category.name }} | Journal | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ category.meta_description or category.description or
+       ("Explore " ~ category.name ~ " stories from " ~ config.COMPANY_NAME ~ ".") }}
+{% endblock %}
+
+{% block head %}
+    {{ super() }}
+
+    {% if category_banner_url %}
+        <meta property="og:image" content="{{ category_banner_url }}">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{# ================================================================
+   Category Hero: selected Media CMS banner behind the text
+   ================================================================ #}
+
+<section class="relative isolate overflow-hidden bg-route-deep text-white">
+
+    {% if category_banner_url %}
+        <div class="absolute inset-0 -z-20">
+            <img
+                src="{{ category_banner_url }}"
+                alt="{{ category.name }}"
+                class="h-full w-full object-cover"
+                fetchpriority="high"
+            >
+        </div>
+    {% endif %}
+
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-route-deep/95 via-route-deep/80 to-route-deep/45"></div>
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-route-deep/65 via-transparent to-route-deep/20"></div>
+
+    <div class="relative mx-auto flex min-h-[360px] max-w-7xl items-end px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+
+        <div class="max-w-3xl">
+
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-route-gold">
+                The Uncharted Route Journal
+            </p>
+
+            <h1 class="mt-4 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                {{ category.name }}
+            </h1>
+
+            {% if category.description %}
+                <p class="mt-5 max-w-2xl text-lg leading-8 text-white/85">
+                    {{ category.description }}
+                </p>
+            {% endif %}
+
+            <a
+                href="{{ url_for('blog.index') }}"
+                class="mt-7 inline-flex items-center text-sm font-semibold text-white transition hover:text-route-gold"
+            >
+                <span aria-hidden="true" class="mr-2">←</span>
+                Back to Journal
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{# ================================================================
+   Category Navigation
+   ================================================================ #}
+
+{% if categories %}
+
+    <section class="border-b border-route-sand bg-white">
+
+        <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+
+            <nav aria-label="Blog categories" class="flex flex-wrap gap-2">
+
+                {% for item in categories %}
+
+                    <a
+                        href="{{ url_for('blog.category', slug=item.slug) }}"
+                        {% if item.id == category.id %}aria-current="page"{% endif %}
+                        class="rounded-full px-4 py-2 text-xs font-semibold transition
+                            {% if item.id == category.id %}
+                                bg-route-forest text-white shadow-route
+                            {% else %}
+                                border border-route-sand bg-route-cream text-route-ink hover:border-route-forest hover:text-route-forest
+                            {% endif %}"
+                    >
+                        {{ item.name }}
+                    </a>
+
+                {% endfor %}
+
+            </nav>
+
+        </div>
+
+    </section>
+
+{% endif %}
+
+
+{# ================================================================
+   Blog Posts
+   ================================================================ #}
+
+<section class="bg-route-cream">
+
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+
+        {% if posts %}
+
+            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for post in posts %}
+
+                    <article class="group overflow-hidden rounded-route border border-route-sand bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-route-lg">
+
+                        <a
+                            href="{{ url_for('blog.detail', slug=post.slug) }}"
+                            class="block"
+                            aria-label="Read {{ post.title }}"
+                        >
+
+                            <div class="relative aspect-[16/10] overflow-hidden bg-route-sand">
+
+                                {% if post.public_featured_image_url %}
+                                    <img
+                                        src="{{ post.public_featured_image_url }}"
+                                        alt="{{ post.featured_image_alt or post.title }}"
+                                        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                        loading="lazy"
+                                    >
+                                {% else %}
+                                    <div class="flex h-full items-center justify-center bg-route-deep text-route-sand">
+                                        <span class="font-display text-2xl">
+                                            The Uncharted Route
+                                        </span>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                        </a>
+
+                        <div class="p-6">
+
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-safari">
+                                {{ category.name }}
+                            </p>
+
+                            <h2 class="mt-3 font-display text-xl font-semibold leading-snug text-route-ink">
+
+                                <a
+                                    href="{{ url_for('blog.detail', slug=post.slug) }}"
+                                    class="transition hover:text-route-forest"
+                                >
+                                    {{ post.title }}
+                                </a>
+
+                            </h2>
+
+                            {% if post.excerpt %}
+                                <p class="mt-3 line-clamp-3 text-sm leading-6 text-route-muted">
+                                    {{ post.excerpt }}
+                                </p>
+                            {% endif %}
+
+                            <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-route-sand pt-4 text-xs text-route-muted">
+
+                                <span>{{ post.reading_time_text }}</span>
+
+                                {% if post.published_at %}
+                                    <time datetime="{{ post.published_at.isoformat() }}">
+                                        {{ post.published_at.strftime("%d %b %Y") }}
+                                    </time>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            {# ========================================================
+               Pagination
+               ======================================================== #}
+
+            {% if pagination and pagination.pages > 1 %}
+
+                <nav aria-label="Blog pagination" class="mt-12 flex flex-wrap items-center justify-center gap-2">
+
+                    {% if pagination.has_prev %}
+                        <a
+                            href="{{ url_for('blog.category', slug=category.slug, page=pagination.prev_num) }}"
+                            class="rounded-full border border-route-sand bg-white px-4 py-2 text-sm font-semibold text-route-ink transition hover:border-route-forest hover:text-route-forest"
+                        >
+                            ← Previous
+                        </a>
+                    {% endif %}
+
+                    {% for page_number in pagination.iter_pages() %}
+
+                        {% if page_number %}
+
+                            <a
+                                href="{{ url_for('blog.category', slug=category.slug, page=page_number) }}"
+                                {% if page_number == pagination.page %}aria-current="page"{% endif %}
+                                class="flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-semibold transition
+                                    {% if page_number == pagination.page %}
+                                        bg-route-forest text-white
+                                    {% else %}
+                                        border border-route-sand bg-white text-route-ink hover:border-route-forest hover:text-route-forest
+                                    {% endif %}"
+                            >
+                                {{ page_number }}
+                            </a>
+
+                        {% else %}
+                            <span class="px-2 text-route-muted">…</span>
+                        {% endif %}
+
+                    {% endfor %}
+
+                    {% if pagination.has_next %}
+                        <a
+                            href="{{ url_for('blog.category', slug=category.slug, page=pagination.next_num) }}"
+                            class="rounded-full border border-route-sand bg-white px-4 py-2 text-sm font-semibold text-route-ink transition hover:border-route-forest hover:text-route-forest"
+                        >
+                            Next →
+                        </a>
+                    {% endif %}
+
+                </nav>
+
+            {% endif %}
+
+        {% else %}
+
+            <div class="rounded-route border border-dashed border-route-sand bg-white p-10 text-center sm:p-12">
+
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-route-safari">
+                    Journal Category
+                </p>
+
+                <h2 class="mt-4 font-display text-2xl font-semibold text-route-ink">
+                    No stories in this category yet.
+                </h2>
+
+                <p class="mt-3 text-route-muted">
+                    Check back soon for new stories and guides.
+                </p>
+
+                <a
+                    href="{{ url_for('blog.index') }}"
+                    class="mt-6 inline-flex items-center rounded-full bg-route-forest px-6 py-3 text-sm font-semibold text-white transition hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2"
+                >
+                    Back to Journal
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

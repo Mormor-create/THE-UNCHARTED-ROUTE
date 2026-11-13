@@ -1,0 +1,931 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Media Gallery — The Uncharted Route{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <!-- ================================================================
+         HEADER
+         ================================================================ -->
+
+    <div
+        class="flex flex-col gap-5
+               lg:flex-row lg:items-end lg:justify-between"
+    >
+
+        <div>
+
+            <div class="flex items-center gap-3 text-sm">
+
+                <a
+                    href="{{ url_for('admin_media.index') }}"
+                    class="font-medium text-[#66736B]
+                           transition hover:text-[#12372A]"
+                >
+                    Media Library
+                </a>
+
+                <span class="text-[#D6CEC0]">
+                    /
+                </span>
+
+                <span class="font-semibold text-[#1C2822]">
+                    Gallery
+                </span>
+
+            </div>
+
+
+            <h1
+                class="mt-3 text-3xl font-bold tracking-tight
+                       text-[#12372A]"
+            >
+                Media Gallery
+            </h1>
+
+            <p
+                class="mt-2 max-w-2xl text-sm leading-6
+                       text-[#66736B]"
+            >
+                Browse and discover media across the TUR digital asset
+                library.
+            </p>
+
+        </div>
+
+
+        <!-- ============================================================
+             ACTIONS
+             ============================================================ -->
+
+        <div class="flex flex-wrap items-center gap-3">
+
+            <a
+                href="{{ url_for('admin_media.index') }}"
+                class="inline-flex items-center gap-2 rounded-xl border
+                       border-[rgba(18,55,42,.12)] bg-white px-4 py-2.5
+                       text-sm font-semibold text-[#1C2822] shadow-sm
+                       transition hover:border-[#12372A]/30
+                       hover:bg-[#F7F1E5]"
+            >
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                </svg>
+
+                Media Library
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_media.folders') }}"
+                class="inline-flex items-center gap-2 rounded-xl border
+                       border-[rgba(18,55,42,.12)] bg-white px-4 py-2.5
+                       text-sm font-semibold text-[#1C2822] shadow-sm
+                       transition hover:border-[#12372A]/30
+                       hover:bg-[#F7F1E5]"
+            >
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.7"
+                        d="M3.5 7.5A2.5 2.5 0 016 5h4l2 2h6.5A2.5 2.5 0 0121 9.5v8A2.5 2.5 0 0118.5 20h-13A2.5 2.5 0 013 17.5v-10z"
+                    />
+                </svg>
+
+                Folders
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_media.upload') }}"
+                class="inline-flex items-center gap-2 rounded-xl
+                       bg-[#12372A] px-4 py-2.5 text-sm font-semibold
+                       text-white shadow-sm transition
+                       hover:bg-[#1F5138]"
+            >
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
+
+                Upload Media
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         SEARCH + FILTERS
+         ================================================================ -->
+
+    <section
+        class="rounded-2xl border
+               border-[rgba(18,55,42,.12)] bg-white
+               p-5 shadow-sm"
+    >
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_media.gallery') }}"
+            class="space-y-5"
+        >
+
+            <!-- Search -->
+
+            <div>
+
+                <label
+                    for="{{ form.search.id }}"
+                    class="mb-2 block text-xs font-bold uppercase
+                           tracking-wider text-[#66736B]"
+                >
+                    Search Media
+                </label>
+
+                {{ form.search(
+                    class="w-full rounded-xl border
+                           border-[rgba(18,55,42,.14)]
+                           bg-[#FDFCF9] px-4 py-3 text-sm
+                           text-[#1C2822] outline-none transition
+                           placeholder:text-[#9AA39E]
+                           focus:border-[#12372A]
+                           focus:ring-2 focus:ring-[#12372A]/10",
+                    placeholder="Search by title, filename, tags, description..."
+                ) }}
+
+            </div>
+
+
+            <!-- Filters -->
+
+            <div
+                class="grid grid-cols-1 gap-4
+                       md:grid-cols-3"
+            >
+
+                <!-- Media Type -->
+
+                <div>
+
+                    <label
+                        for="{{ form.media_type.id }}"
+                        class="mb-2 block text-xs font-bold uppercase
+                               tracking-wider text-[#66736B]"
+                    >
+                        Media Type
+                    </label>
+
+                    {{ form.media_type(
+                        class="w-full rounded-xl border
+                               border-[rgba(18,55,42,.14)]
+                               bg-[#FDFCF9] px-4 py-3 text-sm
+                               text-[#1C2822] outline-none transition
+                               focus:border-[#12372A]
+                               focus:ring-2 focus:ring-[#12372A]/10"
+                    ) }}
+
+                </div>
+
+
+                <!-- Usage -->
+
+                <div>
+
+                    <label
+                        for="{{ form.usage.id }}"
+                        class="mb-2 block text-xs font-bold uppercase
+                               tracking-wider text-[#66736B]"
+                    >
+                        Usage
+                    </label>
+
+                    {{ form.usage(
+                        class="w-full rounded-xl border
+                               border-[rgba(18,55,42,.14)]
+                               bg-[#FDFCF9] px-4 py-3 text-sm
+                               text-[#1C2822] outline-none transition
+                               focus:border-[#12372A]
+                               focus:ring-2 focus:ring-[#12372A]/10"
+                    ) }}
+
+                </div>
+
+
+                <!-- Folder -->
+
+                <div>
+
+                    <label
+                        for="{{ form.folder_id.id }}"
+                        class="mb-2 block text-xs font-bold uppercase
+                               tracking-wider text-[#66736B]"
+                    >
+                        Folder
+                    </label>
+
+                    {{ form.folder_id(
+                        class="w-full rounded-xl border
+                               border-[rgba(18,55,42,.14)]
+                               bg-[#FDFCF9] px-4 py-3 text-sm
+                               text-[#1C2822] outline-none transition
+                               focus:border-[#12372A]
+                               focus:ring-2 focus:ring-[#12372A]/10"
+                    ) }}
+
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
+
+            <div
+                class="flex flex-wrap items-center gap-3
+                       border-t border-[rgba(18,55,42,.08)]
+                       pt-5"
+            >
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center gap-2 rounded-xl
+                           bg-[#12372A] px-5 py-2.5 text-sm
+                           font-semibold text-white shadow-sm
+                           transition hover:bg-[#1F5138]"
+                >
+
+                    <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.7"
+                            d="M21 21l-4.35-4.35m2.1-5.4a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"
+                        />
+                    </svg>
+
+                    Apply Filters
+
+                </button>
+
+
+                <a
+                    href="{{ url_for('admin_media.gallery') }}"
+                    class="inline-flex items-center gap-2 rounded-xl
+                           border border-[rgba(18,55,42,.12)]
+                           bg-white px-5 py-2.5 text-sm font-semibold
+                           text-[#1C2822] transition
+                           hover:bg-[#F7F1E5]"
+                >
+
+                    Clear
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- ================================================================
+         RESULTS HEADER
+         ================================================================ -->
+
+    <div
+        class="flex flex-col gap-3
+               sm:flex-row sm:items-center
+               sm:justify-between"
+    >
+
+        <div>
+
+            <h2 class="text-lg font-bold text-[#12372A]">
+                Gallery
+            </h2>
+
+            <p class="mt-1 text-sm text-[#66736B]">
+                {{ assets|length }}
+                {% if assets|length == 1 %}
+                    asset
+                {% else %}
+                    assets
+                {% endif %}
+                found
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         ASSET GRID
+         ================================================================ -->
+
+    {% if assets %}
+
+        <div
+            class="grid grid-cols-1 gap-5
+                   sm:grid-cols-2
+                   lg:grid-cols-3
+                   xl:grid-cols-4"
+        >
+
+            {% for asset in assets %}
+
+                <article
+                    class="group overflow-hidden rounded-2xl border
+                           border-[rgba(18,55,42,.12)] bg-white
+                           shadow-sm transition duration-200
+                           hover:-translate-y-0.5 hover:shadow-lg"
+                >
+
+                    <!-- ====================================================
+                         PREVIEW
+                         ==================================================== -->
+
+                    <a
+                        href="{{ url_for(
+                            'admin_media.detail',
+                            asset_id=asset.id
+                        ) }}"
+                        class="block"
+                    >
+
+                        <div
+                            class="relative aspect-[4/3]
+                                   overflow-hidden bg-[#F7F1E5]"
+                        >
+
+                            {% if asset.is_image %}
+
+                                <img
+                                    src="{{ asset.file_url or url_for(
+                                        'static',
+                                        filename=asset.file_path
+                                    ) }}"
+                                    alt="{{ asset.alt_text or asset.title or asset.original_filename }}"
+                                    class="h-full w-full object-cover
+                                           transition duration-500
+                                           group-hover:scale-105"
+                                    loading="lazy"
+                                >
+
+                            {% elif asset.is_video %}
+
+                                <video
+                                    class="h-full w-full object-cover"
+                                    preload="metadata"
+                                >
+                                    <source
+                                        src="{{ asset.file_url or url_for(
+                                            'static',
+                                            filename=asset.file_path
+                                        ) }}"
+                                        type="{{ asset.mime_type }}"
+                                    >
+                                </video>
+
+
+                                <div
+                                    class="absolute inset-0 flex items-center
+                                           justify-center
+                                           bg-[#12372A]/20"
+                                >
+
+                                    <span
+                                        class="flex h-14 w-14 items-center
+                                               justify-center rounded-full
+                                               bg-white/95 text-[#12372A]
+                                               shadow-lg"
+                                    >
+
+                                        <svg
+                                            class="ml-0.5 h-6 w-6"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                d="M6.5 5.5A1.5 1.5 0 018.8 4.2l5.7 3.8a1.5 1.5 0 010 2.5l-5.7 3.8A1.5 1.5 0 016.5 13V5.5z"
+                                            />
+                                        </svg>
+
+                                    </span>
+
+                                </div>
+
+                            {% else %}
+
+                                <div
+                                    class="flex h-full flex-col
+                                           items-center justify-center
+                                           p-6 text-center"
+                                >
+
+                                    <div
+                                        class="flex h-16 w-16 items-center
+                                               justify-center rounded-2xl
+                                               bg-[#E9DDC8]
+                                               text-[#5C6B32]"
+                                    >
+
+                                        {% if asset.is_document %}
+
+                                            <svg
+                                                class="h-8 w-8"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                                />
+
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M14 3v6h6"
+                                                />
+                                            </svg>
+
+                                        {% else %}
+
+                                            <svg
+                                                class="h-8 w-8"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M4 6h16M4 12h16M4 18h16"
+                                                />
+                                            </svg>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    <p
+                                        class="mt-3 text-xs font-bold
+                                               uppercase tracking-wider
+                                               text-[#66736B]"
+                                    >
+                                        {{ asset.media_type }}
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- Status -->
+
+                            <div
+                                class="absolute left-3 top-3 flex
+                                       flex-wrap gap-2"
+                            >
+
+                                {% if asset.featured %}
+
+                                    <span
+                                        class="rounded-full bg-[#D89B24]
+                                               px-2.5 py-1 text-[10px]
+                                               font-bold uppercase
+                                               tracking-wide text-white
+                                               shadow-sm"
+                                    >
+                                        Featured
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if not asset.active %}
+
+                                    <span
+                                        class="rounded-full
+                                               bg-[#1C2822]/90 px-2.5 py-1
+                                               text-[10px] font-bold
+                                               uppercase tracking-wide
+                                               text-white"
+                                    >
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Hover -->
+
+                            <div
+                                class="absolute inset-x-0 bottom-0
+                                       translate-y-full
+                                       bg-gradient-to-t
+                                       from-[#12372A]/90
+                                       to-transparent p-4 pt-12
+                                       transition duration-300
+                                       group-hover:translate-y-0"
+                            >
+
+                                <span
+                                    class="text-xs font-semibold text-white"
+                                >
+                                    View asset details →
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+
+                    <!-- ====================================================
+                         ASSET INFORMATION
+                         ==================================================== -->
+
+                    <div class="space-y-3 p-4">
+
+                        <div class="min-w-0">
+
+                            <h2
+                                class="truncate text-sm font-semibold
+                                       text-[#1C2822]"
+                                title="{{ asset.title or asset.original_filename }}"
+                            >
+                                {{ asset.title or asset.original_filename }}
+                            </h2>
+
+                            <p
+                                class="mt-1 truncate text-xs
+                                       text-[#66736B]"
+                            >
+                                {{ asset.original_filename }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- Type + size -->
+
+                        <div
+                            class="flex items-center
+                                   justify-between gap-3"
+                        >
+
+                            <span
+                                class="inline-flex rounded-full
+                                       bg-[#F7F1E5] px-2.5 py-1
+                                       text-[10px] font-bold uppercase
+                                       tracking-wide text-[#5C6B32]"
+                            >
+                                {{ asset.media_type }}
+                            </span>
+
+                            <span class="text-xs text-[#66736B]">
+                                {{ asset.formatted_size }}
+                            </span>
+
+                        </div>
+
+
+                        <!-- Usage -->
+
+                        {% if asset.usage %}
+
+                            <div class="flex items-center gap-2 text-xs">
+
+                                <span
+                                    class="font-medium text-[#66736B]"
+                                >
+                                    Usage:
+                                </span>
+
+                                <span
+                                    class="rounded-md bg-[#E9DDC8]/60
+                                           px-2 py-1 font-semibold
+                                           text-[#1F5138]"
+                                >
+                                    {{ asset.usage|replace("_", " ")|title }}
+                                </span>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             FOLDERS
+                             ================================================== -->
+
+                        {% if asset.folder_assignments.count() > 0 %}
+
+                            <div class="space-y-2">
+
+                                <div
+                                    class="flex items-center gap-2
+                                           text-xs font-medium
+                                           text-[#66736B]"
+                                >
+
+                                    <svg
+                                        class="h-3.5 w-3.5 text-[#5C6B32]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.5"
+                                            d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+                                        />
+                                    </svg>
+
+                                    <span>
+                                        Folders
+                                    </span>
+
+                                </div>
+
+
+                                <div class="flex flex-wrap gap-1.5">
+
+                                    {% for folder_link in asset.folder_assignments.all() %}
+
+                                        {% if folder_link.folder %}
+
+                                            <span
+                                                class="inline-flex items-center
+                                                       gap-1 rounded-md
+                                                       bg-[#F7F1E5]
+                                                       px-2 py-1 text-[10px]
+                                                       font-semibold
+                                                       text-[#1F5138]"
+                                            >
+
+                                                {% if folder_link.is_primary %}
+
+                                                    <svg
+                                                        class="h-3 w-3
+                                                               text-[#D89B24]"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 20 20"
+                                                    >
+                                                        <path
+                                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L3 8.719c-.783-1.81-.38-1.81.588-1.81H7.05a1 1 0 00.95-.69l1.049-3.292z"
+                                                        />
+                                                    </svg>
+
+                                                {% endif %}
+
+                                                {{ folder_link.folder.full_path }}
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        {% else %}
+
+                            <div
+                                class="flex items-center gap-2 rounded-lg
+                                       border border-dashed
+                                       border-[#D6CEC0]
+                                       bg-[#F7F1E5]/50 px-3 py-2
+                                       text-xs text-[#66736B]"
+                            >
+
+                                <svg
+                                    class="h-3.5 w-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.5"
+                                        d="M12 9v3m0 4h.01M5.5 19h13a2 2 0 001.732-3L13.732 5a2 2 0 00-3.464 0L3.768 16A2 2 0 005.5 19z"
+                                    />
+                                </svg>
+
+                                <span>
+                                    Not assigned to a folder
+                                </span>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             QUICK ACTIONS
+                             ================================================== -->
+
+                        <div
+                            class="flex items-center gap-2 border-t
+                                   border-[rgba(18,55,42,.08)] pt-3"
+                        >
+
+                            <a
+                                href="{{ url_for(
+                                    'admin_media.detail',
+                                    asset_id=asset.id
+                                ) }}"
+                                class="flex-1 rounded-lg border
+                                       border-[rgba(18,55,42,.12)]
+                                       px-3 py-2 text-center text-xs
+                                       font-semibold text-[#1C2822]
+                                       transition hover:bg-[#F7F1E5]"
+                            >
+                                View
+                            </a>
+
+
+                            <a
+                                href="{{ url_for(
+                                    'admin_media.edit',
+                                    asset_id=asset.id
+                                ) }}"
+                                class="flex-1 rounded-lg border
+                                       border-[rgba(18,55,42,.12)]
+                                       px-3 py-2 text-center text-xs
+                                       font-semibold text-[#1C2822]
+                                       transition hover:bg-[#F7F1E5]"
+                            >
+                                Edit
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <!-- ================================================================
+             EMPTY STATE
+             ================================================================ -->
+
+        <div
+            class="rounded-2xl border border-dashed
+                   border-[rgba(18,55,42,.20)] bg-white
+                   px-6 py-20 text-center"
+        >
+
+            <div
+                class="mx-auto flex h-16 w-16 items-center
+                       justify-center rounded-2xl
+                       bg-[#F7F1E5] text-[#5C6B32]"
+            >
+
+                <svg
+                    class="h-8 w-8"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M8 14l2.5-3 2 2.5 2.5-3L18 15"
+                    />
+
+                </svg>
+
+            </div>
+
+
+            <h2
+                class="mt-5 text-lg font-semibold text-[#12372A]"
+            >
+                No media assets found
+            </h2>
+
+
+            <p
+                class="mx-auto mt-2 max-w-md text-sm leading-6
+                       text-[#66736B]"
+            >
+                No assets match the current search or filter criteria.
+                Try adjusting your filters or upload new media.
+            </p>
+
+
+            <div class="mt-6 flex flex-wrap justify-center gap-3">
+
+                <a
+                    href="{{ url_for('admin_media.gallery') }}"
+                    class="inline-flex items-center gap-2 rounded-xl
+                           border border-[rgba(18,55,42,.12)]
+                           bg-white px-5 py-2.5 text-sm font-semibold
+                           text-[#1C2822] transition
+                           hover:bg-[#F7F1E5]"
+                >
+                    Clear Filters
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_media.upload') }}"
+                    class="inline-flex items-center gap-2
+                           rounded-xl bg-[#12372A] px-5 py-2.5
+                           text-sm font-semibold text-white
+                           transition hover:bg-[#1F5138]"
+                >
+
+                    <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 4v16m8-8H4"
+                        />
+                    </svg>
+
+                    Upload Media
+
+                </a>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

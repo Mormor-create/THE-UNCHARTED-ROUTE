@@ -1,0 +1,201 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Stay Review{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6">
+
+    <div>
+        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+            <a href="{{ url_for('admin_stay.index') }}" class="hover:text-gray-900">
+                Stays
+            </a>
+            <span>/</span>
+            <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+               class="hover:text-gray-900">
+                {{ stay.property_name }}
+            </a>
+            <span>/</span>
+            <a href="{{ url_for('admin_stay_review.index', stay_id=stay.id) }}"
+               class="hover:text-gray-900">
+                Reviews
+            </a>
+            <span>/</span>
+            <span>Edit</span>
+        </div>
+
+        <h1 class="mt-2 text-2xl font-semibold text-gray-900">
+            Edit Stay Review
+        </h1>
+    </div>
+
+    <form method="POST"
+          class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+        {{ form.hidden_tag() }}
+
+        <div class="space-y-8 p-6">
+
+            <section>
+                <h2 class="text-base font-semibold text-gray-900">
+                    Guest Information
+                </h2>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                    <div>
+                        {{ form.guest_name.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.guest_name(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                    <div>
+                        {{ form.guest_email.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.guest_email(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Review
+                </h2>
+
+                <div class="mt-5 space-y-5">
+
+                    <div>
+                        {{ form.rating.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.rating(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                    <div>
+                        {{ form.title.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.title(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                    <div>
+                        {{ form.review.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.review(
+                            rows="7",
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Stay Information
+                </h2>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                    <div>
+                        {{ form.room_name.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.room_name(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                    <div>
+                        {{ form.stay_date.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+                        {{ form.stay_date(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Moderation & Display
+                </h2>
+
+                <div class="mt-5">
+
+                    {{ form.status.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+
+                    {{ form.status(
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                    ) }}
+
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                    <label class="flex items-center gap-3">
+                        {{ form.verified_stay(
+                            class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                        ) }}
+
+                        <span>
+                            <span class="block text-sm font-medium text-gray-900">
+                                Verified stay
+                            </span>
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-3">
+                        {{ form.featured(
+                            class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                        ) }}
+
+                        <span>
+                            <span class="block text-sm font-medium text-gray-900">
+                                Featured review
+                            </span>
+                        </span>
+                    </label>
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Admin Response
+                </h2>
+
+                <div class="mt-5">
+                    {{ form.admin_response.label(class="mb-2 block text-sm font-medium text-gray-700") }}
+
+                    {{ form.admin_response(
+                        rows="5",
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                    ) }}
+                </div>
+
+            </section>
+
+        </div>
+
+        <div class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-4">
+
+            <a href="{{ url_for('admin_stay_review.detail', review_id=review.id) }}"
+               class="text-sm font-medium text-gray-600 hover:text-gray-900">
+                ← Cancel
+            </a>
+
+            {{ form.submit(
+                class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

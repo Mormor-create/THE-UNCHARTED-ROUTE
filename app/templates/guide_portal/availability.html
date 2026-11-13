@@ -1,0 +1,72 @@
+{% extends "guide_portal/base.html" %}
+
+{% block title %}My Availability | The Uncharted Route{% endblock %}
+{% block page_heading %}My availability{% endblock %}
+{% block page_description %}
+Review your recorded availability and check which dates are marked available or unavailable.
+{% endblock %}
+
+{% block content %}
+<section class="mb-6 rounded-2xl border border-sand bg-white p-5 shadow-sm">
+    <p class="text-sm text-muted">Availability records</p>
+    <p class="mt-2 text-3xl font-bold text-forest">{{ availability|length }}</p>
+    <p class="mt-2 text-sm text-muted">
+        These records reflect the availability information currently supplied to the guide portal.
+    </p>
+</section>
+
+<section>
+    {% if availability %}
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {% for item in availability %}
+                <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Availability date</p>
+                            <h2 class="mt-2 font-display text-xl font-semibold text-forest">
+                                {{ item.date.strftime('%A, %d %B %Y') if item.date and item.date.strftime is defined else item.date or 'Date not specified' }}
+                            </h2>
+                        </div>
+
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                            {% if item.status == 'Available' %}
+                                bg-green-50 text-green-800
+                            {% elif item.status == 'Unavailable' %}
+                                bg-red-50 text-red-800
+                            {% else %}
+                                bg-cream text-forest
+                            {% endif %}">
+                            {{ item.status or 'Not specified' }}
+                        </span>
+                    </div>
+
+                    {% if item.start_time or item.end_time %}
+                        <div class="mt-5 rounded-xl bg-cream p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Time window</p>
+                            <p class="mt-2 font-semibold text-forest">
+                                {{ item.start_time or 'Start time not set' }}
+                                –
+                                {{ item.end_time or 'End time not set' }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {% if item.reason %}
+                        <div class="mt-4">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Notes</p>
+                            <p class="mt-2 text-sm leading-6 text-ink">{{ item.reason }}</p>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dashed border-sand bg-white px-6 py-12 text-center">
+            <h2 class="font-display text-xl font-semibold text-forest">No availability records</h2>
+            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted">
+                No availability records were returned for your account. Contact your coordinator if your availability needs to be added or updated.
+            </p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

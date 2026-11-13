@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% block title %}Special Offers & Promotions | The Uncharted Route{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-route-cream">
+
+    <!-- ========================================================= -->
+    <!-- HERO SECTION                                              -->
+    <!-- ========================================================= -->
+    <section class="relative overflow-hidden bg-route-deep px-4 py-16 text-white sm:px-6 lg:px-8 lg:py-24">
+
+        <div class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full border border-white/10"></div>
+        <div class="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full border border-white/10"></div>
+
+        <div class="relative mx-auto max-w-7xl">
+
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-route-gold">
+                Curated Offers
+            </p>
+
+            <h1 class="mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                Exceptional journeys.
+                <span class="text-route-gold">Special offers.</span>
+            </h1>
+
+            <p class="mt-6 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
+                Explore our latest safari escapes, destination experiences,
+                and specially curated travel offers. Your next unforgettable
+                experience may be closer than you think.
+            </p>
+
+            <div class="mt-8 flex flex-wrap items-center gap-4 text-sm text-white/75">
+                <span class="inline-flex items-center gap-2">
+                    <i class="bi bi-compass text-route-gold"></i>
+                    Curated experiences
+                </span>
+
+                <span class="h-1 w-1 rounded-full bg-route-gold"></span>
+
+                <span class="inline-flex items-center gap-2">
+                    <i class="bi bi-calendar-check text-route-gold"></i>
+                    Limited-time offers
+                </span>
+
+                <span class="h-1 w-1 rounded-full bg-route-gold"></span>
+
+                <span class="inline-flex items-center gap-2">
+                    <i class="bi bi-chat-dots text-route-gold"></i>
+                    Personalised enquiries
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- PROMOTIONS LIST                                           -->
+    <!-- ========================================================= -->
+    <section class="px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+
+        <div class="mx-auto max-w-7xl">
+
+            {% if promotions %}
+
+                <!-- Section Heading -->
+                <div class="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                            Find Your Next Escape
+                        </p>
+
+                        <h2 class="mt-2 text-2xl font-bold text-route-ink sm:text-3xl">
+                            Current Offers
+                        </h2>
+
+                        <p class="mt-3 max-w-xl text-sm leading-6 text-route-muted">
+                            Discover experiences worth travelling for.
+                            Explore an offer to learn more and send us an enquiry.
+                        </p>
+                    </div>
+
+                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-route-sand bg-white px-4 py-2 text-sm font-semibold text-route-forest">
+                        <i class="bi bi-tags"></i>
+
+                        {{ promotions|length }}
+                        {{ 'offer' if promotions|length == 1 else 'offers' }}
+                        available
+                    </div>
+
+                </div>
+
+
+                <!-- Promotion Cards -->
+                <div class="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
+
+                    {% for promotion in promotions %}
+
+                        <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+                            <!-- Poster -->
+                            <a href="{{ url_for('promotions.detail', slug=promotion.slug) }}"
+                               class="relative block overflow-hidden bg-route-sand"
+                               aria-label="Explore {{ promotion.title }}">
+
+                                {% if promotion.poster_url %}
+
+                                    <img
+                                        src="{{ promotion.poster_url }}"
+                                        alt="{{ promotion.poster_alt }}"
+                                        class="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                                        loading="lazy"
+                                    >
+
+                                {% else %}
+
+                                    <div class="flex aspect-[4/5] items-center justify-center bg-route-sand text-route-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-image text-4xl"></i>
+                                            <p class="mt-3 text-sm">Poster unavailable</p>
+                                        </div>
+                                    </div>
+
+                                {% endif %}
+
+                                <!-- Offer Label -->
+                                <div class="absolute left-4 top-4">
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-route-deep/90 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur-sm">
+                                        <i class="bi bi-stars text-route-gold"></i>
+                                        Special Offer
+                                    </span>
+                                </div>
+
+                            </a>
+
+
+                            <!-- Card Content -->
+                            <div class="flex flex-1 flex-col p-5 sm:p-6">
+
+                                <!-- Validity -->
+                                {% if promotion.starts_at or promotion.ends_at %}
+
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-route-terracotta">
+
+                                        <span class="inline-flex items-center gap-2">
+                                            <i class="bi bi-calendar-event"></i>
+                                            {% if promotion.ends_at %}
+                                                Ends {{ promotion.ends_at.strftime('%d %b %Y') }}
+                                            {% elif promotion.starts_at %}
+                                                Starts {{ promotion.starts_at.strftime('%d %b %Y') }}
+                                            {% endif %}
+                                        </span>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                <!-- Title -->
+                                <h3 class="mt-3 text-xl font-bold leading-snug text-route-ink">
+                                    <a href="{{ url_for('promotions.detail', slug=promotion.slug) }}"
+                                       class="transition hover:text-route-forest">
+                                        {{ promotion.title }}
+                                    </a>
+                                </h3>
+
+
+                                <!-- Description -->
+                                {% if promotion.description %}
+
+                                    <p class="mt-3 text-sm leading-6 text-route-muted">
+                                        {{ promotion.description|striptags|truncate(160, True, '…') }}
+                                    </p>
+
+                                {% else %}
+
+                                    <p class="mt-3 text-sm leading-6 text-route-muted">
+                                        Discover the details of this specially curated offer.
+                                    </p>
+
+                                {% endif %}
+
+
+                                <!-- Card Action -->
+                                <div class="mt-auto pt-6">
+
+                                    <a href="{{ url_for('promotions.detail', slug=promotion.slug) }}"
+                                       class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-route-forest px-5 py-3.5 text-sm font-bold text-white transition hover:bg-route-deep">
+
+                                        Explore Offer
+
+                                        <i class="bi bi-arrow-up-right transition group-hover:translate-x-1"></i>
+
+                                    </a>
+
+                                    <p class="mt-3 text-center text-xs text-route-muted">
+                                        View details and send an enquiry
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <!-- Empty State -->
+                <div class="rounded-2xl border border-route-sand bg-white px-6 py-16 text-center shadow-sm">
+
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-route-sand text-route-forest">
+                        <i class="bi bi-compass text-2xl"></i>
+                    </div>
+
+                    <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                        Stay Tuned
+                    </p>
+
+                    <h2 class="mt-3 text-2xl font-bold text-route-ink sm:text-3xl">
+                        Something wonderful is on the way
+                    </h2>
+
+                    <p class="mx-auto mt-3 max-w-lg text-sm leading-7 text-route-muted">
+                        We don't have any current offers to display just yet.
+                        Check back soon for your next escape and specially
+                        curated travel experiences.
+                    </p>
+
+                    <a href="{{ url_for('main.index') }}"
+                       class="mt-7 inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-6 py-3.5 text-sm font-bold text-white transition hover:bg-route-deep">
+
+                        Explore The Uncharted Route
+
+                        <i class="bi bi-arrow-up-right"></i>
+
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================= -->
+    <!-- CLOSING CTA                                               -->
+    <!-- ========================================================= -->
+    {% if promotions %}
+
+        <section class="border-t border-route-sand bg-white px-4 py-14 sm:px-6 lg:px-8">
+
+            <div class="mx-auto max-w-4xl text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-route-cream text-route-forest">
+                    <i class="bi bi-chat-heart text-2xl"></i>
+                </div>
+
+                <h2 class="mt-5 text-2xl font-bold text-route-ink sm:text-3xl">
+                    Have questions about an offer?
+                </h2>
+
+                <p class="mx-auto mt-3 max-w-2xl text-sm leading-7 text-route-muted">
+                    Our team is happy to help you understand the offer,
+                    confirm availability and explore the details before
+                    you make a decision.
+                </p>
+
+                <p class="mt-5 text-xs font-semibold uppercase tracking-wider text-route-terracotta">
+                    Explore. Experience. Remember.
+                </p>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</main>
+{% endblock %}

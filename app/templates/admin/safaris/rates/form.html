@@ -1,0 +1,312 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Edit' if rate else 'Create' }} Package Rate | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F1E5]">
+    <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+
+        {# Breadcrumbs #}
+        <nav class="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_safaris.destinations') }}"
+               class="transition hover:text-[#1F5138]">
+                Safari catalogue
+            </a>
+            <span>/</span>
+            <a href="{{ url_for('admin_safaris.packages', property_id=property.id) }}"
+               class="transition hover:text-[#1F5138]">
+                {{ property.name }}
+            </a>
+            <span>/</span>
+            <a href="{{ url_for(
+                'admin_safaris.rates',
+                property_id=property.id,
+                option_id=option.id
+            ) }}"
+               class="transition hover:text-[#1F5138]">
+                Package rates
+            </a>
+            <span>/</span>
+            <span class="font-semibold text-[#1C2822]">
+                {{ 'Edit rate' if rate else 'New rate' }}
+            </span>
+        </nav>
+
+        {# Header #}
+        <section class="mb-8 rounded-3xl bg-[#12372A] p-6 text-white shadow-lg sm:p-8">
+            <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-[#D89B24]/40 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#F2CF79]">
+                <span class="h-2 w-2 rounded-full bg-[#D89B24]"></span>
+                Safari catalogue
+            </div>
+
+            <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+                {{ 'Edit package rate' if rate else 'Create package rate' }}
+            </h1>
+
+            <p class="mt-3 max-w-2xl text-sm leading-6 text-white/75 sm:text-base">
+                Define the amount, pricing basis, guest eligibility and seasonal
+                conditions for this package.
+            </p>
+
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-xl border border-white/15 bg-white/10 p-4">
+                    <p class="text-xs font-medium uppercase tracking-wider text-white/60">
+                        Property
+                    </p>
+                    <p class="mt-1 font-semibold">{{ property.name }}</p>
+                </div>
+                <div class="rounded-xl border border-white/15 bg-white/10 p-4">
+                    <p class="text-xs font-medium uppercase tracking-wider text-white/60">
+                        Package
+                    </p>
+                    <p class="mt-1 font-semibold">{{ option.name }}</p>
+                </div>
+            </div>
+        </section>
+
+        {% include "admin/safaris/_messages.html" %}
+
+        <form method="post"
+              class="space-y-6"
+              novalidate>
+
+            {{ form.hidden_tag() }}
+
+            {# Keep the rate associated with the package in the current URL. #}
+            {% if form.package_option_id is defined %}
+                <input type="hidden"
+                       name="package_option_id"
+                       value="{{ option.id }}">
+            {% endif %}
+
+            {# Rate definition #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FAF7F0] px-5 py-5 sm:px-7">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#9B7624]">
+                        Section 01
+                    </p>
+                    <h2 class="mt-1 text-lg font-semibold text-[#12372A]">
+                        Rate definition
+                    </h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Identify the rate and the guests or occupancy it covers.
+                    </p>
+                </div>
+
+                <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
+                    {% set definition_fields = [
+                        ('name', 'Rate name'),
+                        ('pricing_basis', 'Pricing basis'),
+                        ('guest_category', 'Guest category'),
+                        ('occupancy_type', 'Occupancy type'),
+                        ('min_guest_age', 'Minimum guest age'),
+                        ('max_guest_age', 'Maximum guest age'),
+                        ('min_guests', 'Minimum guests'),
+                        ('max_guests', 'Maximum guests')
+                    ] %}
+
+                    {% for name, label_text in definition_fields %}
+                        {% if form[name] is defined %}
+                        <div>
+                            <label for="{{ form[name].id }}"
+                                   class="mb-1.5 block text-sm font-semibold text-[#1C2822]">
+                                {{ form[name].label.text or label_text }}
+                            </label>
+
+                            {% if form[name].type == 'SelectField' %}
+                                {{ form[name](class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                            {% else %}
+                                {{ form[name](class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#9CA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                            {% endif %}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-1.5 text-xs font-medium text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            {# Amount and dates #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FAF7F0] px-5 py-5 sm:px-7">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#9B7624]">
+                        Section 02
+                    </p>
+                    <h2 class="mt-1 text-lg font-semibold text-[#12372A]">
+                        Amount &amp; seasonal validity
+                    </h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Set the supplier-confirmed price, currency and applicable dates.
+                    </p>
+                </div>
+
+                <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
+                    {% set amount_fields = [
+                        ('amount', 'Amount'),
+                        ('currency', 'Currency'),
+                        ('season_name', 'Season name'),
+                        ('valid_from', 'Valid from'),
+                        ('valid_to', 'Valid to'),
+                        ('board_basis', 'Board basis')
+                    ] %}
+
+                    {% for name, label_text in amount_fields %}
+                        {% if form[name] is defined %}
+                        <div>
+                            <label for="{{ form[name].id }}"
+                                   class="mb-1.5 block text-sm font-semibold text-[#1C2822]">
+                                {{ form[name].label.text or label_text }}
+                            </label>
+
+                            {% if form[name].type == 'SelectField' %}
+                                {{ form[name](class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                            {% else %}
+                                {{ form[name](class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                            {% endif %}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-1.5 text-xs font-medium text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            {# Supplier reference and notes #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FAF7F0] px-5 py-5 sm:px-7">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#9B7624]">
+                        Section 03
+                    </p>
+                    <h2 class="mt-1 text-lg font-semibold text-[#12372A]">
+                        Supplier reference &amp; notes
+                    </h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Keep internal references and pricing conditions together.
+                    </p>
+                </div>
+
+                <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
+                    {% for name, label_text in [
+                        ('supplier_rate_reference', 'Supplier rate reference'),
+                        ('rate_notes', 'Rate notes')
+                    ] %}
+                        {% if form[name] is defined %}
+                        <div class="{% if name == 'rate_notes' %}sm:col-span-2{% endif %}">
+                            <label for="{{ form[name].id }}"
+                                   class="mb-1.5 block text-sm font-semibold text-[#1C2822]">
+                                {{ form[name].label.text or label_text }}
+                            </label>
+
+                            {% if form[name].type == 'TextAreaField' %}
+                                {{ form[name](class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15", rows=4) }}
+                            {% else %}
+                                {{ form[name](class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                            {% endif %}
+
+                            {% for error in form[name].errors %}
+                                <p class="mt-1.5 text-xs font-medium text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+
+            {# Publishing #}
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#FAF7F0] px-5 py-5 sm:px-7">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#9B7624]">
+                        Section 04
+                    </p>
+                    <h2 class="mt-1 text-lg font-semibold text-[#12372A]">
+                        Publishing
+                    </h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Choose whether this rate is available for use.
+                    </p>
+                </div>
+
+                <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
+                    {% if form.display_order is defined %}
+                    <div>
+                        <label for="{{ form.display_order.id }}"
+                               class="mb-1.5 block text-sm font-semibold text-[#1C2822]">
+                            Display order
+                        </label>
+                        {{ form.display_order(class_="w-full rounded-xl border border-[#D9D0BF] bg-white px-4 py-3 text-sm outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                        {% for error in form.display_order.errors %}
+                        <p class="mt-1.5 text-xs text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if form.is_active is defined %}
+                    <div class="flex items-center">
+                        <label for="{{ form.is_active.id }}"
+                               class="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-[#E9DDC8] bg-[#FAF7F0] p-4">
+                            {{ form.is_active(class_="h-4 w-4 rounded border-[#D9D0BF] text-[#1F5138] focus:ring-[#1F5138]") }}
+                            <span>
+                                <span class="block text-sm font-semibold text-[#1C2822]">
+                                    Active rate
+                                </span>
+                                <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                                    Enable this rate for use in the package.
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            {# Pricing reminder #}
+            <aside class="rounded-2xl border border-[#D89B24]/40 bg-[#F9EFD8] p-5">
+                <div class="flex items-start gap-3">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#D89B24]/20 text-lg text-[#7B5710]">
+                        !
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-[#5D4516]">
+                            Confirm the pricing basis before saving
+                        </h3>
+                        <p class="mt-1 text-sm leading-6 text-[#6E5B35]">
+                            A per-person rate is different from a per-room, per-night,
+                            per-stay or per-vehicle rate. Confirm guest age rules,
+                            occupancy, dates, currency and inclusions against the
+                            supplier quotation. Do not publish unverified amounts.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            {# Actions #}
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ url_for(
+                    'admin_safaris.rates',
+                    property_id=property.id,
+                    option_id=option.id
+                ) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D9D0BF] bg-white px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#FAF7F0]">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138] focus:ring-offset-2">
+                    {{ 'Save rate changes' if rate else 'Create package rate' }}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

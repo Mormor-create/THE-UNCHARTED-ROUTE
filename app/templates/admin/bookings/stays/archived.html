@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Archived Stay Bookings | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <a href="{{ url_for('admin_stay_bookings.index') }}" class="text-sm font-semibold text-[#1F5138] hover:underline">← Active Stay Bookings</a>
+    <div>
+        <h1 class="text-3xl font-bold text-[#12372A]">Archived Stay Bookings</h1>
+        <p class="mt-2 text-sm text-[#66736B]">Archived reservations retain their history and can be restored.</p>
+    </div>
+    <div class="overflow-x-auto rounded-2xl border border-[#E9DDC8] bg-white">
+        <table class="min-w-full divide-y divide-[#E9DDC8]">
+            <thead class="bg-[#F7F1E5] text-left text-xs uppercase tracking-wider text-[#66736B]">
+                <tr><th class="px-5 py-4">Reference</th><th class="px-5 py-4">Guest</th><th class="px-5 py-4">Accommodation</th><th class="px-5 py-4">Dates</th><th class="px-5 py-4">Action</th></tr>
+            </thead>
+            <tbody class="divide-y divide-[#E9DDC8]">
+            {% for booking in bookings %}
+                <tr>
+                    <td class="px-5 py-4 font-semibold">{{ booking.booking_reference }}</td>
+                    <td class="px-5 py-4">{{ booking.full_name }}<p class="text-sm text-[#66736B]">{{ booking.email }}</p></td>
+                    <td class="px-5 py-4">{{ booking.stay_booking.stay_name_snapshot if booking.stay_booking else '—' }}</td>
+                    <td class="px-5 py-4 text-sm">{% if booking.stay_booking %}{{ booking.stay_booking.check_in }} – {{ booking.stay_booking.check_out }}{% else %}—{% endif %}</td>
+                    <td class="px-5 py-4">
+                        <div class="flex flex-wrap gap-3">
+                            <a class="font-semibold text-[#1F5138] hover:underline" href="{{ url_for('admin_stay_bookings.detail', booking_id=booking.id) }}">View</a>
+                            <form method="post" action="{{ url_for('admin_stay_bookings.restore', booking_id=booking.id) }}">
+                                <button class="font-semibold text-[#12372A] hover:underline">Restore</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="px-5 py-12 text-center text-[#66736B]">No archived stay bookings.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

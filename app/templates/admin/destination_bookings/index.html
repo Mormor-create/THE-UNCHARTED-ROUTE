@@ -1,0 +1,1087 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Destination Bookings | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-7xl space-y-8">
+
+    {# =========================================================================
+       PAGE HEADER
+       ========================================================================= #}
+
+    <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+
+        <div>
+
+            <div class="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                Operations
+            </div>
+
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+                Destination Bookings
+            </h1>
+
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+                Manage destination journey bookings, travellers, travel dates,
+                financial records and operational details from one specialised catalogue.
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-3">
+
+            <a
+                href="{{ url_for('admin_bookings.index', booking_type='destination_journey') }}"
+                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 19l-7-7 7-7M3 12h18"
+                    />
+                </svg>
+
+                Central Bookings
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       SUMMARY CARDS
+       ========================================================================= #}
+
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+
+        {# Total #}
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        All Destination Bookings
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ booking_counts.all }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11Z"
+                        />
+
+                        <circle
+                            cx="12"
+                            cy="10"
+                            r="2.2"
+                        />
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Confirmed #}
+
+        <div class="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Confirmed
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ booking_counts.confirmed }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M5 12.5l4.5 4.5L19 7.5"
+                        />
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Pending #}
+
+        <div class="rounded-2xl border border-amber-200 bg-white p-5 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Pending
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ booking_counts.pending }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="8.5"
+                            stroke-width="1.8"
+                        />
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-width="1.8"
+                            d="M12 7v5l3 2"
+                        />
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Cancelled #}
+
+        <div class="rounded-2xl border border-red-200 bg-white p-5 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Cancelled
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-slate-900">
+                        {{ booking_counts.cancelled }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="8.5"
+                            stroke-width="1.8"
+                        />
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M9 9l6 6M15 9l-6 6"
+                        />
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       SEARCH & FILTERS
+       ========================================================================= #}
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="border-b border-slate-200 px-6 py-5">
+
+            <div class="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                Catalogue
+            </div>
+
+            <h2 class="text-xl font-bold text-slate-900">
+                Search & Filters
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Narrow the destination booking catalogue by guest or booking status.
+            </p>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_destination_bookings.index') }}"
+            class="p-6"
+        >
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+
+                <div class="md:col-span-2">
+
+                    <label
+                        for="destination-search"
+                        class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500"
+                    >
+                        Search
+                    </label>
+
+                    <div class="relative">
+
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M21 21l-4.35-4.35m2.1-5.4a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0Z"
+                                />
+                            </svg>
+
+                        </div>
+
+                        <input
+                            id="destination-search"
+                            type="search"
+                            name="search"
+                            value="{{ search }}"
+                            class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                            placeholder="Reference, guest name, email or phone..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="destination-status"
+                        class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500"
+                    >
+                        Status
+                    </label>
+
+                    <select
+                        id="destination-status"
+                        name="status"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        {% for booking_status in [
+                            "Inquiry",
+                            "Pending",
+                            "Awaiting Payment",
+                            "Partially Paid",
+                            "Confirmed",
+                            "In Progress",
+                            "Completed",
+                            "Reviewed",
+                            "Cancelled",
+                            "Refunded",
+                            "Archived"
+                        ] %}
+
+                            <option
+                                value="{{ booking_status }}"
+                                {% if status == booking_status %}selected{% endif %}
+                            >
+                                {{ booking_status }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="mt-6 flex flex-wrap gap-3 border-t border-slate-200 pt-5">
+
+                <button
+                    type="submit"
+                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+
+                    <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M21 21l-4.35-4.35m2.1-5.4a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0Z"
+                        />
+                    </svg>
+
+                    Apply Filters
+
+                </button>
+
+
+                <a
+                    href="{{ url_for('admin_destination_bookings.index') }}"
+                    class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                >
+                    Clear Filters
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    {# =========================================================================
+       BOOKING CATALOGUE
+       ========================================================================= #}
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+
+                <div class="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                    Destination Journeys
+                </div>
+
+                <h2 class="text-xl font-bold text-slate-900">
+                    Destination Booking Catalogue
+                </h2>
+
+                <p class="mt-1 text-sm text-slate-500">
+                    {{ bookings|length }}
+                    booking{{ '' if bookings|length == 1 else 's' }}
+                    found.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('admin_bookings.index', booking_type='destination_journey') }}"
+                class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+            >
+                View Central Records
+            </a>
+
+        </div>
+
+
+        {# =========================================================================
+           DESKTOP TABLE
+           ========================================================================= #}
+
+        <div class="hidden overflow-x-auto lg:block">
+
+            <table class="min-w-full">
+
+                <thead class="bg-slate-50">
+
+                    <tr>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Booking
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Guest
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Destination Journey
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Travel Dates
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Guests
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Total
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Status
+                        </th>
+
+                        <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody class="divide-y divide-slate-100">
+
+                    {% for booking in bookings %}
+
+                    {% set destination_booking = booking.destination_booking %}
+
+                    <tr class="transition hover:bg-emerald-50/40">
+
+                        {# Booking #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <a
+                                href="{{ url_for('admin_bookings.detail', booking_id=booking.id) }}"
+                                class="font-bold text-emerald-700 transition hover:text-emerald-900"
+                            >
+                                {{ booking.booking_reference }}
+                            </a>
+
+                            {% if booking.booking_date %}
+
+                                <p class="mt-1 text-xs text-slate-500">
+                                    Created
+                                    {{ booking.booking_date.strftime('%d %b %Y') }}
+                                </p>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Guest #}
+
+                        <td class="px-6 py-5">
+
+                            <div class="font-semibold text-slate-900">
+                                {{ booking.first_name }}
+                                {{ booking.last_name }}
+                            </div>
+
+                            {% if booking.email %}
+
+                                <div class="mt-1 text-xs text-slate-500">
+                                    {{ booking.email }}
+                                </div>
+
+                            {% endif %}
+
+                            {% if booking.phone %}
+
+                                <div class="mt-1 text-xs text-slate-500">
+                                    {{ booking.phone }}
+                                </div>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Journey #}
+
+                        <td class="px-6 py-5">
+
+                            {% if destination_booking %}
+
+                                <div class="font-semibold text-slate-900">
+                                    {{ destination_booking.journey_name }}
+                                </div>
+
+                                {% if destination_booking.duration_days %}
+
+                                    <div class="mt-1 text-xs text-slate-500">
+
+                                        {{ destination_booking.duration_days }}
+                                        day{{ '' if destination_booking.duration_days == 1 else 's' }}
+
+                                        {% if destination_booking.duration_nights %}
+                                            <span class="mx-1 text-slate-300">•</span>
+                                            {{ destination_booking.duration_nights }}
+                                            night{{ '' if destination_booking.duration_nights == 1 else 's' }}
+                                        {% endif %}
+
+                                    </div>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                <span class="text-sm text-slate-400">
+                                    Journey details unavailable
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Travel Dates #}
+
+                        <td class="whitespace-nowrap px-6 py-5 text-sm text-slate-700">
+
+                            {% if destination_booking and destination_booking.start_date %}
+
+                                <div class="font-semibold text-slate-900">
+                                    {{ destination_booking.start_date.strftime('%d %b %Y') }}
+                                </div>
+
+                                {% if destination_booking.end_date %}
+
+                                    <div class="mt-1 text-xs text-slate-500">
+                                        to
+                                        {{ destination_booking.end_date.strftime('%d %b %Y') }}
+                                    </div>
+
+                                {% endif %}
+
+                            {% elif booking.experience_date %}
+
+                                {{ booking.experience_date.strftime('%d %b %Y') }}
+
+                            {% else %}
+
+                                <span class="text-slate-400">
+                                    Flexible
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Guests #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <div class="font-semibold text-slate-900">
+                                {{ booking.total_guests }}
+                            </div>
+
+                            <div class="mt-1 text-xs text-slate-500">
+                                guest{{ '' if booking.total_guests == 1 else 's' }}
+                            </div>
+
+                        </td>
+
+
+                        {# Total #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <div class="font-bold text-slate-900">
+                                {{ booking.currency or 'KES' }}
+                                {{ "{:,.2f}".format(booking.total_amount or 0) }}
+                            </div>
+
+                            {% if booking.total_paid %}
+
+                                <div class="mt-1 text-xs text-slate-500">
+                                    Paid:
+                                    {{ booking.currency or 'KES' }}
+                                    {{ "{:,.2f}".format(booking.total_paid) }}
+                                </div>
+
+                            {% endif %}
+
+                            {% if booking.outstanding_balance %}
+
+                                <div class="mt-1 text-xs font-semibold text-red-600">
+                                    Balance:
+                                    {{ booking.currency or 'KES' }}
+                                    {{ "{:,.2f}".format(booking.outstanding_balance) }}
+                                </div>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Status #}
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            {% set current_status = booking.status %}
+
+                            {% if current_status == 'Confirmed' %}
+
+                                <span class="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                                    Confirmed
+                                </span>
+
+                            {% elif current_status == 'Completed' %}
+
+                                <span class="inline-flex rounded-full bg-lime-50 px-3 py-1 text-xs font-bold text-lime-700">
+                                    Completed
+                                </span>
+
+                            {% elif current_status == 'Cancelled' %}
+
+                                <span class="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+                                    Cancelled
+                                </span>
+
+                            {% elif current_status == 'In Progress' %}
+
+                                <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                                    In Progress
+                                </span>
+
+                            {% elif current_status in ['Awaiting Payment', 'Partially Paid'] %}
+
+                                <span class="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                                    {{ current_status }}
+                                </span>
+
+                            {% elif current_status in ['Inquiry', 'Pending'] %}
+
+                                <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                                    {{ current_status }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                                    {{ current_status or 'Unknown' }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# Actions #}
+
+                        <td class="whitespace-nowrap px-6 py-5 text-right">
+
+                            <div class="flex justify-end gap-2">
+
+                                <a
+                                    href="{{ url_for('admin_bookings.detail', booking_id=booking.id) }}"
+                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                                >
+                                    Booking
+                                </a>
+
+
+                                {% if destination_booking %}
+
+                                    <a
+                                        href="{{ url_for('admin_destination_bookings.detail', booking_id=booking.id) }}"
+                                        class="inline-flex min-h-9 items-center justify-center rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+                                    >
+                                        Journey
+                                    </a>
+
+                                {% else %}
+
+                                    <a
+                                        href="{{ url_for('admin_destination_bookings.create', booking_id=booking.id) }}"
+                                        class="inline-flex min-h-9 items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600"
+                                    >
+                                        Attach Journey
+                                    </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="px-6 py-20 text-center"
+                        >
+
+                            <div class="mx-auto max-w-md">
+
+                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+
+                                    <svg
+                                        class="h-7 w-7"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.8"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"
+                                        />
+                                    </svg>
+
+                                </div>
+
+                                <h3 class="mt-5 text-lg font-bold text-slate-900">
+                                    No destination bookings found
+                                </h3>
+
+                                <p class="mt-2 text-sm leading-6 text-slate-500">
+                                    There are no destination journey bookings
+                                    matching the current search and filter selection.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {# =========================================================================
+           MOBILE BOOKING CARDS
+           ========================================================================= #}
+
+        <div class="divide-y divide-slate-100 lg:hidden">
+
+            {% for booking in bookings %}
+
+            {% set destination_booking = booking.destination_booking %}
+
+            <div class="p-5">
+
+                <div class="flex items-start justify-between gap-4">
+
+                    <div class="min-w-0">
+
+                        <a
+                            href="{{ url_for('admin_bookings.detail', booking_id=booking.id) }}"
+                            class="font-bold text-emerald-700"
+                        >
+                            {{ booking.booking_reference }}
+                        </a>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            {{ booking.first_name }}
+                            {{ booking.last_name }}
+                        </p>
+
+                    </div>
+
+
+                    {% set current_status = booking.status %}
+
+                    {% if current_status == 'Confirmed' %}
+
+                        <span class="shrink-0 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                            Confirmed
+                        </span>
+
+                    {% elif current_status == 'Cancelled' %}
+
+                        <span class="shrink-0 inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+                            Cancelled
+                        </span>
+
+                    {% elif current_status in ['Awaiting Payment', 'Partially Paid'] %}
+
+                        <span class="shrink-0 inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                            {{ current_status }}
+                        </span>
+
+                    {% else %}
+
+                        <span class="shrink-0 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                            {{ current_status or 'Unknown' }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="mt-5 space-y-4">
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Destination Journey
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-slate-900">
+
+                            {% if destination_booking %}
+
+                                {{ destination_booking.journey_name }}
+
+                            {% else %}
+
+                                Journey details unavailable
+
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Travel Dates
+                        </p>
+
+                        <p class="mt-1 text-sm text-slate-700">
+
+                            {% if destination_booking and destination_booking.start_date %}
+
+                                {{ destination_booking.start_date.strftime('%d %b %Y') }}
+
+                                {% if destination_booking.end_date %}
+                                    –
+                                    {{ destination_booking.end_date.strftime('%d %b %Y') }}
+                                {% endif %}
+
+                            {% else %}
+
+                                Flexible
+
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="grid grid-cols-2 gap-4">
+
+                        <div>
+
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                Guests
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-slate-900">
+                                {{ booking.total_guests }}
+                            </p>
+
+                        </div>
+
+
+                        <div>
+
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                Total
+                            </p>
+
+                            <p class="mt-1 text-sm font-bold text-slate-900">
+                                {{ booking.currency or 'KES' }}
+                                {{ "{:,.2f}".format(booking.total_amount or 0) }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if booking.total_paid %}
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Paid
+                        </p>
+
+                        <p class="mt-1 text-sm text-slate-700">
+                            {{ booking.currency or 'KES' }}
+                            {{ "{:,.2f}".format(booking.total_paid) }}
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="mt-5 grid grid-cols-2 gap-2">
+
+                    <a
+                        href="{{ url_for('admin_bookings.detail', booking_id=booking.id) }}"
+                        class="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                    >
+                        Booking
+                    </a>
+
+
+                    {% if destination_booking %}
+
+                        <a
+                            href="{{ url_for('admin_destination_bookings.detail', booking_id=booking.id) }}"
+                            class="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-emerald-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+                        >
+                            Journey
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{{ url_for('admin_destination_bookings.create', booking_id=booking.id) }}"
+                            class="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-amber-500 px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600"
+                        >
+                            Attach Journey
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            {% else %}
+
+            <div class="px-5 py-16 text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+
+                    <svg
+                        class="h-7 w-7"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"
+                        />
+                    </svg>
+
+                </div>
+
+                <h3 class="mt-5 text-lg font-bold text-slate-900">
+                    No destination bookings found
+                </h3>
+
+                <p class="mt-2 text-sm leading-6 text-slate-500">
+                    Try another search or clear the current filters.
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+

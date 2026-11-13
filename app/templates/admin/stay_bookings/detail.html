@@ -1,0 +1,269 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ booking.stay_name }} | Stay Booking
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+
+        <div>
+
+            <div class="route-eyebrow">
+                Stay Booking
+            </div>
+
+            <h1 class="mt-3 text-3xl font-bold route-heading">
+                {{ booking.stay_name }}
+            </h1>
+
+            <p class="mt-2 text-sm text-[var(--route-muted)]">
+                {{ booking.booking.booking_reference }}
+            </p>
+
+        </div>
+
+        <div class="flex gap-3">
+
+            <a
+                href="{{ url_for('admin_bookings.detail', booking_id=booking.booking.id) }}"
+                class="route-button route-button-outline"
+            >
+                Main Booking
+            </a>
+
+            <a
+                href="{{ url_for('admin_stay_bookings.edit', booking_id=booking.id) }}"
+                class="route-button route-button-primary"
+            >
+                Edit
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+        <div class="route-card p-6 lg:col-span-2">
+
+            <div class="route-eyebrow">
+                Accommodation
+            </div>
+
+            <h2 class="mt-2 text-2xl font-bold route-heading">
+                {{ booking.stay_name }}
+            </h2>
+
+            <p class="mt-2 text-sm text-[var(--route-muted)]">
+                {{ booking.room_name }}
+            </p>
+
+            <div class="mt-6 grid grid-cols-2 gap-5">
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Check-in
+                    </p>
+
+                    <p class="mt-1 font-semibold">
+                        {{ booking.check_in.strftime('%d %B %Y') }}
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Check-out
+                    </p>
+
+                    <p class="mt-1 font-semibold">
+                        {{ booking.check_out.strftime('%d %B %Y') }}
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Nights
+                    </p>
+
+                    <p class="mt-1 font-semibold">
+                        {{ booking.nights }}
+                    </p>
+
+                </div>
+
+                <div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Rooms
+                    </p>
+
+                    <p class="mt-1 font-semibold">
+                        {{ booking.rooms }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <div class="route-eyebrow">
+                Lead Traveller
+            </div>
+
+            <h2 class="mt-2 text-xl font-bold route-heading">
+                {{ booking.booking.first_name }}
+                {{ booking.booking.last_name }}
+            </h2>
+
+            <div class="mt-5 space-y-3 text-sm">
+
+                <div>
+                    <p class="text-[var(--route-muted)]">
+                        Email
+                    </p>
+                    <p class="font-semibold">
+                        {{ booking.booking.email }}
+                    </p>
+                </div>
+
+                {% if booking.booking.phone %}
+
+                <div>
+                    <p class="text-[var(--route-muted)]">
+                        Phone
+                    </p>
+                    <p class="font-semibold">
+                        {{ booking.booking.phone }}
+                    </p>
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+        <div class="route-card p-6">
+
+            <div class="route-eyebrow">
+                Occupancy
+            </div>
+
+            <div class="mt-5 space-y-4">
+
+                <div class="flex justify-between">
+                    <span class="text-sm text-[var(--route-muted)]">
+                        Adults
+                    </span>
+                    <strong>
+                        {{ booking.adults }}
+                    </strong>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-sm text-[var(--route-muted)]">
+                        Children
+                    </span>
+                    <strong>
+                        {{ booking.children }}
+                    </strong>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-sm text-[var(--route-muted)]">
+                        Infants
+                    </span>
+                    <strong>
+                        {{ booking.infants }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <div class="route-eyebrow">
+                Rate
+            </div>
+
+            <p class="mt-3 text-2xl font-bold text-[var(--route-deep)]">
+                {{ booking.booking.currency or 'KES' }}
+                {{ "{:,.2f}".format(booking.nightly_rate or 0) }}
+            </p>
+
+            <p class="mt-1 text-sm text-[var(--route-muted)]">
+                Per room per night snapshot
+            </p>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <div class="route-eyebrow">
+                Meal Plan
+            </div>
+
+            <p class="mt-3 text-lg font-bold text-[var(--route-deep)]">
+                {{ booking.meal_plan or 'Not specified' }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+        <div class="route-card p-6">
+
+            <div class="route-eyebrow">
+                Special Requests
+            </div>
+
+            <p class="mt-4 text-sm leading-7">
+                {{ booking.special_requests or 'No special requests recorded.' }}
+            </p>
+
+        </div>
+
+
+        <div class="route-card p-6">
+
+            <div class="route-eyebrow">
+                Internal Notes
+            </div>
+
+            <p class="mt-4 text-sm leading-7">
+                {{ booking.notes or 'No internal notes recorded.' }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

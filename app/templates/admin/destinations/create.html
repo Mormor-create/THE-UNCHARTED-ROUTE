@@ -1,0 +1,246 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Create Destination | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F1E5] px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl space-y-6">
+
+        <!-- Header -->
+        <div>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+                <a href="{{ url_for('admin.dashboard') }}" class="transition hover:text-[#12372A]">Admin</a>
+                <span>/</span>
+                <a href="{{ url_for('admin_destinations.index') }}" class="transition hover:text-[#12372A]">Destinations</a>
+                <span>/</span>
+                <span class="font-medium text-[#1C2822]">Create</span>
+            </div>
+
+            <h1 class="mt-3 text-2xl font-bold tracking-tight text-[#12372A] sm:text-3xl">
+                Create Destination
+            </h1>
+            <p class="mt-1 max-w-2xl text-sm leading-6 text-[#66736B]">
+                Add a destination to The Uncharted Route catalogue and control where it appears publicly.
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_destinations.create') }}" class="space-y-6">
+            {{ form.hidden_tag() }}
+
+            <!-- Basic Information -->
+            <section class="overflow-hidden rounded-2xl border border-[rgba(18,55,42,.12)] bg-white shadow-sm">
+                <div class="border-b border-[rgba(18,55,42,.12)] px-5 py-4 sm:px-6">
+                    <h2 class="text-base font-semibold text-[#12372A]">Basic Information</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Define the destination's identity and URL information.</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 px-5 py-6 sm:px-6 md:grid-cols-2">
+                    <div>
+                        {{ form.name.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.name(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] shadow-sm outline-none transition placeholder:text-[#66736B] focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. Nairobi") }}
+                        {% for error in form.name.errors %}
+                            <p class="mt-1.5 text-xs text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.slug.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.slug(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] shadow-sm outline-none transition placeholder:text-[#66736B] focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. nairobi") }}
+                        <p class="mt-1.5 text-xs text-[#66736B]">Used as the destination's URL identifier.</p>
+                        {% for error in form.slug.errors %}
+                            <p class="mt-1.5 text-xs text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Geographic Information -->
+            <section class="overflow-hidden rounded-2xl border border-[rgba(18,55,42,.12)] bg-white shadow-sm">
+                <div class="border-b border-[rgba(18,55,42,.12)] px-5 py-4 sm:px-6">
+                    <h2 class="text-base font-semibold text-[#12372A]">Geographic Information</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Specify where the destination is located.</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 px-5 py-6 sm:px-6 md:grid-cols-3">
+                    <div>
+                        {{ form.country.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.country(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. Kenya") }}
+                        {% for error in form.country.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.county.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.county(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. Nairobi City County") }}
+                        {% for error in form.county.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.region.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.region(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. Central Kenya") }}
+                        {% for error in form.region.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.latitude.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.latitude(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. -1.286389") }}
+                        {% for error in form.latitude.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.longitude.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.longitude(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. 36.817223") }}
+                        {% for error in form.longitude.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Destination Story -->
+            <section class="overflow-hidden rounded-2xl border border-[rgba(18,55,42,.12)] bg-white shadow-sm">
+                <div class="border-b border-[rgba(18,55,42,.12)] px-5 py-4 sm:px-6">
+                    <h2 class="text-base font-semibold text-[#12372A]">Destination Story</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Describe the destination and what makes it worth experiencing.</p>
+                </div>
+
+                <div class="space-y-5 px-5 py-6 sm:px-6">
+                    <div>
+                        {{ form.short_description.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.short_description(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="A concise introduction to this destination...") }}
+                        {% for error in form.short_description.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.description.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.description(rows="7", class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-3 text-sm leading-6 text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="Tell the deeper story of this destination...") }}
+                        {% for error in form.description.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Destination Images -->
+            <section class="overflow-hidden rounded-2xl border border-[rgba(18,55,42,.12)] bg-white shadow-sm">
+                <div class="border-b border-[rgba(18,55,42,.12)] px-5 py-4 sm:px-6">
+                    <h2 class="text-base font-semibold text-[#12372A]">Destination Images</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">
+                        Select images from the central Media Library. Do not enter file paths or URLs manually.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 px-5 py-6 sm:px-6 md:grid-cols-2">
+                    <div>
+                        {{ form.featured_image_id.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.featured_image_id(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] shadow-sm outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20") }}
+
+                        <div class="mt-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] px-4 py-3">
+                            <p class="text-sm font-semibold text-[#12372A]">Media Library</p>
+                            <p class="mt-1 text-xs leading-5 text-[#66736B]">
+                                Only active image assets from the central Media Library are available here.
+                            </p>
+                        </div>
+                        {% for error in form.featured_image_id.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.banner_image_id.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.banner_image_id(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] shadow-sm outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20") }}
+                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">
+                            Optional. Select a Media Library image for large destination banners.
+                        </p>
+                        {% for error in form.banner_image_id.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEO -->
+            <section class="overflow-hidden rounded-2xl border border-[rgba(18,55,42,.12)] bg-white shadow-sm">
+                <div class="border-b border-[rgba(18,55,42,.12)] px-5 py-4 sm:px-6">
+                    <h2 class="text-base font-semibold text-[#12372A]">Search Engine Optimization</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Configure the destination's search engine metadata.</p>
+                </div>
+
+                <div class="space-y-5 px-5 py-6 sm:px-6">
+                    <div>
+                        {{ form.meta_title.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.meta_title(class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-2.5 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="e.g. Nairobi Travel Experiences | The Uncharted Route") }}
+                        {% for error in form.meta_title.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.meta_description.label(class="mb-1.5 block text-sm font-medium text-[#1C2822]") }}
+                        {{ form.meta_description(rows="4", class="block w-full rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-3.5 py-3 text-sm leading-6 text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20", placeholder="Describe this destination for search engine results...") }}
+                        {% for error in form.meta_description.errors %}<p class="mt-1.5 text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Publication Settings -->
+            <section class="overflow-hidden rounded-2xl border border-[rgba(18,55,42,.12)] bg-white shadow-sm">
+                <div class="border-b border-[rgba(18,55,42,.12)] px-5 py-4 sm:px-6">
+                    <h2 class="text-base font-semibold text-[#12372A]">Publication Settings</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Control catalogue visibility, homepage placement, and publication status.</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 px-5 py-6 sm:px-6 md:grid-cols-2 xl:grid-cols-3">
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(18,55,42,.12)] p-4 transition hover:border-[#D89B24] hover:bg-[#F7F1E5]">
+                        <div class="pt-0.5">
+                            {{ form.featured(class="h-4 w-4 rounded border-[#66736B] text-[#12372A] focus:ring-2 focus:ring-[#D89B24]") }}
+                        </div>
+                        <div>
+                            <span class="block text-sm font-semibold text-[#12372A]">Featured destination</span>
+                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                                Include this destination in the public destinations catalogue.
+                            </span>
+                        </div>
+                    </label>
+
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(18,55,42,.12)] p-4 transition hover:border-[#D89B24] hover:bg-[#F7F1E5]">
+                        <div class="pt-0.5">
+                            {{ form.show_on_homepage(class="h-4 w-4 rounded border-[#66736B] text-[#12372A] focus:ring-2 focus:ring-[#D89B24]") }}
+                        </div>
+                        <div>
+                            <span class="block text-sm font-semibold text-[#12372A]">Show on Homepage</span>
+                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                                Display this destination in the homepage destination section. It must also be featured and active.
+                            </span>
+                        </div>
+                    </label>
+
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(18,55,42,.12)] p-4 transition hover:border-[#D89B24] hover:bg-[#F7F1E5]">
+                        <div class="pt-0.5">
+                            {{ form.active(class="h-4 w-4 rounded border-[#66736B] text-[#12372A] focus:ring-2 focus:ring-[#D89B24]") }}
+                        </div>
+                        <div>
+                            <span class="block text-sm font-semibold text-[#12372A]">Active destination</span>
+                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                                Allow this destination to appear in public listings. Inactive destinations are hidden from public pages.
+                            </span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="mx-5 mb-5 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5] px-4 py-3 sm:mx-6">
+                    <p class="text-xs leading-5 text-[#66736B]">
+                        <span class="font-semibold text-[#12372A]">Visibility rule:</span>
+                        Featured destinations are eligible for the public catalogue. Homepage destinations must be featured and active.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ url_for('admin_destinations.index') }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[rgba(18,55,42,.18)] bg-white px-5 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#12372A] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 4a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V5a1 1 0 011-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Create Destination
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

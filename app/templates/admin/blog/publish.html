@@ -1,0 +1,1018 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Publish {{ post.title }} · Blog{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- ============================================================
+         HEADER / BREADCRUMB
+    ============================================================= -->
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
+        <div>
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin_blog.index') }}">
+                            <i class="bi bi-journal-text me-1"></i>
+                            Blog
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}">
+                            {{ post.title|truncate(45, True) }}
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item active" aria-current="page">
+                        Publish
+                    </li>
+                </ol>
+            </nav>
+
+            <h1 class="h3 fw-bold mb-1">
+                Publish Article
+            </h1>
+
+            <p class="text-muted mb-0">
+                Review the article before making it publicly available.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Article
+        </a>
+
+    </div>
+
+
+    <!-- ============================================================
+         FORM ERRORS
+    ============================================================= -->
+    {% if form.errors %}
+
+        <div class="alert alert-danger border-0 shadow-sm mb-4">
+
+            <div class="fw-semibold mb-2">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Please correct the following errors:
+            </div>
+
+            <ul class="mb-0 small">
+                {% for field_name, errors in form.errors.items() %}
+                    {% for error in errors %}
+                        <li>
+                            <strong>
+                                {{ form[field_name].label.text if form[field_name].label else field_name }}:
+                            </strong>
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+
+        </div>
+
+    {% endif %}
+
+
+    <div class="row g-4">
+
+        <!-- ========================================================
+             MAIN CONTENT
+        ========================================================= -->
+        <div class="col-xl-8">
+
+            <!-- ARTICLE PREVIEW -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <h2 class="h6 fw-bold mb-0">
+                            <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                            Article Review
+                        </h2>
+
+                        {% if post.status == "Published" %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Currently Published
+                            </span>
+                        {% elif post.status == "Scheduled" %}
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                Scheduled
+                            </span>
+                        {% elif post.status == "Review" %}
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                <i class="bi bi-hourglass-split me-1"></i>
+                                In Review
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                {{ post.status }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <!-- Featured image -->
+                    {% if post.featured_image %}
+
+                        <div class="rounded-3 overflow-hidden mb-4">
+
+                            <img src="{{ post.featured_image }}"
+                                 alt="{{ post.featured_image_alt or post.title }}"
+                                 class="img-fluid w-100"
+                                 style="max-height:360px;object-fit:cover;">
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Category -->
+                    <div class="mb-3">
+
+                        {% if post.category %}
+
+                            <span class="badge rounded-pill"
+                                  style="
+                                      background-color: {{ post.category.color or '#14B8A6' }};
+                                      color: #fff;
+                                  ">
+
+                                {% if post.category.icon %}
+                                    <i class="bi {{ post.category.icon }} me-1"></i>
+                                {% endif %}
+
+                                {{ post.category.name }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Title -->
+                    <h2 class="display-6 fw-bold mb-2">
+                        {{ post.title }}
+                    </h2>
+
+
+                    <!-- Subtitle -->
+                    {% if post.subtitle %}
+
+                        <p class="lead text-muted mb-3">
+                            {{ post.subtitle }}
+                        </p>
+
+                    {% endif %}
+
+
+                    <!-- Excerpt -->
+                    {% if post.excerpt %}
+
+                        <div class="border-start border-3 ps-3 mb-4">
+
+                            <p class="text-secondary mb-0">
+                                {{ post.excerpt }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Metadata -->
+                    <div class="d-flex flex-wrap gap-3 text-muted small border-top pt-3">
+
+                        {% if post.author %}
+                            <span>
+                                <i class="bi bi-person me-1"></i>
+                                {{ post.author }}
+                            </span>
+                        {% endif %}
+
+                        {% if post.reading_time %}
+                            <span>
+                                <i class="bi bi-clock me-1"></i>
+                                {{ post.reading_time_text }}
+                            </span>
+                        {% endif %}
+
+                        {% if post.word_count %}
+                            <span>
+                                <i class="bi bi-file-text me-1"></i>
+                                {{ "{:,}".format(post.word_count) }} words
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PUBLISH CHECKLIST -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+                        <i class="bi bi-clipboard-check me-2 text-success"></i>
+                        Publication Checklist
+                    </h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <!-- Title -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-3">
+
+                                <div class="
+                                    rounded-circle
+                                    {% if post.title %}
+                                        bg-success-subtle text-success
+                                    {% else %}
+                                        bg-danger-subtle text-danger
+                                    {% endif %}
+                                    d-flex align-items-center justify-content-center
+                                    flex-shrink-0
+                                "
+                                style="width:38px;height:38px;">
+
+                                    <i class="bi
+                                        {% if post.title %}
+                                            bi-check-lg
+                                        {% else %}
+                                            bi-x-lg
+                                        {% endif %}
+                                    "></i>
+
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        Article title
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        {% if post.title %}
+                                            Title is present.
+                                        {% else %}
+                                            A title is required.
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Content -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-3">
+
+                                <div class="
+                                    rounded-circle
+                                    {% if post.content %}
+                                        bg-success-subtle text-success
+                                    {% else %}
+                                        bg-danger-subtle text-danger
+                                    {% endif %}
+                                    d-flex align-items-center justify-content-center
+                                    flex-shrink-0
+                                "
+                                style="width:38px;height:38px;">
+
+                                    <i class="bi
+                                        {% if post.content %}
+                                            bi-check-lg
+                                        {% else %}
+                                            bi-x-lg
+                                        {% endif %}
+                                    "></i>
+
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        Article content
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        {% if post.content %}
+                                            Content is available.
+                                        {% else %}
+                                            Content is required.
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-3">
+
+                                <div class="
+                                    rounded-circle
+                                    {% if post.category %}
+                                        bg-success-subtle text-success
+                                    {% else %}
+                                        bg-danger-subtle text-danger
+                                    {% endif %}
+                                    d-flex align-items-center justify-content-center
+                                    flex-shrink-0
+                                "
+                                style="width:38px;height:38px;">
+
+                                    <i class="bi
+                                        {% if post.category %}
+                                            bi-check-lg
+                                        {% else %}
+                                            bi-x-lg
+                                        {% endif %}
+                                    "></i>
+
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        Category
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        {% if post.category %}
+                                            {{ post.category.name }}
+                                        {% else %}
+                                            A category is required.
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Author -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-3">
+
+                                <div class="
+                                    rounded-circle
+                                    {% if post.author %}
+                                        bg-success-subtle text-success
+                                    {% else %}
+                                        bg-warning-subtle text-warning-emphasis
+                                    {% endif %}
+                                    d-flex align-items-center justify-content-center
+                                    flex-shrink-0
+                                "
+                                style="width:38px;height:38px;">
+
+                                    <i class="bi
+                                        {% if post.author %}
+                                            bi-check-lg
+                                        {% else %}
+                                            bi-dash-lg
+                                        {% endif %}
+                                    "></i>
+
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        Author
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        {% if post.author %}
+                                            {{ post.author }}
+                                        {% else %}
+                                            No author specified.
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Featured image -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-3">
+
+                                <div class="
+                                    rounded-circle
+                                    {% if post.featured_image %}
+                                        bg-success-subtle text-success
+                                    {% else %}
+                                        bg-warning-subtle text-warning-emphasis
+                                    {% endif %}
+                                    d-flex align-items-center justify-content-center
+                                    flex-shrink-0
+                                "
+                                style="width:38px;height:38px;">
+
+                                    <i class="bi
+                                        {% if post.featured_image %}
+                                            bi-check-lg
+                                        {% else %}
+                                            bi-image
+                                        {% endif %}
+                                    "></i>
+
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        Featured image
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        {% if post.featured_image %}
+                                            Image is configured.
+                                        {% else %}
+                                            No featured image configured.
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SEO -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-3">
+
+                                <div class="
+                                    rounded-circle
+                                    {% if post.meta_title or post.meta_description %}
+                                        bg-success-subtle text-success
+                                    {% else %}
+                                        bg-warning-subtle text-warning-emphasis
+                                    {% endif %}
+                                    d-flex align-items-center justify-content-center
+                                    flex-shrink-0
+                                "
+                                style="width:38px;height:38px;">
+
+                                    <i class="bi
+                                        {% if post.meta_title or post.meta_description %}
+                                            bi-check-lg
+                                        {% else %}
+                                            bi-search
+                                        {% endif %}
+                                    "></i>
+
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        SEO metadata
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        {% if post.meta_title or post.meta_description %}
+                                            SEO metadata configured.
+                                        {% else %}
+                                            SEO metadata is optional.
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PUBLISH FORM -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+                        <i class="bi bi-send me-2 text-success"></i>
+                        Publication Settings
+                    </h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST"
+                          action="{{ url_for('admin_blog.publish', post_id=post.id) }}"
+                          id="publishForm">
+
+                        {{ form.hidden_tag() }}
+
+                        <!-- Published date/time -->
+                        <div class="mb-4">
+
+                            {{ form.published_at.label(class="form-label fw-semibold") }}
+
+                            {{ form.published_at(
+                                class="form-control",
+                                id="publishedAt"
+                            ) }}
+
+                            {% if form.published_at.errors %}
+
+                                <div class="invalid-feedback d-block">
+
+                                    {% for error in form.published_at.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                            <div class="form-text">
+                                Leave this at the current time to publish immediately,
+                                or choose a specific publication date and time.
+                            </div>
+
+                        </div>
+
+
+                        <!-- Confirmation -->
+                        <div class="alert alert-success border-0">
+
+                            <div class="d-flex gap-3">
+
+                                <i class="bi bi-broadcast-pin fs-4"></i>
+
+                                <div>
+
+                                    <div class="fw-semibold mb-1">
+                                        Ready to publish?
+                                    </div>
+
+                                    <div class="small">
+                                        Publishing will change this article's status to
+                                        <strong>Published</strong> and make it eligible
+                                        for the public blog.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                            <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-success px-4"
+                                    id="publishButton">
+
+                                <i class="bi bi-send me-1"></i>
+                                Publish Article
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================
+             SIDEBAR
+        ========================================================= -->
+        <div class="col-xl-4">
+
+            <!-- CURRENT STATUS -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+                        <i class="bi bi-info-circle me-2 text-primary"></i>
+                        Current Status
+                    </h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="text-muted small">
+                            Status
+                        </span>
+
+                        {% if post.status == "Published" %}
+
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                Published
+                            </span>
+
+                        {% elif post.status == "Scheduled" %}
+
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                Scheduled
+                            </span>
+
+                        {% elif post.status == "Review" %}
+
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                Review
+                            </span>
+
+                        {% elif post.status == "Archived" %}
+
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                Archived
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-light text-dark border">
+                                Draft
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="text-muted small">
+                            Featured
+                        </span>
+
+                        {% if post.featured %}
+                            <span class="text-warning">
+                                <i class="bi bi-star-fill me-1"></i>
+                                Yes
+                            </span>
+                        {% else %}
+                            <span class="text-muted">
+                                No
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="text-muted small">
+                            Pinned
+                        </span>
+
+                        {% if post.pinned %}
+                            <span class="text-primary">
+                                <i class="bi bi-pin-angle-fill me-1"></i>
+                                Yes
+                            </span>
+                        {% else %}
+                            <span class="text-muted">
+                                No
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <span class="text-muted small">
+                            Comments
+                        </span>
+
+                        {% if post.allow_comments %}
+                            <span class="text-success">
+                                Enabled
+                            </span>
+                        {% else %}
+                            <span class="text-muted">
+                                Disabled
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PUBLICATION DETAILS -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+                        <i class="bi bi-calendar3 me-2 text-primary"></i>
+                        Publication Details
+                    </h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <dl class="row mb-0">
+
+                        <dt class="col-5 text-muted small">
+                            Slug
+                        </dt>
+
+                        <dd class="col-7 small">
+                            <code>{{ post.slug }}</code>
+                        </dd>
+
+
+                        <dt class="col-5 text-muted small">
+                            Category
+                        </dt>
+
+                        <dd class="col-7 small">
+
+                            {% if post.category %}
+                                {{ post.category.name }}
+                            {% else %}
+                                <span class="text-danger">
+                                    Not assigned
+                                </span>
+                            {% endif %}
+
+                        </dd>
+
+
+                        <dt class="col-5 text-muted small">
+                            Created
+                        </dt>
+
+                        <dd class="col-7 small">
+
+                            {% if post.created_at %}
+                                {{ post.created_at.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </dd>
+
+
+                        <dt class="col-5 text-muted small">
+                            Updated
+                        </dt>
+
+                        <dd class="col-7 small">
+
+                            {% if post.updated_at %}
+                                {{ post.updated_at.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </dd>
+
+
+                        <dt class="col-5 text-muted small">
+                            Published
+                        </dt>
+
+                        <dd class="col-7 small">
+
+                            {% if post.published_at %}
+                                {{ post.published_at.strftime('%d %b %Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">
+                                    Not yet
+                                </span>
+                            {% endif %}
+
+                        </dd>
+
+                    </dl>
+
+                </div>
+
+            </div>
+
+
+            <!-- BEFORE PUBLISHING -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+                        <i class="bi bi-lightbulb me-2 text-warning"></i>
+                        Before Publishing
+                    </h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <ul class="small text-muted ps-3 mb-0">
+
+                        <li class="mb-2">
+                            Check the title and article content.
+                        </li>
+
+                        <li class="mb-2">
+                            Confirm the category is correct.
+                        </li>
+
+                        <li class="mb-2">
+                            Check the featured image and alt text.
+                        </li>
+
+                        <li class="mb-2">
+                            Review the article slug.
+                        </li>
+
+                        <li class="mb-2">
+                            Review SEO metadata.
+                        </li>
+
+                        <li>
+                            Verify any related experiences or destinations.
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+            <!-- RELATED ACTIONS -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-0 py-3">
+
+                    <h2 class="h6 fw-bold mb-0">
+                        <i class="bi bi-lightning-charge me-2 text-primary"></i>
+                        Other Actions
+                    </h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-grid gap-2">
+
+                        <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                           class="btn btn-outline-primary text-start">
+
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Article
+
+                        </a>
+
+
+                        <a href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                           class="btn btn-outline-secondary text-start">
+
+                            <i class="bi bi-search me-2"></i>
+                            Edit SEO
+
+                        </a>
+
+
+                        <a href="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+                           class="btn btn-outline-secondary text-start">
+
+                            <i class="bi bi-megaphone me-2"></i>
+                            Edit Call to Action
+
+                        </a>
+
+
+                        <a href="{{ url_for('admin_blog.schedule', post_id=post.id) }}"
+                           class="btn btn-outline-info text-start">
+
+                            <i class="bi bi-calendar-event me-2"></i>
+                            Schedule Instead
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("publishForm");
+    const button = document.getElementById("publishButton");
+    const publishedAt = document.getElementById("publishedAt");
+
+    /*
+     * Set the publication date/time to the current local browser time
+     * when the field is empty.
+     */
+    if (publishedAt && !publishedAt.value) {
+
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+
+        publishedAt.value =
+            `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    }
+
+
+    /*
+     * Prevent accidental double submission.
+     */
+    if (form) {
+
+        form.addEventListener("submit", function (event) {
+
+            if (!form.checkValidity()) {
+                return;
+            }
+
+            if (button) {
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" ' +
+                    'role="status" aria-hidden="true"></span>' +
+                    'Publishing...';
+
+            }
+
+        });
+
+    }
+
+});
+</script>
+
+{% endblock %}

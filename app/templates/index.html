@@ -1,0 +1,1255 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ homepage.meta_title or homepage.title or "The Uncharted Route" }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ homepage.meta_description or homepage.description or "Explore. Experience. Remember." }}
+{% endblock %}
+
+{% block content %}
+
+{# ==========================================================================
+   THE UNCHARTED ROUTE
+   PUBLIC HOMEPAGE
+
+   Homepage content is driven by Homepage + HomepageSection records.
+
+   Section types supported here:
+   - hero
+   - featured_experiences
+   - featured_experience_card
+   - destinations
+   - destination_card
+   - why_travel
+   - journal
+   - promotional
+
+   Media is served through the centralized Media Library.
+   Experience and destination cards render only when their CMS records exist.
+   ========================================================================== #}
+
+
+{# ==========================================================================
+   SECTION COLLECTIONS
+   ========================================================================== #}
+
+{% set hero_sections = sections_by_type.get("hero", []) %}
+{% set hero = hero_sections[0] if hero_sections else None %}
+
+{% set featured_experience_sections = sections_by_type.get("featured_experiences", []) %}
+{% set featured_experience_cards = sections_by_type.get("featured_experience_card", []) %}
+
+{% set destination_sections = sections_by_type.get("destinations", []) %}
+{% set destination_cards = sections_by_type.get("destination_card", []) %}
+
+{% set why_sections = sections_by_type.get("why_travel", []) %}
+
+{% set journal_sections = sections_by_type.get("journal", []) %}
+
+{% set promotional_sections = sections_by_type.get("promotional", []) %}
+{% set intro = promotional_sections[0] if promotional_sections else None %}
+{% set final_cta = promotional_sections[1] if promotional_sections|length > 1 else None %}
+
+
+
+{# ==========================================================================
+   HERO
+   ========================================================================== #}
+<section
+    class="relative min-h-[78vh] flex items-center overflow-hidden bg-[#12372A]"
+>
+    {# ----------------------------------------------------------------------
+       HERO MEDIA
+       ---------------------------------------------------------------------- #}
+    {% if hero and hero.media_asset %}
+        {% if hero.media_asset.is_video %}
+            <video
+                class="absolute inset-0 w-full h-full object-cover"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+            >
+                <source
+                    src="{{ hero.media_asset.file_url or url_for('static', filename=hero.media_asset.file_path) }}"
+                    type="{{ hero.media_asset.mime_type }}"
+                >
+            </video>
+
+        {% else %}
+
+            <img
+                src="{{ hero.media_asset.file_url or url_for('static', filename=hero.media_asset.file_path) }}"
+                alt="{{ hero.media_asset.alt_text or hero.title or 'The Uncharted Route' }}"
+                class="absolute inset-0 w-full h-full object-cover"
+            >
+
+        {% endif %}
+
+    {% else %}
+
+        {# Legacy fallback retained only for the Hero. #}
+        <img
+            src="{{ url_for('static', filename='images/home/hero.jpg') }}"
+            alt="The Uncharted Route"
+            class="absolute inset-0 w-full h-full object-cover"
+        >
+
+    {% endif %}
+
+
+    {# ----------------------------------------------------------------------
+       HERO OVERLAY
+       ---------------------------------------------------------------------- #}
+    <div class="absolute inset-0 bg-black/45"></div>
+
+    <div class="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent"></div>
+
+
+    {# ----------------------------------------------------------------------
+       HERO CONTENT
+       ---------------------------------------------------------------------- #}
+
+    <div class="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-8 py-24">
+
+        <div class="max-w-3xl">
+
+            {% if hero and hero.subtitle %}
+
+                <p
+                    class="mb-5 text-sm md:text-base uppercase tracking-[0.3em] font-semibold text-[#5C6B32]"
+                >
+                    {{ hero.subtitle }}
+                </p>
+
+            {% endif %}
+
+
+            <h1
+                class="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white"
+            >
+                {{ hero.title if hero and hero.title else "Explore. Experience. Remember." }}
+            </h1>
+
+
+            {% if hero and hero.content %}
+
+                <div
+                    class="mt-6 max-w-2xl text-base md:text-lg leading-relaxed text-white/90"
+                >
+                    {{ hero.content|safe }}
+                </div>
+
+            {% else %}
+
+                <p
+                    class="mt-6 max-w-2xl text-base md:text-lg leading-relaxed text-white/90"
+                >
+                    Discover Kenya through thoughtfully crafted experiences,
+                    unforgettable landscapes and stories worth remembering.
+                </p>
+
+            {% endif %}
+
+
+            {% if hero and hero.cta_text and hero.cta_url %}
+
+                <div class="mt-8">
+
+                    <a
+                        href="{{ hero.cta_url }}"
+                        class="inline-flex items-center justify-center rounded-full bg-[#5C6B32] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#465226] hover:-translate-y-0.5"
+                    >
+                        {{ hero.cta_text }}
+
+                        <svg
+                            class="ml-2 h-4 w-4"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M10.293 3.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 1.414L13.586 11H4a1 1 0 110-2h9.586l-3.293-3.293a1 1 0 010-1.414z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{# ==========================================================================
+   INTRO / PROMOTIONAL SECTION
+   ========================================================================== #}
+{% if featured_promotions %}
+<section class="bg-route-cream px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <div class="mx-auto max-w-7xl">
+
+        <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-route-terracotta">
+                    Limited-Time Escapes
+                </p>
+                <h2 class="mt-3 text-3xl font-bold tracking-tight text-route-ink sm:text-4xl">
+                    Offers Worth Exploring
+                </h2>
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-route-muted">
+                    Discover special safari escapes and curated travel offers
+                    from The Uncharted Route.
+                </p>
+            </div>
+
+            <a href="{{ url_for('promotions.index') }}"
+               class="inline-flex items-center text-sm font-bold text-route-forest hover:text-route-terracotta">
+                View All Offers
+                <i class="bi bi-arrow-up-right ml-2"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {% for promotion in featured_promotions %}
+            <article class="group overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <a href="{{ url_for('promotions.detail', slug=promotion.slug) }}"
+                   aria-label="View {{ promotion.title }}"
+                   class="block overflow-hidden bg-route-sand">
+                    {% if promotion.poster_url %}
+                    <img
+                        src="{{ promotion.poster_url }}"
+                        alt="{{ promotion.poster_alt }}"
+                        class="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                        loading="lazy"
+                    >
+                    {% endif %}
+                </a>
+
+                <div class="p-5">
+                    {% if promotion.ends_at %}
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-terracotta">
+                        Ends {{ promotion.ends_at.strftime('%d %b %Y') }}
+                    </p>
+                    {% endif %}
+
+                    <h3 class="mt-2 text-xl font-bold text-route-ink">
+                        {{ promotion.title }}
+                    </h3>
+
+                    {% if promotion.description %}
+                    <p class="mt-2 text-sm leading-6 text-route-muted">
+                        {{ promotion.description|truncate(130, True, '…') }}
+                    </p>
+                    {% endif %}
+
+                    <a href="{{ url_for('promotions.detail', slug=promotion.slug) }}"
+                       class="mt-4 inline-flex items-center text-sm font-bold text-route-forest hover:text-route-terracotta">
+                        Explore Offer
+                        <i class="bi bi-arrow-up-right ml-2"></i>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ==========================================================================
+   FEATURED EXPERIENCES — HOMEPAGE
+   The home() route supplies active, featured experiences selected for
+   homepage display. Maximum: 3.
+   ========================================================================== #}
+
+{% if featured_experience_sections or featured_experiences %}
+
+<section class="bg-white py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        {# CMS heading and introduction #}
+        {% if featured_experience_sections %}
+            {% set experience_heading = featured_experience_sections[0] %}
+
+            <div class="mb-12 max-w-3xl">
+                {% if experience_heading.subtitle %}
+                    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#5C6B32]">
+                        {{ experience_heading.subtitle }}
+                    </p>
+                {% endif %}
+
+                <h2 class="font-serif text-3xl font-semibold leading-tight text-[#12372A] md:text-5xl">
+                    {{ experience_heading.title or "Featured Experiences" }}
+                </h2>
+
+                {% if experience_heading.content %}
+                    <div class="mt-5 leading-relaxed text-[#66736B]">
+                        {{ experience_heading.content|safe }}
+                    </div>
+                {% endif %}
+            </div>
+
+        {% else %}
+
+            <div class="mb-12 max-w-3xl">
+                <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#5C6B32]">
+                    Find Your Next Adventure
+                </p>
+
+                <h2 class="font-serif text-3xl font-semibold text-[#12372A] md:text-5xl">
+                    Featured Experiences
+                </h2>
+
+                <p class="mt-5 leading-relaxed text-[#66736B]">
+                    Thoughtfully crafted experiences that bring you closer to
+                    remarkable places, people, wildlife and stories.
+                </p>
+            </div>
+
+        {% endif %}
+
+        {# Homepage-selected experience cards #}
+        {% if featured_experiences %}
+
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for experience in featured_experiences %}
+
+                    <article class="group flex h-full flex-col overflow-hidden rounded-2xl bg-[#F7F1E5] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+                        <a
+                            href="{{ url_for('experiences.detail', slug=experience.slug) }}"
+                            class="block"
+                            aria-label="Explore {{ experience.title }}"
+                        >
+                            <div class="relative aspect-[4/3] overflow-hidden bg-[#12372A]">
+
+                                {% if experience.primary_image_url %}
+                                    <img
+                                        src="{{ experience.primary_image_url }}"
+                                        alt="{{ experience.title }}"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                    >
+                                {% else %}
+                                    <div class="flex h-full w-full items-center justify-center">
+                                        <span class="text-sm uppercase tracking-[0.2em] text-white/70">
+                                            Experience
+                                        </span>
+                                    </div>
+                                {% endif %}
+
+                                {% if experience.destination %}
+                                    <span class="absolute bottom-4 left-4 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#12372A]">
+                                        {{ experience.destination.name }}
+                                    </span>
+                                {% endif %}
+
+                                <span class="absolute left-4 top-4 rounded-full bg-[#D89B24] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#12372A]">
+                                    Featured
+                                </span>
+
+                            </div>
+                        </a>
+
+                        <div class="flex flex-1 flex-col p-6 lg:p-7">
+
+                            {% if experience.category %}
+                                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#5C6B32]">
+                                    {{ experience.category.name }}
+                                </p>
+                            {% endif %}
+
+                            <h3 class="font-serif text-2xl font-semibold leading-snug text-[#12372A]">
+                                <a
+                                    href="{{ url_for('experiences.detail', slug=experience.slug) }}"
+                                    class="transition hover:text-[#C96A2C]"
+                                >
+                                    {{ experience.title }}
+                                </a>
+                            </h3>
+
+                            {% if experience.short_description %}
+                                <p class="mt-3 text-sm leading-7 text-[#66736B]">
+                                    {{ experience.short_description }}
+                                </p>
+                            {% endif %}
+
+                            <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#66736B]">
+
+                                {% if experience.duration %}
+                                    <span class="inline-flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-[#5C6B32]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="9"></circle>
+                                            <path d="M12 7v5l3 2"></path>
+                                        </svg>
+                                        {{ experience.duration }}
+                                    </span>
+                                {% endif %}
+
+                                {% if experience.difficulty %}
+                                    <span class="inline-flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-[#5C6B32]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                                            <path d="m3 17 6-6 4 4 8-9"></path>
+                                            <path d="M15 6h6v6"></path>
+                                        </svg>
+                                        {{ experience.difficulty|replace('_', ' ')|title }}
+                                    </span>
+                                {% endif %}
+
+                            </div>
+
+                            <div class="mt-auto mt-6 flex items-end justify-between gap-4 border-t border-[#E9DDC8] pt-5">
+
+                                <div>
+                                    <p class="text-xs text-[#66736B]">
+                                        Starting from
+                                    </p>
+
+                                    <p class="mt-1 text-lg font-semibold text-[#12372A]">
+                                        {{ experience.formatted_price }}
+                                    </p>
+                                </div>
+
+                                <a
+                                    href="{{ url_for('experiences.detail', slug=experience.slug) }}"
+                                    class="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-[#12372A] transition hover:text-[#C96A2C]"
+                                >
+                                    Discover
+
+                                    <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L13.586 11H4a1 1 0 110-2h9.586l-3.293-3.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <p class="text-[#66736B]">
+                New experiences are coming soon. Check back shortly.
+            </p>
+
+        {% endif %}
+
+        <div class="mt-10">
+            <a
+                href="{{ url_for('experiences.index') }}"
+                class="inline-flex items-center gap-2 rounded-full border border-[#12372A] px-6 py-3 text-sm font-semibold text-[#12372A] transition hover:bg-[#12372A] hover:text-white"
+            >
+                Explore all featured experiences
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+{% endif %}
+
+
+
+{# ==========================================================================
+   FEATURED DESTINATIONS — HOMEPAGE
+   Only active, featured destinations explicitly enabled for the homepage.
+   ========================================================================== #}
+
+{% if destination_sections or featured_destinations %}
+
+<section class="bg-[#F7F1E5] py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <!-- CMS-managed section heading -->
+        {% if destination_sections %}
+
+            {% set destination_heading = destination_sections[0] %}
+
+            <div class="mb-12 max-w-3xl">
+
+                {% if destination_heading.subtitle %}
+                    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#5C6B32]">
+                        {{ destination_heading.subtitle }}
+                    </p>
+                {% endif %}
+
+                <h2 class="font-serif text-3xl font-semibold leading-tight text-[#12372A] md:text-5xl">
+                    {{ destination_heading.title or "Explore Our Destinations" }}
+                </h2>
+
+                {% if destination_heading.content %}
+                    <div class="mt-5 leading-relaxed text-[#66736B]">
+                        {{ destination_heading.content|safe }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% else %}
+
+            <div class="mb-12 max-w-3xl">
+
+                <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#5C6B32]">
+                    Places Worth Discovering
+                </p>
+
+                <h2 class="font-serif text-3xl font-semibold leading-tight text-[#12372A] md:text-5xl">
+                    Explore Our Popular Destinations
+                </h2>
+
+                <p class="mt-5 leading-relaxed text-[#66736B]">
+                    From wild landscapes to coastal escapes, discover places
+                    with stories waiting to be experienced.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+        <!-- Homepage destination cards -->
+        {% if featured_destinations %}
+
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+
+                {% for destination in featured_destinations %}
+
+                    <article class="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+                        <!-- Destination image -->
+                        <a
+                            href="{{ url_for('destinations.detail', slug=destination.slug) }}"
+                            class="block"
+                            aria-label="Discover {{ destination.name }}"
+                        >
+                            <div class="relative aspect-[4/3] overflow-hidden bg-[#E9DDC8]">
+
+                                {% set image_asset = destination.featured_image_asset %}
+
+                                {% if image_asset and image_asset.browser_url %}
+
+                                    <img
+                                        src="{{ image_asset.browser_url }}"
+                                        alt="{{ image_asset.alt_text or destination.name }}"
+                                        loading="lazy"
+                                        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                    >
+
+                                {% else %}
+
+                                    <div class="flex h-full w-full items-center justify-center">
+                                        <span class="px-6 text-center text-sm font-medium uppercase tracking-[0.2em] text-[#66736B]">
+                                            {{ destination.name }}
+                                        </span>
+                                    </div>
+
+                                {% endif %}
+
+                                {% if destination.country %}
+                                    <span class="absolute bottom-4 left-4 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#12372A]">
+                                        {{ destination.country }}
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                        </a>
+
+                        <!-- Destination details -->
+                        <div class="flex flex-1 flex-col p-6 lg:p-7">
+
+                            {% if destination.region or destination.county %}
+                                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#5C6B32]">
+                                    {{ destination.region or destination.county }}
+                                </p>
+                            {% endif %}
+
+                            <h3 class="font-serif text-2xl font-semibold leading-snug text-[#12372A]">
+                                <a
+                                    href="{{ url_for('destinations.detail', slug=destination.slug) }}"
+                                    class="transition hover:text-[#C96A2C]"
+                                >
+                                    {{ destination.name }}
+                                </a>
+                            </h3>
+
+                            {% if destination.short_description %}
+                                <p class="mt-3 line-clamp-3 text-sm leading-7 text-[#66736B]">
+                                    {{ destination.short_description }}
+                                </p>
+                            {% endif %}
+
+                            <!-- Experience count and destination link -->
+                            <div class="mt-auto mt-6 flex items-center justify-between gap-4 border-t border-[#E9DDC8] pt-5">
+
+                                <span class="text-sm text-[#66736B]">
+                                    {% set experience_total = destination.experience_count or 0 %}
+
+                                    {% if experience_total == 1 %}
+                                        1 experience
+                                    {% else %}
+                                        {{ experience_total }} experiences
+                                    {% endif %}
+                                </span>
+
+                                <a
+                                    href="{{ url_for('destinations.detail', slug=destination.slug) }}"
+                                    class="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-[#12372A] transition hover:text-[#C96A2C]"
+                                >
+                                    Explore destination
+
+                                    <svg
+                                        class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M10.293 3.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414L13.586 11H4a1 1 0 110-2h9.586l-3.293-3.293a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <p class="text-sm leading-7 text-[#66736B]">
+                New destinations are coming soon. Check back shortly.
+            </p>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endif %}
+
+{# ==========================================================================
+   WHY TRAVEL WITH US
+   ========================================================================== #}
+
+{% if why_sections %}
+
+<section class="bg-white py-20">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
+        {% set why_heading = why_sections[0] %}
+
+        <div class="max-w-3xl mb-12">
+
+            {% if why_heading.subtitle %}
+
+                <p
+                    class="mb-3 text-sm uppercase tracking-[0.25em] font-semibold text-[#5C6B32]"
+                >
+                    {{ why_heading.subtitle }}
+                </p>
+
+            {% endif %}
+
+
+            <h2
+                class="text-3xl md:text-5xl font-serif font-semibold text-[#12372A]"
+            >
+                {{ why_heading.title or "Why Travel With Us?" }}
+            </h2>
+
+
+            {% if why_heading.content %}
+
+                <div
+                    class="mt-4 text-[#66736B] leading-relaxed"
+                >
+                    {{ why_heading.content|safe }}
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if why_sections|length > 1 %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                {% for section in why_sections[1:5] %}
+
+                    <article>
+
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-full bg-[#F7F1E5] text-[#D89B24]"
+                        >
+                            <span class="text-lg font-semibold">
+                                {{ loop.index }}
+                            </span>
+                        </div>
+
+
+                        <h3
+                            class="mt-5 text-xl font-serif font-semibold text-[#12372A]"
+                        >
+                            {{ section.title or "Thoughtful Experiences" }}
+                        </h3>
+
+
+                        {% if section.content %}
+
+                            <div
+                                class="mt-3 text-sm leading-relaxed text-[#66736B]"
+                            >
+                                {{ section.content|safe }}
+                            </div>
+
+                        {% endif %}
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+
+{# ==========================================================================
+   JOURNAL
+   ========================================================================== #}
+{% if journal_sections %}
+
+<section class="bg-[#F7F1E5] py-20">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
+        {% set journal_heading = journal_sections[0] %}
+
+        <div class="max-w-3xl mb-12">
+
+            {% if journal_heading.subtitle %}
+
+                <p
+                    class="mb-3 text-sm uppercase tracking-[0.25em] font-semibold text-[#5C6B32]"
+                >
+                    {{ journal_heading.subtitle }}
+                </p>
+
+            {% endif %}
+
+
+            <h2
+                class="text-3xl md:text-5xl font-serif font-semibold text-[#12372A]"
+            >
+                {{ journal_heading.title or "From the Journal" }}
+            </h2>
+
+
+            {% if journal_heading.content %}
+
+                <div
+                    class="mt-4 text-[#66736B] leading-relaxed text-[#66736B]"
+                >
+                    {{ journal_heading.content|safe }}
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if journal_sections|length > 1 %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                {% for section in journal_sections[1:4] %}
+
+                    <article
+                        class="overflow-hidden rounded-2xl bg-white shadow-sm"
+                    >
+
+                        {% if section.media_asset %}
+
+                            <div class="aspect-[4/3] overflow-hidden">
+
+                                {% if section.media_asset.is_video %}
+
+                                    <video
+                                        class="h-full w-full object-cover"
+                                        muted
+                                        loop
+                                        autoplay
+                                        playsinline
+                                        preload="metadata"
+                                    >
+                                        <source
+                                            src="{{ section.media_asset.file_url or url_for('static', filename=section.media_asset.file_path) }}"
+                                            type="{{ section.media_asset.mime_type }}"
+                                        >
+                                    </video>
+
+                                {% else %}
+
+                                    <img
+                                        src="{{ section.media_asset.file_url or url_for('static', filename=section.media_asset.file_path) }}"
+                                        alt="{{ section.media_asset.alt_text or section.title or 'Journal' }}"
+                                        class="h-full w-full object-cover"
+                                    >
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="p-6">
+
+                            {% if section.subtitle %}
+
+                                <p
+                                    class="mb-2 text-xs uppercase tracking-[0.2em] font-semibold text-[#5C6B32]"
+                                >
+                                    {{ section.subtitle }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <h3
+                                class="text-2xl font-serif font-semibold text-[#12372A]"
+                            >
+                                {{ section.title or "Journal" }}
+                            </h3>
+
+
+                            {% if section.content %}
+
+                                <div
+                                    class="mt-3 text-sm leading-relaxed text-[#66736B]"
+                                >
+                                    {{ section.content|safe }}
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if section.cta_text and section.cta_url %}
+
+                                <a
+                                    href="{{ section.cta_url }}"
+                                    class="mt-5 inline-flex items-center text-sm font-semibold text-[#12372A] hover:text-[#D89B24]"
+                                >
+                                    {{ section.cta_text }}
+
+                                    <svg
+                                        class="ml-2 h-4 w-4"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M10.293 3.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 010 1.414L13.586 11H4a1 1 0 110-2h9.586l-3.293-3.293a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+
+{# ==========================================================================
+   FINAL CALL TO ACTION
+   ========================================================================== #}
+
+{% if final_cta %}
+
+<section class="bg-[#12372A] py-20">
+
+    <div class="max-w-4xl mx-auto px-6 text-center">
+
+        {% if final_cta.subtitle %}
+
+            <p
+                class="mb-3 text-sm uppercase tracking-[0.25em] font-semibold text-[#D89B24]"
+            >
+                {{ final_cta.subtitle }}
+            </p>
+
+        {% endif %}
+
+
+        <h2
+            class="text-3xl md:text-5xl font-serif font-semibold text-white"
+        >
+            {{ final_cta.title or "Your next story starts here." }}
+        </h2>
+
+
+        {% if final_cta.content %}
+
+            <div
+                class="mt-5 text-white/80 leading-relaxed"
+            >
+                {{ final_cta.content|safe }}
+            </div>
+
+        {% endif %}
+
+
+        {% if final_cta.cta_text and final_cta.cta_url %}
+
+            <div class="mt-8">
+
+                <a
+                    href="{{ final_cta.cta_url }}"
+                    class="inline-flex items-center justify-center rounded-full bg-[#D89B24] px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-[#C98D1E] hover:-translate-y-0.5"
+                >
+                    {{ final_cta.cta_text }}
+
+                    <svg
+                        class="ml-2 h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10.293 3.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 010 1.414L13.586 11H4a1 1 0 110-2h9.586l-3.293-3.293a1 1 0 010-1.414z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+{% endif %}
+
+{# ==========================================================================
+   CUSTOMER TESTIMONIALS — HOMEPAGE
+   Continuous, seamless looping carousel.
+   Only active, verified testimonials selected for homepage display.
+   ========================================================================== #}
+
+{% if homepage_testimonials %}
+
+<section
+    id="customer-testimonials"
+    class="overflow-hidden bg-[#F7F1E5] py-20 lg:py-24"
+    aria-labelledby="testimonials-heading"
+>
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="mx-auto mb-12 max-w-3xl text-center">
+
+            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#5C6B32]">
+                Stories From Our Travellers
+            </p>
+
+            <h2
+                id="testimonials-heading"
+                class="font-serif text-3xl font-semibold leading-tight text-[#12372A] md:text-5xl"
+            >
+                Memories Worth Sharing
+            </h2>
+
+            <p class="mx-auto mt-5 max-w-2xl leading-relaxed text-[#66736B]">
+                Every journey leaves a story. Discover what our travellers
+                have to say about their experiences with The Uncharted Route.
+            </p>
+
+        </div>
+
+    </div>
+
+    {# Continuous marquee: two identical sets create the seamless loop. #}
+    <div
+        class="testimonial-carousel"
+        role="region"
+        aria-label="Traveller testimonials"
+    >
+        <div class="testimonial-track">
+
+            {% for copy in range(2) %}
+                <div
+                    class="testimonial-group"
+                    {% if copy == 1 %}aria-hidden="true"{% endif %}
+                >
+
+                    {% for testimonial in homepage_testimonials %}
+
+                        <article class="testimonial-card">
+                            <div class="flex h-full flex-col rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm md:p-8">
+
+                                {# Star rating #}
+                                <div
+                                    class="mb-5 flex gap-1 text-lg text-[#D89B24]"
+                                    aria-label="{{ testimonial.rating }} out of 5 stars"
+                                >
+                                    {% for star in range(5) %}
+                                        <span aria-hidden="true">
+                                            {{ '★' if star < testimonial.rating else '☆' }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+
+                                {# Testimonial quote #}
+                                <div class="flex-1">
+                                    <span
+                                        class="mb-2 block font-serif text-4xl leading-none text-[#D89B24]"
+                                        aria-hidden="true"
+                                    >
+                                        “
+                                    </span>
+
+                                    <p class="text-sm leading-7 text-[#1C2822] md:text-base">
+                                        {{ testimonial.testimonial }}
+                                    </p>
+                                </div>
+
+                                {# Customer information and optional photo #}
+                                <div class="mt-7 flex items-center gap-4 border-t border-[#E9DDC8] pt-5">
+
+                                    {% set photo_asset = testimonial.customer_photo_asset if testimonial.customer_photo_asset is defined else none %}
+                                    {% set photo_url = none %}
+
+                                    {% if photo_asset and photo_asset.browser_url %}
+                                        {% set photo_url = photo_asset.browser_url %}
+                                    {% elif testimonial.customer_photo %}
+                                        {% set stored_photo = testimonial.customer_photo.replace('\\', '/') %}
+
+                                        {% if stored_photo.startswith('http://') or stored_photo.startswith('https://') %}
+                                            {% set photo_url = stored_photo %}
+                                        {% elif stored_photo.startswith('/static/') %}
+                                            {% set photo_url = stored_photo %}
+                                        {% else %}
+                                            {% set photo_url = url_for(
+                                                'static',
+                                                filename=stored_photo.lstrip('/').removeprefix('static/')
+                                            ) %}
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if photo_url %}
+                                        <img
+                                            src="{{ photo_url }}"
+                                            alt=""
+                                            loading="lazy"
+                                            class="h-14 w-14 shrink-0 rounded-full border-2 border-[#E9DDC8] object-cover"
+                                            onerror="this.style.display='none';"
+                                        >
+                                    {% else %}
+                                        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#12372A] font-serif text-xl font-semibold text-white">
+                                            {{ testimonial.customer_name[:1]|upper }}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="min-w-0">
+                                        <h3 class="truncate font-semibold text-[#12372A]">
+                                            {{ testimonial.customer_name }}
+                                        </h3>
+
+                                        {% if testimonial.title %}
+                                            <p class="mt-1 line-clamp-2 text-xs leading-5 text-[#66736B]">
+                                                {{ testimonial.title }}
+                                            </p>
+                                        {% elif testimonial.city or testimonial.country %}
+                                            <p class="mt-1 text-xs text-[#66736B]">
+                                                {{ [testimonial.city, testimonial.country]|select|join(', ') }}
+                                            </p>
+                                        {% else %}
+                                            <p class="mt-1 text-xs text-[#66736B]">
+                                                Verified Traveller
+                                            </p>
+                                        {% endif %}
+                                    </div>
+
+                                    <span
+                                        class="ml-auto shrink-0 text-[#5C6B32]"
+                                        title="Verified testimonial"
+                                        aria-label="Verified testimonial"
+                                    >
+                                        <svg
+                                            class="h-5 w-5"
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            <path d="M12 2 15 4l3.6-.1.9 3.5L22 10l-1.2 3.4.4 3.6-3.4 1.4L15.5 21 12 19.8 8.5 21l-2.3-2.6-3.4-1.4.4-3.6L2 10l2.5-2.6.9-3.5L9 4l3-2Zm-1.2 12.6 5-5-1.4-1.4-3.6 3.6-1.7-1.7-1.4 1.4 3.1 3.1Z"/>
+                                        </svg>
+                                    </span>
+
+                                </div>
+                            </div>
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <div class="mt-8 text-center">
+        <p class="text-xs font-medium uppercase tracking-[0.2em] text-[#66736B]">
+            Real stories. Meaningful journeys. Lasting memories.
+        </p>
+    </div>
+
+</section>
+
+<style>
+    #customer-testimonials .testimonial-carousel {
+        width: 100%;
+        overflow: hidden;
+        padding: 8px 0 16px;
+    }
+
+    #customer-testimonials .testimonial-track {
+        display: flex;
+        width: max-content;
+        gap: 24px;
+        animation: tur-testimonials-loop 45s linear infinite;
+        will-change: transform;
+    }
+
+    /*
+       Each group contains one complete set of testimonials.
+       The track gap is included in the loop distance calculation
+       through the group spacing below.
+    */
+    #customer-testimonials .testimonial-group {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: stretch;
+        gap: 24px;
+    }
+
+    #customer-testimonials .testimonial-card {
+        display: flex;
+        flex: 0 0 340px;
+        width: 340px;
+    }
+
+    #customer-testimonials .testimonial-card > div {
+        width: 100%;
+    }
+
+    #customer-testimonials .testimonial-track:hover {
+        animation-play-state: paused;
+    }
+
+    #customer-testimonials .testimonial-carousel:focus-within .testimonial-track {
+        animation-play-state: paused;
+    }
+
+    /*
+       Move by one complete group, including its spacing.
+       The track contains two identical groups, so the reset
+       happens at the exact point where the second group aligns
+       with the first group's starting position.
+    */
+    @keyframes tur-testimonials-loop {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(calc(-50% - 12px));
+    }
+}
+
+    @media (min-width: 768px) {
+        #customer-testimonials .testimonial-card {
+            flex-basis: 390px;
+            width: 390px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        #customer-testimonials .testimonial-track {
+            animation-duration: 35s;
+        }
+
+        #customer-testimonials .testimonial-group {
+            gap: 16px;
+        }
+
+        #customer-testimonials .testimonial-card {
+            flex-basis: 290px;
+            width: 290px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #customer-testimonials .testimonial-carousel {
+            overflow-x: auto;
+        }
+
+        #customer-testimonials .testimonial-track {
+            animation: none;
+            transform: none;
+        }
+
+        #customer-testimonials .testimonial-group[aria-hidden="true"] {
+            display: none;
+        }
+    }
+</style>
+
+{% endif %}
+{% endblock %}

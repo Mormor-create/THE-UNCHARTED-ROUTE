@@ -1,0 +1,152 @@
+{% extends "guide_portal/base.html" %}
+
+{% block title %}My Assignments | The Uncharted Route{% endblock %}
+{% block page_heading %}My assignments{% endblock %}
+{% block page_description %}
+Review your allocated experiences, respond to new assignments, and track their progress.
+{% endblock %}
+
+{% block content %}
+<section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+        <p class="text-sm text-muted">Awaiting response</p>
+        <p class="mt-3 text-3xl font-bold text-forest">{{ pending_assignments|length }}</p>
+    </div>
+    <div class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+        <p class="text-sm text-muted">Active assignments</p>
+        <p class="mt-3 text-3xl font-bold text-forest">{{ active_assignments|length }}</p>
+    </div>
+    <div class="rounded-2xl border border-sand bg-white p-5 shadow-sm">
+        <p class="text-sm text-muted">Total assignments</p>
+        <p class="mt-3 text-3xl font-bold text-forest">{{ assignments|length }}</p>
+    </div>
+</section>
+
+<section class="mb-10">
+    <div class="mb-5">
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-clay">Action required</p>
+        <h2 class="mt-1 font-display text-2xl font-semibold text-forest">Pending assignments</h2>
+    </div>
+
+    {% if pending_assignments %}
+        <div class="space-y-4">
+            {% for assignment in pending_assignments %}
+                {% set booking = assignment.booking if assignment.booking is defined else none %}
+                <article class="rounded-2xl border border-sand bg-white p-5 shadow-sm sm:p-6">
+                    <div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap gap-2">
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
+                                    {{ assignment.status or 'Pending' }}
+                                </span>
+                                {% if assignment.role %}
+                                    <span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-forest">
+                                        {{ assignment.role }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="mt-3 text-lg font-semibold text-forest">
+                                {% if booking and booking.experience %}
+                                    {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Assigned experience' }}
+                                {% elif booking %}
+                                    Booking #{{ booking.id }}
+                                {% else %}
+                                    Assignment #{{ assignment.id }}
+                                {% endif %}
+                            </h3>
+
+                            <p class="mt-2 text-sm text-muted">
+                                Assignment #{{ assignment.id }}
+                                {% if booking %} · Booking #{{ booking.id }}{% endif %}
+                            </p>
+
+                            {% if booking and booking.experience_date %}
+                                <p class="mt-2 text-sm text-muted">
+                                    Date:
+                                    {{ booking.experience_date.strftime('%A, %d %B %Y') if booking.experience_date.strftime is defined else booking.experience_date }}
+                                </p>
+                            {% endif %}
+
+                            {% if assignment.notes %}
+                                <p class="mt-3 text-sm leading-6 text-muted">{{ assignment.notes }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ url_for('guide_portal.assignment_detail', assignment_id=assignment.id) }}"
+                               class="rounded-xl border border-sand px-4 py-2.5 text-sm font-semibold text-forest hover:bg-cream">
+                                View details
+                            </a>
+
+                            <form method="POST" action="{{ url_for('guide_portal.accept', assignment_id=assignment.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white hover:bg-leaf">
+                                    Accept
+                                </button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{{ url_for('guide_portal.decline', assignment_id=assignment.id) }}"
+                                  onsubmit="return confirm('Are you sure you want to decline this assignment?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50">
+                                    Decline
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dashed border-sand bg-white p-8 text-center">
+            <h3 class="font-semibold text-forest">You're all caught up.</h3>
+            <p class="mt-2 text-sm text-muted">New assignments will appear here when allocated to you.</p>
+        </div>
+    {% endif %}
+</section>
+
+<section>
+    <div class="mb-5">
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-moss">Your workload</p>
+        <h2 class="mt-1 font-display text-2xl font-semibold text-forest">Other assignments</h2>
+    </div>
+
+    {% if active_assignments %}
+        <div class="space-y-4">
+            {% for assignment in active_assignments %}
+                {% set booking = assignment.booking if assignment.booking is defined else none %}
+                <article class="flex flex-col justify-between gap-4 rounded-2xl border border-sand bg-white p-5 shadow-sm sm:flex-row sm:items-center">
+                    <div>
+                        <span class="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-forest">
+                            {{ assignment.status or 'Active' }}
+                        </span>
+                        <h3 class="mt-3 font-semibold text-forest">
+                            {% if booking and booking.experience %}
+                                {{ booking.experience.name if booking.experience.name is defined else booking.experience.title if booking.experience.title is defined else 'Assigned experience' }}
+                            {% elif booking %}
+                                Booking #{{ booking.id }}
+                            {% else %}
+                                Assignment #{{ assignment.id }}
+                            {% endif %}
+                        </h3>
+                        {% if assignment.notes %}
+                            <p class="mt-2 text-sm text-muted">{{ assignment.notes }}</p>
+                        {% endif %}
+                    </div>
+
+                    <a href="{{ url_for('guide_portal.assignment_detail', assignment_id=assignment.id) }}"
+                       class="inline-flex rounded-xl border border-sand px-4 py-2.5 text-sm font-semibold text-forest hover:bg-cream">
+                        View assignment
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-sand bg-white p-6 text-sm text-muted">
+            You have no other active assignments.
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

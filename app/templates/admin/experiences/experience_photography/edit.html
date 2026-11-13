@@ -1,0 +1,157 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Photography Spot — {{ experience.title }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-8">
+
+    <!-- Header -->
+    <div>
+        <nav class="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_experiences.index') }}" class="transition hover:text-[#1F5138]">
+                Experiences
+            </a>
+            <span>/</span>
+            <span>{{ experience.title }}</span>
+            <span>/</span>
+            <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+               class="transition hover:text-[#1F5138]">
+                Photography Spots
+            </a>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">Edit</span>
+        </nav>
+
+        <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span>
+            Back to Photography Spots
+        </a>
+
+        <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E9DDC8] text-2xl">
+                📷
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#12372A]">
+                    Edit Photography Spot
+                </h1>
+                <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                    Update this photography stop's settings for {{ experience.title }}.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit form -->
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+        <div class="border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-4">
+            <h2 class="font-semibold text-[#12372A]">Photography stop details</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Record #{{ photography.id }}</p>
+        </div>
+
+        <form method="POST" class="space-y-6 p-6">
+            {{ form.hidden_tag() }}
+
+            <div>
+                {{ form.photography_spot_id.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.photography_spot_id(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                {% for error in form.photography_spot_id.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.stop_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.stop_order(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                {% for error in form.stop_order.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.notes.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.notes(rows="5", class="w-full resize-y rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                {% for error in form.notes.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#D89B24]">
+                    {{ form.featured(class="mt-1 h-4 w-4 shrink-0 accent-[#1F5138]") }}
+                    <span>
+                        <span class="block text-sm font-semibold text-[#1C2822]">Featured stop</span>
+                        <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                            Highlight this photography location prominently.
+                        </span>
+                    </span>
+                </label>
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#1F5138]">
+                    {{ form.active(class="mt-1 h-4 w-4 shrink-0 accent-[#1F5138]") }}
+                    <span>
+                        <span class="block text-sm font-semibold text-[#1C2822]">Active</span>
+                        <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                            Make this photography stop available to guests.
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <!-- Record information -->
+            <div class="rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/70 p-5">
+                <h3 class="mb-4 text-sm font-semibold text-[#12372A]">Record information</h3>
+                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-[#66736B]">Record ID</dt>
+                        <dd class="mt-1 font-semibold text-[#1C2822]">#{{ photography.id }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-[#66736B]">Photography location</dt>
+                        <dd class="mt-1 font-semibold text-[#1C2822]">
+                            {{ photography.spot.name if photography.spot else 'Location unavailable' }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Edit form actions -->
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:justify-end">
+                <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+                {{ form.submit(class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30 focus:ring-offset-2") }}
+            </div>
+        </form>
+
+        <!-- Separate delete form: intentionally outside the edit form -->
+        <div class="border-t border-red-100 bg-red-50/50 px-6 py-5">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h3 class="text-sm font-semibold text-[#9F2929]">Delete this photography stop</h3>
+                    <p class="mt-1 text-xs leading-5 text-[#66736B]">
+                        Remove this stop from the experience. This action may not be reversible.
+                    </p>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('admin_experience_photography.delete', experience_id=experience.id, photography_id=photography.id) }}"
+                      onsubmit="return confirm('Delete this photography stop permanently?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200">
+                        Delete Photography Stop
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <p class="text-center text-xs text-[#66736B]">
+        The Uncharted Route · Explore. Experience. Remember.
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,429 @@
+{% extends "admin/base.html" %}
+{% block title %}Promotion Inquiries | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+        <div>
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                Marketing & Communications
+            </p>
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                Promotion Inquiries
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                Review customer interest in your promotions, manage follow-ups
+                and keep track of every inquiry from one place.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_promotions.index') }}"
+           class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-sand bg-white px-4 py-3 text-sm font-semibold text-route-forest shadow-sm transition hover:bg-route-cream">
+            <i class="bi bi-arrow-left"></i>
+            Back to Promotions
+        </a>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3">
+                {% for category, message in messages %}
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category == 'danger' or category == 'error' %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% else %}
+                            border-route-sand bg-route-cream text-route-ink
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- STATUS OVERVIEW -->
+    {% set total_count = inquiry_counts.get('total', 0) if inquiry_counts else 0 %}
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+
+        <a href="{{ url_for('admin_promotions.inquiries') }}"
+           class="rounded-2xl border p-5 shadow-sm transition hover:shadow-md
+           {% if not selected_status %}border-route-forest bg-route-cream{% else %}border-route-sand bg-white{% endif %}">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-route-muted">All inquiries</span>
+                <i class="bi bi-inbox text-lg text-route-forest"></i>
+            </div>
+            <p class="mt-4 text-3xl font-bold text-route-ink">{{ total_count }}</p>
+            <p class="mt-1 text-xs text-route-muted">Every submission</p>
+        </a>
+
+        {% set status_cards = [
+            ('new', 'New', 'bi-bell', 'blue'),
+            ('in_progress', 'In progress', 'bi-hourglass-split', 'amber'),
+            ('contacted', 'Contacted', 'bi-telephone', 'purple'),
+            ('converted', 'Converted', 'bi-check-circle', 'green'),
+            ('closed', 'Closed', 'bi-archive', 'slate')
+        ] %}
+
+        {% for status_key, status_label, status_icon, status_color in status_cards %}
+            <a href="{{ url_for('admin_promotions.inquiries', status=status_key) }}"
+               class="rounded-2xl border p-5 shadow-sm transition hover:shadow-md
+               {% if selected_status == status_key %}border-route-forest bg-route-cream{% else %}border-route-sand bg-white{% endif %}">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-route-muted">{{ status_label }}</span>
+                    <i class="bi {{ status_icon }} text-lg
+                        {% if status_color == 'blue' %}text-blue-600
+                        {% elif status_color == 'amber' %}text-amber-600
+                        {% elif status_color == 'purple' %}text-purple-600
+                        {% elif status_color == 'green' %}text-green-600
+                        {% else %}text-route-muted{% endif %}"></i>
+                </div>
+                <p class="mt-4 text-3xl font-bold text-route-ink">
+                    {{ inquiry_counts.get(status_key, 0) if inquiry_counts else 0 }}
+                </p>
+                <p class="mt-1 text-xs text-route-muted">Inquiries</p>
+            </a>
+        {% endfor %}
+
+    </div>
+
+
+    <!-- FILTERS -->
+    <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+        <div class="border-b border-route-sand px-5 py-5 sm:px-6">
+            <h2 class="font-bold text-route-ink">Find an inquiry</h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Narrow down submissions by customer, promotion or follow-up status.
+            </p>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('admin_promotions.inquiries') }}"
+              class="grid grid-cols-1 gap-4 bg-route-cream/50 p-5 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div class="lg:col-span-2">
+                <label for="search" class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Search
+                </label>
+                <div class="relative">
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-route-muted"></i>
+                    <input
+                        type="search"
+                        name="search"
+                        id="search"
+                        value="{{ search or '' }}"
+                        placeholder="Customer name, email or phone..."
+                        class="w-full rounded-xl border border-route-sand bg-white py-3 pl-11 pr-4 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                    >
+                </div>
+            </div>
+
+            <div>
+                <label for="status" class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Inquiry status
+                </label>
+                <select
+                    name="status"
+                    id="status"
+                    class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                >
+                    <option value="">All statuses</option>
+                    {% for value, label in inquiry_statuses %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="promotion_id" class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted">
+                    Promotion
+                </label>
+                <select
+                    name="promotion_id"
+                    id="promotion_id"
+                    class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                >
+                    <option value="">All promotions</option>
+                    {% for promotion in promotions %}
+                        <option value="{{ promotion.id }}"
+                            {% if selected_promotion_id == promotion.id %}selected{% endif %}>
+                            {{ promotion.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 sm:col-span-2 lg:col-span-4">
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-route-deep">
+                    <i class="bi bi-funnel"></i>
+                    Apply filters
+                </button>
+
+                <a href="{{ url_for('admin_promotions.inquiries') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-sand bg-white px-5 py-3 text-sm font-semibold text-route-muted transition hover:bg-route-cream">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Clear filters
+                </a>
+
+                {% if search or selected_status or selected_promotion_id %}
+                    <span class="text-xs text-route-muted">
+                        Filters are currently active.
+                    </span>
+                {% endif %}
+            </div>
+
+        </form>
+
+
+        <!-- RESULTS HEADER -->
+        <div class="flex flex-col justify-between gap-2 border-b border-route-sand px-5 py-4 sm:flex-row sm:items-center sm:px-6">
+            <div>
+                <h2 class="font-bold text-route-ink">Customer submissions</h2>
+                <p class="mt-1 text-xs text-route-muted">
+                    {% if pagination %}
+                        Showing {{ pagination.items|length }} of {{ pagination.total }} inquiries
+                    {% else %}
+                        {{ inquiries|length }} inquiries
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if pagination and pagination.pages > 1 %}
+                <p class="text-xs font-medium text-route-muted">
+                    Page {{ pagination.page }} of {{ pagination.pages }}
+                </p>
+            {% endif %}
+        </div>
+
+
+        <!-- INQUIRIES TABLE -->
+        {% if inquiries %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-route-sand">
+                    <thead class="bg-white">
+                        <tr>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted sm:px-6">
+                                Customer
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Promotion
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Contact preference
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Submitted
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Status
+                            </th>
+                            <th class="px-5 py-4 text-right text-xs font-bold uppercase tracking-wider text-route-muted sm:px-6">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-route-sand">
+                        {% for inquiry in inquiries %}
+                            <tr class="transition hover:bg-route-cream/40">
+
+                                <td class="px-5 py-5 sm:px-6">
+                                    <div class="min-w-[190px]">
+                                        <p class="font-semibold text-route-ink">
+                                            {{ inquiry.customer_name }}
+                                        </p>
+                                        <p class="mt-1 text-xs text-route-muted">
+                                            {{ inquiry.email }}
+                                        </p>
+                                        {% if inquiry.phone %}
+                                            <p class="mt-1 text-xs text-route-muted">
+                                                {{ inquiry.phone }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td class="px-5 py-5">
+                                    <p class="min-w-[150px] text-sm font-medium text-route-ink">
+                                        {{ inquiry.promotion_title }}
+                                    </p>
+                                    {% if inquiry.promotion_id %}
+                                        <span class="mt-1 inline-flex items-center gap-1 text-xs text-route-forest">
+                                            <i class="bi bi-link-45deg"></i>
+                                            Linked promotion
+                                        </span>
+                                    {% else %}
+                                        <span class="mt-1 inline-flex items-center gap-1 text-xs text-route-muted">
+                                            <i class="bi bi-archive"></i>
+                                            Promotion deleted
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-5">
+                                    <span class="inline-flex items-center gap-2 text-sm text-route-muted">
+                                        {% if inquiry.contact_method == 'whatsapp' %}
+                                            <i class="bi bi-whatsapp text-green-600"></i>
+                                        {% elif inquiry.contact_method == 'phone' %}
+                                            <i class="bi bi-telephone text-route-forest"></i>
+                                        {% else %}
+                                            <i class="bi bi-envelope text-route-forest"></i>
+                                        {% endif %}
+                                        {{ inquiry.preferred_contact_method }}
+                                    </span>
+                                </td>
+
+                                <td class="whitespace-nowrap px-5 py-5 text-sm text-route-muted">
+                                    {{ inquiry.submitted_at.strftime('%d %b %Y') if inquiry.submitted_at else '—' }}
+                                    {% if inquiry.submitted_at %}
+                                        <p class="mt-1 text-xs text-route-muted">
+                                            {{ inquiry.submitted_at.strftime('%I:%M %p') }}
+                                        </p>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-5">
+                                    {% set status = inquiry.status %}
+                                    <span class="inline-flex whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold
+                                        {% if status == 'new' %}
+                                            bg-blue-100 text-blue-800
+                                        {% elif status == 'in_progress' %}
+                                            bg-amber-100 text-amber-800
+                                        {% elif status == 'contacted' %}
+                                            bg-purple-100 text-purple-800
+                                        {% elif status == 'converted' %}
+                                            bg-green-100 text-green-800
+                                        {% else %}
+                                            bg-route-sand text-route-ink
+                                        {% endif %}">
+                                        {{ inquiry.display_status }}
+                                    </span>
+                                </td>
+
+                                <td class="px-5 py-5 text-right sm:px-6">
+                                    <a href="{{ url_for('admin_promotions.inquiry_detail', inquiry_id=inquiry.id) }}"
+                                       class="inline-flex items-center gap-2 rounded-lg border border-route-sand px-3 py-2 text-sm font-semibold text-route-forest transition hover:bg-route-cream">
+                                        View
+                                        <i class="bi bi-arrow-up-right"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <!-- PAGINATION -->
+            {% if pagination and pagination.pages > 1 %}
+                <div class="flex flex-col justify-between gap-4 border-t border-route-sand px-5 py-5 sm:flex-row sm:items-center sm:px-6">
+
+                    <p class="text-sm text-route-muted">
+                        Page {{ pagination.page }} of {{ pagination.pages }}
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-2">
+
+                        {% if pagination.has_prev %}
+                            <a href="{{ url_for('admin_promotions.inquiries',
+                                                page=pagination.prev_num,
+                                                status=selected_status,
+                                                promotion_id=selected_promotion_id,
+                                                search=search) }}"
+                               class="rounded-lg border border-route-sand px-3 py-2 text-sm font-semibold text-route-forest hover:bg-route-cream">
+                                <i class="bi bi-chevron-left mr-1"></i>
+                                Previous
+                            </a>
+                        {% endif %}
+
+                        {% for page_number in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_number %}
+                                <a href="{{ url_for('admin_promotions.inquiries',
+                                                    page=page_number,
+                                                    status=selected_status,
+                                                    promotion_id=selected_promotion_id,
+                                                    search=search) }}"
+                                   class="rounded-lg px-3 py-2 text-sm font-semibold
+                                   {% if page_number == pagination.page %}
+                                       bg-route-forest text-white
+                                   {% else %}
+                                       border border-route-sand text-route-forest hover:bg-route-cream
+                                   {% endif %}">
+                                    {{ page_number }}
+                                </a>
+                            {% else %}
+                                <span class="px-2 text-route-muted">…</span>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if pagination.has_next %}
+                            <a href="{{ url_for('admin_promotions.inquiries',
+                                                page=pagination.next_num,
+                                                status=selected_status,
+                                                promotion_id=selected_promotion_id,
+                                                search=search) }}"
+                               class="rounded-lg border border-route-sand px-3 py-2 text-sm font-semibold text-route-forest hover:bg-route-cream">
+                                Next
+                                <i class="bi bi-chevron-right ml-1"></i>
+                            </a>
+                        {% endif %}
+
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+
+            <!-- EMPTY STATE -->
+            <div class="px-6 py-16 text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-route-cream text-route-forest">
+                    <i class="bi bi-chat-square-text text-2xl"></i>
+                </div>
+
+                <h3 class="mt-5 text-lg font-bold text-route-ink">
+                    {% if search or selected_status or selected_promotion_id %}
+                        No matching inquiries
+                    {% else %}
+                        No customer inquiries yet
+                    {% endif %}
+                </h3>
+
+                <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-route-muted">
+                    {% if search or selected_status or selected_promotion_id %}
+                        No submissions match your current filters. Try adjusting
+                        your search criteria.
+                    {% else %}
+                        Customer inquiries submitted through your active
+                        promotions will appear here.
+                    {% endif %}
+                </p>
+
+                {% if search or selected_status or selected_promotion_id %}
+                    <a href="{{ url_for('admin_promotions.inquiries') }}"
+                       class="mt-6 inline-flex rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white hover:bg-route-deep">
+                        Clear filters
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('admin_promotions.index') }}"
+                       class="mt-6 inline-flex rounded-xl border border-route-sand px-5 py-3 text-sm font-semibold text-route-forest hover:bg-route-cream">
+                        View promotions
+                    </a>
+                {% endif %}
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+{% endblock %}

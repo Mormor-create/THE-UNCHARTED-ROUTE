@@ -1,0 +1,488 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ page_title or ('Edit Safari Destination' if destination else 'Create Safari Destination') }} | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- Breadcrumb -->
+    <div class="mb-6 flex flex-wrap items-center gap-2 text-sm text-route-muted">
+        <a
+            href="{{ url_for('admin_safaris.index') }}"
+            class="transition hover:text-route-forest"
+        >
+            Safari Management
+        </a>
+        <span aria-hidden="true">/</span>
+        <a
+            href="{{ url_for('admin_safaris.destinations') }}"
+            class="transition hover:text-route-forest"
+        >
+            Destinations
+        </a>
+        <span aria-hidden="true">/</span>
+        <span class="font-semibold text-route-deep">
+            {{ 'Edit destination' if destination else 'New destination' }}
+        </span>
+    </div>
+
+    <!-- Page heading -->
+    <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+
+        <div>
+            <p class="route-eyebrow">
+                Safari Catalogue · Content Management
+            </p>
+
+            <h1 class="route-heading mt-2 text-3xl font-semibold sm:text-4xl">
+                {{ 'Edit Safari Destination' if destination else 'Create Safari Destination' }}
+            </h1>
+
+            <p class="mt-3 max-w-2xl text-sm leading-7 text-route-muted sm:text-base">
+                {{ 'Update the destination story, imagery and publishing settings.' if destination else 'Create a destination that introduces guests to its landscape, wildlife, conservation story and safari experiences.' }}
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_safaris.destinations') }}"
+            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-route-forest/20 bg-route-white px-5 py-3 text-sm font-semibold text-route-forest transition hover:border-route-forest hover:bg-route-cream"
+        >
+            <span aria-hidden="true">←</span>
+            Back to destinations
+        </a>
+
+    </div>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <!-- Form-wide validation summary -->
+    {% if form.errors %}
+    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5">
+        <h2 class="text-sm font-bold text-red-900">
+            Please review the following fields
+        </h2>
+
+        <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-red-800">
+            {% for field_name, errors in form.errors.items() %}
+                {% for error in errors %}
+                <li>
+                    {{ form[field_name].label.text if form[field_name] is defined else field_name }}:
+                    {{ error }}
+                </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-7" novalidate>
+
+        {{ form.hidden_tag() }}
+
+        <!-- =====================================================
+             SECTION 1 — BASIC INFORMATION
+        ====================================================== -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+
+            <div class="border-b border-route-forest/10 bg-route-cream/60 px-6 py-5 sm:px-8">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-forest text-lg font-semibold text-route-cream">
+                        01
+                    </div>
+
+                    <div>
+                        <h2 class="text-lg font-semibold text-route-deep">
+                            Basic Information
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-route-muted">
+                            Define the destination's public name, URL and catalogue position.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid gap-6 px-6 py-7 sm:grid-cols-2 sm:px-8">
+
+                {% for name in ['name', 'slug', 'short_description', 'display_order'] %}
+                    {% if form[name] is defined %}
+                    <div class="{% if name == 'short_description' %}sm:col-span-2{% endif %}">
+
+                        {{ form[name].label(class_="mb-2 block text-sm font-semibold text-route-deep") }}
+
+                        {% if name == 'short_description' %}
+                            {{ form[name](class_="w-full rounded-xl border border-route-forest/15 bg-route-white px-4 py-3 text-sm text-route-deep outline-none transition placeholder:text-route-muted/70 focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", rows=3, placeholder="A concise introduction to this safari destination...") }}
+                        {% elif name == 'display_order' %}
+                            {{ form[name](class_="w-full rounded-xl border border-route-forest/15 bg-route-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", min="0") }}
+                        {% else %}
+                            {{ form[name](class_="w-full rounded-xl border border-route-forest/15 bg-route-white px-4 py-3 text-sm text-route-deep outline-none transition placeholder:text-route-muted/70 focus:border-route-forest focus:ring-2 focus:ring-route-forest/10", placeholder="Enter " ~ form[name].label.text|lower) }}
+                        {% endif %}
+
+                        {% for error in form[name].errors %}
+                        <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="sm:col-span-2 grid gap-4 sm:grid-cols-2">
+
+                    {% for name in ['active', 'featured'] %}
+                        {% if form[name] is defined %}
+                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-route-forest/10 bg-route-cream/40 p-4 transition hover:border-route-forest/30">
+
+                            {{ form[name](class_="mt-1 h-4 w-4 rounded border-route-forest/30 text-route-forest focus:ring-route-forest") }}
+
+                            <span>
+                                <span class="block text-sm font-semibold text-route-deep">
+                                    {{ form[name].label.text }}
+                                </span>
+
+                                <span class="mt-1 block text-xs leading-5 text-route-muted">
+                                    {% if name == 'is_active' %}
+                                        Allow this destination to appear in the public safari catalogue.
+                                    {% else %}
+                                        Highlight this destination in the safari collection.
+                                    {% endif %}
+                                </span>
+
+                                {% for error in form[name].errors %}
+                                <span class="mt-1 block text-sm text-red-700">{{ error }}</span>
+                                {% endfor %}
+                            </span>
+
+                        </label>
+                        {% endif %}
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SECTION 2 — DESTINATION STORY
+        ====================================================== -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+
+            <div class="border-b border-route-forest/10 bg-route-cream/60 px-6 py-5 sm:px-8">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-forest text-lg font-semibold text-route-cream">
+                        02
+                    </div>
+
+                    <div>
+                        <h2 class="text-lg font-semibold text-route-deep">
+                            Destination Story
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-route-muted">
+                            Give each destination a distinctive voice and a meaningful story.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6 px-6 py-7 sm:px-8">
+
+                {% set story_fields = [
+                    ('description', 'Public Description'),
+                    ('introduction', 'Introduction'),
+                    ('history', 'History and Heritage'),
+                    ('landscape_and_wildlife', 'Landscape and Wildlife'),
+                    ('conservation_story', 'Conservation Story'),
+                    ('travel_information', 'Travel Information')
+                ] %}
+
+                {% for name, fallback_label in story_fields %}
+                    {% if form[name] is defined %}
+                    <div>
+
+                        {{ form[name].label(class_="mb-2 block text-sm font-semibold text-route-deep") }}
+
+                        {{ form[name](
+                            class_="w-full rounded-xl border border-route-forest/15 bg-route-white px-4 py-3 text-sm leading-7 text-route-deep outline-none transition placeholder:text-route-muted/70 focus:border-route-forest focus:ring-2 focus:ring-route-forest/10",
+                            rows=5 if name in ['description', 'introduction'] else 4,
+                            placeholder=(
+                                'Write a welcoming overview of this destination...'
+                                if name == 'description'
+                                else 'Tell the story of this place...'
+                            )
+                        ) }}
+
+                        {% for error in form[name].errors %}
+                        <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SECTION 3 — DIGITAL ASSET MANAGEMENT
+        ====================================================== -->
+
+        <section class="overflow-hidden rounded-2xl border border-route-forest/10 bg-route-white shadow-sm">
+
+            <div class="border-b border-route-forest/10 bg-route-cream/60 px-6 py-5 sm:px-8">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-forest text-lg font-semibold text-route-cream">
+                        03
+                    </div>
+
+                    <div>
+                        <h2 class="text-lg font-semibold text-route-deep">
+                            Media Library
+                        </h2>
+                        <p class="mt-1 text-sm leading-6 text-route-muted">
+                            Connect approved assets from your existing Digital Asset Management library.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-7 sm:px-8">
+
+                <div class="mb-6 rounded-xl border border-route-gold/25 bg-route-gold/10 p-4">
+                    <p class="text-sm leading-6 text-route-deep">
+                        <strong>Image guidance:</strong>
+                        Choose a strong landscape or wildlife photograph for the destination card, and a suitable wide image for its hero. These images are separate from the main Safari Landing Page hero managed in Page Heroes.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 sm:grid-cols-2">
+
+                    {% for name in ['media_folder_id', 'card_media_asset_id', 'hero_media_asset_id'] %}
+                        {% if form[name] is defined %}
+                        <div class="{% if name == 'media_folder_id' %}sm:col-span-2{% endif %}">
+
+                            {{ form[name].label(class_="mb-2 block text-sm font-semibold text-route-deep") }}
+
+                            {{ form[name](
+                                class_="w-full rounded-xl border border-route-forest/15 bg-route-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                            ) }}
+
+                            <p class="mt-2 text-xs leading-5 text-route-muted">
+                                {% if name == 'media_folder_id' %}
+                                    Optional: organise this destination's media under a relevant library folder.
+                                {% elif name == 'card_media_asset_id' %}
+                                    Used as the primary image on the public safari destination card.
+                                {% else %}
+                                    Used as the destination's hero image where the destination page supports it.
+                                {% endif %}
+                            </p>
+
+                            {% for error in form[name].errors %}
+                            <p class="mt-2 text-sm text-red-700">{{ error }}</p>
+                            {% endfor %}
+
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                </div>
+
+                <div class="mt-6 rounded-xl border border-route-forest/10 bg-route-cream/40 p-4">
+                    <p class="text-xs leading-6 text-route-muted">
+                        Media selectors use your existing library. If an image is missing from the choices, check that the asset is active and available to the CMS selector.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FORM ACTIONS
+        ====================================================== -->
+
+        <div class="sticky bottom-0 z-20 -mx-4 border-t border-route-forest/10 bg-route-white/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+
+            <div class="mx-auto flex max-w-6xl flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                <p class="text-xs leading-5 text-route-muted">
+                    Review the destination details before saving.
+                </p>
+
+                <div class="flex flex-wrap gap-3">
+
+                    <a
+                        href="{{ url_for('admin_safaris.destinations') }}"
+                        class="inline-flex items-center justify-center rounded-full border border-route-forest/20 px-5 py-3 text-sm font-semibold text-route-forest transition hover:bg-route-cream"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center rounded-full bg-route-forest px-6 py-3 text-sm font-bold text-route-white shadow-sm transition hover:-translate-y-0.5 hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-gold focus:ring-offset-2"
+                    >
+                        {{ 'Save Destination Changes' if destination else 'Create Safari Destination' }}
+                        <span class="ml-2" aria-hidden="true">→</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const folderSelect = document.getElementById("media_folder_id");
+    const cardSelect = document.getElementById("card_media_asset_id");
+    const heroSelect = document.getElementById("hero_media_asset_id");
+
+    if (!folderSelect || !cardSelect || !heroSelect) {
+        return;
+    }
+
+    const endpoint = "{{ url_for('admin_safaris.destination_media_assets') }}";
+
+    function setLoading(select, text) {
+        select.innerHTML = "";
+
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = text;
+
+        select.appendChild(option);
+        select.disabled = true;
+    }
+
+    function populateAssets(select, assets, placeholder) {
+        select.innerHTML = "";
+
+        const placeholderOption = document.createElement("option");
+        placeholderOption.value = "";
+        placeholderOption.textContent = placeholder;
+
+        select.appendChild(placeholderOption);
+
+        assets.forEach(function (asset) {
+            const option = document.createElement("option");
+
+            option.value = String(asset.id);
+            option.textContent = asset.label;
+
+            select.appendChild(option);
+        });
+
+        select.disabled = false;
+    }
+
+    async function loadFolderAssets(folderId) {
+        if (!folderId) {
+            populateAssets(
+                cardSelect,
+                [],
+                "Select a Safari media folder first"
+            );
+
+            populateAssets(
+                heroSelect,
+                [],
+                "Select a Safari media folder first"
+            );
+
+            return;
+        }
+
+        setLoading(
+            cardSelect,
+            "Loading Safari card images..."
+        );
+
+        setLoading(
+            heroSelect,
+            "Loading Safari hero images..."
+        );
+
+        try {
+            const response = await fetch(
+                `${endpoint}?folder_id=${encodeURIComponent(folderId)}`,
+                {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message ||
+                    "Unable to load Safari media assets."
+                );
+            }
+
+            populateAssets(
+                cardSelect,
+                data.assets,
+                "Select a Safari card image"
+            );
+
+            populateAssets(
+                heroSelect,
+                data.assets,
+                "Select a Safari hero image"
+            );
+
+        } catch (error) {
+            console.error(
+                "Safari media assets could not be loaded:",
+                error
+            );
+
+            populateAssets(
+                cardSelect,
+                [],
+                "Safari media assets unavailable"
+            );
+
+            populateAssets(
+                heroSelect,
+                [],
+                "Safari media assets unavailable"
+            );
+        }
+    }
+
+    folderSelect.addEventListener(
+        "change",
+        function () {
+            /*
+             * Whenever the folder changes, discard the previous
+             * Card/Hero selections and load assets from ONLY
+             * the newly selected folder.
+             */
+            loadFolderAssets(this.value);
+        }
+    );
+
+    /*
+     * The server already populates the correct exact-folder
+     * assets on the initial page load, especially for Edit.
+     *
+     * We only reload here when the user changes the folder.
+     */
+});
+</script>
+{% endblock %}

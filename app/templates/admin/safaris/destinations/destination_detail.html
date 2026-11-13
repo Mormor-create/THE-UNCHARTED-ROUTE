@@ -1,0 +1,450 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ destination.name }} | Safari Destination{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F8F5]">
+    <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+        {# Breadcrumb #}
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+            <a href="{{ url_for('admin_safaris.index') }}"
+               class="transition hover:text-emerald-800">
+                Safari Destinations
+            </a>
+            <span>/</span>
+            <span class="font-medium text-gray-800">{{ destination.name }}</span>
+        </nav>
+
+        {# Page heading #}
+        <section class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-emerald-800">
+                    Safari Destination Workspace
+                </p>
+
+                <h1 class="text-3xl font-semibold tracking-tight text-[#1C2822] sm:text-4xl">
+                    {{ destination.name }}
+                </h1>
+
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-gray-600">
+                    Manage the destination story, properties, accommodation media,
+                    safari packages, itineraries, rates and guest enquiries from one place.
+                </p>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    {% if destination.is_active %}
+                        <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                            Active
+                        </span>
+                    {% else %}
+                        <span class="inline-flex rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                            Inactive
+                        </span>
+                    {% endif %}
+
+                    {% if destination.featured|default(false) %}
+                        <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                            Featured destination
+                        </span>
+                    {% endif %}
+
+                    <span class="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+                        /{{ destination.slug }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ url_for('admin_safaris.index') }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                    Back to destinations
+                </a>
+
+                <a href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138]">
+                    Edit destination
+                </a>
+            </div>
+        </section>
+
+        {# Hero preview #}
+        <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+            {% if hero_image_url %}
+                <div class="relative h-64 bg-[#12372A] sm:h-80 lg:h-96">
+                    <img src="{{ hero_image_url }}"
+                         alt="{{ destination.name }}"
+                         class="h-full w-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+                    <div class="absolute inset-x-0 bottom-0 p-6 sm:p-9">
+                        <p class="text-xs font-bold uppercase tracking-[0.22em] text-amber-300">
+                            Destination overview
+                        </p>
+                        <h2 class="mt-2 text-3xl font-semibold text-white sm:text-4xl">
+                            {{ destination.name }}
+                        </h2>
+                        {% if destination.introduction %}
+                            <p class="mt-3 max-w-3xl text-sm leading-6 text-white/90 sm:text-base">
+                                {{ destination.introduction|striptags|truncate(260, true, '…') }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="bg-gradient-to-br from-[#12372A] via-[#1F5138] to-[#5C6B32] px-6 py-12 sm:px-10 sm:py-16">
+                    <p class="text-xs font-bold uppercase tracking-[0.22em] text-amber-300">
+                        Destination overview
+                    </p>
+                    <h2 class="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+                        {{ destination.name }}
+                    </h2>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-white/80">
+                        No destination hero preview is available yet. Select the correct
+                        media asset in the destination editor, then connect its public
+                        hero to the Page Heroes CMS.
+                    </p>
+                    <a href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}"
+                       class="mt-6 inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                        Edit destination media
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+
+        {# Summary metrics #}
+        <section class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+            {% set metrics = [
+                ('Properties', property_count, 'Accommodation and safari stays'),
+                ('Packages', package_count, 'Available duration options'),
+                ('Media items', media_count, 'Property gallery assets'),
+                ('Itinerary days', itinerary_count, 'Scheduled package days'),
+                ('Rates', rate_count, 'Package pricing records'),
+                ('Enquiries', inquiry_count, 'Guest requests received')
+            ] %}
+
+            {% for label, value, description in metrics %}
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500">{{ label }}</p>
+                    <p class="mt-3 text-3xl font-semibold tracking-tight text-[#12372A]">
+                        {{ value }}
+                    </p>
+                    <p class="mt-2 text-xs leading-5 text-gray-500">{{ description }}</p>
+                </div>
+            {% endfor %}
+        </section>
+
+        {# Destination story #}
+        <section class="grid gap-6 lg:grid-cols-3">
+            <div class="space-y-5 lg:col-span-2">
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">
+                                Destination content
+                            </p>
+                            <h2 class="mt-2 text-xl font-semibold text-[#1C2822]">
+                                The destination story
+                            </h2>
+                        </div>
+                        <a href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}"
+                           class="shrink-0 text-sm font-semibold text-emerald-800 hover:text-emerald-950">
+                            Edit content →
+                        </a>
+                    </div>
+
+                    <div class="mt-6 space-y-6">
+                        {% if destination.description %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-800">Description</h3>
+                                <div class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-600">
+                                    {{ destination.description|striptags }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if destination.introduction %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-800">Introduction</h3>
+                                <div class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-600">
+                                    {{ destination.introduction|striptags }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if destination.history %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-800">History and heritage</h3>
+                                <div class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-600">
+                                    {{ destination.history|striptags }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if destination.landscape_and_wildlife %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-800">Landscape and wildlife</h3>
+                                <div class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-600">
+                                    {{ destination.landscape_and_wildlife|striptags }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if destination.conservation_story %}
+                            <div class="rounded-xl bg-[#F7F1E5] p-5">
+                                <h3 class="text-sm font-semibold text-[#12372A]">
+                                    Conservation story
+                                </h3>
+                                <div class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-700">
+                                    {{ destination.conservation_story|striptags }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if destination.travel_information %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-800">Travel information</h3>
+                                <div class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-600">
+                                    {{ destination.travel_information|striptags }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if not destination.description and not destination.introduction
+                              and not destination.history and not destination.landscape_and_wildlife
+                              and not destination.conservation_story and not destination.travel_information %}
+                            <p class="rounded-xl bg-gray-50 p-5 text-sm leading-6 text-gray-600">
+                                No destination story has been added yet. Use the destination editor
+                                to add the introduction, landscape and wildlife, conservation story,
+                                and visitor information.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Property and package workspace #}
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">
+                                Destination operations
+                            </p>
+                            <h2 class="mt-2 text-xl font-semibold text-[#1C2822]">
+                                Properties and safari packages
+                            </h2>
+                            <p class="mt-2 text-sm leading-6 text-gray-500">
+                                Manage the stays and safari experiences available within this destination.
+                            </p>
+                        </div>
+
+                        <a href="{{ url_for('admin_safaris.property_create') }}"
+                           class="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                            + Add property
+                        </a>
+                    </div>
+
+                    {% if properties %}
+                        <div class="mt-6 space-y-5">
+                            {% for prop in properties %}
+                                <article class="rounded-2xl border border-gray-200 p-5">
+                                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                        <div class="min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <h3 class="text-lg font-semibold text-[#1C2822]">
+                                                    {{ prop.name }}
+                                                </h3>
+                                                {% if prop.is_active %}
+                                                    <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                                        Active
+                                                    </span>
+                                                {% else %}
+                                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                                                        Inactive
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+
+                                            {% if prop.short_description %}
+                                                <p class="mt-2 text-sm leading-6 text-gray-600">
+                                                    {{ prop.short_description|striptags|truncate(180, true, '…') }}
+                                                </p>
+                                            {% endif %}
+
+                                            <p class="mt-2 text-xs text-gray-500">
+                                                {{ packages_by_property[prop.id]|length }} package option(s)
+                                                · {{ property_media_by_property[prop.id]|length }} media item(s)
+                                            </p>
+                                        </div>
+
+                                        <a href="{{ url_for('admin_safaris.property_edit', property_id=prop.id) }}"
+                                           class="inline-flex shrink-0 items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                                            Edit property
+                                        </a>
+                                    </div>
+
+                                    <div class="mt-5 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
+                                        <a href="{{ url_for('admin_safaris.property_media', property_id=prop.id) }}"
+                                           class="rounded-lg bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100">
+                                            Property media
+                                        </a>
+                                        <a href="{{ url_for('admin_safaris.packages', property_id=prop.id) }}"
+                                           class="rounded-lg bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100">
+                                            Packages and durations
+                                        </a>
+                                    </div>
+
+                                    {% set property_packages = packages_by_property[prop.id] %}
+                                    {% if property_packages %}
+                                        <div class="mt-5 space-y-3">
+                                            <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-gray-500">
+                                                Package management
+                                            </h4>
+
+                                            {% for option in property_packages %}
+                                                <div class="flex flex-col gap-3 rounded-xl bg-[#F7F8F5] p-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div>
+                                                        <p class="font-semibold text-gray-800">
+                                                            {{ option.name }}
+                                                        </p>
+                                                        <p class="mt-1 text-xs text-gray-500">
+                                                            {{ option.duration_days }} days
+                                                            / {{ option.duration_nights }} nights
+                                                        </p>
+                                                    </div>
+
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <a href="{{ url_for('admin_safaris.itinerary', property_id=prop.id, option_id=option.id) }}"
+                                                           class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:border-emerald-300">
+                                                            Itinerary
+                                                        </a>
+                                                        <a href="{{ url_for('admin_safaris.rates', property_id=prop.id, option_id=option.id) }}"
+                                                           class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:border-emerald-300">
+                                                            Rates
+                                                        </a>
+                                                        <a href="{{ url_for('admin_safaris.package_edit', property_id=prop.id, option_id=option.id) }}"
+                                                           class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:border-emerald-300">
+                                                            Edit package
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="mt-4 rounded-xl bg-gray-50 p-4 text-sm text-gray-500">
+                                            No package options yet. Add a package to define the safari duration,
+                                            itinerary and rates.
+                                        </p>
+                                    {% endif %}
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="mt-6 rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+                            <h3 class="font-semibold text-gray-800">No properties yet</h3>
+                            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-gray-500">
+                                Add a lodge, camp, hotel or other safari property and assign it to this destination.
+                            </p>
+                            <a href="{{ url_for('admin_safaris.property_create') }}"
+                               class="mt-5 inline-flex rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                                Create first property
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Quick actions and operational status #}
+            <aside class="space-y-5">
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-semibold text-[#1C2822]">Manage destination</h2>
+                    <p class="mt-2 text-sm leading-6 text-gray-500">
+                        Quick access to the destination's main operational areas.
+                    </p>
+
+                    <div class="mt-5 space-y-3">
+                        <a href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}"
+                           class="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/40">
+                            <span>
+                                <span class="block text-sm font-semibold text-gray-800">Destination details</span>
+                                <span class="mt-1 block text-xs text-gray-500">Story, status and media selections</span>
+                            </span>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                        <a href="{{ url_for('admin_safaris.properties', destination_id=destination.id) }}"
+                           class="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/40">
+                            <span>
+                                <span class="block text-sm font-semibold text-gray-800">All destination properties</span>
+                                <span class="mt-1 block text-xs text-gray-500">View the scoped property catalogue</span>
+                            </span>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                        <a href="{{ url_for('admin_safaris.inquiries') }}"
+                           class="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/40">
+                            <span>
+                                <span class="block text-sm font-semibold text-gray-800">Guest enquiries</span>
+                                <span class="mt-1 block text-xs text-gray-500">
+                                    {{ new_inquiry_count }} new enquiry/enquiries across this destination
+                                </span>
+                            </span>
+                            <span class="text-gray-400">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-semibold text-[#1C2822]">Publication checklist</h2>
+                    <p class="mt-2 text-sm leading-6 text-gray-500">
+                        Review these areas before publishing the destination on the website.
+                    </p>
+
+                    <ul class="mt-5 space-y-4">
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full {% if destination.introduction %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-400{% endif %}">
+                                {% if destination.introduction %}✓{% else %}·{% endif %}
+                            </span>
+                            <span class="text-sm text-gray-700">Destination introduction</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full {% if destination.landscape_and_wildlife %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-400{% endif %}">
+                                {% if destination.landscape_and_wildlife %}✓{% else %}·{% endif %}
+                            </span>
+                            <span class="text-sm text-gray-700">Landscape and wildlife story</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full {% if destination.conservation_story %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-400{% endif %}">
+                                {% if destination.conservation_story %}✓{% else %}·{% endif %}
+                            </span>
+                            <span class="text-sm text-gray-700">Conservation story</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full {% if property_count > 0 %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-400{% endif %}">
+                                {% if property_count > 0 %}✓{% else %}·{% endif %}
+                            </span>
+                            <span class="text-sm text-gray-700">At least one property</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full {% if package_count > 0 %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-400{% endif %}">
+                                {% if package_count > 0 %}✓{% else %}·{% endif %}
+                            </span>
+                            <span class="text-sm text-gray-700">At least one safari package</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full {% if rate_count > 0 %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-400{% endif %}">
+                                {% if rate_count > 0 %}✓{% else %}·{% endif %}
+                            </span>
+                            <span class="text-sm text-gray-700">Package rates configured</span>
+                        </li>
+                    </ul>
+
+                    <a href="{{ url_for('admin_safaris.destination_edit', destination_id=destination.id) }}"
+                       class="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                        Review destination content
+                    </a>
+                </div>
+            </aside>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

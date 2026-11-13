@@ -1,0 +1,974 @@
+{# ============================================================================
+   The Uncharted Route
+   Admin Access Control
+   ============================================================================ #}
+{% extends "admin/base.html" %}
+{% block admin_title %}
+    Access Control
+{% endblock %}
+{% block admin_heading %}
+    Admin / Access Control
+{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-8">
+    <!-- =====================================================================
+         Introduction
+         ===================================================================== -->
+    <div
+        class="
+            flex
+            flex-col
+            gap-4
+            lg:flex-row
+            lg:items-end
+            lg:justify-between">
+        <div>
+
+            <p
+                class="
+                    max-w-3xl
+                    text-sm
+                    leading-6
+                    text-route-muted
+                ">
+                Manage user roles, account status, and verification across
+                The Uncharted Route administration system.
+            </p>
+        </div>
+
+        <div
+            class="
+                inline-flex
+                w-fit
+                items-center
+                rounded-xl
+                border
+                border-route-gold/20
+                bg-route-gold/10
+                px-4
+                py-3
+                text-xs
+                text-route-deep">
+
+            <span class="font-semibold">
+                Administrators only
+            </span>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         Filters
+         ===================================================================== -->
+    <section
+        class="
+            rounded-2xl
+            border
+            border-route-forest/10
+            bg-route-white
+            p-6
+            shadow-sm
+            sm:p-8">
+
+        <div class="mb-6">
+            <h2
+                class="
+                    font-display
+                    text-lg
+                    font-semibold
+                    text-route-ink">
+                Find Users
+            </h2>
+
+            <p
+                class="
+                    mt-1
+                    text-sm
+                    text-route-muted
+                "
+            >
+                Search and filter accounts by role, status, or verification.
+            </p>
+        </div>
+
+        <form
+            method="GET"
+            action="{{ url_for('admin.access_control') }}">
+
+            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+
+                <!-- Search -->
+
+                <div class="xl:col-span-2">
+
+                    {{ filter_form.search.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ filter_form.search(
+                        placeholder="Name, username or email...",
+                        value=request.args.get('search', ''),
+                        class="
+                            block
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            bg-route-cream
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            transition
+                            focus:border-route-gold
+                            focus:ring-2
+                            focus:ring-route-gold/20
+                        "
+                    ) }}
+
+                    {% for error in filter_form.search.errors %}
+
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Role -->
+
+                <div>
+
+                    {{ filter_form.role.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ filter_form.role(
+                        class="
+                            block
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            bg-route-cream
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            transition
+                            focus:border-route-gold
+                            focus:ring-2
+                            focus:ring-route-gold/20
+                        "
+                    ) }}
+
+                    {% for error in filter_form.role.errors %}
+
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Account Status -->
+
+                <div>
+
+                    {{ filter_form.active.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ filter_form.active(
+                        class="
+                            block
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            bg-route-cream
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            transition
+                            focus:border-route-gold
+                            focus:ring-2
+                            focus:ring-route-gold/20
+                        "
+                    ) }}
+
+                    {% for error in filter_form.active.errors %}
+
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Verification -->
+
+                <div>
+
+                    {{ filter_form.verified.label(
+                        class="mb-2 block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    {{ filter_form.verified(
+                        class="
+                            block
+                            w-full
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            bg-route-cream
+                            px-4
+                            py-3
+                            text-sm
+                            text-route-ink
+                            outline-none
+                            transition
+                            focus:border-route-gold
+                            focus:ring-2
+                            focus:ring-route-gold/20
+                        "
+                    ) }}
+
+                    {% for error in filter_form.verified.errors %}
+
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- Filter Actions -->
+
+            <div
+                class="
+                    mt-6
+                    flex
+                    flex-col
+                    gap-3
+                    sm:flex-row
+                    sm:items-center
+                    sm:justify-end
+                "
+            >
+
+                <a
+                    href="{{ url_for('admin.access_control') }}"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-xl
+                        border
+                        border-route-forest/15
+                        bg-route-white
+                        px-5
+                        py-3
+                        text-sm
+                        font-semibold
+                        text-route-deep
+                        transition
+                        hover:bg-route-cream
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-route-gold/40
+                    "
+                >
+                    Clear Filters
+                </a>
+
+
+                {{ filter_form.submit(
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-xl
+                        bg-route-deep
+                        px-5
+                        py-3
+                        text-sm
+                        font-semibold
+                        text-route-white
+                        shadow-sm
+                        transition
+                        hover:bg-route-forest
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-route-gold/40
+                    "
+                ) }}
+            </div>
+        </form>
+    </section>
+
+    <!-- =====================================================================
+         User List
+         ===================================================================== -->
+    <section
+        class="
+            overflow-hidden
+            rounded-2xl
+            border
+            border-route-forest/10
+            bg-route-white
+            shadow-sm
+        ">
+
+        <!-- Header -->
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-3
+                border-b
+                border-route-forest/10
+                px-6
+                py-5
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+                sm:px-8
+            "
+        >
+
+            <div>
+
+                <h2
+                    class="
+                        font-display
+                        text-lg
+                        font-semibold
+                        text-route-ink
+                    "
+                >
+                    System Users
+                </h2>
+
+                <p
+                    class="
+                        mt-1
+                        text-sm
+                        text-route-muted
+                    "
+                >
+
+                    {% if users is defined %}
+
+                        {{ users|length }}
+                        user{% if users|length != 1 %}s{% endif %}
+
+                    {% else %}
+
+                        User accounts
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if users is defined and users %}
+
+            <!-- =============================================================
+                 Desktop Table
+                 ============================================================= -->
+
+            <div class="hidden overflow-x-auto lg:block">
+
+                <table class="min-w-full divide-y divide-route-forest/10">
+
+                    <thead class="bg-route-cream">
+
+                        <tr>
+
+                            <th
+                                class="
+                                    px-6
+                                    py-4
+                                    text-left
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.15em]
+                                    text-route-muted
+                                "
+                            >
+                                User
+                            </th>
+
+                            <th
+                                class="
+                                    px-6
+                                    py-4
+                                    text-left
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.15em]
+                                    text-route-muted
+                                "
+                            >
+                                Role
+                            </th>
+
+                            <th
+                                class="
+                                    px-6
+                                    py-4
+                                    text-left
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.15em]
+                                    text-route-muted
+                                "
+                            >
+                                Status
+                            </th>
+
+                            <th
+                                class="
+                                    px-6
+                                    py-4
+                                    text-left
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.15em]
+                                    text-route-muted
+                                "
+                            >
+                                Verification
+                            </th>
+
+                            <th
+                                class="
+                                    px-6
+                                    py-4
+                                    text-right
+                                    text-[10px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.15em]
+                                    text-route-muted
+                                "
+                            >
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody class="divide-y divide-route-forest/10">
+
+                        {% for user in users %}
+
+                            <tr
+                                class="
+                                    transition
+                                    hover:bg-route-cream/50
+                                "
+                            >
+
+                                <!-- User -->
+                                <td class="whitespace-nowrap px-6 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="
+                                                flex
+                                                h-10
+                                                w-10
+                                                shrink-0
+                                                items-center
+                                                justify-center
+                                                rounded-full
+                                                bg-route-gold
+                                                font-bold
+                                                text-route-deep
+                                            ">
+                                            {{ (
+                                                user.first_name
+                                                or user.username
+                                                or 'U'
+                                            )[0]|upper }}
+                                        </div>
+
+                                        <div class="min-w-0">
+
+                                            <p
+                                                class="
+                                                    truncate
+                                                    text-sm
+                                                    font-semibold
+                                                    text-route-ink
+                                                "
+                                            >
+                                                {{ user.full_name }}
+                                            </p>
+
+                                            <p
+                                                class="
+                                                    truncate
+                                                    text-xs
+                                                    text-route-muted
+                                                "
+                                            >
+                                                {{ user.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Role -->
+                                <td class="whitespace-nowrap px-6 py-5">
+
+                                    <span
+                                        class="
+                                            inline-flex
+                                            rounded-full
+                                            bg-route-deep/10
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-semibold
+                                            capitalize
+                                            text-route-deep
+                                        ">
+                                        {{ user.normalized_role }}
+                                    </span>
+
+                                </td>
+
+                                <!-- Status -->
+                                <td class="whitespace-nowrap px-6 py-5">
+                                    {% if user.is_active %}
+                                        <span
+                                            class="
+                                                inline-flex
+                                                rounded-full
+                                                bg-route-forest/10
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-route-forest
+                                            "
+                                        >
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="
+                                                inline-flex
+                                                rounded-full
+                                                bg-red-50
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-red-700
+                                            "
+                                        >
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Verification -->
+
+                                <td class="whitespace-nowrap px-6 py-5">
+
+                                    {% if user.is_verified %}
+
+                                        <span
+                                            class="
+                                                inline-flex
+                                                rounded-full
+                                                bg-blue-50
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-blue-700
+                                            "
+                                        >
+                                            Verified
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="
+                                                inline-flex
+                                                rounded-full
+                                                bg-route-gold/10
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-route-deep
+                                            "
+                                        >
+                                            Unverified
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Actions -->
+
+                                <td class="whitespace-nowrap px-6 py-5 text-right">
+
+                                    <a
+                                        href="{{ url_for('admin_user.user_detail', user_id=user.id) }}"
+                                        class="
+                                            inline-flex
+                                            items-center
+                                            rounded-lg
+                                            px-3
+                                            py-2
+                                            text-xs
+                                            font-semibold
+                                            text-route-deep
+                                            transition
+                                            hover:bg-route-deep/10
+                                            hover:text-route-forest
+                                        "
+                                    >
+                                        Manage
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- =============================================================
+                 Mobile Cards
+                 ============================================================= -->
+
+            <div class="divide-y divide-route-forest/10 lg:hidden">
+
+                {% for user in users %}
+
+                    <div class="p-5 sm:p-6">
+
+                        <div class="flex items-start gap-4">
+
+                            <div
+                                class="
+                                    flex
+                                    h-11
+                                    w-11
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    bg-route-gold
+                                    font-bold
+                                    text-route-deep
+                                "
+                            >
+                                {{ (
+                                    user.first_name
+                                    or user.username
+                                    or 'U'
+                                )[0]|upper }}
+                            </div>
+
+
+                            <div class="min-w-0 flex-1">
+
+                                <div
+                                    class="
+                                        flex
+                                        flex-col
+                                        gap-1
+                                        sm:flex-row
+                                        sm:items-center
+                                        sm:justify-between
+                                    "
+                                >
+
+                                    <div>
+
+                                        <p
+                                            class="
+                                                font-semibold
+                                                text-route-ink
+                                            "
+                                        >
+                                            {{ user.full_name }}
+                                        </p>
+
+                                        <p
+                                            class="
+                                                text-xs
+                                                text-route-muted
+                                            "
+                                        >
+                                            {{ user.email }}
+                                        </p>
+
+                                    </div>
+
+                                    <span
+                                        class="
+                                            inline-flex
+                                            w-fit
+                                            rounded-full
+                                            bg-route-deep/10
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-semibold
+                                            capitalize
+                                            text-route-deep
+                                        "
+                                    >
+                                        {{ user.normalized_role }}
+                                    </span>
+
+                                </div>
+
+
+                                <!-- Status Badges -->
+
+                                <div
+                                    class="
+                                        mt-4
+                                        flex
+                                        flex-wrap
+                                        items-center
+                                        gap-2
+                                    "
+                                >
+
+                                    {% if user.is_active %}
+
+                                        <span
+                                            class="
+                                                rounded-full
+                                                bg-route-forest/10
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-route-forest
+                                            "
+                                        >
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="
+                                                rounded-full
+                                                bg-red-50
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-red-700
+                                            "
+                                        >
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if user.is_verified %}
+
+                                        <span
+                                            class="
+                                                rounded-full
+                                                bg-blue-50
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-blue-700
+                                            "
+                                        >
+                                            Verified
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="
+                                                rounded-full
+                                                bg-route-gold/10
+                                                px-3
+                                                py-1
+                                                text-xs
+                                                font-semibold
+                                                text-route-deep
+                                            "
+                                        >
+                                            Unverified
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- Manage -->
+
+                                <div class="mt-4">
+
+                                    <a
+                                        href="{{ url_for('admin_user.user_detail', user_id=user.id) }}"
+                                        class="
+                                            inline-flex
+                                            items-center
+                                            justify-center
+                                            rounded-xl
+                                            bg-route-deep
+                                            px-4
+                                            py-2.5
+                                            text-xs
+                                            font-semibold
+                                            text-route-white
+                                            transition
+                                            hover:bg-route-forest
+                                            focus:outline-none
+                                            focus:ring-2
+                                            focus:ring-route-gold/40
+                                        "
+                                    >
+                                        Manage User
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+
+            <!-- =============================================================
+                 Empty State
+                 ============================================================= -->
+            <div
+                class="
+                    px-6
+                    py-16
+                    text-center
+                    sm:px-8
+                "
+            >
+
+                <div
+                    class="
+                        mx-auto
+                        flex
+                        h-14
+                        w-14
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-route-cream
+                        text-2xl
+                        text-route-safari
+                    "
+                >
+                    ◎
+                </div>
+
+                <h3
+                    class="
+                        mt-4
+                        font-display
+                        text-lg
+                        font-semibold
+                        text-route-ink
+                    "
+                >
+                    No users found
+                </h3>
+
+                <p
+                    class="
+                        mx-auto
+                        mt-2
+                        max-w-md
+                        text-sm
+                        leading-6
+                        text-route-muted
+                    "
+                >
+                    No accounts match the current search and filter criteria.
+                    Try clearing one or more filters.
+                </p>
+
+                <div class="mt-5">
+
+                    <a
+                        href="{{ url_for('admin.access_control') }}"
+                        class="
+                            inline-flex
+                            items-center
+                            justify-center
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            bg-route-white
+                            px-5
+                            py-3
+                            text-sm
+                            font-semibold
+                            text-route-deep
+                            transition
+                            hover:bg-route-cream
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-route-gold/40
+                        "
+                    >
+                        Clear Filters
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

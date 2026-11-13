@@ -1,0 +1,67 @@
+<div class="space-y-8">
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 sm:p-7">
+        <h2 class="text-xl font-bold text-[#12372A]">Guest Information</h2>
+        <div class="mt-5 grid gap-5 md:grid-cols-2">
+            {% for name, label in [('first_name','First Name'),('last_name','Last Name'),('email','Email Address'),('phone','Phone Number'),('nationality','Nationality'),('country_of_residence','Country of Residence')] %}
+            <div>
+                <label for="{{ name }}" class="mb-2 block text-sm font-semibold text-[#1C2822]">{{ label }}</label>
+                {{ form[name](class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3 focus:border-[#1F5138] focus:outline-none") }}
+                {% for error in form[name].errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 sm:p-7">
+        <h2 class="text-xl font-bold text-[#12372A]">Accommodation & Meal Plan</h2>
+        <div class="mt-5 grid gap-5 md:grid-cols-2">
+            {% for name, label in [('stay_id','Accommodation'),('room_id','Room Type'),('meal_plan','Meal Plan'),('meal_plan_snapshot','Meal Plan Description')] %}
+            <div>
+                <label for="{{ name }}" class="mb-2 block text-sm font-semibold text-[#1C2822]">{{ label }}</label>
+                {{ form[name](class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3") }}
+                {% for error in form[name].errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 sm:p-7">
+        <h2 class="text-xl font-bold text-[#12372A]">Reservation & Occupancy</h2>
+        <div class="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {% for name, label in [('check_in','Check-in Date'),('check_out','Check-out Date'),('nights','Number of Nights'),('rooms_count','Rooms Required'),('adults','Adults'),('children','Children'),('infants','Infants')] %}
+            <div>
+                <label for="{{ name }}" class="mb-2 block text-sm font-semibold text-[#1C2822]">{{ label }}</label>
+                {{ form[name](class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3") }}
+                {% for error in form[name].errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <p class="mt-4 text-xs text-[#66736B]">The number of nights must match the check-in and check-out dates.</p>
+    </section>
+
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 sm:p-7">
+        <h2 class="text-xl font-bold text-[#12372A]">Rate & Payment</h2>
+        <div class="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {% for name, label in [('rate_name_snapshot','Rate Name'),('rate_basis','Rate Basis'),('nightly_rate','Rate Amount'),('currency','Currency'),('currency_total','Booking Total Override'),('amount_paid','Amount Paid'),('booking_date','Booking Date'),('status','Booking Status'),('payment_status','Payment Status'),('source','Booking Source')] %}
+            <div>
+                <label for="{{ name }}" class="mb-2 block text-sm font-semibold text-[#1C2822]">{{ label }}</label>
+                {{ form[name](class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3") }}
+                {% for error in form[name].errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 sm:p-7">
+        <h2 class="text-xl font-bold text-[#12372A]">Arrival & Operational Details</h2>
+        <div class="mt-5 grid gap-5 md:grid-cols-2">
+            {% for name, label in [('arrival_time','Expected Arrival Time'),('departure_time','Expected Departure Time'),('availability_reference','Availability Reference'),('dietary_requirements','Dietary Requirements'),('accessibility_requirements','Accessibility Requirements'),('special_requests','Guest Special Requests'),('customer_notes','Customer Notes'),('internal_notes','Internal Notes')] %}
+            <div>
+                <label for="{{ name }}" class="mb-2 block text-sm font-semibold text-[#1C2822]">{{ label }}</label>
+                {{ form[name](class="w-full rounded-xl border border-[#E9DDC8] px-4 py-3") }}
+                {% for error in form[name].errors %}<p class="mt-1 text-sm text-red-700">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>

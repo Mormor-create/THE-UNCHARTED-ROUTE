@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+{% block title %}Enquiry {{ inquiry.reference }} | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="route-container max-w-6xl py-8">
+    <a href="{{ url_for('admin_safaris.inquiries') }}"
+       class="text-sm font-semibold text-emerald-800 hover:underline">← Back to enquiries</a>
+
+    <div class="mb-7 mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+            <p class="route-eyebrow">Safari enquiry · {{ inquiry.reference }}</p>
+            <h1 class="route-heading text-3xl">{{ inquiry.full_name }}</h1>
+            <p class="mt-2 text-stone-600">
+                Received {{ inquiry.created_at.strftime('%d %B %Y, %H:%M') if inquiry.created_at else 'date unavailable' }}
+            </p>
+        </div>
+        <span class="inline-flex w-fit rounded-full px-3 py-1.5 text-sm font-semibold
+            {% if inquiry.status in ['confirmed', 'closed'] %}bg-emerald-100 text-emerald-800
+            {% elif inquiry.status in ['new', 'quoting', 'quoted'] %}bg-amber-100 text-amber-900
+            {% elif inquiry.status == 'declined' %}bg-red-100 text-red-800
+            {% else %}bg-stone-100 text-stone-700{% endif %}">
+            {{ inquiry.status|title }}
+        </span>
+    </div>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <div class="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+        <div class="space-y-6">
+            <section class="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-5 text-lg font-semibold text-stone-900">Safari request</h2>
+                <dl class="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Destination</dt>
+                        <dd class="mt-1 font-medium text-stone-900">{{ inquiry.destination.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Property</dt>
+                        <dd class="mt-1 font-medium text-stone-900">{{ inquiry.property.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Package</dt>
+                        <dd class="mt-1 text-stone-800">{{ inquiry.package_option.name if inquiry.package_option else 'Not selected' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Selected rate</dt>
+                        <dd class="mt-1 text-stone-800">{{ inquiry.rate.name if inquiry.rate else 'To be quoted' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Preferred dates</dt>
+                        <dd class="mt-1 text-stone-800">
+                            {{ inquiry.preferred_start_date or 'Flexible' }} – {{ inquiry.preferred_end_date or 'Flexible' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Preferred currency</dt>
+                        <dd class="mt-1 text-stone-800">{{ inquiry.preferred_currency or 'KES' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Travellers</dt>
+                        <dd class="mt-1 text-stone-800">
+                            {{ inquiry.adults }} adult(s), {{ inquiry.children }} child(ren), {{ inquiry.infants }} infant(s)
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500">Children's ages</dt>
+                        <dd class="mt-1 text-stone-800">{{ inquiry.children_ages or 'Not provided' }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-3 text-lg font-semibold text-stone-900">Special requests</h2>
+                <p class="whitespace-pre-line text-sm leading-7 text-stone-700">
+                    {{ inquiry.special_requests or 'No special requests supplied.' }}
+                </p>
+            </section>
+        </div>
+
+        <aside class="h-fit space-y-6">
+            <section class="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-4 text-lg font-semibold text-stone-900">Guest contact</h2>
+                <p class="font-semibold text-stone-900">{{ inquiry.full_name }}</p>
+                <p class="mt-2 break-all text-sm text-stone-600">{{ inquiry.email }}</p>
+                <p class="mt-1 text-sm text-stone-600">{{ inquiry.phone or 'No phone provided' }}</p>
+
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <a href="mailto:{{ inquiry.email }}" class="route-button-outline">Email guest</a>
+                    {% if inquiry.phone %}
+                    <a href="https://wa.me/{{ inquiry.phone|replace(' ', '')|replace('+', '') }}"
+                       target="_blank" rel="noopener noreferrer" class="route-button-outline">WhatsApp</a>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-4 text-lg font-semibold text-stone-900">Manage enquiry</h2>
+
+                <form method="post" action="{{ url_for('admin_safaris.inquiry_update', inquiry_id=inquiry.id) }}" class="space-y-5">
+                    {{ form.hidden_tag() }}
+
+                    <div>
+                        {{ form.status.label(class_="mb-1.5 block text-sm font-semibold text-stone-700") }}
+                        {{ form.status(class_="route-select w-full") }}
+                        {% for error in form.status.errors %}
+                        <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.internal_notes.label(class_="mb-1.5 block text-sm font-semibold text-stone-700") }}
+                        {{ form.internal_notes(class_="route-textarea w-full", rows=5) }}
+                        {% for error in form.internal_notes.errors %}
+                        <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="route-button-primary w-full">Save enquiry update</button>
+                </form>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

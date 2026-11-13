@@ -1,0 +1,125 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Photography Spot — {{ experience.title }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-8">
+
+    <!-- Header -->
+    <div>
+        <nav class="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_experiences.index') }}" class="transition hover:text-[#1F5138]">
+                Experiences
+            </a>
+            <span>/</span>
+            <span>{{ experience.title }}</span>
+            <span>/</span>
+            <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+               class="transition hover:text-[#1F5138]">
+                Photography Spots
+            </a>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">Add</span>
+        </nav>
+
+        <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span>
+            Back to Photography Spots
+        </a>
+
+        <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E9DDC8] text-2xl">
+                📷
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#12372A]">
+                    Add Photography Spot
+                </h1>
+                <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                    Connect a photography location to {{ experience.title }} and decide how it appears in the experience.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+        <div class="border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-4">
+            <h2 class="font-semibold text-[#12372A]">Photography stop details</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Complete the fields below and save your changes.</p>
+        </div>
+
+        <form method="POST" class="space-y-6 p-6">
+            {{ form.hidden_tag() }}
+
+            <div>
+                {{ form.photography_spot_id.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.photography_spot_id(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                {% for error in form.photography_spot_id.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+                <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                    Select an existing photography location to associate with this experience.
+                </p>
+            </div>
+
+            <div>
+                {{ form.stop_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.stop_order(class="w-full rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                {% for error in form.stop_order.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+                <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                    Use the stop order to control the sequence in which photography locations are presented.
+                </p>
+            </div>
+
+            <div>
+                {{ form.notes.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                {{ form.notes(rows="5", class="w-full resize-y rounded-xl border border-[#D8DCCF] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition placeholder:text-[#9AA39C] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15") }}
+                {% for error in form.notes.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+                <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                    Add experience-specific guidance, such as the best viewpoint, lighting, or photo opportunity.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#D89B24]">
+                    {{ form.featured(class="mt-1 h-4 w-4 shrink-0 accent-[#1F5138]") }}
+                    <span>
+                        <span class="block text-sm font-semibold text-[#1C2822]">Featured stop</span>
+                        <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                            Highlight this photography location prominently.
+                        </span>
+                    </span>
+                </label>
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#1F5138]">
+                    {{ form.active(class="mt-1 h-4 w-4 shrink-0 accent-[#1F5138]") }}
+                    <span>
+                        <span class="block text-sm font-semibold text-[#1C2822]">Active</span>
+                        <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+                            Make this photography stop available to guests.
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-6 sm:flex-row sm:justify-end">
+                <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+                {{ form.submit(class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30 focus:ring-offset-2") }}
+            </div>
+        </form>
+    </div>
+
+    <p class="text-center text-xs text-[#66736B]">
+        The Uncharted Route · Explore. Experience. Remember.
+    </p>
+</div>
+{% endblock %}

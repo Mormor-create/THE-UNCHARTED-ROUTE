@@ -1,0 +1,569 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ property.name }} | Safari Property Workspace{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7F8F5]">
+    <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+        {% set packages = package_options|default([], true) %}
+        {% set active_media_items = media_items|selectattr('active')|list %}
+
+        {# Breadcrumb #}
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_safaris.index') }}"
+               class="transition hover:text-[#1F5138]">Safari management</a>
+            <span>/</span>
+            <a href="{{ url_for('admin_safaris.properties') }}"
+               class="transition hover:text-[#1F5138]">Properties</a>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">{{ property.name }}</span>
+        </nav>
+
+        {% include "admin/safaris/_messages.html" %}
+
+        {# Header #}
+        <section class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-[#1F5138]">
+                    Safari property workspace
+                </p>
+
+                <h1 class="text-3xl font-semibold tracking-tight text-[#1C2822] sm:text-4xl">
+                    {{ property.name }}
+                </h1>
+
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-[#66736B]">
+                    Manage the property profile, image gallery, safari packages,
+                    itineraries, pricing and guest enquiries from one workspace.
+                </p>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold
+                        {{ 'bg-[#E4EFE4] text-[#1F5138]' if property.active else 'bg-[#EEECE7] text-[#66736B]' }}">
+                        {{ 'Active' if property.active else 'Inactive' }}
+                    </span>
+
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold
+                        {{ 'bg-[#FBF0D4] text-[#805C16]' if property.featured else 'bg-white text-[#66736B] ring-1 ring-[#E9DDC8]' }}">
+                        {{ 'Featured property' if property.featured else 'Not featured' }}
+                    </span>
+
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-[#66736B] ring-1 ring-[#E9DDC8]">
+                        {{ property.property_type|replace('_', ' ')|title }}
+                    </span>
+
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-[#66736B] ring-1 ring-[#E9DDC8]">
+                        /{{ property.slug }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ url_for('admin_safaris.properties') }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8CDB9] bg-white px-4 py-2.5 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                    Back to properties
+                </a>
+
+                <a href="{{ url_for('admin_safaris.property_edit', property_id=property.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                    Edit property
+                </a>
+            </div>
+        </section>
+
+        {# Hero preview #}
+        <section class="overflow-hidden rounded-3xl border border-[#E9DDC8] bg-white shadow-sm">
+            {% if hero_image_url %}
+                <div class="relative h-64 bg-[#12372A] sm:h-80 lg:h-96">
+                    <img src="{{ hero_image_url }}"
+                         alt="{{ property.name }}"
+                         class="h-full w-full object-cover">
+
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+                    <div class="absolute inset-x-0 bottom-0 p-6 sm:p-9">
+                        <p class="text-xs font-bold uppercase tracking-[0.22em] text-[#F0C66A]">
+                            Property overview
+                        </p>
+                        <h2 class="mt-2 text-3xl font-semibold text-white sm:text-4xl">
+                            {{ property.name }}
+                        </h2>
+                        <p class="mt-2 text-sm text-white/85">
+                            {{ property.destination.name }}
+                            {% if property.location_name %} · {{ property.location_name }}{% endif %}
+                        </p>
+                        {% if property.short_description %}
+                            <p class="mt-3 max-w-3xl text-sm leading-6 text-white/90 sm:text-base">
+                                {{ property.short_description|striptags|truncate(260, true, '…') }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="bg-gradient-to-br from-[#12372A] via-[#1F5138] to-[#5C6B32] px-6 py-12 sm:px-10 sm:py-16">
+                    <p class="text-xs font-bold uppercase tracking-[0.22em] text-[#F0C66A]">
+                        Property overview
+                    </p>
+                    <h2 class="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+                        {{ property.name }}
+                    </h2>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-white/85">
+                        {{ property.short_description or
+                           'Your property workspace is ready. Add property media to build its visual profile.' }}
+                    </p>
+                    <a href="{{ url_for('admin_safaris.property_media', property_id=property.id) }}"
+                       class="mt-6 inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#12372A] hover:bg-[#F7F1E5]">
+                        Open property media
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+
+        {# Summary metrics #}
+        <section class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+            {% set metrics = [
+                ('Media items', media_count, 'Linked gallery assets'),
+                ('Packages', package_count, 'Safari package options'),
+                ('Itinerary days', itinerary_count, 'Schedule entries'),
+                ('Rates', rate_count, 'Pricing records'),
+                ('Enquiries', inquiry_count, 'Requests linked to this property')
+            ] %}
+
+            {% for label, value, description in metrics %}
+                <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+                    <p class="text-sm font-medium text-[#66736B]">{{ label }}</p>
+                    <p class="mt-3 text-3xl font-semibold tracking-tight text-[#12372A]">{{ value }}</p>
+                    <p class="mt-2 text-xs leading-5 text-[#66736B]">{{ description }}</p>
+                </div>
+            {% endfor %}
+        </section>
+
+        {# Main workspace #}
+        <section class="grid gap-6 lg:grid-cols-3">
+            <div class="space-y-6 lg:col-span-2">
+
+                {# Property profile #}
+                <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm sm:p-8">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#1F5138]">
+                                Property profile
+                            </p>
+                            <h2 class="mt-2 text-xl font-semibold text-[#1C2822]">
+                                Accommodation overview
+                            </h2>
+                        </div>
+                        <a href="{{ url_for('admin_safaris.property_edit', property_id=property.id) }}"
+                           class="shrink-0 text-sm font-semibold text-[#1F5138] hover:underline">
+                            Edit details →
+                        </a>
+                    </div>
+
+                    {% set profile_fields = [
+                        ('Short description', property.short_description),
+                        ('Overview', property.overview),
+                        ('Property story', property.property_story),
+                        ('Accommodation', property.accommodation_details),
+                        ('Facilities', property.facilities),
+                        ('Dining', property.dining_information),
+                        ('Activities', property.activities),
+                        ('Wildlife experience', property.wildlife_experience)
+                    ] %}
+
+                    <div class="mt-6 space-y-6">
+                        {% for label, value in profile_fields %}
+                            {% if value %}
+                                <div>
+                                    <h3 class="text-sm font-semibold text-[#1C2822]">{{ label }}</h3>
+                                    <div class="mt-2 whitespace-pre-line text-sm leading-7 text-[#66736B]">
+                                        {{ value|striptags }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if not property.short_description and not property.overview
+                              and not property.property_story and not property.accommodation_details
+                              and not property.facilities and not property.dining_information
+                              and not property.activities and not property.wildlife_experience %}
+                            <div class="rounded-xl bg-[#F7F1E5] p-5">
+                                <p class="text-sm leading-6 text-[#66736B]">
+                                    The property profile has not been completed yet. Use Edit details
+                                    to add its story, accommodation, facilities and guest experience.
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                {# Location and guest information #}
+                <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm sm:p-8">
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#1F5138]">
+                        Guest information
+                    </p>
+                    <h2 class="mt-2 text-xl font-semibold text-[#1C2822]">
+                        Location, arrival and stay
+                    </h2>
+
+                    {% set guest_fields = [
+                        ('Location name', property.location_name),
+                        ('Location description', property.location_description),
+                        ('Check-in', property.check_in_information),
+                        ('Check-out', property.check_out_information),
+                        ('Child policy', property.child_policy),
+                        ('Accessibility', property.accessibility_information),
+                        ('Transport information', property.transport_information),
+                        ('Booking conditions', property.booking_conditions)
+                    ] %}
+
+                    <div class="mt-6 grid gap-6 sm:grid-cols-2">
+                        <div>
+                            <h3 class="text-sm font-semibold text-[#1C2822]">Destination</h3>
+                            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                                {{ property.destination.name }}
+                            </p>
+                        </div>
+
+                        {% for label, value in guest_fields %}
+                            <div class="{{ 'sm:col-span-2' if label in ['Location description', 'Child policy', 'Accessibility', 'Transport information', 'Booking conditions'] else '' }}">
+                                <h3 class="text-sm font-semibold text-[#1C2822]">{{ label }}</h3>
+                                <div class="mt-2 whitespace-pre-line break-words text-sm leading-7 text-[#66736B]">
+                                    {{ value|striptags if value else 'Not specified yet.' }}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {% if property.official_website_url %}
+                            <div class="sm:col-span-2">
+                                <h3 class="text-sm font-semibold text-[#1C2822]">Official website</h3>
+                                <a href="{{ property.official_website_url }}"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="mt-2 inline-flex break-all text-sm font-semibold text-[#1F5138] hover:underline">
+                                    {{ property.official_website_url }} ↗
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                {# Media workspace #}
+                <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm sm:p-8">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#1F5138]">
+                                Property media
+                            </p>
+                            <h2 class="mt-2 text-xl font-semibold text-[#1C2822]">Image gallery</h2>
+                            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                                Manage hero images, gallery photos, rooms, dining and activity media.
+                            </p>
+                        </div>
+
+                        {# Add Media opens the media creation form #}
+                        <a href="{{ url_for('admin_safaris.property_media_create', property_id=property.id) }}"
+                           class="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                            + Add media
+                        </a>
+                    </div>
+
+                    {% if media_items %}
+                        <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                            {% for item in media_items %}
+                                {% set asset = item.media_asset %}
+                                {% set image_url = asset.browser_url if asset else none %}
+
+                                <article class="overflow-hidden rounded-xl border border-[#E9DDC8] bg-white">
+                                    {% if image_url %}
+                                        <div class="aspect-[4/3] overflow-hidden bg-[#F7F1E5]">
+                                            <img src="{{ image_url }}"
+                                                 alt="{{ item.alt_text or item.caption or property.name }}"
+                                                 loading="lazy"
+                                                 class="h-full w-full object-cover transition duration-300 hover:scale-105">
+                                        </div>
+                                    {% else %}
+                                        <div class="flex aspect-[4/3] items-center justify-center bg-[#F7F1E5] text-sm text-[#66736B]">
+                                            Preview unavailable
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="space-y-3 p-4">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="rounded-full bg-[#F7F1E5] px-2.5 py-1 text-xs font-semibold text-[#1C2822]">
+                                                {{ item.usage|replace('_', ' ')|title }}
+                                            </span>
+                                            {% if item.is_primary %}
+                                                <span class="rounded-full bg-[#FBF0D4] px-2.5 py-1 text-xs font-semibold text-[#805C16]">
+                                                    Primary
+                                                </span>
+                                            {% endif %}
+                                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold
+                                                {{ 'bg-[#E4EFE4] text-[#1F5138]' if item.active else 'bg-[#EEECE7] text-[#66736B]' }}">
+                                                {{ 'Active' if item.active else 'Inactive' }}
+                                            </span>
+                                        </div>
+
+                                        <p class="text-sm font-semibold text-[#1C2822]">
+                                            {{ item.caption or (asset.title if asset else 'Property media') }}
+                                        </p>
+
+                                        <a href="{{ url_for('admin_safaris.property_media_edit', property_id=property.id, media_id=item.id) }}"
+                                           class="inline-flex text-sm font-semibold text-[#1F5138] hover:underline">
+                                            Edit media details →
+                                        </a>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="mt-6 rounded-2xl border border-dashed border-[#D8CDB9] bg-[#F7F8F5] px-6 py-10 text-center">
+                            <h3 class="font-semibold text-[#1C2822]">No media added yet</h3>
+                            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#66736B]">
+                                Open the media index to view and manage this property's gallery.
+                            </p>
+
+                            {# As requested, Add First Media Item opens the media index #}
+                            <a href="{{ url_for('admin_safaris.property_media', property_id=property.id) }}"
+                               class="mt-5 inline-flex rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                                Open property media
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <a href="{{ url_for('admin_safaris.property_media', property_id=property.id) }}"
+                       class="mt-5 inline-flex text-sm font-semibold text-[#1F5138] hover:underline">
+                        Manage all property media →
+                    </a>
+                </section>
+
+                {# Packages, itineraries and rates #}
+                <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm sm:p-8">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#1F5138]">
+                                Safari experiences
+                            </p>
+                            <h2 class="mt-2 text-xl font-semibold text-[#1C2822]">
+                                Packages, rates and itineraries
+                            </h2>
+                            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                                Each package has its own duration, itinerary and pricing options.
+                            </p>
+                        </div>
+
+                        {# Add Package opens the package creation form #}
+                        <a href="{{ url_for('admin_safaris.package_create', property_id=property.id) }}"
+                           class="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                            + Add package
+                        </a>
+                    </div>
+
+                    {% if packages %}
+                        <div class="mt-6 space-y-5">
+                            {% for option in packages %}
+                                {% set days = itinerary_days_by_package.get(option.id, []) %}
+                                {% set package_rate_count = rate_counts_by_package.get(option.id, 0) %}
+
+                                <article class="rounded-2xl border border-[#E9DDC8] p-5">
+                                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                        <div class="min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <h3 class="text-lg font-semibold text-[#1C2822]">
+                                                    {{ option.name }}
+                                                </h3>
+
+                                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold
+                                                    {{ 'bg-[#E4EFE4] text-[#1F5138]' if option.active else 'bg-[#EEECE7] text-[#66736B]' }}">
+                                                    {{ 'Active' if option.active else 'Inactive' }}
+                                                </span>
+
+                                                {% if option.featured %}
+                                                    <span class="rounded-full bg-[#FBF0D4] px-2.5 py-1 text-xs font-semibold text-[#805C16]">
+                                                        Featured
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+
+                                            <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                                                {% if option.summary %}
+                                                    {{ option.summary|striptags }}
+                                                {% elif option.description %}
+                                                    {{ option.description|striptags|truncate(180, true, '…') }}
+                                                {% else %}
+                                                    No package summary has been added yet.
+                                                {% endif %}
+                                            </p>
+
+                                            <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                                                <span class="rounded-lg bg-[#F7F1E5] px-3 py-2 font-medium text-[#1C2822]">
+                                                    {{ option.duration_days }} days
+                                                </span>
+                                                <span class="rounded-lg bg-[#F7F1E5] px-3 py-2 font-medium text-[#1C2822]">
+                                                    {{ option.duration_nights }} nights
+                                                </span>
+                                                <span class="rounded-lg bg-[#F7F1E5] px-3 py-2 font-medium text-[#1C2822]">
+                                                    {{ days|length }} itinerary days
+                                                </span>
+                                                <span class="rounded-lg bg-[#F7F1E5] px-3 py-2 font-medium text-[#1C2822]">
+                                                    {{ package_rate_count }} rates
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5 flex flex-wrap gap-2 border-t border-[#E9DDC8] pt-4">
+                                        <a href="{{ url_for('admin_safaris.package_edit', property_id=property.id, option_id=option.id) }}"
+                                           class="rounded-lg border border-[#D8CDB9] bg-white px-3 py-2 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                                            Edit package
+                                        </a>
+                                        <a href="{{ url_for('admin_safaris.itinerary', property_id=property.id, option_id=option.id) }}"
+                                           class="rounded-lg border border-[#D8CDB9] bg-white px-3 py-2 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                                            Manage itinerary
+                                        </a>
+                                        <a href="{{ url_for('admin_safaris.rates', property_id=property.id, option_id=option.id) }}"
+                                           class="rounded-lg border border-[#D8CDB9] bg-white px-3 py-2 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                                            Manage rates
+                                        </a>
+                                    </div>
+
+                                    {% if days %}
+                                        <div class="mt-5 space-y-3">
+                                            <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-[#66736B]">
+                                                Itinerary preview
+                                            </h4>
+
+                                            {% for day in days|sort(attribute='day_number') %}
+                                                <div class="flex gap-4 rounded-xl bg-[#F7F8F5] p-4">
+                                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#12372A] text-sm font-bold text-white">
+                                                        {{ day.day_number }}
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <p class="font-semibold text-[#1C2822]">
+                                                            {{ day.title or ('Day ' ~ day.day_number) }}
+                                                        </p>
+                                                        {% if day.description %}
+                                                            <p class="mt-1 text-sm leading-6 text-[#66736B]">
+                                                                {{ day.description|striptags|truncate(160, true, '…') }}
+                                                            </p>
+                                                        {% endif %}
+                                                        {% if day.overnight_location %}
+                                                            <p class="mt-1 text-xs text-[#66736B]">
+                                                                Overnight: {{ day.overnight_location }}
+                                                            </p>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="mt-4 rounded-xl bg-[#F7F8F5] p-4 text-sm text-[#66736B]">
+                                            No itinerary days have been added to this package yet.
+                                        </p>
+                                    {% endif %}
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="mt-6 rounded-2xl border border-dashed border-[#D8CDB9] bg-[#F7F8F5] px-6 py-10 text-center">
+                            <h3 class="font-semibold text-[#1C2822]">No safari packages yet</h3>
+                            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#66736B]">
+                                Open the packages index to review package options and create one for this property.
+                            </p>
+
+                            {# As requested, Create First Package opens the packages index #}
+                            <a href="{{ url_for('admin_safaris.packages', property_id=property.id) }}"
+                               class="mt-5 inline-flex rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                                View packages
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <a href="{{ url_for('admin_safaris.packages', property_id=property.id) }}"
+                       class="mt-5 inline-flex text-sm font-semibold text-[#1F5138] hover:underline">
+                        View all packages →
+                    </a>
+                </section>
+            </div>
+
+            {# Sidebar #}
+            <aside class="space-y-5">
+                <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-semibold text-[#1C2822]">Property management</h2>
+                    <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                        Quick access to the property's media, packages and guest enquiries.
+                    </p>
+
+                    <div class="mt-5 space-y-3">
+                        <a href="{{ url_for('admin_safaris.property_media', property_id=property.id) }}"
+                           class="flex items-center justify-between rounded-xl border border-[#E9DDC8] p-4 transition hover:border-[#1F5138] hover:bg-[#F7F8F5]">
+                            <span>
+                                <span class="block text-sm font-semibold text-[#1C2822]">Media library</span>
+                                <span class="mt-1 block text-xs text-[#66736B]">
+                                    {{ media_count }} linked media item(s)
+                                </span>
+                            </span>
+                            <span class="text-[#66736B]">→</span>
+                        </a>
+
+                        <a href="{{ url_for('admin_safaris.packages', property_id=property.id) }}"
+                           class="flex items-center justify-between rounded-xl border border-[#E9DDC8] p-4 transition hover:border-[#1F5138] hover:bg-[#F7F8F5]">
+                            <span>
+                                <span class="block text-sm font-semibold text-[#1C2822]">Packages</span>
+                                <span class="mt-1 block text-xs text-[#66736B]">
+                                    {{ package_count }} package option(s)
+                                </span>
+                            </span>
+                            <span class="text-[#66736B]">→</span>
+                        </a>
+
+                        <a href="{{ url_for('admin_safaris.inquiries') }}"
+                           class="flex items-center justify-between rounded-xl border border-[#E9DDC8] p-4 transition hover:border-[#1F5138] hover:bg-[#F7F8F5]">
+                            <span>
+                                <span class="block text-sm font-semibold text-[#1C2822]">Guest enquiries</span>
+                                <span class="mt-1 block text-xs text-[#66736B]">
+                                    {{ new_inquiry_count }} new enquiry/enquiries
+                                </span>
+                            </span>
+                            <span class="text-[#66736B]">→</span>
+                        </a>
+                    </div>
+                </section>
+
+                {# Publication checklist #}
+                <section class="rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-semibold text-[#1C2822]">Publication checklist</h2>
+                    <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                        Track the main items needed to prepare this property for publication.
+                    </p>
+
+                    {% set checklist = [
+                        ('Short description', property.short_description),
+                        ('Property overview', property.overview),
+                        ('Property media added', media_count > 0),
+                        ('At least one package', package_count > 0),
+                        ('Itinerary days configured', itinerary_count > 0),
+                        ('Package rates configured', rate_count > 0)
+                    ] %}
+
+                    <ul class="mt-5 space-y-4">
+                        {% for label, complete in checklist %}
+                            <li class="flex items-start gap-3">
+                                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                                    {{ 'bg-[#E4EFE4] text-[#1F5138]' if complete else 'bg-[#EEECE7] text-[#66736B]' }}">
+                                    {{ '✓' if complete else '·' }}
+                                </span>
+                                <span class="text-sm text-[#1C2822]">{{ label }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <a href="{{ url_for('admin_safaris.property_edit', property_id=property.id) }}"
+                       class="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-[#D8CDB9] px-4 py-2.5 text-sm font-semibold text-[#1C2822] hover:bg-[#F7F1E5]">
+                        Edit property
+                    </a>
+                </section>
+            </aside>
+        </section>
+    </div>
+</div>
+{% endblock %}

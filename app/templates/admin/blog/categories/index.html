@@ -1,0 +1,1534 @@
+{# ============================================================================
+   THE UNCHARTED ROUTE — BLOG CATEGORY MANAGEMENT
+   Palette: Forest Green, Ivory, Olive, Warm Gold
+   Features: Responsive layout, search, filters, compact actions,
+             single reusable delete modal, pagination.
+============================================================================ #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Blog Categories | The Uncharted Route{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --tur-forest: #12372A;
+        --tur-green: #1F5138;
+        --tur-olive: #5C6B32;
+        --tur-gold: #D89B24;
+        --tur-clay: #C96A2C;
+        --tur-ivory: #F7F1E5;
+        --tur-sand: #E9DDC8;
+        --tur-ink: #1C2822;
+        --tur-muted: #66736B;
+        --tur-white: #FFFFFF;
+        --tur-border: #E7E2D8;
+        --tur-shadow: 0 12px 35px rgba(18, 55, 42, .07);
+    }
+
+    .tur-categories {
+        color: var(--tur-ink);
+        padding-bottom: 2rem;
+    }
+
+    .tur-categories * {
+        box-sizing: border-box;
+    }
+
+    .tur-page-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .tur-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        color: var(--tur-olive);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        margin-bottom: .55rem;
+    }
+
+    .tur-eyebrow::before {
+        content: "";
+        display: inline-block;
+        width: 24px;
+        height: 2px;
+        background: var(--tur-gold);
+    }
+
+    .tur-page-title {
+        color: var(--tur-forest);
+        font-size: clamp(1.65rem, 3vw, 2.15rem);
+        font-weight: 800;
+        letter-spacing: -.045em;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .tur-page-description {
+        color: var(--tur-muted);
+        font-size: .92rem;
+        line-height: 1.7;
+        margin: .6rem 0 0;
+        max-width: 620px;
+    }
+
+    .tur-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .6rem;
+        padding: .8rem 1.1rem;
+        border: 1px solid var(--tur-forest);
+        border-radius: 10px;
+        background: var(--tur-forest);
+        color: var(--tur-white);
+        font-size: .88rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background .2s ease, transform .2s ease;
+        white-space: nowrap;
+    }
+
+    .tur-btn-primary:hover {
+        background: var(--tur-green);
+        color: var(--tur-white);
+        transform: translateY(-1px);
+    }
+
+    .tur-btn-outline {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        min-height: 42px;
+        padding: .6rem .9rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 9px;
+        background: var(--tur-white);
+        color: var(--tur-forest);
+        font-size: .84rem;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .tur-btn-outline:hover {
+        border-color: var(--tur-green);
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+    }
+
+    .tur-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tur-stat-card {
+        position: relative;
+        overflow: hidden;
+        min-width: 0;
+        padding: 1.2rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 15px;
+        background: var(--tur-white);
+        box-shadow: 0 4px 18px rgba(18, 55, 42, .035);
+    }
+
+    .tur-stat-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--tur-green);
+    }
+
+    .tur-stat-card.gold::after { background: var(--tur-gold); }
+    .tur-stat-card.olive::after { background: var(--tur-olive); }
+    .tur-stat-card.clay::after { background: var(--tur-clay); }
+
+    .tur-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+        margin-bottom: .9rem;
+    }
+
+    .tur-stat-label {
+        color: var(--tur-muted);
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    .tur-stat-icon {
+        display: grid;
+        place-items: center;
+        width: 35px;
+        height: 35px;
+        flex: 0 0 35px;
+        border-radius: 10px;
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+        font-size: .95rem;
+    }
+
+    .tur-stat-value {
+        color: var(--tur-forest);
+        font-size: 1.9rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -.04em;
+    }
+
+    .tur-stat-caption {
+        color: var(--tur-muted);
+        font-size: .74rem;
+        margin-top: .55rem;
+    }
+
+    .tur-panel {
+        overflow: visible;
+        border: 1px solid var(--tur-border);
+        border-radius: 16px;
+        background: var(--tur-white);
+        box-shadow: var(--tur-shadow);
+    }
+
+    .tur-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: .85rem;
+        padding: 1.2rem 1.35rem;
+        border-bottom: 1px solid var(--tur-border);
+    }
+
+    .tur-panel-title {
+        color: var(--tur-forest);
+        font-size: 1rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .tur-panel-subtitle {
+        color: var(--tur-muted);
+        font-size: .8rem;
+        margin: .3rem 0 0;
+    }
+
+    .tur-result-count {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .4rem .7rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 999px;
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+        font-size: .76rem;
+        font-weight: 800;
+    }
+
+    .tur-filter-form {
+        display: grid;
+        grid-template-columns: minmax(180px, 1.8fr) repeat(2, minmax(135px, .8fr)) auto;
+        gap: .75rem;
+        padding: 1rem 1.35rem;
+        border-bottom: 1px solid var(--tur-border);
+        background: #FCFAF6;
+    }
+
+    .tur-field {
+        width: 100%;
+        min-width: 0;
+        min-height: 43px;
+        padding: .65rem .8rem;
+        border: 1px solid #DDD8CE;
+        border-radius: 9px;
+        background: var(--tur-white);
+        color: var(--tur-ink);
+        font-size: .85rem;
+        outline: none;
+    }
+
+    .tur-field:focus {
+        border-color: var(--tur-green);
+        box-shadow: 0 0 0 3px rgba(31, 81, 56, .1);
+    }
+
+    .tur-search-wrap {
+        position: relative;
+    }
+
+    .tur-search-wrap .tur-field {
+        padding-left: 2.35rem;
+    }
+
+    .tur-search-icon {
+        position: absolute;
+        top: 50%;
+        left: .85rem;
+        color: var(--tur-muted);
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .tur-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .tur-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .tur-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
+    }
+
+    .tur-table thead th {
+        padding: .9rem 1rem;
+        border-bottom: 1px solid var(--tur-border);
+        background: #FBF9F4;
+        color: var(--tur-muted);
+        font-size: .69rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-align: left;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .tur-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #F0EDE6;
+        color: var(--tur-ink);
+        font-size: .85rem;
+        vertical-align: middle;
+    }
+
+    .tur-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .tur-table tbody tr:hover {
+        background: #FDFBF7;
+    }
+
+    .tur-category-cell {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        min-width: 220px;
+    }
+
+    .tur-category-icon {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        overflow: hidden;
+        border: 1px solid var(--tur-border);
+        border-radius: 12px;
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+        font-size: 1.1rem;
+    }
+
+    .tur-category-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .tur-category-name {
+        display: block;
+        color: var(--tur-forest);
+        font-weight: 800;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+
+    .tur-category-name:hover {
+        color: var(--tur-olive);
+    }
+
+    .tur-category-slug {
+        display: block;
+        color: var(--tur-muted);
+        font-size: .74rem;
+        margin-top: .25rem;
+        overflow-wrap: anywhere;
+    }
+
+    .tur-description {
+        max-width: 290px;
+        color: var(--tur-muted);
+        font-size: .8rem;
+        line-height: 1.55;
+    }
+
+    .tur-description-empty {
+        color: #9A9D95;
+        font-style: italic;
+    }
+
+    .tur-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        padding: .35rem .55rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 8px;
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+        font-size: .78rem;
+        font-weight: 800;
+    }
+
+    .tur-badges {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: .35rem;
+    }
+
+    .tur-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        padding: .32rem .55rem;
+        border-radius: 6px;
+        font-size: .69rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .tur-badge-active {
+        background: #E7F1E9;
+        color: #245D3A;
+    }
+
+    .tur-badge-inactive {
+        background: #F0EEE9;
+        color: #77756E;
+    }
+
+    .tur-badge-featured {
+        background: #FBF0D5;
+        color: #805A0C;
+    }
+
+    .tur-badge-regular {
+        background: #F0EEE9;
+        color: #77756E;
+    }
+
+    .tur-actions {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tur-action-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+        min-height: 36px;
+        padding: .45rem .7rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 8px;
+        background: var(--tur-white);
+        color: var(--tur-forest);
+        font-size: .78rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .tur-action-trigger:hover,
+    .tur-action-trigger:focus {
+        border-color: var(--tur-green);
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+    }
+
+    .tur-action-menu {
+        min-width: 190px;
+        padding: .4rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 11px;
+        box-shadow: 0 12px 32px rgba(18, 55, 42, .13);
+    }
+
+    .tur-action-menu .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .65rem .7rem;
+        border-radius: 7px;
+        color: var(--tur-ink);
+        font-size: .82rem;
+    }
+
+    .tur-action-menu .dropdown-item:hover {
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+    }
+
+    .tur-action-menu .dropdown-item.text-danger {
+        color: #A43E35 !important;
+    }
+
+    .tur-action-menu .dropdown-divider {
+        border-color: var(--tur-border);
+    }
+
+    .tur-mobile-list {
+        display: none;
+        padding: .8rem;
+    }
+
+    .tur-mobile-card {
+        padding: 1rem;
+        margin-bottom: .75rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 13px;
+        background: var(--tur-white);
+    }
+
+    .tur-mobile-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .tur-mobile-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: .75rem;
+    }
+
+    .tur-mobile-meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .7rem;
+        padding-top: .9rem;
+        margin-top: .9rem;
+        border-top: 1px solid var(--tur-border);
+    }
+
+    .tur-meta-label {
+        display: block;
+        color: var(--tur-muted);
+        font-size: .69rem;
+        font-weight: 700;
+        margin-bottom: .3rem;
+    }
+
+    .tur-meta-value {
+        color: var(--tur-forest);
+        font-size: .81rem;
+        font-weight: 800;
+    }
+
+    .tur-mobile-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: .75rem;
+        flex-wrap: wrap;
+        margin-top: .9rem;
+    }
+
+    .tur-empty-state {
+        padding: 3.5rem 1.25rem;
+        text-align: center;
+    }
+
+    .tur-empty-icon {
+        display: grid;
+        place-items: center;
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 1rem;
+        border-radius: 18px;
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+        font-size: 1.5rem;
+    }
+
+    .tur-empty-state h3 {
+        color: var(--tur-forest);
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .tur-empty-state p {
+        max-width: 420px;
+        margin: .5rem auto 1.25rem;
+        color: var(--tur-muted);
+        font-size: .87rem;
+        line-height: 1.65;
+    }
+
+    .tur-pagination-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1rem 1.35rem;
+        border-top: 1px solid var(--tur-border);
+    }
+
+    .tur-pagination-info {
+        color: var(--tur-muted);
+        font-size: .78rem;
+    }
+
+    .tur-pagination {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .tur-page-link {
+        display: grid;
+        place-items: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 .55rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 8px;
+        background: var(--tur-white);
+        color: var(--tur-forest);
+        font-size: .78rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .tur-page-link:hover {
+        background: var(--tur-ivory);
+        color: var(--tur-forest);
+    }
+
+    .tur-pagination .active .tur-page-link {
+        border-color: var(--tur-forest);
+        background: var(--tur-forest);
+        color: var(--tur-white);
+    }
+
+    .tur-pagination .disabled .tur-page-link {
+        opacity: .4;
+        pointer-events: none;
+    }
+
+    .tur-management-note {
+        display: flex;
+        align-items: flex-start;
+        gap: .75rem;
+        padding: 1rem 1.15rem;
+        margin-top: 1rem;
+        border: 1px solid #E8D8AF;
+        border-radius: 12px;
+        background: #FCF6E8;
+        color: #665322;
+        font-size: .8rem;
+        line-height: 1.6;
+    }
+
+    .tur-management-note strong {
+        color: #62470A;
+    }
+
+    /* Compact shared delete confirmation */
+    .tur-delete-modal .modal-content {
+        overflow: hidden;
+        border: 1px solid var(--tur-border);
+        border-radius: 16px;
+        box-shadow: 0 24px 65px rgba(18, 55, 42, .2);
+    }
+
+    .tur-delete-modal .modal-header {
+        padding: 1.1rem 1.2rem .8rem;
+        border-bottom: 0;
+    }
+
+    .tur-delete-icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #FBEAE7;
+        color: #A43E35;
+        font-size: 1.05rem;
+    }
+
+    .tur-delete-modal .modal-title {
+        color: var(--tur-forest);
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .tur-delete-modal .modal-body {
+        padding: .25rem 1.2rem 1rem;
+        color: var(--tur-muted);
+        font-size: .84rem;
+        line-height: 1.65;
+    }
+
+    .tur-delete-category-name {
+        display: inline-block;
+        max-width: 100%;
+        color: var(--tur-forest);
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .tur-delete-modal .modal-footer {
+        gap: .5rem;
+        padding: .85rem 1.2rem 1.1rem;
+        border-top: 1px solid var(--tur-border);
+    }
+
+    .tur-btn-cancel {
+        padding: .6rem .85rem;
+        border: 1px solid var(--tur-border);
+        border-radius: 8px;
+        background: var(--tur-white);
+        color: var(--tur-forest);
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    .tur-btn-delete {
+        padding: .6rem .85rem;
+        border: 1px solid #A43E35;
+        border-radius: 8px;
+        background: #A43E35;
+        color: var(--tur-white);
+        font-size: .8rem;
+        font-weight: 800;
+    }
+
+    .tur-btn-delete:hover {
+        background: #87332C;
+        color: var(--tur-white);
+    }
+
+    @media (max-width: 1100px) {
+        .tur-stat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tur-filter-form {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tur-search-wrap {
+            grid-column: 1 / -1;
+        }
+
+        .tur-filter-actions {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .tur-page-heading {
+            align-items: flex-start;
+        }
+
+        .tur-page-heading > div:first-child {
+            width: 100%;
+        }
+
+        .tur-page-heading .tur-btn-primary {
+            width: 100%;
+        }
+
+        .tur-stat-grid {
+            gap: .7rem;
+        }
+
+        .tur-stat-card {
+            padding: .95rem;
+            border-radius: 12px;
+        }
+
+        .tur-stat-value {
+            font-size: 1.6rem;
+        }
+
+        .tur-stat-label {
+            font-size: .72rem;
+        }
+
+        .tur-stat-icon {
+            width: 30px;
+            height: 30px;
+            flex-basis: 30px;
+        }
+
+        .tur-panel-header,
+        .tur-filter-form {
+            padding: 1rem;
+        }
+
+        .tur-filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .tur-search-wrap,
+        .tur-filter-actions {
+            grid-column: auto;
+        }
+
+        .tur-filter-actions > * {
+            flex: 1;
+        }
+
+        .tur-table-wrap {
+            display: none;
+        }
+
+        .tur-mobile-list {
+            display: block;
+        }
+
+        .tur-pagination-wrap {
+            padding: 1rem;
+        }
+
+        .tur-pagination-wrap,
+        .tur-pagination {
+            justify-content: center;
+        }
+
+        .tur-pagination-info {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .tur-stat-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .tur-stat-top {
+            align-items: flex-start;
+        }
+
+        .tur-stat-value {
+            font-size: 1.45rem;
+        }
+
+        .tur-mobile-card-top {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="tur-categories">
+
+    {# Page heading #}
+    <div class="tur-page-heading">
+        <div>
+            <div class="tur-eyebrow">Content management</div>
+            <h1 class="tur-page-title">Blog Categories</h1>
+            <p class="tur-page-description">
+                Organise your stories, destinations, conservation insights and travel inspiration.
+                Keep every article easy to discover across The Uncharted Route.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_blog.create_category') }}" class="tur-btn-primary">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            Create category
+        </a>
+    </div>
+
+    {# Statistics #}
+    <div class="tur-stat-grid">
+        <div class="tur-stat-card">
+            <div class="tur-stat-top">
+                <span class="tur-stat-label">Total categories</span>
+                <span class="tur-stat-icon"><i class="fas fa-layer-group" aria-hidden="true"></i></span>
+            </div>
+            <div class="tur-stat-value">{{ statistics.total|default(0) }}</div>
+            <div class="tur-stat-caption">All categories created</div>
+        </div>
+
+        <div class="tur-stat-card olive">
+            <div class="tur-stat-top">
+                <span class="tur-stat-label">Active</span>
+                <span class="tur-stat-icon"><i class="fas fa-check-circle" aria-hidden="true"></i></span>
+            </div>
+            <div class="tur-stat-value">{{ statistics.active|default(0) }}</div>
+            <div class="tur-stat-caption">Available for publishing</div>
+        </div>
+
+        <div class="tur-stat-card gold">
+            <div class="tur-stat-top">
+                <span class="tur-stat-label">Featured</span>
+                <span class="tur-stat-icon"><i class="fas fa-star" aria-hidden="true"></i></span>
+            </div>
+            <div class="tur-stat-value">{{ statistics.featured|default(0) }}</div>
+            <div class="tur-stat-caption">Highlighted categories</div>
+        </div>
+
+        <div class="tur-stat-card clay">
+            <div class="tur-stat-top">
+                <span class="tur-stat-label">With articles</span>
+                <span class="tur-stat-icon"><i class="fas fa-book-open" aria-hidden="true"></i></span>
+            </div>
+            <div class="tur-stat-value">{{ statistics.categories_with_posts|default(0) }}</div>
+            <div class="tur-stat-caption">Categories containing posts</div>
+        </div>
+    </div>
+
+    {# Main listing #}
+    <section class="tur-panel">
+
+        <div class="tur-panel-header">
+            <div>
+                <h2 class="tur-panel-title">All categories</h2>
+                <p class="tur-panel-subtitle">Manage visibility, featured status and category details.</p>
+            </div>
+
+            <span class="tur-result-count">
+                <i class="fas fa-list-ul" aria-hidden="true"></i>
+                {{ categories|length }} shown
+            </span>
+        </div>
+
+        {# Search and filters #}
+        <form method="GET"
+              action="{{ url_for('admin_blog.categories') }}"
+              class="tur-filter-form">
+
+            <div class="tur-search-wrap">
+                <i class="fas fa-search tur-search-icon" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    name="q"
+                    class="tur-field"
+                    placeholder="Search categories..."
+                    value="{{ request.args.get('q', '') }}"
+                    aria-label="Search categories">
+            </div>
+
+            <select name="active" class="tur-field" aria-label="Filter by status">
+                <option value="">All statuses</option>
+                <option value="1" {% if request.args.get('active') == '1' %}selected{% endif %}>Active</option>
+                <option value="0" {% if request.args.get('active') == '0' %}selected{% endif %}>Inactive</option>
+            </select>
+
+            <select name="featured" class="tur-field" aria-label="Filter by featured status">
+                <option value="">All categories</option>
+                <option value="1" {% if request.args.get('featured') == '1' %}selected{% endif %}>Featured</option>
+                <option value="0" {% if request.args.get('featured') == '0' %}selected{% endif %}>Not featured</option>
+            </select>
+
+            <div class="tur-filter-actions">
+                <button type="submit" class="tur-btn-primary">
+                    <i class="fas fa-filter" aria-hidden="true"></i>
+                    Filter
+                </button>
+
+                {% if request.args.get('q') or request.args.get('active') or request.args.get('featured') %}
+                    <a href="{{ url_for('admin_blog.categories') }}" class="tur-btn-outline" aria-label="Clear filters">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if categories %}
+
+            {# Desktop table #}
+            <div class="tur-table-wrap">
+                <table class="tur-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Articles</th>
+                            <th>Visibility</th>
+                            <th>Featured</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td>
+                                    <div class="tur-category-cell">
+                                        <div class="tur-category-icon"
+                                             {% if category.color %}
+                                                 style="background: {{ category.color }}15; color: {{ category.color }};"
+                                             {% endif %}>
+                                            {% if category.icon %}
+                                                <i class="{{ category.icon }}" aria-hidden="true"></i>
+                                            {% else %}
+                                                <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                            {% endif %}
+                                        </div>
+
+                                        <div>
+                                            <a href="{{ url_for('admin_blog.category_detail', category_id=category.id) }}"
+                                               class="tur-category-name">
+                                                {{ category.name }}
+                                            </a>
+                                            <span class="tur-category-slug">/{{ category.slug }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if category.description %}
+                                        <div class="tur-description">
+                                            {{ category.description|striptags|truncate(105, true, '…') }}
+                                        </div>
+                                    {% else %}
+                                        <span class="tur-description-empty">No description added</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="tur-count">{{ category.post_count|default(0) }}</span>
+                                </td>
+
+                                <td>
+                                    {% if category.active %}
+                                        <span class="tur-badge tur-badge-active">
+                                            <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="tur-badge tur-badge-inactive">
+                                            <i class="fas fa-pause-circle" aria-hidden="true"></i>
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if category.featured %}
+                                        <span class="tur-badge tur-badge-featured">
+                                            <i class="fas fa-star" aria-hidden="true"></i>
+                                            Featured
+                                        </span>
+                                    {% else %}
+                                        <span class="tur-badge tur-badge-regular">Standard</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="dropdown tur-actions">
+                                        <button class="tur-action-trigger dropdown-toggle"
+                                                type="button"
+                                                id="categoryActions{{ category.id }}"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                            Actions
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end tur-action-menu"
+                                            aria-labelledby="categoryActions{{ category.id }}">
+
+                                            <li>
+                                                <a class="dropdown-item"
+                                                   href="{{ url_for('admin_blog.category_detail', category_id=category.id) }}">
+                                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                                    View category
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a class="dropdown-item"
+                                                   href="{{ url_for('admin_blog.edit_category', category_id=category.id) }}">
+                                                    <i class="fas fa-pen" aria-hidden="true"></i>
+                                                    Edit category
+                                                </a>
+                                            </li>
+
+                                            <li><hr class="dropdown-divider"></li>
+
+                                            {% if category.active %}
+                                                <li>
+                                                    <form method="POST"
+                                                          action="{{ url_for('admin_blog.deactivate_category', category_id=category.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                                                            Deactivate
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% else %}
+                                                <li>
+                                                    <form method="POST"
+                                                          action="{{ url_for('admin_blog.activate_category', category_id=category.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-check" aria-hidden="true"></i>
+                                                            Activate
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+
+                                            {% if category.featured %}
+                                                <li>
+                                                    <form method="POST"
+                                                          action="{{ url_for('admin_blog.unfeature_category', category_id=category.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="far fa-star" aria-hidden="true"></i>
+                                                            Remove featured
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% else %}
+                                                <li>
+                                                    <form method="POST"
+                                                          action="{{ url_for('admin_blog.feature_category', category_id=category.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-star" aria-hidden="true"></i>
+                                                            Feature category
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+
+                                            {% if category.post_count|default(0) == 0 %}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <button type="button"
+                                                            class="dropdown-item text-danger"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteCategoryModal"
+                                                            data-category-name="{{ category.name }}"
+                                                            data-delete-url="{{ url_for('admin_blog.delete_category', category_id=category.id) }}">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        Delete category
+                                                    </button>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# Mobile cards #}
+            <div class="tur-mobile-list">
+                {% for category in categories %}
+                    <article class="tur-mobile-card">
+                        <div class="tur-mobile-card-top">
+                            <div class="tur-category-cell">
+                                <div class="tur-category-icon"
+                                     {% if category.color %}
+                                         style="background: {{ category.color }}15; color: {{ category.color }};"
+                                     {% endif %}>
+                                    {% if category.icon %}
+                                        <i class="{{ category.icon }}" aria-hidden="true"></i>
+                                    {% else %}
+                                        <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <a href="{{ url_for('admin_blog.category_detail', category_id=category.id) }}"
+                                       class="tur-category-name">
+                                        {{ category.name }}
+                                    </a>
+                                    <span class="tur-category-slug">/{{ category.slug }}</span>
+                                </div>
+                            </div>
+
+                            <div class="dropdown tur-actions">
+                                <button class="tur-action-trigger dropdown-toggle"
+                                        type="button"
+                                        id="mobileCategoryActions{{ category.id }}"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        aria-label="Actions for {{ category.name }}">
+                                    <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end tur-action-menu"
+                                    aria-labelledby="mobileCategoryActions{{ category.id }}">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="{{ url_for('admin_blog.category_detail', category_id=category.id) }}">
+                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                            View category
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="{{ url_for('admin_blog.edit_category', category_id=category.id) }}">
+                                            <i class="fas fa-pen" aria-hidden="true"></i>
+                                            Edit category
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    {% if category.active %}
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ url_for('admin_blog.deactivate_category', category_id=category.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                                                    Deactivate
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ url_for('admin_blog.activate_category', category_id=category.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-check" aria-hidden="true"></i>
+                                                    Activate
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if category.featured %}
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ url_for('admin_blog.unfeature_category', category_id=category.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="far fa-star" aria-hidden="true"></i>
+                                                    Remove featured
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ url_for('admin_blog.feature_category', category_id=category.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-star" aria-hidden="true"></i>
+                                                    Feature category
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if category.post_count|default(0) == 0 %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <button type="button"
+                                                    class="dropdown-item text-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteCategoryModal"
+                                                    data-category-name="{{ category.name }}"
+                                                    data-delete-url="{{ url_for('admin_blog.delete_category', category_id=category.id) }}">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                Delete category
+                                            </button>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        {% if category.description %}
+                            <p class="tur-description mt-3 mb-0">
+                                {{ category.description|striptags|truncate(150, true, '…') }}
+                            </p>
+                        {% else %}
+                            <p class="tur-description-empty mt-3 mb-0">No description added.</p>
+                        {% endif %}
+
+                        <div class="tur-mobile-meta">
+                            <div>
+                                <span class="tur-meta-label">Articles</span>
+                                <span class="tur-meta-value">{{ category.post_count|default(0) }}</span>
+                            </div>
+
+                            <div>
+                                <span class="tur-meta-label">Visibility</span>
+                                {% if category.active %}
+                                    <span class="tur-badge tur-badge-active">Active</span>
+                                {% else %}
+                                    <span class="tur-badge tur-badge-inactive">Inactive</span>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <span class="tur-meta-label">Featured status</span>
+                                {% if category.featured %}
+                                    <span class="tur-badge tur-badge-featured">
+                                        <i class="fas fa-star" aria-hidden="true"></i> Featured
+                                    </span>
+                                {% else %}
+                                    <span class="tur-badge tur-badge-regular">Standard</span>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <span class="tur-meta-label">Category colour</span>
+                                <span class="tur-meta-value">
+                                    {% if category.color %}
+                                        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{{ category.color }};margin-right:5px;"></span>
+                                        {{ category.color }}
+                                    {% else %}
+                                        Default
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="tur-mobile-footer">
+                            <a href="{{ url_for('admin_blog.edit_category', category_id=category.id) }}"
+                               class="tur-btn-outline">
+                                <i class="fas fa-pen" aria-hidden="true"></i>
+                                Edit category
+                            </a>
+
+                            <a href="{{ url_for('admin_blog.category_detail', category_id=category.id) }}"
+                               class="tur-btn-outline">
+                                View details
+                                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            {# Pagination — supports Flask-SQLAlchemy pagination objects #}
+            {% if pagination is defined and pagination and pagination.pages > 1 %}
+                <div class="tur-pagination-wrap">
+                    <div class="tur-pagination-info">
+                        Page {{ pagination.page }} of {{ pagination.pages }}
+                        · {{ pagination.total }} categories
+                    </div>
+
+                    <nav aria-label="Category pagination">
+                        <ul class="tur-pagination">
+                            <li class="{% if not pagination.has_prev %}disabled{% endif %}">
+                                {% if pagination.has_prev %}
+                                    <a class="tur-page-link"
+                                       href="{{ url_for('admin_blog.categories', page=pagination.prev_num, q=request.args.get('q', ''), active=request.args.get('active', ''), featured=request.args.get('featured', '')) }}"
+                                       aria-label="Previous page">
+                                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="tur-page-link" aria-hidden="true">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                {% endif %}
+                            </li>
+
+                            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                {% if page_num %}
+                                    <li class="{% if page_num == pagination.page %}active{% endif %}">
+                                        <a class="tur-page-link"
+                                           href="{{ url_for('admin_blog.categories', page=page_num, q=request.args.get('q', ''), active=request.args.get('active', ''), featured=request.args.get('featured', '')) }}"
+                                           {% if page_num == pagination.page %}aria-current="page"{% endif %}>
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <span class="tur-page-link" aria-hidden="true">…</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            <li class="{% if not pagination.has_next %}disabled{% endif %}">
+                                {% if pagination.has_next %}
+                                    <a class="tur-page-link"
+                                       href="{{ url_for('admin_blog.categories', page=pagination.next_num, q=request.args.get('q', ''), active=request.args.get('active', ''), featured=request.args.get('featured', '')) }}"
+                                       aria-label="Next page">
+                                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="tur-page-link" aria-hidden="true">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            {% endif %}
+
+        {% else %}
+
+            {# Empty state #}
+            <div class="tur-empty-state">
+                <div class="tur-empty-icon">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                </div>
+
+                {% if request.args.get('q') or request.args.get('active') or request.args.get('featured') %}
+                    <h3>No matching categories</h3>
+                    <p>
+                        No categories match the selected search or filters.
+                        Clear your filters to see all categories, or create a new one.
+                    </p>
+
+                    <a href="{{ url_for('admin_blog.categories') }}" class="tur-btn-outline">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        Clear filters
+                    </a>
+                {% else %}
+                    <h3>Your stories need a home</h3>
+                    <p>
+                        Create your first blog category to organise destination guides,
+                        travel stories, conservation features and inspiration.
+                    </p>
+
+                    <a href="{{ url_for('admin_blog.create_category') }}" class="tur-btn-primary">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                        Create your first category
+                    </a>
+                {% endif %}
+            </div>
+
+        {% endif %}
+    </section>
+
+    <div class="tur-management-note">
+        <i class="fas fa-lightbulb mt-1" aria-hidden="true"></i>
+        <div>
+            <strong>Good content organisation makes a difference.</strong>
+            Use clear, descriptive category names. Feature your most important themes,
+            and deactivate categories you no longer use. Categories with published articles
+            should be reviewed before deletion.
+        </div>
+    </div>
+
+</div>
+
+{# ============================================================================
+   ONE SHARED DELETE MODAL
+   Kept outside the loop so it is rendered only once, regardless of category count.
+============================================================================ #}
+<div class="modal fade tur-delete-modal"
+     id="deleteCategoryModal"
+     tabindex="-1"
+     aria-labelledby="deleteCategoryModalTitle"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tur-delete-icon">
+                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    </span>
+                    <h2 class="modal-title" id="deleteCategoryModalTitle">Delete category?</h2>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                You are about to delete
+                <span class="tur-delete-category-name" id="deleteCategoryName">this category</span>.
+                This action cannot be undone.
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="tur-btn-cancel"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <form method="POST" id="deleteCategoryForm" action="">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="tur-btn-delete">
+                        Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const deleteModal = document.getElementById("deleteCategoryModal");
+    const deleteForm = document.getElementById("deleteCategoryForm");
+    const categoryName = document.getElementById("deleteCategoryName");
+
+    if (!deleteModal || !deleteForm || !categoryName) {
+        return;
+    }
+
+    deleteModal.addEventListener("show.bs.modal", function (event) {
+        const trigger = event.relatedTarget;
+
+        if (!trigger) {
+            return;
+        }
+
+        const name = trigger.getAttribute("data-category-name") || "this category";
+        const deleteUrl = trigger.getAttribute("data-delete-url") || "";
+
+        categoryName.textContent = name;
+        deleteForm.setAttribute("action", deleteUrl);
+    });
+
+    deleteForm.addEventListener("submit", function (event) {
+        if (!deleteForm.getAttribute("action")) {
+            event.preventDefault();
+            console.error("Category deletion was prevented because no delete URL was provided.");
+        }
+    });
+});
+</script>
+
+{% endblock %}

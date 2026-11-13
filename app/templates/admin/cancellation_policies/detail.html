@@ -1,0 +1,472 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ policy.name }}{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-6xl space-y-8">
+
+    <!-- Header -->
+    <div>
+
+        <a
+            href="{{ url_for('admin_cancellation_policies.index') }}"
+            class="text-sm font-medium text-emerald-700 hover:text-emerald-900"
+        >
+            ← Back to Cancellation Policies
+        </a>
+
+
+        <div class="mt-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+            <div>
+
+                <div class="flex flex-wrap items-center gap-2">
+
+                    {% if policy.default_policy %}
+
+                        <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                            Default Policy
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if policy.active %}
+
+                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                            Inactive
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <h1 class="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                    {{ policy.name }}
+                </h1>
+
+
+                {% if policy.short_description %}
+
+                    <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-500">
+                        {{ policy.short_description }}
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="flex flex-wrap gap-2">
+
+                <a
+                    href="{{ url_for('admin_cancellation_policies.edit', policy_id=policy.id) }}"
+                    class="rounded-xl bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900"
+                >
+                    Edit Policy
+                </a>
+
+
+                {% if policy.active %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_cancellation_policies.deactivate', policy_id=policy.id) }}"
+                    >
+
+                        {{ action_form.hidden_tag() if action_form is defined else "" }}
+
+                        {% if action_form is not defined %}
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+                        {% endif %}
+
+                        <button
+                            type="submit"
+                            class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                            Deactivate
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_cancellation_policies.activate', policy_id=policy.id) }}"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="rounded-xl border border-emerald-300 px-5 py-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+                        >
+                            Activate
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Full Refund
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-slate-900">
+                {{ policy.full_refund_days }} days
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Partial Refund
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-slate-900">
+                {{ policy.partial_refund_percentage }}%
+            </p>
+
+            <p class="mt-1 text-xs text-slate-500">
+                From {{ policy.partial_refund_days }} days before trip
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Experiences
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-slate-900">
+                {{ experience_count }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Stays
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-slate-900">
+                {{ stay_count }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Policy -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+
+        <h2 class="text-xl font-semibold text-slate-900">
+            Cancellation & Refund Policy
+        </h2>
+
+
+        <div class="mt-6 whitespace-pre-line text-sm leading-8 text-slate-600">
+
+            {{ policy.full_policy }}
+
+        </div>
+
+    </section>
+
+
+    <!-- Refund Rules -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+
+        <h2 class="text-xl font-semibold text-slate-900">
+            Refund Rules
+        </h2>
+
+
+        <div class="mt-6 grid gap-5 md:grid-cols-3">
+
+            <div class="rounded-xl bg-emerald-50 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                    Full Refund
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-slate-900">
+                    {{ policy.full_refund_days }}+ days
+                </p>
+
+                <p class="mt-1 text-sm text-slate-600">
+                    100% refund.
+                </p>
+
+            </div>
+
+
+            <div class="rounded-xl bg-amber-50 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                    Partial Refund
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-slate-900">
+                    {{ policy.partial_refund_percentage }}%
+                </p>
+
+                <p class="mt-1 text-sm text-slate-600">
+                    From {{ policy.partial_refund_days }} days before the trip.
+                </p>
+
+            </div>
+
+
+            <div class="rounded-xl bg-slate-100 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    No Refund
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-slate-900">
+                    {{ policy.no_refund_days }} days or less
+                </p>
+
+                <p class="mt-1 text-sm text-slate-600">
+                    No refund according to this policy.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Booking Changes -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+
+        <h2 class="text-xl font-semibold text-slate-900">
+            Booking Changes
+        </h2>
+
+
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+
+            <div class="rounded-xl border border-slate-200 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Date Changes
+                </p>
+
+                <p class="mt-2 font-semibold {% if policy.date_changes_allowed %}text-emerald-700{% else %}text-slate-500{% endif %}">
+                    {% if policy.date_changes_allowed %}
+                        Allowed
+                    {% else %}
+                        Not Allowed
+                    {% endif %}
+                </p>
+
+            </div>
+
+
+            <div class="rounded-xl border border-slate-200 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Name Changes
+                </p>
+
+                <p class="mt-2 font-semibold {% if policy.name_changes_allowed %}text-emerald-700{% else %}text-slate-500{% endif %}">
+                    {% if policy.name_changes_allowed %}
+                        Allowed
+                    {% else %}
+                        Not Allowed
+                    {% endif %}
+                </p>
+
+            </div>
+
+
+            <div class="rounded-xl border border-slate-200 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Transferable
+                </p>
+
+                <p class="mt-2 font-semibold {% if policy.transferable_booking %}text-emerald-700{% else %}text-slate-500{% endif %}">
+                    {% if policy.transferable_booking %}
+                        Allowed
+                    {% else %}
+                        Not Allowed
+                    {% endif %}
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Usage -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+
+        <h2 class="text-xl font-semibold text-slate-900">
+            Policy Usage
+        </h2>
+
+        <p class="mt-1 text-sm text-slate-500">
+            This policy can be reused across experiences and stays.
+        </p>
+
+
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+
+            <div class="rounded-xl bg-emerald-50 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                    Experiences
+                </p>
+
+                <p class="mt-2 text-3xl font-bold text-emerald-800">
+                    {{ experience_count }}
+                </p>
+
+            </div>
+
+
+            <div class="rounded-xl bg-slate-100 p-5">
+
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Stays
+                </p>
+
+                <p class="mt-2 text-3xl font-bold text-slate-900">
+                    {{ stay_count }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Notes -->
+    {% if policy.notes %}
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+
+            <h2 class="text-xl font-semibold text-slate-900">
+                Internal Notes
+            </h2>
+
+            <div class="mt-5 whitespace-pre-line text-sm leading-7 text-slate-600">
+                {{ policy.notes }}
+            </div>
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- Actions -->
+    <section class="flex flex-wrap justify-between gap-3">
+
+        <div class="flex flex-wrap gap-3">
+
+            {% if not policy.default_policy and policy.active %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('admin_cancellation_policies.set_default', policy_id=policy.id) }}"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="rounded-xl border border-amber-300 px-5 py-3 text-sm font-semibold text-amber-700 hover:bg-amber-50"
+                    >
+                        Set as Default
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if not in_use %}
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_cancellation_policies.delete', policy_id=policy.id) }}"
+                onsubmit="return confirm('Delete this cancellation policy?');"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 hover:bg-red-50"
+                >
+                    Delete Policy
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <span class="rounded-xl bg-slate-100 px-5 py-3 text-sm font-medium text-slate-500">
+                Policy is in use and cannot be deleted
+            </span>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

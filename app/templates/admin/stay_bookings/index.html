@@ -1,0 +1,418 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Stay Bookings | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+
+        <div>
+
+            <div class="route-eyebrow">
+                Bookings
+            </div>
+
+            <h1 class="mt-3 text-3xl font-bold route-heading">
+                Stay Bookings
+            </h1>
+
+            <p class="mt-2 text-sm text-[var(--route-muted)]">
+                Manage accommodation reservations, rooms, dates and guest
+                occupancy.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('admin_stay_bookings.create') }}"
+            class="route-button route-button-primary"
+        >
+            <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                />
+            </svg>
+
+            New Stay Booking
+        </a>
+
+    </div>
+
+
+    <div class="route-card p-6">
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_stay_bookings.index') }}"
+        >
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Search
+                    </label>
+
+                    {{ form.search(
+                        class="route-input",
+                        placeholder="Reference, guest or stay..."
+                    ) }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Stay
+                    </label>
+
+                    {{ form.stay_id(class="route-select") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Check-in From
+                    </label>
+
+                    {{ form.check_in_from(class="route-input") }}
+
+                </div>
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Check-in To
+                    </label>
+
+                    {{ form.check_in_to(class="route-input") }}
+
+                </div>
+
+            </div>
+
+            <div class="mt-5 flex gap-3 border-t border-[var(--route-border)] pt-5">
+
+                <button
+                    type="submit"
+                    class="route-button route-button-primary"
+                >
+                    Apply Filters
+                </button>
+
+                <a
+                    href="{{ url_for('admin_stay_bookings.index') }}"
+                    class="route-button route-button-outline"
+                >
+                    Clear
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <div class="route-card overflow-hidden">
+
+        <div class="border-b border-[var(--route-border)] px-6 py-5">
+
+            <div class="route-eyebrow">
+                Accommodation
+            </div>
+
+            <h2 class="mt-2 text-xl font-bold route-heading">
+                Stay Booking Catalogue
+            </h2>
+
+            <p class="mt-1 text-sm text-[var(--route-muted)]">
+                {{ bookings|length }} booking{{ '' if bookings|length == 1 else 's' }}
+            </p>
+
+        </div>
+
+
+        <div class="hidden overflow-x-auto lg:block">
+
+            <table class="min-w-full">
+
+                <thead class="bg-[var(--route-sand)]">
+
+                    <tr>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Booking
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Guest
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Stay
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Room
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Dates
+                        </th>
+
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Guests
+                        </th>
+
+                        <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody class="divide-y divide-[var(--route-border)]">
+
+                    {% for item in bookings %}
+
+                    <tr class="transition hover:bg-[rgba(233,221,200,0.28)]">
+
+                        <td class="px-6 py-5">
+
+                            <a
+                                href="{{ url_for('admin_stay_bookings.detail', booking_id=item.id) }}"
+                                class="font-bold text-[var(--route-deep)]"
+                            >
+                                {{ item.booking.booking_reference }}
+                            </a>
+
+                        </td>
+
+                        <td class="px-6 py-5">
+
+                            <div class="font-semibold">
+                                {{ item.booking.first_name }}
+                                {{ item.booking.last_name }}
+                            </div>
+
+                            <div class="mt-1 text-xs text-[var(--route-muted)]">
+                                {{ item.booking.email }}
+                            </div>
+
+                        </td>
+
+                        <td class="px-6 py-5">
+
+                            <div class="font-semibold text-[var(--route-deep)]">
+                                {{ item.stay_name }}
+                            </div>
+
+                        </td>
+
+                        <td class="px-6 py-5">
+
+                            <div class="font-semibold text-[var(--route-deep)]">
+                                {{ item.room_name }}
+                            </div>
+
+                            <div class="mt-1 text-xs text-[var(--route-muted)]">
+                                {{ item.rooms }}
+                                room{{ '' if item.rooms == 1 else 's' }}
+                            </div>
+
+                        </td>
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <div class="text-sm font-semibold">
+                                {{ item.check_in.strftime('%d %b %Y') }}
+                            </div>
+
+                            <div class="mt-1 text-xs text-[var(--route-muted)]">
+                                to {{ item.check_out.strftime('%d %b %Y') }}
+                            </div>
+
+                        </td>
+
+                        <td class="whitespace-nowrap px-6 py-5">
+
+                            <div class="font-semibold">
+                                {{ item.adults + item.children + item.infants }}
+                            </div>
+
+                            <div class="mt-1 text-xs text-[var(--route-muted)]">
+                                {{ item.nights }} night{{ '' if item.nights == 1 else 's' }}
+                            </div>
+
+                        </td>
+
+                        <td class="px-6 py-5 text-right">
+
+                            <div class="flex justify-end gap-2">
+
+                                <a
+                                    href="{{ url_for('admin_stay_bookings.detail', booking_id=item.id) }}"
+                                    class="route-button route-button-outline !min-h-0 !px-3 !py-2 !text-xs"
+                                >
+                                    View
+                                </a>
+
+                                <a
+                                    href="{{ url_for('admin_stay_bookings.edit', booking_id=item.id) }}"
+                                    class="route-button route-button-primary !min-h-0 !px-3 !py-2 !text-xs"
+                                >
+                                    Edit
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="px-6 py-16 text-center"
+                        >
+
+                            <h3 class="text-lg font-bold route-heading">
+                                No stay bookings
+                            </h3>
+
+                            <p class="mt-2 text-sm text-[var(--route-muted)]">
+                                No accommodation bookings match the current filters.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {# Mobile #}
+
+        <div class="divide-y divide-[var(--route-border)] lg:hidden">
+
+            {% for item in bookings %}
+
+            <div class="p-5">
+
+                <a
+                    href="{{ url_for('admin_stay_bookings.detail', booking_id=item.id) }}"
+                    class="font-bold text-[var(--route-deep)]"
+                >
+                    {{ item.booking.booking_reference }}
+                </a>
+
+                <p class="mt-1 text-sm text-[var(--route-muted)]">
+                    {{ item.booking.first_name }}
+                    {{ item.booking.last_name }}
+                </p>
+
+                <div class="mt-5">
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                        Stay
+                    </p>
+
+                    <p class="mt-1 font-semibold">
+                        {{ item.stay_name }}
+                    </p>
+
+                    <p class="mt-1 text-sm text-[var(--route-muted)]">
+                        {{ item.room_name }}
+                    </p>
+
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-4">
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Check-in
+                        </p>
+
+                        <p class="mt-1 text-sm">
+                            {{ item.check_in.strftime('%d %b %Y') }}
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-[var(--route-muted)]">
+                            Nights
+                        </p>
+
+                        <p class="mt-1 text-sm">
+                            {{ item.nights }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-5 grid grid-cols-2 gap-2">
+
+                    <a
+                        href="{{ url_for('admin_stay_bookings.detail', booking_id=item.id) }}"
+                        class="route-button route-button-outline !w-full !min-h-0 !py-2.5 !text-sm"
+                    >
+                        View
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin_stay_bookings.edit', booking_id=item.id) }}"
+                        class="route-button route-button-primary !w-full !min-h-0 !py-2.5 !text-sm"
+                    >
+                        Edit
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% else %}
+
+            <div class="px-5 py-16 text-center text-sm text-[var(--route-muted)]">
+                No stay bookings found.
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

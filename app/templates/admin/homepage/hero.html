@@ -1,0 +1,188 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Homepage Hero
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-8">
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+
+        <div>
+
+            <a
+                href="{{ url_for('admin_homepage.index') }}"
+                class="text-sm font-medium text-slate-500 hover:text-slate-900"
+            >
+                ← Back to Homepage
+            </a>
+
+            <h1 class="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+                Homepage Hero
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm text-slate-600">
+                Manage the hero section displayed at the top of the public
+                homepage.
+            </p>
+
+        </div>
+
+        {% if hero %}
+
+            <a
+                href="{{ url_for('admin_homepage.edit_section', section_id=hero.id) }}"
+                class="inline-flex justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+                Edit Hero
+            </a>
+
+        {% else %}
+
+            <a
+                href="{{ url_for('admin_homepage.create_section') }}"
+                class="inline-flex justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+                Create Hero
+            </a>
+
+        {% endif %}
+
+    </div>
+
+
+    {% if hero %}
+
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            {% if hero.media_asset %}
+
+                <div class="aspect-[21/9] w-full overflow-hidden bg-slate-100">
+
+                    {% if hero.media_asset.is_image %}
+
+                        <img
+                            src="{{ hero.media_asset.file_url or url_for('static', filename=hero.media_asset.file_path) }}"
+                            alt="{{ hero.media_asset.alt_text or hero.title or 'Homepage hero' }}"
+                            class="h-full w-full object-cover"
+                        >
+
+                    {% elif hero.media_asset.is_video %}
+
+                        <video
+                            class="h-full w-full object-cover"
+                            controls
+                            preload="metadata"
+                        >
+                            <source
+                                src="{{ hero.media_asset.file_url or url_for('static', filename=hero.media_asset.file_path) }}"
+                                type="{{ hero.media_asset.mime_type }}"
+                            >
+                        </video>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="p-6">
+
+                <div class="flex flex-wrap items-center gap-2">
+
+                    {% if hero.is_visible %}
+
+                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            Visible
+                        </span>
+
+                    {% else %}
+
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                            Hidden
+                        </span>
+
+                    {% endif %}
+
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                        Hero
+                    </span>
+
+                </div>
+
+
+                <h2 class="mt-4 text-2xl font-bold text-slate-900">
+                    {{ hero.title or "Untitled Hero" }}
+                </h2>
+
+
+                {% if hero.subtitle %}
+
+                    <p class="mt-2 text-lg text-slate-600">
+                        {{ hero.subtitle }}
+                    </p>
+
+                {% endif %}
+
+
+                {% if hero.content %}
+
+                    <div class="mt-5 whitespace-pre-line text-sm leading-7 text-slate-600">
+                        {{ hero.content }}
+                    </div>
+
+                {% endif %}
+
+
+                {% if hero.cta_text %}
+
+                    <div class="mt-6">
+
+                        <span class="inline-flex rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">
+                            {{ hero.cta_text }}
+                        </span>
+
+                        {% if hero.cta_url %}
+                            <p class="mt-2 text-xs text-slate-400">
+                                {{ hero.cta_url }}
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                No hero section configured
+            </h2>
+
+            <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
+                The homepage does not currently have a section marked as
+                <strong>Hero</strong>.
+            </p>
+
+            <a
+                href="{{ url_for('admin_homepage.create_section') }}"
+                class="mt-6 inline-flex rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+                Create Hero Section
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+:::

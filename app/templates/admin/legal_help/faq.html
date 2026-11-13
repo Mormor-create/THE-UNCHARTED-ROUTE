@@ -1,0 +1,296 @@
+{% extends "admin/base.html" %}
+{% block title %}FAQs | Legal & Help{% endblock %}
+{% block content %}
+<div class="space-y-8">
+
+    <div
+        class="
+            flex
+            flex-col
+            gap-5
+            sm:flex-row
+            sm:items-end
+            sm:justify-between
+        "
+    >
+
+        <div>
+
+            <a
+                href="{{ url_for('admin_legal_help.index') }}"
+                class="
+                    text-sm
+                    font-semibold
+                    text-route-forest
+                    hover:text-route-terracotta
+                "
+            >
+                ← Back to Legal & Help
+            </a>
+
+            <h1
+                class="
+                    mt-4
+                    font-display
+                    text-4xl
+                    font-semibold
+                    text-route-ink
+                "
+            >
+                Frequently Asked Questions
+            </h1>
+
+            <p class="mt-2 text-route-muted">
+                Manage the questions and answers displayed on the public FAQ page.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('admin_legal_help.create_faq') }}"
+            class="
+                inline-flex
+                items-center
+                justify-center
+                rounded-full
+                bg-route-gold
+                px-6
+                py-3
+                text-sm
+                font-bold
+                text-route-deep
+                transition
+                hover:bg-route-terracotta
+                hover:text-route-white
+            "
+        >
+            + Add FAQ
+        </a>
+
+    </div>
+
+
+    <!-- Categories -->
+
+    {% if categories %}
+
+        <div class="flex flex-wrap gap-2">
+
+            {% for category in categories %}
+
+                <span
+                    class="
+                        rounded-full
+                        bg-route-cream
+                        px-4
+                        py-2
+                        text-xs
+                        font-bold
+                        text-route-forest
+                    "
+                >
+                    {{ category }}
+                </span>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- FAQ List -->
+
+    <section class="rounded-2xl bg-route-white p-6 shadow-route">
+
+        <div class="space-y-4">
+
+            {% for item in faqs %}
+
+                <article
+                    class="
+                        rounded-xl
+                        border
+                        border-route-sand
+                        p-5
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            flex-col
+                            gap-4
+                            sm:flex-row
+                            sm:items-start
+                            sm:justify-between
+                        "
+                    >
+
+                        <div class="min-w-0">
+
+                            <div class="flex flex-wrap items-center gap-3">
+
+                                <span
+                                    class="
+                                        rounded-full
+                                        bg-route-cream
+                                        px-3
+                                        py-1
+                                        text-xs
+                                        font-bold
+                                        text-route-forest
+                                    "
+                                >
+                                    #{{ item.sort_order }}
+                                </span>
+
+                                {% if item.category %}
+
+                                    <span
+                                        class="
+                                            rounded-full
+                                            bg-route-sand
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-bold
+                                            text-route-muted
+                                        "
+                                    >
+                                        {{ item.category }}
+                                    </span>
+
+                                {% endif %}
+
+                                {% if item.active %}
+
+                                    <span
+                                        class="
+                                            rounded-full
+                                            bg-route-forest/10
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-bold
+                                            text-route-forest
+                                        "
+                                    >
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        class="
+                                            rounded-full
+                                            bg-route-sand
+                                            px-3
+                                            py-1
+                                            text-xs
+                                            font-bold
+                                            text-route-muted
+                                        "
+                                    >
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <h2
+                                class="
+                                    mt-4
+                                    font-display
+                                    text-xl
+                                    font-semibold
+                                    text-route-ink
+                                "
+                            >
+                                {{ item.question }}
+                            </h2>
+
+
+                            <p
+                                class="
+                                    mt-3
+                                    whitespace-pre-line
+                                    text-sm
+                                    leading-7
+                                    text-route-muted
+                                "
+                            >
+                                {{ item.answer }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="shrink-0">
+
+                            <a
+                                href="{{ url_for(
+                                    'admin_legal_help.edit_faq',
+                                    faq_id=item.id
+                                ) }}"
+                                class="
+                                    inline-flex
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    border
+                                    border-route-forest
+                                    px-5
+                                    py-2.5
+                                    text-sm
+                                    font-bold
+                                    text-route-forest
+                                    transition
+                                    hover:bg-route-forest
+                                    hover:text-route-white
+                                "
+                            >
+                                Edit
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% else %}
+
+                <div
+                    class="
+                        rounded-xl
+                        border
+                        border-dashed
+                        border-route-sand
+                        p-10
+                        text-center
+                    "
+                >
+
+                    <p class="font-semibold text-route-ink">
+                        No FAQs yet.
+                    </p>
+
+                    <p class="mt-2 text-sm text-route-muted">
+                        Create the first question and answer for your public FAQ.
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,650 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Promotions & Offers | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- ============================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ============================================================= -->
+    <div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+        <div>
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                Marketing & Communications
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                Promotions & Offers
+            </h1>
+
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+                Manage promotional campaigns, publish offers, monitor customer
+                inquiries and control which promotions appear on your homepage.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="{{ url_for('admin_promotions.inquiries') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-sand bg-white px-4 py-3 text-sm font-semibold text-route-forest shadow-sm transition hover:bg-route-cream">
+                <i class="bi bi-chat-square-text"></i>
+                Customer Inquiries
+
+                {% if inquiry_counts and inquiry_counts.get('new', 0) %}
+                    <span class="rounded-full bg-route-terracotta px-2 py-0.5 text-xs font-bold text-white">
+                        {{ inquiry_counts.get('new', 0) }}
+                    </span>
+                {% endif %}
+            </a>
+
+            <a href="{{ url_for('admin_promotions.create') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep">
+                <i class="bi bi-plus-lg"></i>
+                Create Promotion
+            </a>
+        </div>
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- FLASH MESSAGES -->
+    <!-- ============================================================= -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3">
+                {% for category, message in messages %}
+                    <div class="flex items-start gap-3 rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category == 'danger' or category == 'error' %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% else %}
+                            border-route-sand bg-route-cream text-route-ink
+                        {% endif %}">
+                        <i class="bi
+                            {% if category == 'success' %}bi-check-circle
+                            {% elif category == 'danger' or category == 'error' %}bi-exclamation-circle
+                            {% else %}bi-info-circle{% endif %} mt-0.5"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- ============================================================= -->
+    <!-- OVERVIEW CARDS -->
+    <!-- ============================================================= -->
+    {% set total_promotions = promotions|length %}
+    {% set published_count = promotions|selectattr('display_status', 'equalto', 'published')|list|length %}
+    {% set scheduled_count = promotions|selectattr('display_status', 'equalto', 'scheduled')|list|length %}
+    {% set expired_count = promotions|selectattr('display_status', 'equalto', 'expired')|list|length %}
+    {% set homepage_count = promotions|selectattr('show_on_homepage')|list|length %}
+    {% set new_inquiries = inquiry_counts.get('new', 0) if inquiry_counts else 0 %}
+    {% set total_inquiries = namespace(value=0) %}
+
+    {% if inquiry_counts %}
+        {% for count in inquiry_counts.values() %}
+            {% set total_inquiries.value = total_inquiries.value + count %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+
+        <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+                    <i class="bi bi-megaphone text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-route-muted">All campaigns</span>
+            </div>
+            <p class="mt-5 text-3xl font-bold text-route-ink">{{ total_promotions }}</p>
+            <p class="mt-1 text-sm text-route-muted">Total promotions</p>
+        </div>
+
+        <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700">
+                    <i class="bi bi-check-circle text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-green-700">Live</span>
+            </div>
+            <p class="mt-5 text-3xl font-bold text-route-ink">{{ published_count }}</p>
+            <p class="mt-1 text-sm text-route-muted">Published promotions</p>
+        </div>
+
+        <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                    <i class="bi bi-calendar-event text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-blue-700">Upcoming</span>
+            </div>
+            <p class="mt-5 text-3xl font-bold text-route-ink">{{ scheduled_count }}</p>
+            <p class="mt-1 text-sm text-route-muted">Scheduled promotions</p>
+        </div>
+
+        <div class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-orange-700">
+                    <i class="bi bi-clock-history text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-orange-700">Ended</span>
+            </div>
+            <p class="mt-5 text-3xl font-bold text-route-ink">{{ expired_count }}</p>
+            <p class="mt-1 text-sm text-route-muted">Expired promotions</p>
+        </div>
+
+        <a href="{{ url_for('admin_promotions.inquiries') }}"
+           class="rounded-2xl border border-route-sand bg-white p-5 shadow-sm transition hover:border-route-forest hover:shadow-md">
+            <div class="flex items-center justify-between">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-cream text-route-terracotta">
+                    <i class="bi bi-chat-square-text text-xl"></i>
+                </div>
+                <span class="text-xs font-semibold text-route-terracotta">View inquiries</span>
+            </div>
+            <p class="mt-5 text-3xl font-bold text-route-ink">{{ new_inquiries }}</p>
+            <p class="mt-1 text-sm text-route-muted">New customer inquiries</p>
+        </a>
+
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- HOMEPAGE VISIBILITY SUMMARY -->
+    <!-- ============================================================= -->
+    <div class="flex flex-col justify-between gap-4 rounded-2xl border border-route-sand bg-route-cream p-5 sm:flex-row sm:items-center">
+        <div class="flex items-start gap-3">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-route-forest">
+                <i class="bi bi-house-door text-xl"></i>
+            </div>
+
+            <div>
+                <h2 class="font-bold text-route-ink">Homepage visibility</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    {{ homepage_count }} of {{ total_promotions }} promotions
+                    are marked to appear on the homepage.
+                </p>
+            </div>
+        </div>
+
+        <a href="{{ url_for('admin_promotions.inquiries') }}"
+           class="inline-flex items-center gap-2 text-sm font-semibold text-route-forest transition hover:text-route-terracotta">
+            Manage customer inquiries
+            <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- PROMOTION MANAGEMENT -->
+    <!-- ============================================================= -->
+    <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+        <div class="border-b border-route-sand px-5 py-5 sm:px-6">
+            <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-route-ink">
+                        All Promotions
+                    </h2>
+                    <p class="mt-1 text-sm text-route-muted">
+                        Search, filter and manage your promotional campaigns.
+                    </p>
+                </div>
+
+                <span class="text-sm font-medium text-route-muted">
+                    <span id="visiblePromotionCount">{{ total_promotions }}</span>
+                    promotions displayed
+                </span>
+            </div>
+        </div>
+
+
+        <!-- SEARCH AND FILTERS -->
+        <div class="space-y-4 border-b border-route-sand bg-route-cream/50 p-5 sm:p-6">
+
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+
+                <!-- Search -->
+                <div class="relative xl:col-span-2">
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-route-muted"></i>
+                    <input
+                        type="search"
+                        id="promotionSearch"
+                        placeholder="Search by promotion title or slug..."
+                        class="w-full rounded-xl border border-route-sand bg-white py-3 pl-11 pr-4 text-sm text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                    >
+                </div>
+
+                <!-- Status filter -->
+                <select
+                    id="statusFilter"
+                    class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                >
+                    <option value="">All statuses</option>
+                    <option value="published">Published</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="expired">Expired</option>
+                    <option value="draft">Draft</option>
+                </select>
+
+                <!-- Homepage filter -->
+                <select
+                    id="homepageFilter"
+                    class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                >
+                    <option value="">Homepage visibility</option>
+                    <option value="yes">Shown on homepage</option>
+                    <option value="no">Not on homepage</option>
+                </select>
+
+            </div>
+
+            <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+
+                <div class="flex items-center gap-2">
+                    <label for="sortFilter" class="text-xs font-semibold text-route-muted">
+                        Sort by
+                    </label>
+
+                    <select
+                        id="sortFilter"
+                        class="rounded-lg border border-route-sand bg-white px-3 py-2 text-sm text-route-ink outline-none focus:border-route-forest"
+                    >
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="title-asc">Title: A–Z</option>
+                        <option value="title-desc">Title: Z–A</option>
+                    </select>
+                </div>
+
+                <button
+                    type="button"
+                    id="resetPromotionFilters"
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-route-terracotta transition hover:text-route-forest"
+                >
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Clear filters
+                </button>
+
+            </div>
+        </div>
+
+
+        <!-- PROMOTIONS TABLE -->
+        {% if promotions %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-route-sand">
+                    <thead class="bg-white">
+                        <tr>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted sm:px-6">
+                                Promotion
+                            </th>
+
+                            <th class="whitespace-nowrap px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Validity
+                            </th>
+
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Status
+                            </th>
+
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Homepage
+                            </th>
+
+                            <th class="px-5 py-4 text-right text-xs font-bold uppercase tracking-wider text-route-muted sm:px-6">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="promotionsTableBody" class="divide-y divide-route-sand">
+
+                        {% for promotion in promotions %}
+                            {% set effective_status = promotion.display_status %}
+
+                            <tr
+                                class="promotion-row transition hover:bg-route-cream/40"
+                                data-title="{{ promotion.title|lower }}"
+                                data-slug="{{ promotion.slug|lower }}"
+                                data-status="{{ effective_status }}"
+                                data-homepage="{{ 'yes' if promotion.show_on_homepage else 'no' }}"
+                                data-created="{{ promotion.created_at.timestamp() if promotion.created_at else 0 }}"
+                            >
+
+                                <!-- PROMOTION DETAILS -->
+                                <td class="px-5 py-5 sm:px-6">
+                                    <div class="flex min-w-[230px] items-center gap-4">
+
+                                        {% if promotion.poster_url %}
+                                            <img
+                                                src="{{ promotion.poster_url }}"
+                                                alt="{{ promotion.poster_alt }}"
+                                                class="h-20 w-16 shrink-0 rounded-lg border border-route-sand bg-route-cream object-cover"
+                                                loading="lazy"
+                                            >
+                                        {% else %}
+                                            <div class="flex h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-route-cream text-route-muted">
+                                                <i class="bi bi-image text-xl"></i>
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-route-ink">
+                                                {{ promotion.title }}
+                                            </p>
+
+                                            <p class="mt-1 break-all text-xs text-route-muted">
+                                                /offers/{{ promotion.slug }}
+                                            </p>
+
+                                            {% if promotion.description %}
+                                                <p class="mt-1 max-w-xs text-xs text-route-muted">
+                                                    {{ promotion.description|striptags|truncate(75) }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+                                </td>
+
+
+                                <!-- VALIDITY -->
+                                <td class="whitespace-nowrap px-5 py-5 text-sm text-route-muted">
+                                    <div>
+                                        <span class="font-medium text-route-ink">From:</span>
+                                        {{ promotion.starts_at.strftime('%d %b %Y') if promotion.starts_at else 'No start date' }}
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <span class="font-medium text-route-ink">To:</span>
+                                        {{ promotion.ends_at.strftime('%d %b %Y') if promotion.ends_at else 'No end date' }}
+                                    </div>
+                                </td>
+
+
+                                <!-- STATUS -->
+                                <td class="px-5 py-5">
+                                    <span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold
+                                        {% if effective_status == 'published' %}
+                                            bg-green-100 text-green-800
+                                        {% elif effective_status == 'scheduled' %}
+                                            bg-blue-100 text-blue-800
+                                        {% elif effective_status == 'expired' %}
+                                            bg-orange-100 text-orange-800
+                                        {% else %}
+                                            bg-route-sand text-route-ink
+                                        {% endif %}">
+
+                                        <span class="h-1.5 w-1.5 rounded-full
+                                            {% if effective_status == 'published' %}
+                                                bg-green-600
+                                            {% elif effective_status == 'scheduled' %}
+                                                bg-blue-600
+                                            {% elif effective_status == 'expired' %}
+                                                bg-orange-600
+                                            {% else %}
+                                                bg-route-muted
+                                            {% endif %}">
+                                        </span>
+
+                                        {{ effective_status|title }}
+                                    </span>
+                                </td>
+
+
+                                <!-- HOMEPAGE VISIBILITY -->
+                                <td class="px-5 py-5 text-sm">
+                                    {% if promotion.show_on_homepage %}
+                                        <span class="inline-flex items-center gap-1.5 font-semibold text-route-forest">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Yes
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 text-route-muted">
+                                            <i class="bi bi-dash-circle"></i>
+                                            No
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+
+                                <!-- ACTIONS -->
+                                <td class="px-5 py-5 sm:px-6">
+                                    <div class="flex items-center justify-end gap-2">
+
+                                        <a
+                                            href="{{ url_for('admin_promotions.edit', promotion_id=promotion.id) }}"
+                                            title="Edit promotion"
+                                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-route-sand text-route-forest transition hover:border-route-forest hover:bg-route-cream"
+                                        >
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_promotions.delete', promotion_id=promotion.id) }}"
+                                            onsubmit="return confirm('Delete this promotion? Existing customer inquiries will be retained. The poster will remain in the Media Library.');"
+                                        >
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                            <button
+                                                type="submit"
+                                                title="Delete promotion"
+                                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
+                                            >
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+
+            <!-- NO FILTER RESULTS -->
+            <div id="noFilterResults" class="hidden px-6 py-14 text-center">
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-route-cream text-route-muted">
+                    <i class="bi bi-search text-2xl"></i>
+                </div>
+
+                <h3 class="mt-4 font-bold text-route-ink">
+                    No matching promotions
+                </h3>
+
+                <p class="mt-2 text-sm text-route-muted">
+                    Try changing your search or clearing the selected filters.
+                </p>
+
+                <button
+                    type="button"
+                    id="clearEmptyFilters"
+                    class="mt-5 text-sm font-semibold text-route-forest hover:text-route-terracotta"
+                >
+                    Clear all filters
+                </button>
+            </div>
+
+        {% else %}
+
+            <!-- EMPTY STATE -->
+            <div class="px-6 py-16 text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-route-cream text-route-forest">
+                    <i class="bi bi-megaphone text-2xl"></i>
+                </div>
+
+                <h2 class="mt-5 text-lg font-bold text-route-ink">
+                    No promotions yet
+                </h2>
+
+                <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-route-muted">
+                    Start showcasing your special offers by creating a promotion
+                    and selecting its finished poster from the Media Library.
+                </p>
+
+                <a
+                    href="{{ url_for('admin_promotions.create') }}"
+                    class="mt-6 inline-flex items-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-route-deep"
+                >
+                    <i class="bi bi-plus-lg"></i>
+                    Create your first promotion
+                </a>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ============================================================= -->
+    <!-- QUICK GUIDANCE -->
+    <!-- ============================================================= -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+        <div class="flex items-start gap-3 rounded-2xl border border-route-sand bg-white p-5">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+                <i class="bi bi-image text-lg"></i>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold text-route-ink">Promotion posters</h3>
+                <p class="mt-1 text-sm leading-6 text-route-muted">
+                    Select completed promotional artwork from the Promotions
+                    folder in your Media Library. Your original media asset
+                    remains in the library when a promotion is deleted.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-2xl border border-route-sand bg-white p-5">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-route-cream text-route-terracotta">
+                <i class="bi bi-chat-square-text text-lg"></i>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold text-route-ink">Customer inquiries</h3>
+                <p class="mt-1 text-sm leading-6 text-route-muted">
+                    Customers can enquire about active promotions. Review their
+                    messages, update inquiry statuses and keep internal
+                    follow-up notes in the inquiry management area.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================= -->
+<!-- PROMOTION FILTERING AND SORTING -->
+<!-- ============================================================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("promotionSearch");
+    const statusFilter = document.getElementById("statusFilter");
+    const homepageFilter = document.getElementById("homepageFilter");
+    const sortFilter = document.getElementById("sortFilter");
+
+    const tableBody = document.getElementById("promotionsTableBody");
+    const countDisplay = document.getElementById("visiblePromotionCount");
+    const noResults = document.getElementById("noFilterResults");
+
+    const resetButton = document.getElementById("resetPromotionFilters");
+    const emptyResetButton = document.getElementById("clearEmptyFilters");
+
+    if (!tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll(".promotion-row"));
+
+    function applyPromotionFilters() {
+        const search = searchInput.value.trim().toLowerCase();
+        const selectedStatus = statusFilter.value;
+        const selectedHomepage = homepageFilter.value;
+
+        let visibleRows = rows.filter(row => {
+            const title = row.dataset.title || "";
+            const slug = row.dataset.slug || "";
+            const status = row.dataset.status || "";
+            const homepage = row.dataset.homepage || "";
+
+            const matchesSearch =
+                !search || title.includes(search) || slug.includes(search);
+
+            const matchesStatus =
+                !selectedStatus || status === selectedStatus;
+
+            const matchesHomepage =
+                !selectedHomepage || homepage === selectedHomepage;
+
+            return matchesSearch && matchesStatus && matchesHomepage;
+        });
+
+        const sortValue = sortFilter.value;
+
+        visibleRows.sort((a, b) => {
+            if (sortValue === "oldest") {
+                return Number(a.dataset.created) - Number(b.dataset.created);
+            }
+
+            if (sortValue === "title-asc") {
+                return a.dataset.title.localeCompare(b.dataset.title);
+            }
+
+            if (sortValue === "title-desc") {
+                return b.dataset.title.localeCompare(a.dataset.title);
+            }
+
+            return Number(b.dataset.created) - Number(a.dataset.created);
+        });
+
+        rows.forEach(row => {
+            row.classList.add("hidden");
+        });
+
+        visibleRows.forEach(row => {
+            row.classList.remove("hidden");
+            tableBody.appendChild(row);
+        });
+
+        countDisplay.textContent = visibleRows.length;
+
+        noResults.classList.toggle(
+            "hidden",
+            visibleRows.length !== 0
+        );
+    }
+
+    function resetFilters() {
+        searchInput.value = "";
+        statusFilter.value = "";
+        homepageFilter.value = "";
+        sortFilter.value = "newest";
+
+        applyPromotionFilters();
+    }
+
+    searchInput.addEventListener("input", applyPromotionFilters);
+    statusFilter.addEventListener("change", applyPromotionFilters);
+    homepageFilter.addEventListener("change", applyPromotionFilters);
+    sortFilter.addEventListener("change", applyPromotionFilters);
+
+    resetButton.addEventListener("click", resetFilters);
+
+    if (emptyResetButton) {
+        emptyResetButton.addEventListener("click", resetFilters);
+    }
+
+    applyPromotionFilters();
+});
+</script>
+
+{% endblock %}

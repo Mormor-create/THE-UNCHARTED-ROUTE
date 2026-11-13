@@ -1,0 +1,237 @@
+{% extends "admin/base.html" %}
+{% block title %}Create Page Hero{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8">
+
+    <header>
+        <a href="{{ url_for('admin_page_hero.index') }}"
+           class="text-sm font-semibold text-route-deep transition hover:text-route-gold">
+            ← Back to Page Heroes
+        </a>
+
+        <div class="mt-5">
+            <p class="text-sm font-semibold uppercase tracking-widest text-route-gold">
+                Website CMS
+            </p>
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-deep">
+                Create Page Hero
+            </h1>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+                Create a reusable hero for a public website page. Select images
+                from the Media Library and configure the content, presentation,
+                and calls to action.
+            </p>
+        </div>
+    </header>
+
+    {% if form.errors %}
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <p class="font-semibold">Please correct the following errors:</p>
+        <ul class="mt-2 list-inside list-disc space-y-1">
+            {% for field_name, errors in form.errors.items() %}
+                {% for error in errors %}
+                    <li>{{ form[field_name].label.text }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-8">
+        {{ form.hidden_tag() }}
+
+        <!-- Page Identity -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-route-deep">Page Identity</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Identify the public page this hero belongs to.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                {% for field in [form.page_key, form.page_name] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none transition focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in field.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Hero Content -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-route-deep">Hero Content</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Add the text visitors will see in the hero.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    {{ form.eyebrow.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ form.eyebrow(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in form.eyebrow.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.heading.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ form.heading(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in form.heading.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.subheading.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ form.subheading(rows="4", class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm leading-6 text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in form.subheading.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Hero Media -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-route-deep">Hero Media</h2>
+                <p class="mt-1 text-sm leading-6 text-route-muted">
+                    Choose active images from the central Media Library.
+                    Options display their folder and subfolder paths.
+                    If no mobile image is selected, the desktop image can be
+                    used as the fallback by the public page.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                    {{ form.desktop_media_id.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ form.desktop_media_id(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in form.desktop_media_id.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                    <p class="mt-2 text-xs text-route-muted">
+                        Recommended for desktop and wide-screen layouts.
+                    </p>
+                </div>
+
+                <div>
+                    {{ form.mobile_media_id.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ form.mobile_media_id(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in form.mobile_media_id.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                    <p class="mt-2 text-xs text-route-muted">
+                        Optional portrait or mobile-specific image.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Presentation -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-route-deep">Presentation</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Control text contrast and the position of the background image.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                {% for field in [form.overlay_style, form.image_position] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in field.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Calls to Action -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-route-deep">Calls to Action</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Configure optional buttons displayed in the hero.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                {% for field in [
+                    form.primary_cta_text,
+                    form.primary_cta_url,
+                    form.secondary_cta_text,
+                    form.secondary_cta_url
+                ] %}
+                <div>
+                    {{ field.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ field(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in field.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Status and Display -->
+        <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-route-deep">Status &amp; Display</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Choose whether the hero is active and set its display order.
+                </p>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                    {{ form.display_order.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                    {{ form.display_order(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                    {% for error in form.display_order.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="flex items-center">
+                    <label class="flex cursor-pointer items-center gap-3 text-sm font-semibold text-route-deep">
+                        {{ form.active(class="h-4 w-4 rounded border-route-sand text-route-deep focus:ring-route-gold") }}
+                        Active
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                {{ form.notes.label(class="mb-2 block text-sm font-medium text-route-deep") }}
+                {{ form.notes(rows="4", class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm leading-6 text-route-deep outline-none focus:border-route-deep focus:ring-2 focus:ring-route-gold/30") }}
+                {% for error in form.notes.errors %}
+                <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+                <p class="mt-2 text-xs text-route-muted">
+                    Internal notes are for administration and are not intended for public display.
+                </p>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <a href="{{ url_for('admin_page_hero.index') }}"
+               class="inline-flex items-center justify-center rounded-xl border border-route-sand px-5 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                Cancel
+            </a>
+
+            {{ form.submit(value="Create Page Hero", class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-route-deep px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-green") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

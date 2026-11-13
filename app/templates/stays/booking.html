@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+{% block title %}Book Your Stay | The Uncharted Route{% endblock %}
+{% block content %}
+
+<section class="bg-route-cream min-h-screen py-12 sm:py-16">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Breadcrumb -->
+        <div class="mb-8 text-sm text-route-muted">
+            <a href="{{ url_for('main.home') }}" class="hover:text-route-forest">
+                Home
+            </a>
+            <span class="mx-2">/</span>
+            <a href="{{ url_for('stays.index') }}" class="hover:text-route-forest">
+                Stays
+            </a>
+            <span class="mx-2">/</span>
+            <span class="text-route-forest font-medium">Booking Request</span>
+        </div>
+
+        <!-- Heading -->
+        <div class="mb-10">
+            <span class="text-xs uppercase tracking-[0.25em] font-semibold text-route-gold">
+                Your next experience begins here
+            </span>
+
+            <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-serif text-route-forest">
+                Request Your Stay
+            </h1>
+
+            <p class="mt-4 text-route-muted max-w-2xl leading-relaxed">
+                Complete the details below to request your accommodation.
+                Our team will review your request and get back to you with
+                the next steps.
+            </p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-3 mb-8">
+                    {% for category, message in messages %}
+                        <div class="rounded-xl px-5 py-4 text-sm
+                            {% if category == 'success' %}
+                                bg-green-50 text-green-800 border border-green-200
+                            {% elif category == 'danger' or category == 'error' %}
+                                bg-red-50 text-red-800 border border-red-200
+                            {% else %}
+                                bg-amber-50 text-amber-800 border border-amber-200
+                            {% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+            <!-- Booking Form -->
+            <div class="lg:col-span-2">
+                <form method="POST"
+                      action="{{ url_for('public_stay_bookings.book_stay', slug=stay.slug) }}"
+                      class="bg-white rounded-3xl shadow-sm border border-route-sand p-6 sm:p-8">
+
+                    {{ form.hidden_tag() }}
+
+                    <!-- Stay Information -->
+                    <div class="mb-9">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="w-9 h-9 rounded-full bg-route-forest text-white flex items-center justify-center font-semibold">
+                                1
+                            </span>
+                            <div>
+                                <h2 class="text-xl font-serif text-route-forest">
+                                    Your Accommodation
+                                </h2>
+                                <p class="text-sm text-route-muted">
+                                    Select your preferred room.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="{{ form.room_id.id }}"
+                                   class="block text-sm font-semibold text-route-deep">
+                                Room *
+                            </label>
+
+                            {{ form.room_id(
+                                id="room_id",
+                                class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-route-deep focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                            ) }}
+
+                            {% for error in form.room_id.errors %}
+                                <p class="text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="border-t border-route-sand pt-8 mb-9">
+
+                        <!-- Dates and Rooms -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="w-9 h-9 rounded-full bg-route-forest text-white flex items-center justify-center font-semibold">
+                                2
+                            </span>
+                            <div>
+                                <h2 class="text-xl font-serif text-route-forest">
+                                    Dates and Guests
+                                </h2>
+                                <p class="text-sm text-route-muted">
+                                    Tell us when you would like to stay.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                            <div>
+                                <label for="{{ form.check_in.id }}"
+                                       class="block text-sm font-semibold text-route-deep mb-2">
+                                    Check-in *
+                                </label>
+                                {{ form.check_in(
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.check_in.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.check_out.id }}"
+                                       class="block text-sm font-semibold text-route-deep mb-2">
+                                    Check-out *
+                                </label>
+                                {{ form.check_out(
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.check_out.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.rooms.id }}"
+                                       class="block text-sm font-semibold text-route-deep mb-2">
+                                    Number of Rooms *
+                                </label>
+                                {{ form.rooms(
+                                    min="1",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.rooms.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.adults.id }}"
+                                       class="block text-sm font-semibold text-route-deep mb-2">
+                                    Adults *
+                                </label>
+                                {{ form.adults(
+                                    min="0",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.adults.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.children.id }}"
+                                       class="block text-sm font-semibold text-route-deep mb-2">
+                                    Children
+                                </label>
+                                {{ form.children(
+                                    min="0",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.children.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.infants.id }}"
+                                       class="block text-sm font-semibold text-route-deep mb-2">
+                                    Infants
+                                </label>
+                                {{ form.infants(
+                                    min="0",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.infants.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="border-t border-route-sand pt-8 mb-9">
+
+                        <!-- Guest Details -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="w-9 h-9 rounded-full bg-route-forest text-white flex items-center justify-center font-semibold">
+                                3
+                            </span>
+                            <div>
+                                <h2 class="text-xl font-serif text-route-forest">
+                                    Guest Information
+                                </h2>
+                                <p class="text-sm text-route-muted">
+                                    Who should we contact about this booking?
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                            {% for field in [form.first_name, form.last_name] %}
+                                <div>
+                                    {{ field.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                    {{ field(
+                                        class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                    ) }}
+                                    {% for error in field.errors %}
+                                        <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+
+                            <div>
+                                {{ form.email.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.email(
+                                    type="email",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.email.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.phone.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.phone(
+                                    type="tel",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.phone.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.nationality.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.nationality(
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.nationality.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.country_of_residence.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.country_of_residence(
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.country_of_residence.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="border-t border-route-sand pt-8 mb-9">
+
+                        <!-- Preferences -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="w-9 h-9 rounded-full bg-route-forest text-white flex items-center justify-center font-semibold">
+                                4
+                            </span>
+                            <div>
+                                <h2 class="text-xl font-serif text-route-forest">
+                                    Stay Preferences
+                                </h2>
+                                <p class="text-sm text-route-muted">
+                                    Let us know your preferences.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+
+                            <div>
+                                {{ form.meal_plan.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.meal_plan(
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 bg-white focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                <p class="text-xs text-route-muted mt-2">
+                                    Leave this unchanged to use the room's standard meal plan.
+                                </p>
+                                {% for error in form.meal_plan.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.special_requests.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.special_requests(
+                                    rows="4",
+                                    placeholder="Any special arrangements or requests?",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.special_requests.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {{ form.customer_notes.label(class="block text-sm font-semibold text-route-deep mb-2") }}
+                                {{ form.customer_notes(
+                                    rows="3",
+                                    placeholder="Anything else you would like our team to know?",
+                                    class="w-full rounded-xl border border-route-sand px-4 py-3 focus:ring-2 focus:ring-route-gold focus:border-route-gold"
+                                ) }}
+                                {% for error in form.customer_notes.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="border-t border-route-sand pt-8">
+                        <div class="flex items-start gap-3">
+                            {{ form.agree_to_terms(
+                                class="mt-1 h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-gold"
+                            ) }}
+
+                            <div>
+                                <label for="{{ form.agree_to_terms.id }}"
+                                       class="text-sm text-route-deep">
+                                    I confirm that the information provided is accurate
+                                    and agree to be contacted by The Uncharted Route
+                                    regarding this booking request.
+                                </label>
+
+                                {% for error in form.agree_to_terms.errors %}
+                                    <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {% for error in form.errors.get('csrf_token', []) %}
+                            <p class="text-sm text-red-600 mt-2">{{ error }}</p>
+                        {% endfor %}
+
+                        <button type="submit"
+                                class="mt-8 w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full bg-route-forest px-9 py-4 text-white font-semibold hover:bg-route-deep transition duration-300">
+                            Submit Booking Request
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+
+                        <p class="text-xs text-route-muted mt-4 leading-relaxed">
+                            Submitting this form sends a booking request. Your stay is
+                            not confirmed until our team reviews and confirms it.
+                        </p>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Stay Summary -->
+            <aside class="lg:sticky lg:top-24">
+                <div class="bg-white rounded-3xl border border-route-sand shadow-sm overflow-hidden">
+
+                    {% if stay.primary_image_url %}
+                        <img src="{{ stay.primary_image_url }}"
+                             alt="{{ stay.property_name }}"
+                             class="w-full h-56 object-cover">
+                    {% endif %}
+
+                    <div class="p-6">
+                        <span class="text-xs uppercase tracking-widest text-route-gold font-semibold">
+                            Your selected stay
+                        </span>
+
+                        <h2 class="mt-3 text-2xl font-serif text-route-forest">
+                            {{ stay.property_name }}
+                        </h2>
+
+                        {% if stay.location %}
+                            <p class="mt-2 text-sm text-route-muted flex items-center gap-2">
+                                <i class="bi bi-geo-alt"></i>
+                                {{ stay.location }}
+                            </p>
+                        {% endif %}
+
+                        {% if selected_room %}
+                            <div class="mt-6 pt-5 border-t border-route-sand">
+                                <p class="text-xs uppercase tracking-wider text-route-muted">
+                                    Selected room
+                                </p>
+                                <p class="mt-1 font-semibold text-route-deep">
+                                    {{ selected_room.name }}
+                                </p>
+
+                                <p class="mt-3 text-sm text-route-muted">
+                                    {{ selected_room.meal_plan or "Meal plan subject to confirmation" }}
+                                </p>
+
+                                <p class="mt-4 text-xl font-semibold text-route-forest">
+                                    {{ selected_room.currency }}
+                                    {{ "{:,.2f}".format(selected_room.nightly_rate) }}
+                                    <span class="text-sm font-normal text-route-muted">
+                                        / night
+                                    </span>
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-6 rounded-2xl bg-route-cream p-4">
+                            <p class="text-sm font-semibold text-route-forest">
+                                What happens next?
+                            </p>
+                            <ul class="mt-3 space-y-3 text-sm text-route-muted">
+                                <li class="flex gap-2">
+                                    <i class="bi bi-check-circle text-route-gold mt-0.5"></i>
+                                    Submit your booking request.
+                                </li>
+                                <li class="flex gap-2">
+                                    <i class="bi bi-check-circle text-route-gold mt-0.5"></i>
+                                    Our team checks availability.
+                                </li>
+                                <li class="flex gap-2">
+                                    <i class="bi bi-check-circle text-route-gold mt-0.5"></i>
+                                    We contact you with confirmation details.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <a href="{{ url_for('stays.room_detail', stay_slug=stay.slug, room_slug=selected_room.slug) if selected_room else url_for('stays.detail', slug=stay.slug) }}"
+                           class="inline-flex items-center gap-2 mt-6 text-sm font-semibold text-route-forest hover:text-route-gold">
+                            <i class="bi bi-arrow-left"></i>
+                            Back to accommodation
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

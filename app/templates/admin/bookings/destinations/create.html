@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Create Destination Booking | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6">
+    <a href="{{ url_for('admin_destination_bookings.index') }}"
+       class="text-sm font-semibold text-route-forest hover:text-route-gold">
+        ← Back to destination bookings
+    </a>
+
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-widest text-route-gold">
+            Booking management
+        </p>
+        <h1 class="mt-1 text-3xl font-bold text-route-deep">Create destination booking</h1>
+        <p class="mt-2 text-sm text-route-muted">
+            Create a central booking with its destination journey details.
+        </p>
+    </div>
+
+    <form method="POST" class="rounded-2xl border border-route-sand bg-white p-6 md:p-8">
+        {{ form.hidden_tag() }}
+        {% include "admin/bookings/destinations/_form_fields.html" %}
+
+        <div class="mt-8 flex flex-wrap justify-end gap-3 border-t border-route-sand pt-6">
+            <a href="{{ url_for('admin_destination_bookings.index') }}"
+               class="rounded-xl border border-route-sand px-5 py-3 text-sm font-semibold text-route-deep">
+                Cancel
+            </a>
+            {{ form.submit(class="cursor-pointer rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white hover:bg-route-deep") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

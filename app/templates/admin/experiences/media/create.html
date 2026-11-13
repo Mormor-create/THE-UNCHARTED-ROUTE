@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Assign Media | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+
+    <div>
+        <a
+            href="{{ url_for('admin_experience_media.index', experience_id=experience.id) }}"
+            class="text-sm font-medium text-emerald-800 hover:underline"
+        >
+            ← Back to Experience Media
+        </a>
+
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+            {{ experience.experience_code }}
+        </p>
+
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+            Assign Media
+        </h1>
+
+        <p class="mt-2 text-sm text-slate-500">
+            Add an existing Media Library asset to {{ experience.title }}.
+        </p>
+    </div>
+
+    {% if not form.media_asset_id.choices %}
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            There are no active assets available to select.
+            <a
+                href="{{ url_for('admin_media.index') }}"
+                class="font-semibold underline"
+            >
+                Open the Media Library
+            </a>
+            to upload or activate an asset first.
+        </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-6">
+        {% include "admin/experiences/media/_form_fields.html" %}
+
+        <div class="flex flex-wrap justify-end gap-3">
+            <a
+                href="{{ url_for('admin_experience_media.index', experience_id=experience.id) }}"
+                class="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="rounded-xl bg-emerald-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800"
+            ) }}
+        </div>
+    </form>
+
+</div>
+{% endblock %}

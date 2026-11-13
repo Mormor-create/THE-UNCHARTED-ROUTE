@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Experience Exclusion{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F7F1E5]/50 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl space-y-8">
+
+        <!-- Header -->
+        <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="bg-[#12372A] px-6 py-7 sm:px-8">
+                <a href="{{ url_for('experience_exclusions.index', experience_id=experience_id) }}"
+                   class="mb-5 inline-flex items-center gap-2 text-sm font-medium text-[#E9DDC8] transition hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to Experience Exclusions
+                </a>
+
+                <div class="flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#D89B24]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#D89B24]">Experience Management</p>
+                        <h1 class="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Add Experience Exclusion</h1>
+                        <p class="mt-2 max-w-2xl text-sm leading-6 text-[#E9DDC8]">
+                            Specify an item, cost, or service that is not included in this experience.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="h-1.5 bg-[#D89B24]"></div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST"
+              action="{{ url_for('experience_exclusions.create', experience_id=experience_id) }}"
+              class="space-y-6">
+
+            {{ form.hidden_tag() }}
+
+            <!-- Exclusion Information -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/60 px-6 py-5 sm:px-8">
+                    <h2 class="text-lg font-semibold text-[#12372A]">Exclusion Information</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Define what guests should expect to pay for or arrange separately.</p>
+                </div>
+
+                <div class="space-y-6 p-6 sm:p-8">
+                    <!-- Title -->
+                    <div>
+                        {{ form.title.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.title(class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#1F5138] focus:ring-4 focus:ring-[#1F5138]/10", placeholder="e.g. Park Entry Fees") }}
+                        {% for error in form.title.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        {{ form.description.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.description(rows="5", class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#1F5138] focus:ring-4 focus:ring-[#1F5138]/10", placeholder="Explain what the customer should know about this exclusion...") }}
+                        {% for error in form.description.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Icon -->
+                    <div>
+                        {{ form.icon.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.icon(class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#1F5138] focus:ring-4 focus:ring-[#1F5138]/10", placeholder="x-circle") }}
+                        <p class="mt-2 text-xs leading-5 text-[#66736B]">Icon identifier used when displaying this exclusion.</p>
+                        {% for error in form.icon.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Display Settings -->
+            <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+                <div class="border-b border-[#E9DDC8] bg-[#F7F1E5]/60 px-6 py-5 sm:px-8">
+                    <h2 class="text-lg font-semibold text-[#12372A]">Display Settings</h2>
+                    <p class="mt-1 text-sm text-[#66736B]">Control the exclusion's order and visibility.</p>
+                </div>
+
+                <div class="space-y-6 p-6 sm:p-8">
+                    <div>
+                        {{ form.display_order.label(class="mb-2 block text-sm font-semibold text-[#1C2822]") }}
+                        {{ form.display_order(class="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#1F5138] focus:ring-4 focus:ring-[#1F5138]/10") }}
+                        <p class="mt-2 text-xs text-[#66736B]">Lower numbers appear first.</p>
+                        {% for error in form.display_order.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/50 p-4 transition hover:border-[#1F5138]/40">
+                        {{ form.active(class="mt-1 h-4 w-4 rounded border-[#E9DDC8] text-[#1F5138] focus:ring-[#1F5138]") }}
+                        <span>
+                            <span class="block text-sm font-semibold text-[#1C2822]">Active</span>
+                            <span class="mt-1 block text-sm leading-5 text-[#66736B]">Active exclusions will be available for display on the experience.</span>
+                        </span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] pt-5 sm:flex-row sm:justify-end">
+                <a href="{{ url_for('experience_exclusions.index', experience_id=experience_id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Cancel
+                </a>
+                {{ form.submit(class="inline-flex cursor-pointer items-center justify-center rounded-xl bg-[#1F5138] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#12372A] focus:outline-none focus:ring-4 focus:ring-[#1F5138]/20") }}
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

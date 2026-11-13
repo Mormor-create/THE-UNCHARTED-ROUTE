@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block title %}Create Safari Booking | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+    <a href="{{ url_for('admin_safari_bookings.index') }}" class="text-sm font-semibold text-[#1F5138] hover:underline">← Back to Safari Bookings</a>
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">Booking Management</p>
+        <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Create Safari Booking</h1>
+        <p class="mt-2 text-sm text-[#66736B]">Create a central booking with its safari-specific details.</p>
+    </div>
+    <form method="post" class="space-y-6">
+        {{ form.hidden_tag() }}
+        {% include "admin/bookings/safaris/_form_fields.html" %}
+        <div class="flex flex-wrap justify-end gap-3">
+            <a href="{{ url_for('admin_safari_bookings.index') }}" class="rounded-xl border border-[#E9DDC8] px-5 py-3 font-semibold text-[#12372A]">Cancel</a>
+            {{ form.submit(class="cursor-pointer rounded-xl bg-[#12372A] px-6 py-3 font-semibold text-white hover:bg-[#1F5138]") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

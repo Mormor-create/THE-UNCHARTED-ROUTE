@@ -1,0 +1,438 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Experience Review{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-4xl space-y-6">
+
+    <!-- ================================================================ -->
+    <!-- Header -->
+    <!-- ================================================================ -->
+
+    <div>
+
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+
+            <a href="{{ url_for(
+                'admin_experience_reviews.index',
+                experience_id=experience.id
+            ) }}"
+               class="hover:text-slate-900">
+                Experience Reviews
+            </a>
+
+            <span>/</span>
+
+            <span>Add Review</span>
+
+        </div>
+
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">
+            Add Experience Review
+        </h1>
+
+        <p class="mt-1 text-sm text-slate-500">
+            Add a customer review for {{ experience.title }}.
+        </p>
+
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!-- Form -->
+    <!-- ================================================================ -->
+
+    <form method="POST"
+          class="space-y-6">
+
+        {{ form.hidden_tag() }}
+
+
+        <!-- ============================================================ -->
+        <!-- Reviewer -->
+        <!-- ============================================================ -->
+
+        <div class="rounded-2xl border border-slate-200 bg-white
+                    p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                Reviewer Information
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Basic information about the customer leaving the review.
+            </p>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                <div>
+
+                    {{ form.reviewer_name.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.reviewer_name(
+                        class="w-full rounded-xl border border-slate-300
+                               px-4 py-3 text-sm focus:border-slate-500
+                               focus:outline-none focus:ring-2
+                               focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.reviewer_name.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.reviewer_email.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.reviewer_email(
+                        class="w-full rounded-xl border border-slate-300
+                               px-4 py-3 text-sm focus:border-slate-500
+                               focus:outline-none focus:ring-2
+                               focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.reviewer_email.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.reviewer_country.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.reviewer_country(
+                        class="w-full rounded-xl border border-slate-300
+                               px-4 py-3 text-sm focus:border-slate-500
+                               focus:outline-none focus:ring-2
+                               focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.reviewer_country.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.travel_date.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.travel_date(
+                        class="w-full rounded-xl border border-slate-300
+                               px-4 py-3 text-sm focus:border-slate-500
+                               focus:outline-none focus:ring-2
+                               focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.travel_date.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================ -->
+        <!-- Review -->
+        <!-- ============================================================ -->
+
+        <div class="rounded-2xl border border-slate-200 bg-white
+                    p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                Review
+            </h2>
+
+            <div class="mt-6 space-y-5">
+
+                <div>
+
+                    {{ form.title.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.title(
+                        class="w-full rounded-xl border border-slate-300
+                               px-4 py-3 text-sm focus:border-slate-500
+                               focus:outline-none focus:ring-2
+                               focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.title.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div>
+
+                    {{ form.review.label(
+                        class="mb-2 block text-sm font-medium text-slate-700"
+                    ) }}
+
+                    {{ form.review(
+                        rows="6",
+                        class="w-full rounded-xl border border-slate-300
+                               px-4 py-3 text-sm focus:border-slate-500
+                               focus:outline-none focus:ring-2
+                               focus:ring-slate-200"
+                    ) }}
+
+                    {% for error in form.review.errors %}
+                        <p class="mt-1 text-xs text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                    <div>
+
+                        {{ form.pros.label(
+                            class="mb-2 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.pros(
+                            rows="4",
+                            class="w-full rounded-xl border border-slate-300
+                                   px-4 py-3 text-sm focus:border-slate-500
+                                   focus:outline-none focus:ring-2
+                                   focus:ring-slate-200"
+                        ) }}
+
+                    </div>
+
+
+                    <div>
+
+                        {{ form.cons.label(
+                            class="mb-2 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ form.cons(
+                            rows="4",
+                            class="w-full rounded-xl border border-slate-300
+                                   px-4 py-3 text-sm focus:border-slate-500
+                                   focus:outline-none focus:ring-2
+                                   focus:ring-slate-200"
+                        ) }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================ -->
+        <!-- Ratings -->
+        <!-- ============================================================ -->
+
+        <div class="rounded-2xl border border-slate-200 bg-white
+                    p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                Ratings
+            </h2>
+
+            <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2
+                        lg:grid-cols-3">
+
+                {% for field in [
+                    form.overall_rating,
+                    form.guide_rating,
+                    form.transportation_rating,
+                    form.accommodation_rating,
+                    form.value_rating,
+                    form.organization_rating
+                ] %}
+
+                    <div>
+
+                        {{ field.label(
+                            class="mb-2 block text-sm font-medium text-slate-700"
+                        ) }}
+
+                        {{ field(
+                            class="w-full rounded-xl border border-slate-300
+                                   px-4 py-3 text-sm focus:border-slate-500
+                                   focus:outline-none focus:ring-2
+                                   focus:ring-slate-200"
+                        ) }}
+
+                        {% for error in field.errors %}
+                            <p class="mt-1 text-xs text-red-600">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================ -->
+        <!-- Review Settings -->
+        <!-- ============================================================ -->
+
+        <div class="rounded-2xl border border-slate-200 bg-white
+                    p-6 shadow-sm">
+
+            <h2 class="text-lg font-semibold text-slate-900">
+                Review Settings
+            </h2>
+
+            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                <label class="flex items-center gap-3 rounded-xl
+                              border border-slate-200 p-4">
+
+                    {{ form.would_recommend(
+                        class="h-4 w-4 rounded border-slate-300"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-medium text-slate-900">
+                            Would recommend
+                        </span>
+
+                        <span class="text-xs text-slate-500">
+                            Customer would recommend this experience.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex items-center gap-3 rounded-xl
+                              border border-slate-200 p-4">
+
+                    {{ form.verified_booking(
+                        class="h-4 w-4 rounded border-slate-300"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-medium text-slate-900">
+                            Verified booking
+                        </span>
+
+                        <span class="text-xs text-slate-500">
+                            Review is associated with a completed booking.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex items-center gap-3 rounded-xl
+                              border border-slate-200 p-4">
+
+                    {{ form.featured(
+                        class="h-4 w-4 rounded border-slate-300"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-medium text-slate-900">
+                            Featured review
+                        </span>
+
+                        <span class="text-xs text-slate-500">
+                            Highlight this review publicly.
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <label class="flex items-center gap-3 rounded-xl
+                              border border-slate-200 p-4">
+
+                    {{ form.approved(
+                        class="h-4 w-4 rounded border-slate-300"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-medium text-slate-900">
+                            Approved
+                        </span>
+
+                        <span class="text-xs text-slate-500">
+                            Make the review publicly visible.
+                        </span>
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================ -->
+        <!-- Actions -->
+        <!-- ============================================================ -->
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+            <a href="{{ url_for(
+                'admin_experience_reviews.index',
+                experience_id=experience.id
+            ) }}"
+               class="rounded-xl border border-slate-300 px-5 py-3
+                      text-center text-sm font-semibold text-slate-700
+                      hover:bg-slate-50">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="rounded-xl bg-slate-900 px-6 py-3
+                           text-sm font-semibold text-white
+                           shadow-sm hover:bg-slate-800">
+                Create Review
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

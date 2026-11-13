@@ -1,0 +1,982 @@
+/* ==========================================================================
+   THE UNCHARTED ROUTE
+   Output / Global Brand Styles
+   ========================================================================== */
+
+
+/* ==========================================================================
+   BRAND TOKENS
+   ========================================================================== */
+
+:root {
+    --route-deep: #12372A;
+    --route-forest: #1F5138;
+    --route-safari: #5C6B32;
+
+    --route-gold: #D89B24;
+    --route-terracotta: #C96A2C;
+
+    --route-cream: #F7F1E5;
+    --route-sand: #E9DDC8;
+
+    --route-ink: #1C2822;
+    --route-muted: #66736B;
+
+    --route-white: #FFFFFF;
+
+    --route-border: rgba(18, 55, 42, 0.12);
+
+    --route-shadow:
+        0 10px 30px rgba(18, 55, 42, 0.10);
+
+    --route-shadow-lg:
+        0 20px 50px rgba(18, 55, 42, 0.14);
+
+    --route-transition:
+        180ms ease;
+}
+
+
+/* ==========================================================================
+   RESET
+   ========================================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background: var(--route-cream);
+    color: var(--route-ink);
+
+    font-family:
+        "DM Sans",
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video {
+    display: block;
+    max-width: 100%;
+}
+
+img {
+    height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* ==========================================================================
+   TYPOGRAPHY
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+
+    color: var(--route-deep);
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    line-height: 1.15;
+}
+
+p {
+    line-height: 1.75;
+}
+
+::selection {
+    background: var(--route-gold);
+    color: var(--route-deep);
+}
+
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--route-cream);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--route-forest);
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--route-deep);
+}
+
+
+/* ==========================================================================
+   BRAND CONTAINERS
+   ========================================================================== */
+
+.route-container {
+    width: 100%;
+    max-width: 1280px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.route-narrow-container {
+    width: 100%;
+    max-width: 900px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+
+/* ==========================================================================
+   SECTIONS
+   ========================================================================== */
+
+.route-section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.route-section-sm {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.route-section-lg {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+}
+
+
+/* ==========================================================================
+   BRAND BACKGROUNDS
+   ========================================================================== */
+
+.route-bg-deep {
+    background-color: var(--route-deep);
+}
+
+.route-bg-forest {
+    background-color: var(--route-forest);
+}
+
+.route-bg-safari {
+    background-color: var(--route-safari);
+}
+
+.route-bg-gold {
+    background-color: var(--route-gold);
+}
+
+.route-bg-cream {
+    background-color: var(--route-cream);
+}
+
+.route-bg-sand {
+    background-color: var(--route-sand);
+}
+
+
+/* ==========================================================================
+   BRAND TEXT
+   ========================================================================== */
+
+.route-text-deep {
+    color: var(--route-deep);
+}
+
+.route-text-forest {
+    color: var(--route-forest);
+}
+
+.route-text-safari {
+    color: var(--route-safari);
+}
+
+.route-text-gold {
+    color: var(--route-gold);
+}
+
+.route-text-terracotta {
+    color: var(--route-terracotta);
+}
+
+.route-text-muted {
+    color: var(--route-muted);
+}
+
+.route-text-white {
+    color: var(--route-white);
+}
+
+
+/* ==========================================================================
+   EYEBROWS / LABELS
+   ========================================================================== */
+
+.route-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    color: var(--route-gold);
+
+    font-family:
+        "DM Sans",
+        sans-serif;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    letter-spacing: 0.22em;
+    line-height: 1.2;
+
+    text-transform: uppercase;
+}
+
+.route-eyebrow::before {
+    content: "";
+
+    display: inline-block;
+
+    width: 28px;
+    height: 1px;
+
+    background: currentColor;
+}
+
+
+/* ==========================================================================
+   HEADINGS
+   ========================================================================== */
+
+.route-heading {
+    color: var(--route-deep);
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+}
+
+.route-heading-light {
+    color: var(--route-white);
+}
+
+.route-heading-accent {
+    color: var(--route-gold);
+}
+
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.route-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.5rem;
+
+    min-height: 46px;
+
+    padding: 0.75rem 1.5rem;
+
+    border: 1px solid transparent;
+    border-radius: 999px;
+
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    transition:
+        background-color var(--route-transition),
+        color var(--route-transition),
+        border-color var(--route-transition),
+        transform var(--route-transition),
+        box-shadow var(--route-transition);
+}
+
+.route-button:hover {
+    transform: translateY(-2px);
+}
+
+.route-button-primary {
+    background: var(--route-forest);
+    color: var(--route-white);
+
+    box-shadow:
+        0 8px 20px rgba(18, 55, 42, 0.12);
+}
+
+.route-button-primary:hover {
+    background: var(--route-deep);
+
+    box-shadow:
+        0 12px 28px rgba(18, 55, 42, 0.18);
+}
+
+.route-button-gold {
+    background: var(--route-gold);
+    color: var(--route-deep);
+
+    box-shadow:
+        0 8px 20px rgba(216, 155, 36, 0.16);
+}
+
+.route-button-gold:hover {
+    background: var(--route-terracotta);
+    color: var(--route-white);
+}
+
+.route-button-outline {
+    background: transparent;
+
+    border-color: var(--route-forest);
+
+    color: var(--route-forest);
+}
+
+.route-button-outline:hover {
+    background: var(--route-forest);
+    color: var(--route-white);
+}
+
+.route-button-light {
+    background: var(--route-white);
+    color: var(--route-deep);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.route-button-light:hover {
+    background: var(--route-gold);
+}
+
+
+/* ==========================================================================
+   CARDS
+   ========================================================================== */
+
+.route-card {
+    overflow: hidden;
+
+    background: var(--route-white);
+
+    border:
+        1px solid var(--route-border);
+
+    border-radius: 0.75rem;
+
+    box-shadow: var(--route-shadow);
+
+    transition:
+        transform 220ms ease,
+        box-shadow 220ms ease;
+}
+
+.route-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow: var(--route-shadow-lg);
+}
+
+.route-card-soft {
+    background: var(--route-sand);
+
+    border:
+        1px solid rgba(18, 55, 42, 0.08);
+
+    border-radius: 0.75rem;
+}
+
+
+/* ==========================================================================
+   IMAGE TREATMENT
+   ========================================================================== */
+
+.route-image {
+    width: 100%;
+
+    object-fit: cover;
+
+    transition:
+        transform 500ms ease;
+}
+
+.route-image-wrapper {
+    overflow: hidden;
+}
+
+.route-image-wrapper:hover .route-image {
+    transform: scale(1.04);
+}
+
+
+/* ==========================================================================
+   DIVIDERS
+   ========================================================================== */
+
+.route-divider {
+    width: 100%;
+    height: 1px;
+
+    background:
+        var(--route-border);
+}
+
+.route-divider-gold {
+    width: 60px;
+    height: 2px;
+
+    background:
+        var(--route-gold);
+}
+
+
+/* ==========================================================================
+   DECORATIVE GOLD LINE
+   ========================================================================== */
+
+.route-gold-line {
+    display: inline-block;
+
+    width: 55px;
+    height: 2px;
+
+    background: var(--route-gold);
+}
+
+
+/* ==========================================================================
+   FORMS
+   ========================================================================== */
+
+.route-input,
+.route-select,
+.route-textarea {
+    width: 100%;
+
+    background: var(--route-white);
+
+    border:
+        1px solid rgba(18, 55, 42, 0.18);
+
+    border-radius: 0.6rem;
+
+    color: var(--route-ink);
+
+    outline: none;
+
+    transition:
+        border-color var(--route-transition),
+        box-shadow var(--route-transition);
+}
+
+.route-input,
+.route-select {
+    min-height: 48px;
+
+    padding:
+        0.7rem
+        0.9rem;
+}
+
+.route-textarea {
+    min-height: 140px;
+
+    padding:
+        0.8rem
+        0.9rem;
+
+    resize: vertical;
+}
+
+.route-input::placeholder,
+.route-textarea::placeholder {
+    color: var(--route-muted);
+}
+
+.route-input:focus,
+.route-select:focus,
+.route-textarea:focus {
+    border-color: var(--route-gold);
+
+    box-shadow:
+        0 0 0 3px rgba(216, 155, 36, 0.15);
+}
+
+
+/* ==========================================================================
+   FLASH MESSAGES
+   ========================================================================== */
+
+.route-alert {
+    width: 100%;
+
+    padding: 0.9rem 1rem;
+
+    border-radius: 0.6rem;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.route-alert-success {
+    background: rgba(31, 81, 56, 0.10);
+    border: 1px solid rgba(31, 81, 56, 0.20);
+    color: var(--route-forest);
+}
+
+.route-alert-error {
+    background: rgba(201, 106, 44, 0.10);
+    border: 1px solid rgba(201, 106, 44, 0.20);
+    color: var(--route-terracotta);
+}
+
+.route-alert-info {
+    background: rgba(92, 107, 50, 0.10);
+    border: 1px solid rgba(92, 107, 50, 0.20);
+    color: var(--route-safari);
+}
+
+
+/* ==========================================================================
+   NAVIGATION HELPERS
+   ========================================================================== */
+
+.route-nav-link {
+    position: relative;
+
+    color: var(--route-ink);
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    transition:
+        color var(--route-transition);
+}
+
+.route-nav-link::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: -7px;
+
+    height: 2px;
+
+    background: var(--route-gold);
+
+    transform:
+        scaleX(0);
+
+    transform-origin: center;
+
+    transition:
+        transform var(--route-transition);
+}
+
+.route-nav-link:hover {
+    color: var(--route-forest);
+}
+
+.route-nav-link:hover::after,
+.route-nav-link.active::after {
+    transform: scaleX(1);
+}
+
+
+/* ==========================================================================
+   LOGO
+   ========================================================================== */
+
+.route-logo-mark {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    background: var(--route-deep);
+
+    color: var(--route-white);
+
+    font-size: 0.8rem;
+    font-weight: 800;
+
+    letter-spacing: -0.03em;
+}
+
+.route-logo-title {
+    color: var(--route-deep);
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.route-logo-tagline {
+    margin-top: 0.15rem;
+
+    color: var(--route-muted);
+
+    font-size: 0.55rem;
+    font-weight: 700;
+
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
+.route-footer {
+    background: var(--route-deep);
+
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.route-footer-heading {
+    color: var(--route-white);
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+}
+
+.route-footer-link {
+    color: rgba(255, 255, 255, 0.72);
+
+    transition:
+        color var(--route-transition);
+}
+
+.route-footer-link:hover {
+    color: var(--route-gold);
+}
+
+
+/* ==========================================================================
+   BADGES
+   ========================================================================== */
+
+.route-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding:
+        0.35rem
+        0.7rem;
+
+    border-radius: 999px;
+
+    background:
+        rgba(216, 155, 36, 0.12);
+
+    color: var(--route-gold);
+
+    font-size: 0.72rem;
+    font-weight: 700;
+
+    letter-spacing: 0.05em;
+}
+
+
+/* ==========================================================================
+   HERO OVERLAY
+   ========================================================================== */
+
+.route-hero-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(18, 55, 42, 0.82) 0%,
+            rgba(18, 55, 42, 0.52) 45%,
+            rgba(18, 55, 42, 0.16) 100%
+        );
+}
+
+
+/* ==========================================================================
+   BRAND GRADIENT
+   ========================================================================== */
+
+.route-gradient {
+    background:
+        linear-gradient(
+            135deg,
+            var(--route-deep) 0%,
+            var(--route-forest) 55%,
+            var(--route-safari) 100%
+        );
+}
+
+
+/* ==========================================================================
+   DECORATIVE BACKGROUND
+   ========================================================================== */
+
+.route-glow {
+    position: absolute;
+
+    width: 350px;
+    height: 350px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(216, 155, 36, 0.16) 0%,
+            rgba(216, 155, 36, 0) 70%
+        );
+
+    pointer-events: none;
+}
+
+
+/* ==========================================================================
+   ANIMATION BASE
+   ========================================================================== */
+
+.route-fade-up {
+    animation:
+        routeFadeUp 700ms ease both;
+}
+
+.route-fade-in {
+    animation:
+        routeFadeIn 600ms ease both;
+}
+
+.route-scale-in {
+    animation:
+        routeScaleIn 600ms ease both;
+}
+
+.route-float {
+    animation:
+        routeFloat 4s ease-in-out infinite;
+}
+
+
+/* ==========================================================================
+   KEYFRAMES
+   ========================================================================== */
+
+@keyframes routeFadeUp {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+@keyframes routeFadeIn {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+@keyframes routeScaleIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1);
+    }
+}
+
+
+@keyframes routeFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-8px);
+    }
+}
+
+
+/* ==========================================================================
+   MOBILE MENU
+   ========================================================================== */
+
+.route-mobile-menu {
+    overflow: hidden;
+
+    max-height: 0;
+
+    opacity: 0;
+
+    transition:
+        max-height 300ms ease,
+        opacity 200ms ease;
+}
+
+.route-mobile-menu.open {
+    max-height: 500px;
+
+    opacity: 1;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (min-width: 640px) {
+
+    .route-container,
+    .route-narrow-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+
+@media (min-width: 1024px) {
+
+    .route-container {
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
+    .route-narrow-container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+:focus-visible {
+    outline: 3px solid rgba(216, 155, 36, 0.55);
+    outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

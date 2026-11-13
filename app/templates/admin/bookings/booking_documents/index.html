@@ -1,0 +1,111 @@
+
+{% extends "admin/base.html" %}
+{% block title %}Booking Documents | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-8">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-[#C96A2C]">Central Booking CMS</p>
+            <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Booking Documents</h1>
+            <p class="mt-2 text-[#66736B]">Manage private booking and traveller document records.</p>
+        </div>
+        <a href="{{ url_for('booking_documents.create') }}" class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1F5138]">+ Add Document</a>
+    </div>
+
+    <form method="GET" class="grid gap-3 rounded-2xl border border-[#E9DDC8] bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <input name="q" value="{{ search }}" placeholder="Search title or filename" class="rounded-xl border border-[#E9DDC8] px-3 py-2 text-sm">
+        <input name="booking_id" value="{{ booking_id }}" type="number" min="1" placeholder="Booking ID" class="rounded-xl border border-[#E9DDC8] px-3 py-2 text-sm">
+        <select name="document_type" class="rounded-xl border border-[#E9DDC8] px-3 py-2 text-sm">
+            <option value="">All document types</option>
+            {% for value, label in [
+                ('passport','Passport'),('national_id','National ID'),('visa','Visa'),
+                ('insurance','Travel Insurance'),('waiver','Waiver'),
+                ('payment_receipt','Payment Receipt'),('booking_confirmation','Booking Confirmation'),
+                ('itinerary','Itinerary'),('medical','Medical Document'),
+                ('consent','Consent Form'),('other','Other')
+            ] %}
+                <option value="{{ value }}" {% if document_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="rounded-xl border border-[#E9DDC8] px-3 py-2 text-sm">
+            <option value="">All statuses</option>
+            {% for value in ['uploaded','under_review','approved','rejected','archived'] %}
+                <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ value.replace('_',' ')|title }}</option>
+            {% endfor %}
+        </select>
+        <select name="verification_status" class="rounded-xl border border-[#E9DDC8] px-3 py-2 text-sm">
+            <option value="">All verification states</option>
+            {% for value in ['pending','verified','rejected'] %}
+                <option value="{{ value }}" {% if verification_status == value %}selected{% endif %}>{{ value|title }}</option>
+            {% endfor %}
+        </select>
+        <div class="flex gap-2 sm:col-span-2 lg:col-span-5">
+            <button class="rounded-xl bg-[#12372A] px-5 py-2 text-sm font-semibold text-white">Filter</button>
+            <a href="{{ url_for('booking_documents.index') }}" class="rounded-xl border border-[#E9DDC8] px-5 py-2 text-sm font-semibold text-[#1C2822]">Reset</a>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#E9DDC8]">
+                <thead class="bg-[#F7F1E5]">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wider text-[#66736B]">
+                        <th class="px-5 py-4">Document</th>
+                        <th class="px-5 py-4">Booking / Traveller</th>
+                        <th class="px-5 py-4">Status</th>
+                        <th class="px-5 py-4">Verification</th>
+                        <th class="px-5 py-4">Expiry</th>
+                        <th class="px-5 py-4 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E9DDC8]">
+                    {% for document in documents %}
+                    <tr class="hover:bg-[#F7F1E5]/50">
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-[#12372A]">{{ document.title }}</p>
+                            <p class="mt-1 text-xs text-[#66736B]">{{ document.document_type.replace('_',' ')|title }} · {{ document.original_filename }}</p>
+                            <p class="mt-1 text-xs text-[#66736B]">Record #{{ document.id }}</p>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-[#1C2822]">
+                            <p>Booking #{{ document.booking_id }}</p>
+                            {% if document.traveller %}
+                                <p class="mt-1 text-xs text-[#66736B]">{{ document.traveller.full_name }}</p>
+                            {% else %}
+                                <p class="mt-1 text-xs text-[#66736B]">Booking-level document</p>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-4 text-sm">{{ document.status.replace('_',' ')|title }}</td>
+                        <td class="px-5 py-4 text-sm">
+                            {% if document.verification_status == 'verified' %}
+                                <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">Verified</span>
+                            {% elif document.verification_status == 'rejected' %}
+                                <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-800">Rejected</span>
+                            {% else %}
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-4 text-sm">
+                            {% if document.expires_at %}
+                                <span class="{% if document.is_expired %}font-semibold text-red-700{% else %}text-[#1C2822]{% endif %}">{{ document.expires_at.strftime('%d %b %Y') }}</span>
+                                {% if document.is_expired %}<p class="mt-1 text-xs text-red-600">Expired</p>{% endif %}
+                            {% else %}
+                                <span class="text-[#66736B]">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-4 text-right">
+                            <a href="{{ url_for('booking_documents.detail', document_id=document.id) }}" class="text-sm font-semibold text-[#1F5138] hover:underline">View</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="px-5 py-12 text-center">
+                        <p class="font-semibold text-[#12372A]">No document records found</p>
+                        <p class="mt-1 text-sm text-[#66736B]">Try changing the filters or create a new document record.</p>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="border-t border-[#E9DDC8] px-5 py-3 text-sm text-[#66736B]">{{ documents|length }} record(s)</div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Something Went Wrong | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+
+{% block content %}
+
+<section class="flex min-h-[75vh] items-center bg-route-deep text-route-white">
+
+    <div class="mx-auto w-full max-w-4xl px-6 py-20 text-center sm:px-8 lg:px-12">
+
+        <p class="font-display text-8xl font-semibold text-route-gold sm:text-9xl">
+            500
+        </p>
+
+        <p class="mt-6 text-sm font-bold uppercase tracking-[0.3em] text-route-gold">
+            A Detour
+        </p>
+
+        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">
+            Something unexpected happened.
+        </h1>
+
+        <p class="mx-auto mt-5 max-w-xl text-lg leading-8 text-route-cream/75">
+            We encountered an unexpected problem while trying to load
+            this page. Please try again in a moment.
+        </p>
+
+        <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+
+            <a
+                href="{{ url_for('main.home') }}"
+                class="inline-flex items-center justify-center rounded-full bg-route-gold px-7 py-3.5 text-sm font-bold text-route-deep transition hover:bg-route-white"
+            >
+                Back to Home
+            </a>
+
+            <a
+                href="{{ url_for('main.contact') }}"
+                class="inline-flex items-center justify-center rounded-full border border-route-white/30 px-7 py-3.5 text-sm font-bold text-route-white transition hover:border-route-white hover:bg-route-white hover:text-route-deep"
+            >
+                Contact Us
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

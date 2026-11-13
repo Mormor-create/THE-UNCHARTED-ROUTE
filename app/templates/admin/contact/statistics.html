@@ -1,0 +1,773 @@
+{% extends "admin/base.html" %}
+{% block title %}Enquiry Statistics{% endblock %}
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Page Header -->
+    <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div>
+            <div class="mb-2 flex flex-wrap items-center gap-2 text-sm">
+                <a href="{{ url_for('contacts.index') }}"
+                   class="inline-flex items-center gap-1.5 font-medium text-slate-500 transition hover:text-slate-900">
+                    <i class="bi bi-arrow-left"></i>
+                    Enquiries
+                </a>
+
+                <span class="text-slate-300">/</span>
+
+                <span class="text-slate-500">Statistics</span>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                    <i class="bi bi-bar-chart-line text-lg"></i>
+                </div>
+
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+                        Enquiry Statistics
+                    </h1>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Monitor enquiry volume, response activity, priorities, and resolution performance.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('contacts.index') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+                <i class="bi bi-inbox"></i>
+                Enquiry Inbox
+            </a>
+
+            <a href="{{ url_for('contacts.archived') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+                <i class="bi bi-archive"></i>
+                Archived
+            </a>
+
+            <a href="{{ url_for('contacts.create') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                <i class="bi bi-plus-lg"></i>
+                New Enquiry
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <!-- Total -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-4">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Total Enquiries
+                        </p>
+
+                        <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                            {{ statistics.get('total', 0) }}
+                        </h2>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            All recorded enquiries
+                        </p>
+                    </div>
+
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                        <i class="bi bi-envelope text-lg"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Open -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-4">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Open
+                        </p>
+
+                        <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                            {{ statistics.get('open', 0) }}
+                        </h2>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Requiring attention
+                        </p>
+                    </div>
+
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                        <i class="bi bi-folder2-open text-lg"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Urgent -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-4">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Urgent
+                        </p>
+
+                        <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                            {{ statistics.get('urgent', 0) }}
+                        </h2>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            High-priority enquiries
+                        </p>
+                    </div>
+
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+                        <i class="bi bi-exclamation-triangle text-lg"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Follow-ups -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-4">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Follow-ups
+                        </p>
+
+                        <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                            {{ statistics.get('follow_ups', statistics.get('followups', 0)) }}
+                        </h2>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Scheduled follow-ups
+                        </p>
+                    </div>
+
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                        <i class="bi bi-calendar-check text-lg"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Secondary KPIs -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <!-- Resolved -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <div>
+                        <h6 class="font-semibold text-slate-900">
+                            Resolved
+                        </h6>
+
+                        <p class="text-xs text-slate-500">
+                            Successfully handled
+                        </p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold tracking-tight text-slate-900">
+                    {{ statistics.get('resolved', 0) }}
+                </h3>
+
+            </div>
+        </div>
+
+        <!-- Unread -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                        <i class="bi bi-envelope-open"></i>
+                    </div>
+
+                    <div>
+                        <h6 class="font-semibold text-slate-900">
+                            Unread
+                        </h6>
+
+                        <p class="text-xs text-slate-500">
+                            Awaiting staff attention
+                        </p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold tracking-tight text-slate-900">
+                    {{ statistics.get('unread', 0) }}
+                </h3>
+
+            </div>
+        </div>
+
+        <!-- Archived -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="p-5 sm:p-6">
+
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                        <i class="bi bi-archive"></i>
+                    </div>
+
+                    <div>
+                        <h6 class="font-semibold text-slate-900">
+                            Archived
+                        </h6>
+
+                        <p class="text-xs text-slate-500">
+                            Removed from active inbox
+                        </p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold tracking-tight text-slate-900">
+                    {{ statistics.get('archived', 0) }}
+                </h3>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Analytics Grid -->
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+
+        <!-- Status Breakdown -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                        <i class="bi bi-pie-chart"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold text-slate-900">
+                            Status Breakdown
+                        </h5>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Distribution of enquiries by workflow status.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+
+                {% set status_stats = statistics.get('by_status', statistics.get('statuses', {})) %}
+
+                {% if status_stats %}
+
+                    <div class="space-y-5">
+
+                        {% for status, count in status_stats.items() %}
+
+                            {% set total = statistics.get('total', 0) %}
+                            {% set percentage = ((count / total) * 100)|round(1) if total else 0 %}
+
+                            <div>
+
+                                <div class="mb-2 flex items-center justify-between gap-4">
+                                    <span class="text-sm font-semibold text-slate-800">
+                                        {{ status }}
+                                    </span>
+
+                                    <span class="whitespace-nowrap text-xs font-medium text-slate-500">
+                                        {{ count }} · {{ percentage }}%
+                                    </span>
+                                </div>
+
+                                <div class="h-2 overflow-hidden rounded-full bg-slate-100">
+                                    <div
+                                        class="h-full rounded-full transition-all
+                                        {% if status == 'New' %}
+                                            bg-slate-700
+                                        {% elif status == 'Assigned' %}
+                                            bg-sky-500
+                                        {% elif status == 'In Progress' %}
+                                            bg-amber-500
+                                        {% elif status == 'Waiting for Customer' %}
+                                            bg-slate-400
+                                        {% elif status == 'Resolved' %}
+                                            bg-emerald-500
+                                        {% elif status == 'Closed' %}
+                                            bg-slate-900
+                                        {% else %}
+                                            bg-slate-600
+                                        {% endif %}"
+                                        style="width: {{ percentage }}%;"
+                                        role="progressbar"
+                                        aria-valuenow="{{ percentage }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="py-10 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <i class="bi bi-bar-chart text-xl"></i>
+                        </div>
+
+                        <h6 class="mt-4 font-semibold text-slate-800">
+                            No status data available
+                        </h6>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Status statistics will appear here once enquiries are recorded.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- Priority Breakdown -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+                        <i class="bi bi-flag"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold text-slate-900">
+                            Priority Breakdown
+                        </h5>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Distribution of enquiries by priority level.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+
+                {% set priority_stats = statistics.get('by_priority', statistics.get('priorities', {})) %}
+
+                {% if priority_stats %}
+
+                    <div class="space-y-5">
+
+                        {% for priority, count in priority_stats.items() %}
+
+                            {% set total = statistics.get('total', 0) %}
+                            {% set percentage = ((count / total) * 100)|round(1) if total else 0 %}
+
+                            <div>
+
+                                <div class="mb-2 flex items-center justify-between gap-4">
+                                    <span class="text-sm font-semibold text-slate-800">
+                                        {{ priority }}
+                                    </span>
+
+                                    <span class="whitespace-nowrap text-xs font-medium text-slate-500">
+                                        {{ count }} · {{ percentage }}%
+                                    </span>
+                                </div>
+
+                                <div class="h-2 overflow-hidden rounded-full bg-slate-100">
+                                    <div
+                                        class="h-full rounded-full transition-all
+                                        {% if priority == 'Urgent' %}
+                                            bg-rose-500
+                                        {% elif priority == 'High' %}
+                                            bg-amber-500
+                                        {% elif priority == 'Normal' %}
+                                            bg-slate-600
+                                        {% elif priority == 'Low' %}
+                                            bg-slate-400
+                                        {% else %}
+                                            bg-slate-600
+                                        {% endif %}"
+                                        style="width: {{ percentage }}%;"
+                                        role="progressbar"
+                                        aria-valuenow="{{ percentage }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="py-10 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <i class="bi bi-flag text-xl"></i>
+                        </div>
+
+                        <h6 class="mt-4 font-semibold text-slate-800">
+                            No priority data available
+                        </h6>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Priority statistics will appear here once enquiries are recorded.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Enquiry Types -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                        <i class="bi bi-tags"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold text-slate-900">
+                            Enquiry Types
+                        </h5>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Distribution across enquiry categories.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+
+                {% set type_stats = statistics.get('by_enquiry_type', statistics.get('enquiry_types', {})) %}
+
+                {% if type_stats %}
+
+                    <div class="space-y-4">
+
+                        {% for enquiry_type, count in type_stats.items() %}
+
+                            {% set total = statistics.get('total', 0) %}
+                            {% set percentage = ((count / total) * 100)|round(1) if total else 0 %}
+
+                            <div>
+
+                                <div class="mb-1.5 flex items-center justify-between gap-4">
+                                    <span class="text-sm font-semibold text-slate-700">
+                                        {{ enquiry_type }}
+                                    </span>
+
+                                    <span class="text-xs font-medium text-slate-500">
+                                        {{ count }}
+                                    </span>
+                                </div>
+
+                                <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                    <div class="h-full rounded-full bg-sky-500"
+                                         style="width: {{ percentage }}%;"></div>
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="py-10 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <i class="bi bi-tags text-xl"></i>
+                        </div>
+
+                        <h6 class="mt-4 font-semibold text-slate-800">
+                            No enquiry type data
+                        </h6>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Enquiry type distribution will appear here.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- Sources -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i class="bi bi-broadcast"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold text-slate-900">
+                            Enquiry Sources
+                        </h5>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Where enquiries are coming from.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+
+                {% set source_stats = statistics.get('by_source', statistics.get('sources', {})) %}
+
+                {% if source_stats %}
+
+                    <div class="space-y-4">
+
+                        {% for source, count in source_stats.items() %}
+
+                            {% set total = statistics.get('total', 0) %}
+                            {% set percentage = ((count / total) * 100)|round(1) if total else 0 %}
+
+                            <div class="flex items-center gap-3">
+
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                                    <i class="bi bi-broadcast text-sm"></i>
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+
+                                    <div class="mb-1.5 flex items-center justify-between gap-4">
+                                        <span class="truncate text-sm font-semibold text-slate-700">
+                                            {{ source }}
+                                        </span>
+
+                                        <span class="whitespace-nowrap text-xs font-medium text-slate-500">
+                                            {{ count }} · {{ percentage }}%
+                                        </span>
+                                    </div>
+
+                                    <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                        <div class="h-full rounded-full bg-emerald-500"
+                                             style="width: {{ percentage }}%;"></div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="py-10 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <i class="bi bi-broadcast text-xl"></i>
+                        </div>
+
+                        <h6 class="mt-4 font-semibold text-slate-800">
+                            No source data
+                        </h6>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Enquiry sources will appear here as records are added.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Response Performance -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="border-b border-slate-100 px-6 py-5">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold text-slate-900">
+                            Response Performance
+                        </h5>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Measures staff response activity and enquiry resolution.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="p-6">
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+                <!-- First Responses -->
+                <div class="text-center">
+                    <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                        <i class="bi bi-reply text-xl"></i>
+                    </div>
+
+                    <h4 class="text-2xl font-bold tracking-tight text-slate-900">
+                        {{ statistics.get('responded', statistics.get('replied', 0)) }}
+                    </h4>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Enquiries Responded
+                    </p>
+                </div>
+
+
+                <!-- Response Rate -->
+                <div class="text-center">
+                    <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                        <i class="bi bi-percent text-xl"></i>
+                    </div>
+
+                    <h4 class="text-2xl font-bold tracking-tight text-slate-900">
+                        {{ statistics.get('response_rate', 0) }}%
+                    </h4>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Response Rate
+                    </p>
+                </div>
+
+
+                <!-- Average Response -->
+                <div class="text-center">
+                    <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                        <i class="bi bi-clock-history text-xl"></i>
+                    </div>
+
+                    <h4 class="text-2xl font-bold tracking-tight text-slate-900">
+                        {{ statistics.get('average_response_time', statistics.get('avg_response_time', '—')) }}
+                    </h4>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Avg. Response Time
+                    </p>
+                </div>
+
+
+                <!-- Resolution Rate -->
+                <div class="text-center">
+                    <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">
+                        <i class="bi bi-check2-all text-xl"></i>
+                    </div>
+
+                    <h4 class="text-2xl font-bold tracking-tight text-slate-900">
+                        {{ statistics.get('resolution_rate', 0) }}%
+                    </h4>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Resolution Rate
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <div class="border-b border-slate-100 px-6 py-5">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+
+                <div>
+                    <h5 class="font-semibold text-slate-900">
+                        Quick Actions
+                    </h5>
+
+                    <p class="mt-0.5 text-xs text-slate-500">
+                        Jump directly into commonly used enquiry views.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+                <a href="{{ url_for('contacts.index', status='New') }}"
+                   class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+                    <i class="bi bi-envelope"></i>
+                    View New
+                </a>
+
+                <a href="{{ url_for('contacts.index', priority='Urgent') }}"
+                   class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:bg-rose-50">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    View Urgent
+                </a>
+
+                <a href="{{ url_for('contacts.index', unread_only='1') }}"
+                   class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+                    <i class="bi bi-envelope-open"></i>
+                    View Unread
+                </a>
+
+                <a href="{{ url_for('contacts.index', follow_up_only='1') }}"
+                   class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-3 text-sm font-semibold text-amber-700 shadow-sm transition hover:border-amber-300 hover:bg-amber-50">
+                    <i class="bi bi-calendar-check"></i>
+                    View Follow-ups
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

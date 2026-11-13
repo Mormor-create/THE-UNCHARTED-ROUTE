@@ -1,0 +1,142 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Confirm Permanent Deletion | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+
+    <a href="{{ url_for('service_inquiries.archived') }}"
+       class="inline-flex items-center gap-2 text-sm font-semibold text-route-muted transition hover:text-route-forest">
+        <i class="bi bi-arrow-left"></i>
+        Back to archived enquiries
+    </a>
+
+    <section class="mt-6 overflow-hidden rounded-3xl border border-red-200 bg-white shadow-sm">
+
+        <!-- Warning heading -->
+        <div class="border-b border-red-100 bg-red-50 px-6 py-8 text-center sm:px-10">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 text-3xl text-red-700">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+
+            <h1 class="mt-5 text-2xl font-bold tracking-tight text-red-900 sm:text-3xl">
+                Permanently Delete Enquiry?
+            </h1>
+
+            <p class="mx-auto mt-3 max-w-lg text-sm leading-6 text-red-800">
+                This action permanently removes this enquiry record from the database. It cannot be undone.
+            </p>
+        </div>
+
+        <div class="space-y-6 p-6 sm:p-10">
+
+            <!-- Record summary -->
+            <div class="rounded-2xl border border-route-sand bg-route-cream/50 p-5">
+                <p class="text-xs font-semibold uppercase tracking-widest text-route-muted">
+                    Record selected for deletion
+                </p>
+
+                <div class="mt-4 flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-route-forest text-xl text-route-cream">
+                        {% if service_type == 'safari' %}
+                            <i class="bi bi-compass"></i>
+                        {% elif service_type == 'stay' %}
+                            <i class="bi bi-house-heart"></i>
+                        {% else %}
+                            <i class="bi bi-map"></i>
+                        {% endif %}
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <h2 class="break-words text-lg font-bold text-route-forest">
+                            {{ item.reference }}
+                        </h2>
+                        <p class="mt-1 text-sm text-route-deep">
+                            {{ item.customer }}
+                        </p>
+                        <p class="mt-1 break-all text-sm text-route-muted">
+                            {{ item.email or 'No email provided' }}
+                        </p>
+
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <span class="inline-flex rounded-full bg-route-forest/10 px-3 py-1 text-xs font-semibold text-route-forest">
+                                {{ service_label }}
+                            </span>
+                            <span class="inline-flex rounded-full bg-route-gold/15 px-3 py-1 text-xs font-semibold text-route-deep">
+                                {{ item.status|title }}
+                            </span>
+                            <span class="inline-flex rounded-full bg-route-sand px-3 py-1 text-xs font-semibold text-route-deep">
+                                Archived
+                            </span>
+                        </div>
+
+                        <p class="mt-3 text-sm text-route-muted">
+                            Requested service:
+                            <span class="font-semibold text-route-deep">
+                                {{ item.target }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consequences -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-route-deep">
+                    Before you continue
+                </h3>
+
+                <div class="flex items-start gap-3 text-sm text-route-muted">
+                    <i class="bi bi-x-circle-fill mt-0.5 text-red-600"></i>
+                    <p>The enquiry record and its stored notes will be permanently removed.</p>
+                </div>
+
+                <div class="flex items-start gap-3 text-sm text-route-muted">
+                    <i class="bi bi-check-circle-fill mt-0.5 text-route-forest"></i>
+                    <p>This action targets the selected enquiry only. It does not intentionally delete the linked Safari, Stay, or Experience.</p>
+                </div>
+
+                <div class="flex items-start gap-3 text-sm text-route-muted">
+                    <i class="bi bi-info-circle-fill mt-0.5 text-route-gold"></i>
+                    <p>If you may need this enquiry later, cancel and leave it archived instead.</p>
+                </div>
+            </div>
+
+            <!-- Confirmation form -->
+            <form method="POST"
+                  action="{{ url_for('service_inquiries.delete', service_type=service_type, inquiry_id=inquiry.id) }}"
+                  class="border-t border-route-sand pt-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-red-200 bg-red-50/60 p-4 text-sm text-red-900">
+                    <input type="checkbox"
+                           name="confirm_delete"
+                           value="yes"
+                           required
+                           class="mt-1 h-4 w-4 rounded border-red-300 text-red-700 focus:ring-red-600">
+                    <span>
+                        <span class="font-semibold">I understand this deletion is permanent.</span>
+                        <span class="mt-1 block text-red-800">
+                            I have verified that this is the correct enquiry to delete.
+                        </span>
+                    </span>
+                </label>
+
+                <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <a href="{{ url_for('service_inquiries.archived') }}"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl border border-route-sand bg-white px-5 py-3 text-sm font-semibold text-route-deep transition hover:bg-route-cream">
+                        <i class="bi bi-x-lg"></i>
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-red-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2">
+                        <i class="bi bi-trash3"></i>
+                        Permanently Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

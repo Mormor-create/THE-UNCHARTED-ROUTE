@@ -1,0 +1,357 @@
+<!--
+===============================================================================
+The Uncharted Route
+Admin Top Bar
+===============================================================================
+
+Reusable top navigation bar for the administrative interface.
+
+Responsibilities
+----------------
+• Mobile sidebar toggle
+• Administrative section label
+• Current page heading
+• Optional page description
+• Breadcrumb support
+• Public website shortcut
+
+Alpine.js
+---------
+The parent admin layout provides:
+
+    x-data="{ sidebarOpen: false }"
+
+This partial communicates with that Alpine.js state.
+===============================================================================
+-->
+
+<header
+    class="
+        sticky
+        top-0
+        z-30
+        border-b
+        border-route-forest/10
+        bg-route-white/95
+        shadow-sm
+        backdrop-blur
+    "
+>
+
+    <!-- =====================================================================
+         Main Top Bar
+         ===================================================================== -->
+
+    <div
+        class="
+            flex
+            min-h-20
+            items-center
+            justify-between
+            gap-4
+            px-4
+            sm:px-6
+            lg:px-8
+            xl:px-10
+        "
+    >
+
+        <!-- ================================================================
+             Left Side
+             ================================================================ -->
+
+        <div class="flex min-w-0 items-center gap-3 sm:gap-4">
+
+            <!-- ============================================================
+                 Mobile Sidebar Toggle
+                 ============================================================ -->
+
+            <button
+                type="button"
+                class="
+                    flex
+                    h-10
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    border
+                    border-route-forest/10
+                    bg-route-white
+                    text-route-forest
+                    shadow-sm
+                    transition
+                    duration-200
+                    hover:border-route-gold
+                    hover:bg-route-cream
+                    hover:text-route-terracotta
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-route-gold/40
+                    lg:hidden
+                "
+                @click="sidebarOpen = true"
+                aria-label="Open administration navigation"
+                aria-controls="admin-sidebar"
+                :aria-expanded="sidebarOpen.toString()"
+            >
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    class="h-5 w-5"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                    />
+                </svg>
+
+            </button>
+
+
+            <!-- ============================================================
+                 Page Context
+                 ============================================================ -->
+
+            <div class="min-w-0">
+
+                <!-- Section Label -->
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        gap-2
+                    "
+                >
+
+                    <span
+                        class="
+                            h-1.5
+                            w-1.5
+                            shrink-0
+                            rounded-full
+                            bg-route-gold
+                        "
+                        aria-hidden="true"
+                    ></span>
+
+                    <p
+                        class="
+                            truncate
+                            text-[10px]
+                            font-bold
+                            uppercase
+                            tracking-[0.2em]
+                            text-route-safari
+                        "
+                    >
+                        Administration
+                    </p>
+
+                </div>
+
+
+                <!-- Page Heading -->
+
+                <h1
+                    class="
+                        mt-1
+                        truncate
+                        font-display
+                        text-lg
+                        font-semibold
+                        leading-tight
+                        text-route-ink
+                        sm:text-xl
+                        lg:text-2xl
+                    "
+                >
+                    {% block admin_heading %}
+                        Dashboard
+                    {% endblock %}
+                </h1>
+
+
+                <!-- Optional Page Description -->
+
+                {% block admin_description %}
+                {% endblock %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================================
+             Right Side
+             ================================================================ -->
+
+        <div
+            class="
+                flex
+                shrink-0
+                items-center
+                gap-2
+                sm:gap-3
+            "
+        >
+
+            <!-- ============================================================
+                 Breadcrumbs
+                 ============================================================ -->
+
+            <div
+                class="
+                    hidden
+                    items-center
+                    gap-2
+                    lg:flex
+                "
+            >
+                {% block admin_breadcrumbs %}
+                {% endblock %}
+            </div>
+
+
+            <!-- ============================================================
+                 View Public Website — Desktop
+                 ============================================================ -->
+
+            <a
+                href="{{ url_for('main.home') }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="
+                    hidden
+                    items-center
+                    gap-2
+                    rounded-full
+                    border
+                    border-route-forest/15
+                    bg-route-white
+                    px-4
+                    py-2
+                    text-xs
+                    font-bold
+                    text-route-forest
+                    shadow-sm
+                    transition
+                    duration-200
+                    hover:border-route-gold
+                    hover:bg-route-cream
+                    hover:text-route-terracotta
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-route-gold/40
+                    sm:inline-flex
+                "
+            >
+
+                <span>
+                    View Website
+                </span>
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M18 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H11"
+                    />
+                </svg>
+
+            </a>
+
+
+            <!-- ============================================================
+                 View Public Website — Mobile
+                 ============================================================ -->
+
+            <a
+                href="{{ url_for('main.home') }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="
+                    flex
+                    h-10
+                    w-10
+                    items-center
+                    justify-center
+                    rounded-xl
+                    border
+                    border-route-forest/10
+                    bg-route-white
+                    text-route-forest
+                    shadow-sm
+                    transition
+                    duration-200
+                    hover:border-route-gold
+                    hover:bg-route-cream
+                    hover:text-route-terracotta
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-route-gold/40
+                    sm:hidden
+                "
+                aria-label="View public website"
+                title="View public website"
+            >
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    class="h-5 w-5"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
+                    />
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M18 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H11"
+                    />
+                </svg>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================================
+         Optional Breadcrumb Bar
+         ===================================================================== -->
+
+    {% block admin_breadcrumb_bar %}
+    {% endblock %}
+
+</header>

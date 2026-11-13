@@ -1,0 +1,346 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Media Asset — The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-6xl space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-route-gold">
+                Digital Asset Management
+            </p>
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                Edit Media Asset
+            </h1>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-route-muted">
+                Update metadata, folder organization, SEO information, and status.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_media.detail', asset_id=asset.id) }}"
+            class="inline-flex items-center justify-center rounded-xl border border-route-deep/10 bg-white px-4 py-2.5 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream"
+        >
+            ← Back to Asset
+        </a>
+    </div>
+
+    <!-- Asset Preview -->
+    <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+        <div class="border-b border-route-deep/10 px-6 py-5">
+            <h2 class="text-lg font-semibold text-route-ink">Asset Preview</h2>
+            <p class="mt-1 text-sm text-route-muted">
+                Current file stored in the media library.
+            </p>
+        </div>
+
+        <div class="grid gap-6 p-6 md:grid-cols-[260px_1fr]">
+            <div class="flex min-h-[200px] items-center justify-center overflow-hidden rounded-2xl bg-route-cream">
+                {% set media_src = asset.file_url or url_for(
+                    'admin_media.serve_media',
+                    filename=asset.filename
+                ) %}
+
+                {% if asset.is_image %}
+                    <img
+                        src="{{ media_src }}"
+                        alt="{{ asset.alt_text or asset.title or asset.original_filename }}"
+                        class="max-h-60 w-full object-contain"
+                        onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                    >
+                    <div class="hidden flex-col items-center justify-center px-5 py-8 text-center">
+                        <div class="text-4xl">🖼️</div>
+                        <p class="mt-2 text-xs text-route-muted">Image preview unavailable</p>
+                    </div>
+
+                {% elif asset.is_video %}
+                    <video
+                        controls
+                        playsinline
+                        preload="metadata"
+                        class="max-h-60 w-full object-contain"
+                    >
+                        <source src="{{ media_src }}" type="{{ asset.mime_type or 'video/mp4' }}">
+                    </video>
+
+                {% elif asset.is_document %}
+                    <div class="text-center text-route-muted">
+                        <div class="text-4xl">📄</div>
+                        <p class="mt-2 text-xs font-semibold">{{ asset.file_extension|upper }}</p>
+                    </div>
+
+                {% else %}
+                    <div class="text-center text-route-muted">
+                        <div class="text-4xl">📁</div>
+                        <p class="mt-2 text-xs font-semibold">
+                            {{ asset.media_type|replace('_', ' ')|title }}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="space-y-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                        Original Filename
+                    </p>
+                    <p class="mt-1 break-all text-sm font-semibold text-route-ink">
+                        {{ asset.original_filename }}
+                    </p>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-xl bg-route-cream/70 p-4">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-route-muted">Media Type</p>
+                        <p class="mt-1 text-sm font-semibold text-route-ink">
+                            {{ asset.media_type|replace('_', ' ')|title }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-xl bg-route-cream/70 p-4">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-route-muted">File Size</p>
+                        <p class="mt-1 text-sm font-semibold text-route-ink">{{ asset.formatted_size }}</p>
+                    </div>
+
+                    <div class="rounded-xl bg-route-cream/70 p-4">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-route-muted">Extension</p>
+                        <p class="mt-1 text-sm font-semibold text-route-ink">.{{ asset.file_extension }}</p>
+                    </div>
+
+                    <div class="rounded-xl bg-route-cream/70 p-4">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-route-muted">MIME Type</p>
+                        <p class="mt-1 break-all text-sm font-semibold text-route-ink">{{ asset.mime_type }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Edit Form -->
+    <form
+        method="POST"
+        action="{{ url_for('admin_media.edit', asset_id=asset.id) }}"
+        class="space-y-8"
+    >
+        {{ form.hidden_tag() }}
+
+        <!-- Metadata -->
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+            <div class="border-b border-route-deep/10 px-6 py-5">
+                <h2 class="text-lg font-semibold text-route-ink">Asset Metadata</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Information used wherever this asset appears across The Uncharted Route.
+                </p>
+            </div>
+
+            <div class="grid gap-6 p-6">
+                {% for field in [form.title, form.alt_text, form.caption, form.description, form.credit] %}
+                    <div>
+                        {{ field.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+
+                        {% if field.name in ['caption', 'description'] %}
+                            {{ field(
+                                rows="4" if field.name == "description" else "3",
+                                class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                            ) }}
+                        {% else %}
+                            {{ field(
+                                class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                            ) }}
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Organization -->
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+            <div class="border-b border-route-deep/10 px-6 py-5">
+                <h2 class="text-lg font-semibold text-route-ink">Media Organization</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    Assign this asset to folders and choose its primary location.
+                </p>
+            </div>
+
+            <div class="grid gap-6 p-6 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    {{ form.folder_ids.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.folder_ids(
+                        multiple=True,
+                        size="9",
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                    ) }}
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Select every folder where this asset should be available. Hold Ctrl on Windows to select multiple folders.
+                    </p>
+                    {% for error in form.folder_ids.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.primary_folder_id.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.primary_folder_id(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                    ) }}
+                    <p class="mt-2 text-xs leading-5 text-route-muted">
+                        Choose the asset's main folder. Make sure this folder is also selected above.
+                    </p>
+                    {% for error in form.primary_folder_id.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.tags.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.tags(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none focus:border-route-gold focus:ring-2 focus:ring-route-gold/20",
+                        placeholder="wildlife, safari, kenya"
+                    ) }}
+                    {% for error in form.tags.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Media Classification -->
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+            <div class="border-b border-route-deep/10 px-6 py-5">
+                <h2 class="text-lg font-semibold text-route-ink">Media Classification</h2>
+            </div>
+
+            <div class="grid gap-6 p-6 md:grid-cols-2">
+                {% for field in [form.media_type, form.usage] %}
+                    <div>
+                        {{ field.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                        {{ field(
+                            class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                        ) }}
+                        {% for error in field.errors %}
+                            <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- SEO -->
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+            <div class="border-b border-route-deep/10 px-6 py-5">
+                <h2 class="text-lg font-semibold text-route-ink">SEO Metadata</h2>
+            </div>
+
+            <div class="grid gap-6 p-6">
+                <div>
+                    {{ form.seo_title.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.seo_title(
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                    ) }}
+                    {% for error in form.seo_title.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.seo_description.label(class="mb-2 block text-sm font-semibold text-route-ink") }}
+                    {{ form.seo_description(
+                        rows="4",
+                        class="w-full rounded-xl border border-route-deep/15 bg-white px-4 py-3 text-sm text-route-ink shadow-sm outline-none focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+                    ) }}
+                    {% for error in form.seo_description.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- File Access -->
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+            <div class="border-b border-route-deep/10 px-6 py-5">
+                <h2 class="text-lg font-semibold text-route-ink">File Access</h2>
+                <p class="mt-1 text-sm text-route-muted">
+                    The uploaded file location is managed by the media system.
+                </p>
+            </div>
+
+            <div class="p-6">
+                {% set media_url = asset.file_url or url_for(
+                    'admin_media.serve_media',
+                    filename=asset.filename
+                ) %}
+
+                <label for="asset-media-url" class="mb-2 block text-sm font-semibold text-route-ink">
+                    Media URL
+                </label>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <input
+                        id="asset-media-url"
+                        type="text"
+                        readonly
+                        value="{{ media_url }}"
+                        class="w-full rounded-xl border border-route-deep/15 bg-route-cream/50 px-4 py-3 text-sm text-route-ink outline-none"
+                    >
+
+                    <a
+                        href="{{ media_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex shrink-0 items-center justify-center rounded-xl bg-route-deep px-4 py-3 text-sm font-semibold text-white transition hover:bg-route-forest"
+                    >
+                        Open File
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status -->
+        <section class="overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-sm">
+            <div class="border-b border-route-deep/10 px-6 py-5">
+                <h2 class="text-lg font-semibold text-route-ink">Asset Status</h2>
+            </div>
+
+            <div class="grid gap-5 p-6 md:grid-cols-3">
+                {% for field, heading, explanation in [
+                    (form.active, "Active", "Allow the asset to be used throughout the application."),
+                    (form.featured, "Featured", "Mark this asset as featured."),
+                    (form.downloadable, "Downloadable", "Allow downloads where permitted.")
+                ] %}
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-route-deep/10 p-4 transition hover:border-route-gold/40 hover:bg-route-cream/50">
+                        {{ field(class="mt-1 h-4 w-4 rounded border-route-deep/20 text-route-deep focus:ring-route-gold") }}
+                        <span>
+                            <span class="block text-sm font-semibold text-route-ink">{{ heading }}</span>
+                            <span class="mt-1 block text-xs leading-5 text-route-muted">{{ explanation }}</span>
+                        </span>
+                    </label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <a
+                href="{{ url_for('admin_media.detail', asset_id=asset.id) }}"
+                class="inline-flex items-center justify-center rounded-xl border border-route-deep/10 bg-white px-5 py-3 text-sm font-semibold text-route-deep shadow-sm transition hover:bg-route-cream"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-xl bg-route-deep px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-forest"
+            >
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

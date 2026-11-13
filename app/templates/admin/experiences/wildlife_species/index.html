@@ -1,0 +1,266 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-amber-700">
+                The Uncharted Route · CMS
+            </p>
+            <h1 class="mt-2 text-3xl font-bold text-[#12372A]">
+                Wildlife Species
+            </h1>
+            <p class="mt-2 text-sm text-gray-600">
+                Manage species information, conservation details and wildlife linked to experiences.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_wildlife_species.create') }}"
+           class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+            + Add Wildlife Species
+        </a>
+    </div>
+
+    {% set stat_cards = [
+        ('Total Species', statistics.total),
+        ('Active', statistics.active),
+        ('Featured', statistics.featured),
+        ('Big Five', statistics.big_five),
+        ('Endangered', statistics.endangered),
+        ('Protected', statistics.protected)
+    ] %}
+
+    <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        {% for label, value in stat_cards %}
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm text-gray-500">{{ label }}</p>
+            <p class="mt-2 text-2xl font-bold text-[#12372A]">{{ value }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="space-y-2">
+            {% for category, message in messages %}
+            <div class="rounded-xl border px-4 py-3 text-sm
+                {% if category == 'success' %}
+                    border-green-200 bg-green-50 text-green-800
+                {% else %}
+                    border-red-200 bg-red-50 text-red-800
+                {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="GET"
+          class="grid grid-cols-1 gap-4 rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm md:grid-cols-2 xl:grid-cols-3">
+
+        <div>
+            <label for="q" class="mb-1 block text-sm font-medium text-gray-700">
+                Search
+            </label>
+            <input id="q" name="q" type="search"
+                   value="{{ search }}"
+                   placeholder="Common name, scientific name or family"
+                   class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20">
+        </div>
+
+        <div>
+            <label for="animal_class" class="mb-1 block text-sm font-medium text-gray-700">
+                Animal Class
+            </label>
+            <select id="animal_class" name="animal_class"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm">
+                <option value="">All classes</option>
+                {% for item in ['Mammal', 'Bird', 'Reptile', 'Amphibian', 'Fish', 'Insect'] %}
+                <option value="{{ item }}" {% if selected_class == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="category" class="mb-1 block text-sm font-medium text-gray-700">
+                Category
+            </label>
+            <select id="category" name="category"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm">
+                <option value="">All categories</option>
+                {% for item in ['Big Five', 'Big Cats', 'Herbivore', 'Carnivore', 'Bird of Prey', 'Water Bird', 'Marine Life', 'Primate'] %}
+                <option value="{{ item }}" {% if selected_category == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="conservation_status" class="mb-1 block text-sm font-medium text-gray-700">
+                Conservation Status
+            </label>
+            <select id="conservation_status" name="conservation_status"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm">
+                <option value="">All statuses</option>
+                {% for item in ['Least Concern', 'Near Threatened', 'Vulnerable', 'Endangered', 'Critically Endangered'] %}
+                <option value="{{ item }}" {% if selected_conservation_status == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="status" class="mb-1 block text-sm font-medium text-gray-700">
+                Record Status
+            </label>
+            <select id="status" name="status"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm">
+                <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All records</option>
+                <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="featured" class="mb-1 block text-sm font-medium text-gray-700">
+                Featured
+            </label>
+            <select id="featured" name="featured"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm">
+                <option value="" {% if not selected_featured %}selected{% endif %}>All</option>
+                <option value="yes" {% if selected_featured == 'yes' %}selected{% endif %}>Featured only</option>
+                <option value="no" {% if selected_featured == 'no' %}selected{% endif %}>Not featured</option>
+            </select>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 md:col-span-2 xl:col-span-3">
+            <button type="submit"
+                    class="rounded-xl bg-[#12372A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1F5138]">
+                Apply Filters
+            </button>
+            <a href="{{ url_for('admin_wildlife_species.index') }}"
+               class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                Clear Filters
+            </a>
+            <span class="text-sm text-gray-500">
+                {{ species_list|length }} result(s)
+            </span>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-[#F7F1E5]">
+                    <tr>
+                        <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Species</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Classification</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Conservation</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Experiences</th>
+                        <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Status</th>
+                        <th class="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+                    {% for species in species_list %}
+                    <tr class="hover:bg-[#F7F1E5]/50">
+                        <td class="px-5 py-4">
+                            <p class="font-semibold text-[#12372A]">{{ species.common_name }}</p>
+                            <p class="mt-1 text-sm italic text-gray-500">
+                                {{ species.scientific_name or 'Scientific name not added' }}
+                            </p>
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                {% if species.featured %}
+                                <span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">Featured</span>
+                                {% endif %}
+                                {% if species.protected %}
+                                <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Protected</span>
+                                {% endif %}
+                                {% if species.endemic %}
+                                <span class="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">Endemic</span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-sm text-gray-700">
+                            <p>{{ species.animal_class }}</p>
+                            <p class="mt-1 text-gray-500">{{ species.category or 'Uncategorised' }}</p>
+                        </td>
+
+                        <td class="px-5 py-4 text-sm text-gray-700">
+                            {{ species.conservation_status or 'Not specified' }}
+                        </td>
+
+                        <td class="px-5 py-4 text-sm text-gray-700">
+                            {{ species.experience_count }}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {% if species.active %}
+                            <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">Active</span>
+                            {% else %}
+                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <div class="flex flex-wrap justify-end gap-2">
+                                <a href="{{ url_for('admin_wildlife_species.edit', species_id=species.id) }}"
+                                   class="rounded-lg border border-[#D89B24] px-3 py-2 text-xs font-semibold text-[#12372A] hover:bg-amber-50">
+                                    Edit
+                                </a>
+
+                                <form method="POST"
+                                      action="{{ url_for('admin_wildlife_species.toggle_featured', species_id=species.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                                        {{ 'Unfeature' if species.featured else 'Feature' }}
+                                    </button>
+                                </form>
+
+                                <form method="POST"
+                                      action="{{ url_for('admin_wildlife_species.toggle_status', species_id=species.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                                        {{ 'Deactivate' if species.active else 'Activate' }}
+                                    </button>
+                                </form>
+
+                                {% if species.experience_count == 0 %}
+                                <form method="POST"
+                                      action="{{ url_for('admin_wildlife_species.delete', species_id=species.id) }}"
+                                      onsubmit="return confirm('Permanently delete this species?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit"
+                                            class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50">
+                                        Delete
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-5 py-12 text-center">
+                            <p class="font-semibold text-[#12372A]">No wildlife species found</p>
+                            <p class="mt-2 text-sm text-gray-500">Add a species or adjust your filters.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

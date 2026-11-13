@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}
+Message Sent | {{ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block content %}
+<section class="flex min-h-[70vh] items-center justify-center bg-route-cream px-6 py-20">
+    <div class="w-full max-w-2xl text-center">
+
+        <!-- Success Icon -->
+        <div
+            class="mx-auto flex h-20 w-20 items-center justify-center
+                   rounded-full bg-route-forest/10 text-route-forest
+                   ring-1 ring-route-forest/10"
+        >
+            <svg
+                class="h-10 w-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                />
+            </svg>
+        </div>
+
+        <!-- Heading -->
+        <p class="mt-8 text-sm font-semibold uppercase tracking-[0.3em] text-route-gold">
+            Message Received
+        </p>
+
+        <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight text-route-ink sm:text-5xl">
+            Thank you for reaching out.
+        </h1>
+
+        <!-- Main Confirmation -->
+        <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-route-muted">
+            Your enquiry has been received by {{ config.COMPANY_NAME }}.
+            Our team will review your message and get back to you as soon
+            as possible.
+        </p>
+
+        <!-- Submission and Newsletter Feedback -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mx-auto mt-8 max-w-xl space-y-3 text-left">
+                    {% for category, message in messages %}
+                        <div
+                            role="status"
+                            class="rounded-xl border p-4 text-sm leading-6
+                            {% if category == 'success' %}
+                                border-green-200 bg-green-50 text-green-900
+                            {% elif category == 'warning' or category == 'danger' %}
+                                border-amber-200 bg-amber-50 text-amber-900
+                            {% else %}
+                                border-route-sand bg-route-white text-route-deep
+                            {% endif %}"
+                        >
+                            <div class="flex items-start gap-3">
+                                {% if category == 'success' %}
+                                    <svg class="mt-0.5 h-5 w-5 shrink-0"
+                                         fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                {% elif category == 'warning' or category == 'danger' %}
+                                    <svg class="mt-0.5 h-5 w-5 shrink-0"
+                                         fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M12 9v4m0 4h.01M10.3 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.7 3.86a2 2 0 00-3.4 0z"/>
+                                    </svg>
+                                {% else %}
+                                    <svg class="mt-0.5 h-5 w-5 shrink-0"
+                                         fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              d="M13 16h-1v-4h-1m1-4h.01M12 22a10 10 0 110-20 10 10 0 010 20z"/>
+                                    </svg>
+                                {% endif %}
+
+                                <p>{{ message }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Actions -->
+        <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <a
+                href="{{ url_for('main.home') }}"
+                class="inline-flex items-center justify-center rounded-route
+                       bg-route-deep px-6 py-3.5 text-sm font-semibold
+                       text-route-white shadow-route transition
+                       hover:bg-route-forest focus:outline-none
+                       focus:ring-4 focus:ring-route-forest/20"
+            >
+                Back to Home
+            </a>
+
+            <a
+                href="{{ url_for('main.contact') }}"
+                class="inline-flex items-center justify-center rounded-route
+                       border border-route-sand bg-route-white px-6 py-3.5
+                       text-sm font-semibold text-route-ink transition
+                       hover:border-route-forest hover:text-route-forest
+                       focus:outline-none focus:ring-4
+                       focus:ring-route-forest/10"
+            >
+                Send Another Message
+            </a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,434 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ page_title }} | The Uncharted Route{% endblock %}
+{% block content %}
+
+<div class="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+    <!-- ============================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ============================================================= -->
+    <div>
+        <a href="{{ url_for('admin_promotions.index') }}"
+           class="inline-flex items-center text-sm font-semibold text-route-forest transition hover:text-route-deep">
+            <i class="bi bi-arrow-left mr-2"></i>
+            Back to Promotions
+        </a>
+
+        <p class="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-route-terracotta">
+            Marketing
+        </p>
+
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+            {{ page_title }}
+        </h1>
+
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted">
+            Select a finished promotional poster from your Media Library.
+            Package details, pricing, accommodation, meal plans and activities
+            can remain directly on the poster.
+        </p>
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- FLASH MESSAGES -->
+    <!-- ============================================================= -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3">
+                {% for category, message in messages %}
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category == 'danger' or category == 'error' %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% else %}
+                            border-route-sand bg-route-cream text-route-ink
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- ============================================================= -->
+    <!-- PROMOTION FORM -->
+    <!-- ============================================================= -->
+
+    <form method="POST" class="space-y-8">
+
+        {{ form.hidden_tag() }}
+
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-5">
+
+            <!-- ===================================================== -->
+            <!-- LEFT COLUMN: FORM FIELDS -->
+            <!-- ===================================================== -->
+
+            <div class="space-y-6 lg:col-span-3">
+
+                <!-- OFFER DETAILS -->
+
+                <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm sm:p-8">
+
+                    <div>
+                        <h2 class="text-lg font-bold text-route-ink">
+                            Offer Details
+                        </h2>
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            Basic information about this promotional offer.
+                        </p>
+                    </div>
+
+                    <div class="mt-6 space-y-5">
+
+                        <!-- TITLE -->
+
+                        <div>
+                            {{ form.title.label(
+                                class="mb-2 block text-sm font-semibold text-route-ink"
+                            ) }}
+
+                            {{ form.title(
+                                class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10",
+                                placeholder="e.g. The Mara Awakening — Special Offer"
+                            ) }}
+
+                            {% for error in form.title.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+
+                        <!-- POSTER SELECTION -->
+
+                        <div>
+
+                            {{ form.poster_media_asset_id.label(
+                                class="mb-2 block text-sm font-semibold text-route-ink"
+                            ) }}
+
+                            {{ form.poster_media_asset_id(
+                                id="poster_media_asset_id",
+                                class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                            ) }}
+
+                            <p class="mt-2 text-xs leading-5 text-route-muted">
+                                Select an active promotional image from the CMS
+                                Media Library. If your poster is not listed,
+                                upload it to the Promotions folder first.
+                            </p>
+
+                            {% for error in form.poster_media_asset_id.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div>
+
+                            {{ form.description.label(
+                                class="mb-2 block text-sm font-semibold text-route-ink"
+                            ) }}
+
+                            {{ form.description(
+                                class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10",
+                                rows="4",
+                                placeholder="Optional context to display below the promotional poster."
+                            ) }}
+
+                            {% for error in form.description.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- VALIDITY AND VISIBILITY -->
+                <!-- ================================================= -->
+
+                <section class="rounded-2xl border border-route-sand bg-white p-6 shadow-sm sm:p-8">
+
+                    <div>
+                        <h2 class="text-lg font-bold text-route-ink">
+                            Validity & Visibility
+                        </h2>
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            Control when the promotion is available and where it appears.
+                        </p>
+                    </div>
+
+
+                    <!-- DATE FIELDS -->
+
+                    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                        <div>
+
+                            {{ form.starts_at.label(
+                                class="mb-2 block text-sm font-semibold text-route-ink"
+                            ) }}
+
+                            {{ form.starts_at(
+                                class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                            ) }}
+
+                            {% for error in form.starts_at.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div>
+
+                            {{ form.ends_at.label(
+                                class="mb-2 block text-sm font-semibold text-route-ink"
+                            ) }}
+
+                            {{ form.ends_at(
+                                class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                            ) }}
+
+                            {% for error in form.ends_at.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+
+                    <p class="mt-3 text-xs leading-5 text-route-muted">
+                        Leave either date blank if the offer has no limit
+                        for that boundary. Published promotions outside
+                        their validity dates will not appear publicly.
+                    </p>
+
+
+                    <!-- STATUS -->
+
+                    <div class="mt-6">
+
+                        {{ form.status.label(
+                            class="mb-2 block text-sm font-semibold text-route-ink"
+                        ) }}
+
+                        {{ form.status(
+                            class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+
+                        {% for error in form.status.errors %}
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- HOMEPAGE VISIBILITY -->
+
+                    <label class="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-route-sand bg-route-cream/60 p-4 transition hover:bg-route-cream">
+
+                        {{ form.show_on_homepage(
+                            class="mt-1 h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-forest"
+                        ) }}
+
+                        <span>
+
+                            <span class="block text-sm font-semibold text-route-ink">
+                                Show this offer on the homepage
+                            </span>
+
+                            <span class="mt-1 block text-xs leading-5 text-route-muted">
+                                Feature this promotion in the homepage offers section.
+                            </span>
+
+                        </span>
+
+                    </label>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- FORM ACTIONS -->
+                <!-- ================================================= -->
+
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+                    <a href="{{ url_for('admin_promotions.index') }}"
+                       class="inline-flex justify-center rounded-xl border border-route-sand bg-white px-5 py-3 text-sm font-semibold text-route-ink transition hover:bg-route-cream">
+
+                        Cancel
+
+                    </a>
+
+
+                    {{ form.submit(
+                        class="inline-flex cursor-pointer justify-center rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep focus:outline-none focus:ring-2 focus:ring-route-forest focus:ring-offset-2"
+                    ) }}
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- RIGHT COLUMN: POSTER PREVIEW -->
+            <!-- ===================================================== -->
+
+            <aside class="lg:col-span-2">
+
+                <div class="sticky top-6 rounded-2xl border border-route-sand bg-white p-5 shadow-sm">
+
+                    <div>
+                        <h2 class="text-base font-bold text-route-ink">
+                            Poster Preview
+                        </h2>
+
+                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                            Preview the selected promotional artwork before publishing.
+                        </p>
+                    </div>
+
+
+                    <!-- IMAGE PREVIEW -->
+
+                    <div class="mt-5 overflow-hidden rounded-xl border border-route-sand bg-route-cream">
+
+                        <img
+                            id="poster-preview"
+                            src="{{ promotion.poster_url if promotion and promotion.poster_url else '' }}"
+                            alt="{{ promotion.poster_alt if promotion and promotion.poster_alt else 'Selected promotional poster' }}"
+                            class="{% if not promotion or not promotion.poster_url %}hidden{% endif %} max-h-[620px] w-full object-contain"
+                        >
+
+
+                        <!-- EMPTY STATE -->
+
+                        <div
+                            id="poster-preview-empty"
+                            class="{% if promotion and promotion.poster_url %}hidden{% endif %} flex min-h-64 flex-col items-center justify-center px-6 py-12 text-center"
+                        >
+
+                            <i class="bi bi-image text-4xl text-route-muted"></i>
+
+                            <p class="mt-4 text-sm font-semibold text-route-ink">
+                                No poster selected
+                            </p>
+
+                            <p class="mt-1 text-xs leading-5 text-route-muted">
+                                Choose an image from the Media Library to preview it here.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PREVIEW INFORMATION -->
+
+                    <div class="mt-4 rounded-xl bg-route-cream/60 p-4">
+
+                        <div class="flex items-start gap-3">
+
+                            <i class="bi bi-info-circle mt-0.5 text-route-forest"></i>
+
+                            <p class="text-xs leading-5 text-route-muted">
+                                The original image remains in your Media Library.
+                                Selecting it here does not create another copy
+                                or upload a duplicate.
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </form>
+</div>
+
+<!-- ================================================================ -->
+<!-- POSTER PREVIEW SCRIPT -->
+<!-- ================================================================ -->
+<script>
+    (function () {
+        "use strict";
+
+        const selector = document.getElementById(
+            "poster_media_asset_id"
+        );
+
+        const preview = document.getElementById(
+            "poster-preview"
+        );
+
+        const emptyState = document.getElementById(
+            "poster-preview-empty"
+        );
+
+        const previewMap = {{ poster_preview_map|tojson }};
+
+        if (!selector || !preview || !emptyState) {
+            return;
+        }
+
+
+        function updatePosterPreview() {
+
+            const selectedId = String(selector.value || "");
+
+            const imageUrl = previewMap[selectedId];
+
+
+            if (imageUrl) {
+
+                preview.src = imageUrl;
+
+                preview.alt = "Selected promotional poster";
+
+                preview.classList.remove("hidden");
+
+                emptyState.classList.add("hidden");
+
+            } else {
+                preview.removeAttribute("src");
+                preview.classList.add("hidden");
+                emptyState.classList.remove("hidden");
+            }}
+
+
+        selector.addEventListener(
+            "change",
+            updatePosterPreview
+        );
+
+        // Initialise the preview for both create and edit pages.
+        updatePosterPreview();
+    })();
+</script>
+{% endblock %}

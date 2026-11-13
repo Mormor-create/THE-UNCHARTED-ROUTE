@@ -1,0 +1,698 @@
+
+{# ============================================================================
+   THE UNCHARTED ROUTE
+   Admin Blog CMS — Edit Post
+   Media CMS folder: Blog / Blog Posts
+   Rich-text editor: TinyMCE
+============================================================================ #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Blog Post | The Uncharted Route{% endblock %}
+
+{% block content %}
+
+<style>
+    .tur-blog-form {
+        --tur-forest: #12372A;
+        --tur-green: #1F5138;
+        --tur-olive: #5C6B32;
+        --tur-gold: #D89B24;
+        --tur-clay: #C96A2C;
+        --tur-ivory: #F7F1E5;
+        --tur-sand: #E9DDC8;
+        --tur-ink: #1C2822;
+        --tur-muted: #66736B;
+    }
+
+    .tur-blog-form .tur-card {
+        overflow: hidden;
+        border: 1px solid #E7E2D8;
+        border-radius: 18px;
+        background: #FFFFFF;
+        box-shadow: 0 8px 26px rgba(18, 55, 42, .045);
+    }
+
+    .tur-blog-form .tur-card-heading {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #E7E2D8;
+        background: #FCFAF6;
+    }
+
+    .tur-blog-form .tur-input {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        padding: .7rem .85rem;
+        border: 1px solid #DCD8CE;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #1C2822;
+        font-size: .875rem;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .tur-blog-form .tur-input:focus {
+        border-color: #1F5138;
+        box-shadow: 0 0 0 3px rgba(31, 81, 56, .10);
+    }
+
+    .tur-blog-form textarea.tur-input {
+        min-height: 130px;
+        resize: vertical;
+        line-height: 1.7;
+    }
+
+    .tur-blog-form textarea.tur-input[name="content"],
+    .tur-blog-form textarea.tur-input[name="body"],
+    .tur-blog-form textarea.tur-input[name="article_content"] {
+        min-height: 400px;
+    }
+
+    .tur-blog-form .tur-label {
+        display: block;
+        margin-bottom: .45rem;
+        color: #1C2822;
+        font-size: .82rem;
+        font-weight: 700;
+    }
+
+    .tur-blog-form .tur-help {
+        margin-top: .4rem;
+        color: #66736B;
+        font-size: .75rem;
+        line-height: 1.6;
+    }
+
+    .tur-blog-form .tur-error {
+        margin-top: .35rem;
+        color: #B42318;
+        font-size: .78rem;
+    }
+
+    .tur-blog-form .tur-check {
+        accent-color: #1F5138;
+        width: 16px;
+        height: 16px;
+    }
+
+    .tur-blog-form .tur-primary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        min-height: 44px;
+        padding: .7rem 1.1rem;
+        border: 1px solid #12372A;
+        border-radius: 10px;
+        background: #12372A;
+        color: #FFFFFF;
+        font-size: .85rem;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .2s, transform .2s;
+    }
+
+    .tur-blog-form .tur-primary-btn:hover {
+        background: #1F5138;
+        transform: translateY(-1px);
+    }
+
+    .tur-blog-form .tur-secondary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        min-height: 44px;
+        padding: .7rem 1rem;
+        border: 1px solid #E7E2D8;
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: #12372A;
+        font-size: .85rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .tur-blog-form .tur-secondary-btn:hover {
+        background: #F7F1E5;
+    }
+
+    .tur-blog-form .tur-media-panel {
+        padding: 1rem;
+        border: 1px solid #E9DDC8;
+        border-radius: 13px;
+        background: #FDFBF7;
+    }
+
+    .tur-blog-form .tur-media-icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border-radius: 11px;
+        background: #E9DDC8;
+        color: #12372A;
+    }
+
+    .tur-blog-form .tur-section-kicker {
+        color: #5C6B32;
+        font-size: .69rem;
+        font-weight: 800;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .tur-blog-form .tur-top-link {
+        color: #1F5138;
+        font-size: .85rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .tur-blog-form .tur-top-link:hover {
+        color: #5C6B32;
+    }
+
+    /* TinyMCE editor styling */
+    .tur-blog-form .tox-tinymce {
+        width: 100%;
+        border: 1px solid #DCD8CE !important;
+        border-radius: 12px !important;
+        overflow: hidden;
+    }
+
+    .tur-blog-form .tox .tox-toolbar-overlord,
+    .tur-blog-form .tox .tox-toolbar,
+    .tur-blog-form .tox .tox-toolbar__primary {
+        background: #FCFAF6 !important;
+    }
+
+    .tur-blog-form .tox .tox-edit-area::before {
+        border-color: #1F5138 !important;
+    }
+
+    .tur-blog-form .tox .tox-statusbar {
+        border-top: 1px solid #E7E2D8 !important;
+    }
+
+    .tur-blog-form .tur-editor-help {
+        display: flex;
+        align-items: flex-start;
+        gap: .5rem;
+        margin-top: .65rem;
+        color: #66736B;
+        font-size: .75rem;
+        line-height: 1.6;
+    }
+
+    .tur-blog-form .tur-editor-help i {
+        margin-top: .15rem;
+        color: #5C6B32;
+    }
+
+    @media (max-width: 640px) {
+        .tur-blog-form .tur-card-heading {
+            padding: 1rem;
+        }
+
+        .tur-blog-form .tox .tox-toolbar__group {
+            padding: 0 3px;
+        }
+    }
+</style>
+
+<div class="tur-blog-form min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl space-y-6">
+
+        {# Breadcrumbs and heading #}
+        <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+                <nav class="mb-3 flex flex-wrap items-center gap-2 text-xs text-[#66736B]"
+                     aria-label="Breadcrumb">
+
+                    <a href="{{ url_for('admin.dashboard') }}"
+                       class="tur-top-link">
+                        Admin
+                    </a>
+
+                    <span>/</span>
+
+                    <a href="{{ url_for('admin_blog.index') }}"
+                       class="tur-top-link">
+                        Blog CMS
+                    </a>
+
+                    <span>/</span>
+
+                    <span class="text-[#1C2822]">Edit post</span>
+                </nav>
+
+                <div class="tur-section-kicker mb-2">
+                    Refine the story
+                </div>
+
+                <h1 class="text-2xl font-extrabold tracking-tight text-[#12372A] sm:text-3xl">
+                    Edit blog post
+                </h1>
+
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                    Update the article, refine its formatting, refresh its imagery
+                    and keep its details consistent with The Uncharted Route's
+                    editorial standards.
+                </p>
+
+                {% if post %}
+                    <p class="mt-3 text-xs text-[#66736B]">
+                        Editing:
+                        <span class="font-bold text-[#12372A]">
+                            {{ post.title|default('Untitled post') }}
+                        </span>
+
+                        {% if post.status is defined %}
+                            <span class="mx-1">·</span>
+                            {{ post.status }}
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+               class="tur-secondary-btn self-start sm:self-auto">
+
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                Back to post
+            </a>
+        </header>
+
+        {# Validation summary #}
+        {% if form.errors %}
+            <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+                 role="alert">
+
+                <p class="font-bold">
+                    A few details need your attention.
+                </p>
+
+                <p class="mt-1">
+                    Review the highlighted fields below and submit again.
+                </p>
+            </div>
+        {% endif %}
+
+        <form method="POST"
+              action="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+              class="space-y-6"
+              id="blogPostForm">
+
+            {{ form.hidden_tag() }}
+
+            {# ================================================================
+               Article fields
+               The article body receives the rich-text editor.
+            ================================================================= #}
+
+            <section class="tur-card">
+                <div class="tur-card-heading">
+                    <div class="flex items-start gap-3">
+                        <span class="tur-media-icon">
+                            <i class="fas fa-pen-nib" aria-hidden="true"></i>
+                        </span>
+
+                        <div>
+                            <h2 class="text-base font-extrabold text-[#12372A]">
+                                Article content
+                            </h2>
+
+                            <p class="mt-1 text-sm text-[#66736B]">
+                                Edit your article with structured headings,
+                                paragraphs, lists, links and quotations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 p-5 sm:p-6 md:grid-cols-2">
+
+                    {% for field in form %}
+
+                        {% if field.name not in [
+                            'csrf_token',
+                            'featured_media_asset_id',
+                            'social_media_asset_id',
+                            'submit'
+                        ] and field.type not in [
+                            'HiddenField',
+                            'CSRFTokenField',
+                            'SubmitField'
+                        ] %}
+
+                            <div class="{% if field.type == 'TextAreaField' or field.name in ['content', 'body', 'article_content'] %}md:col-span-2{% endif %}">
+
+                                {{ field.label(class="tur-label") }}
+
+                                {% if field.type == 'BooleanField' %}
+
+                                    <label class="flex items-center gap-3 rounded-xl border border-[#E7E2D8] bg-[#FCFAF6] p-3">
+
+                                        {{ field(class="tur-check") }}
+
+                                        <span class="text-sm text-[#1C2822]">
+                                            {{ field.label.text }}
+                                        </span>
+                                    </label>
+
+                                {% elif field.type in ['SelectField', 'SelectMultipleField'] %}
+
+                                    {{ field(
+                                        class="tur-input",
+                                        **{'aria-label': field.label.text}
+                                    ) }}
+
+                                {% elif field.name in ['content', 'body', 'article_content'] %}
+
+                                    {{ field(
+                                        class="tur-input tur-rich-text-editor",
+                                        rows=20,
+                                        id=field.id,
+                                        **{
+                                            'data-editor': 'rich-text',
+                                            'aria-label': field.label.text
+                                        }
+                                    ) }}
+
+                                    <p class="tur-editor-help">
+                                        <i class="fas fa-lightbulb" aria-hidden="true"></i>
+
+                                        <span>
+                                            Use the formatting toolbar to structure your
+                                            article. Headings, lists, links and quotations
+                                            will be saved with the content.
+                                        </span>
+                                    </p>
+
+                                {% elif field.type in ['TextAreaField', 'TextArea'] or 'TextArea' in field.type %}
+
+                                    {{ field(class="tur-input", rows=4) }}
+
+                                {% else %}
+
+                                    {{ field(
+                                        class="tur-input",
+                                        placeholder=field.render_kw.get('placeholder', '')
+                                        if field.render_kw else ''
+                                    ) }}
+
+                                {% endif %}
+
+                                {% if field.description %}
+                                    <p class="tur-help">
+                                        {{ field.description }}
+                                    </p>
+                                {% endif %}
+
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <p class="tur-error">
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+            </section>
+
+            {# ================================================================
+               Media CMS selectors
+            ================================================================= #}
+
+            <section class="tur-card">
+                <div class="tur-card-heading">
+                    <div class="flex items-start gap-3">
+
+                        <span class="tur-media-icon">
+                            <i class="fas fa-photo-video" aria-hidden="true"></i>
+                        </span>
+
+                        <div>
+                            <h2 class="text-base font-extrabold text-[#12372A]">
+                                Media library
+                            </h2>
+
+                            <p class="mt-1 text-sm text-[#66736B]">
+                                Change the featured and social-sharing images using
+                                assets managed in your Blog Posts media folder.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 p-5 sm:p-6 md:grid-cols-2">
+
+                    {% if form.featured_media_asset_id is defined %}
+
+                        <div class="tur-media-panel">
+
+                            <div class="mb-4 flex items-start gap-3">
+
+                                <span class="tur-media-icon">
+                                    <i class="fas fa-image" aria-hidden="true"></i>
+                                </span>
+
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-[#12372A]">
+                                        Featured image
+                                    </h3>
+
+                                    <p class="mt-1 text-xs leading-5 text-[#66736B]">
+                                        Main article image used for the page and
+                                        content cards.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            {{ form.featured_media_asset_id.label(class="tur-label") }}
+
+                            {{ form.featured_media_asset_id(
+                                class="tur-input",
+                                id="featured_media_asset_id"
+                            ) }}
+
+                            {% if form.featured_media_asset_id.errors %}
+                                {% for error in form.featured_media_asset_id.errors %}
+                                    <p class="tur-error">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <p class="tur-help">
+                                Choose a replacement from Media CMS → Blog →
+                                Blog Posts. Keep the current selection if you
+                                do not want to change it.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if form.social_media_asset_id is defined %}
+
+                        <div class="tur-media-panel">
+
+                            <div class="mb-4 flex items-start gap-3">
+
+                                <span class="tur-media-icon">
+                                    <i class="fas fa-share-alt" aria-hidden="true"></i>
+                                </span>
+
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-[#12372A]">
+                                        Social-sharing image
+                                    </h3>
+
+                                    <p class="mt-1 text-xs leading-5 text-[#66736B]">
+                                        Image used for social previews when the
+                                        article is shared.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            {{ form.social_media_asset_id.label(class="tur-label") }}
+
+                            {{ form.social_media_asset_id(
+                                class="tur-input",
+                                id="social_media_asset_id"
+                            ) }}
+
+                            {% if form.social_media_asset_id.errors %}
+                                {% for error in form.social_media_asset_id.errors %}
+                                    <p class="tur-error">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <p class="tur-help">
+                                Choose a separate social image or reuse the
+                                featured image.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if form.featured_media_asset_id is not defined and form.social_media_asset_id is not defined %}
+
+                        <div class="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+
+                            The media selectors are not present on this form yet.
+                            Confirm that <code>BlogPostForm</code> defines
+                            <code>featured_media_asset_id</code> and
+                            <code>social_media_asset_id</code>.
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            </section>
+
+            {# ================================================================
+               Save actions
+            ================================================================= #}
+
+            <div class="sticky bottom-0 z-10 -mx-4 flex flex-col justify-between gap-3 border-t border-[#E9DDC8] bg-[#F7F1E5]/95 px-4 py-4 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:items-center sm:rounded-xl sm:border sm:px-5">
+
+                <p class="text-xs leading-5 text-[#66736B]">
+                    Save your changes to update this post.
+                </p>
+
+                <div class="flex flex-col-reverse gap-2 sm:flex-row">
+
+                    <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                       class="tur-secondary-btn">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="tur-primary-btn">
+                        <i class="fas fa-save" aria-hidden="true"></i>
+                        Save changes
+                    </button>
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{# TinyMCE rich-text editor #}
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"
+        crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("blogPostForm");
+    const editorSelector =
+        ".tur-blog-form textarea.tur-rich-text-editor";
+
+    const editorFields = document.querySelectorAll(editorSelector);
+
+    if (!editorFields.length) {
+        return;
+    }
+
+    if (typeof tinymce === "undefined") {
+        console.error(
+            "TinyMCE did not load. Check the editor CDN configuration."
+        );
+        return;
+    }
+
+    tinymce.init({
+        selector: editorSelector,
+        height: 600,
+        min_height: 400,
+        menubar: "edit view insert format tools table",
+        plugins: "lists link table code wordcount",
+        toolbar: [
+            "undo redo | blocks | bold italic underline",
+            "alignleft aligncenter alignright | bullist numlist",
+            "blockquote | link | table | removeformat | code"
+        ].join(" | "),
+        toolbar_mode: "sliding",
+        resize: true,
+        promotion: false,
+        branding: false,
+        statusbar: true,
+        browser_spellcheck: true,
+        contextmenu: false,
+        convert_urls: false,
+
+        content_style: `
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 16px;
+                line-height: 1.8;
+                color: #1C2822;
+                max-width: 900px;
+                margin: 24px auto;
+                padding: 0 24px;
+            }
+
+            h1, h2, h3, h4 {
+                color: #12372A;
+                line-height: 1.35;
+                margin-top: 1.6em;
+                margin-bottom: .6em;
+            }
+
+            p {
+                margin: 0 0 1.2em;
+            }
+
+            ul, ol {
+                padding-left: 1.8em;
+                margin-bottom: 1.2em;
+            }
+
+            blockquote {
+                border-left: 4px solid #D89B24;
+                margin: 1.5em 0;
+                padding: .5em 1em;
+                color: #66736B;
+            }
+
+            a {
+                color: #1F5138;
+            }
+        `,
+
+        setup: function (editor) {
+            editor.on("change input undo redo", function () {
+                editor.save();
+            });
+        }
+    });
+
+    if (form) {
+        form.addEventListener("submit", function () {
+            if (typeof tinymce !== "undefined") {
+                tinymce.triggerSave();
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

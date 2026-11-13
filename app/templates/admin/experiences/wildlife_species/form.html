@@ -1,0 +1,180 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+
+    <div>
+        <a href="{{ url_for('admin_wildlife_species.index') }}"
+           class="text-sm font-medium text-[#1F5138] hover:underline">
+            ← Back to Wildlife Species
+        </a>
+
+        <h1 class="mt-4 text-3xl font-bold text-[#12372A]">
+            {{ page_title }}
+        </h1>
+
+        <p class="mt-2 text-sm text-gray-600">
+            Maintain species identification, classification, conservation and visitor information.
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="space-y-2">
+            {% for category, message in messages %}
+            <div class="rounded-xl border px-4 py-3 text-sm
+                {% if category == 'success' %}
+                    border-green-200 bg-green-50 text-green-800
+                {% else %}
+                    border-red-200 bg-red-50 text-red-800
+                {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST"
+          class="space-y-8 rounded-2xl border border-[#E9DDC8] bg-white p-6 shadow-sm sm:p-8">
+
+        {{ form.hidden_tag() }}
+
+        {% if form.errors %}
+        <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <p class="font-semibold">Please correct the following fields:</p>
+            <ul class="mt-2 list-inside list-disc">
+                {% for field_name, errors in form.errors.items() %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <section>
+            <h2 class="border-b border-[#E9DDC8] pb-3 text-lg font-semibold text-[#12372A]">
+                Identification
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+                {% for field in [form.common_name, form.scientific_name, form.family] %}
+                <div>
+                    {{ field.label(class="mb-1 block text-sm font-medium text-gray-700") }}
+                    {{ field(class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20") }}
+                    {% for error in field.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="border-b border-[#E9DDC8] pb-3 text-lg font-semibold text-[#12372A]">
+                Classification
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+                {% for field in [form.animal_class, form.category] %}
+                <div>
+                    {{ field.label(class="mb-1 block text-sm font-medium text-gray-700") }}
+                    {{ field(class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+                    {% for error in field.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="border-b border-[#E9DDC8] pb-3 text-lg font-semibold text-[#12372A]">
+                Conservation
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div>
+                    {{ form.conservation_status.label(class="mb-1 block text-sm font-medium text-gray-700") }}
+                    {{ form.conservation_status(class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm") }}
+                </div>
+
+                <div class="flex flex-col justify-center gap-4 rounded-xl bg-[#F7F1E5] p-4">
+                    <label class="flex items-center gap-3 text-sm text-gray-700">
+                        {{ form.protected(class="h-4 w-4 rounded border-gray-300 text-[#1F5138] focus:ring-[#1F5138]") }}
+                        Protected species
+                    </label>
+
+                    <label class="flex items-center gap-3 text-sm text-gray-700">
+                        {{ form.endemic(class="h-4 w-4 rounded border-gray-300 text-[#1F5138] focus:ring-[#1F5138]") }}
+                        Endemic species
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="border-b border-[#E9DDC8] pb-3 text-lg font-semibold text-[#12372A]">
+                Species Information
+            </h2>
+
+            <div class="mt-5 space-y-5">
+                {% for field in [form.description, form.interesting_fact] %}
+                <div>
+                    {{ field.label(class="mb-1 block text-sm font-medium text-gray-700") }}
+                    {{ field(rows=4, class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/20") }}
+                </div>
+                {% endfor %}
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {% for field in [form.habitat, form.diet, form.best_viewing_time] %}
+                    <div>
+                        {{ field.label(class="mb-1 block text-sm font-medium text-gray-700") }}
+                        {{ field(class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-[#1F5138] focus:outline-none") }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="border-b border-[#E9DDC8] pb-3 text-lg font-semibold text-[#12372A]">
+                Photography
+            </h2>
+
+            <div class="mt-5 max-w-md">
+                {{ form.photography_difficulty.label(class="mb-1 block text-sm font-medium text-gray-700") }}
+                {{ form.photography_difficulty(class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm") }}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="border-b border-[#E9DDC8] pb-3 text-lg font-semibold text-[#12372A]">
+                Publishing
+            </h2>
+
+            <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4 text-sm text-gray-700">
+                    {{ form.featured(class="h-4 w-4 rounded border-gray-300 text-[#1F5138] focus:ring-[#1F5138]") }}
+                    Featured species
+                </label>
+
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4 text-sm text-gray-700">
+                    {{ form.active(class="h-4 w-4 rounded border-gray-300 text-[#1F5138] focus:ring-[#1F5138]") }}
+                    Active
+                </label>
+            </div>
+        </section>
+
+        <div class="flex flex-wrap justify-end gap-3 border-t border-[#E9DDC8] pt-6">
+            <a href="{{ url_for('admin_wildlife_species.index') }}"
+               class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                Cancel
+            </a>
+
+            {{ form.submit(class="cursor-pointer rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1F5138]") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

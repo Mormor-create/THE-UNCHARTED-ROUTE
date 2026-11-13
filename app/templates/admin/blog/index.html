@@ -1,0 +1,2460 @@
+{# ============================================================================
+   The Uncharted Route
+   Blog CMS — Administrative Dashboard
+   ============================================================================ #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Blog Management{% endblock %}
+
+
+{% block content %}
+
+<div class="mx-auto max-w-[1600px] space-y-8">
+
+
+    {# ========================================================================
+       PAGE HEADER
+       ======================================================================== #}
+
+    <section>
+
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+
+            <div>
+
+                <div class="mb-3 flex items-center gap-2 text-sm text-route-muted">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="transition hover:text-route-forest"
+                    >
+                        Admin
+                    </a>
+
+                    <span>/</span>
+
+                    <span>Blog</span>
+
+                </div>
+
+                <h1 class="font-display text-3xl font-semibold text-route-deep sm:text-4xl">
+                    Blog Management
+                </h1>
+
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-route-muted sm:text-base">
+                    Create, manage, publish and optimize your travel stories and articles.
+                </p>
+
+            </div>
+
+
+            <div class="flex flex-wrap gap-3">
+
+                <a
+                    href="{{ url_for('admin_blog.categories') }}"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        border
+                        border-route-forest/15
+                        bg-route-white
+                        px-4
+                        py-2.5
+                        text-sm
+                        font-semibold
+                        text-route-deep
+                        shadow-sm
+                        transition
+                        hover:border-route-forest/30
+                        hover:bg-route-cream
+                    "
+                >
+                    <span>▣</span>
+                    Categories
+                </a>
+
+                <a
+                    href="{{ url_for('admin_blog.create') }}"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        bg-route-deep
+                        px-4
+                        py-2.5
+                        text-sm
+                        font-semibold
+                        text-white
+                        shadow-sm
+                        transition
+                        hover:bg-route-forest
+                    "
+                >
+                    <span class="text-lg leading-none">+</span>
+                    New Post
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    {# ========================================================================
+       STATISTICS
+       ======================================================================== #}
+
+    <section class="grid grid-cols-2 gap-4 xl:grid-cols-4">
+
+        {# Total #}
+        <div
+            class="
+                rounded-2xl
+                border
+                border-route-forest/10
+                bg-route-white
+                p-5
+                shadow-sm
+            "
+        >
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-medium text-route-muted">
+                        Total Posts
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-deep">
+                        {{ statistics.total|default(0) }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                    <span class="text-lg">▤</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Published #}
+        <div
+            class="
+                rounded-2xl
+                border
+                border-route-forest/10
+                bg-route-white
+                p-5
+                shadow-sm
+            "
+        >
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-medium text-route-muted">
+                        Published
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-forest">
+                        {{ statistics.published|default(0) }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-forest/10 text-route-forest">
+                    <span class="text-lg">✓</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Drafts #}
+        <div
+            class="
+                rounded-2xl
+                border
+                border-route-forest/10
+                bg-route-white
+                p-5
+                shadow-sm
+            "
+        >
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-medium text-route-muted">
+                        Drafts
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-muted">
+                        {{ statistics.drafts|default(0) }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-forest/10 text-route-muted">
+                    <span class="text-lg">✎</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Scheduled #}
+        <div
+            class="
+                rounded-2xl
+                border
+                border-route-forest/10
+                bg-route-white
+                p-5
+                shadow-sm
+            "
+        >
+
+            <div class="flex items-start justify-between gap-4">
+
+                <div>
+
+                    <p class="text-sm font-medium text-route-muted">
+                        Scheduled
+                    </p>
+
+                    <p class="mt-2 text-3xl font-bold text-route-gold">
+                        {{ statistics.scheduled|default(0) }}
+                    </p>
+
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-gold/10 text-route-gold">
+                    <span class="text-lg">◷</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    {# ========================================================================
+       SECONDARY STATISTICS
+       ======================================================================== #}
+
+    <section class="grid grid-cols-2 gap-4 md:grid-cols-4">
+
+        <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+
+            <p class="text-sm text-route-muted">
+                In Review
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-route-deep">
+                {{ statistics.review|default(0) }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+
+            <p class="text-sm text-route-muted">
+                Featured
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-route-deep">
+                {{ statistics.featured|default(0) }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+
+            <p class="text-sm text-route-muted">
+                Pinned
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-route-deep">
+                {{ statistics.pinned|default(0) }}
+            </p>
+
+        </div>
+
+
+        <div class="rounded-2xl border border-route-forest/10 bg-route-white p-5 shadow-sm">
+
+            <p class="text-sm text-route-muted">
+                Total Views
+            </p>
+
+            <p class="mt-2 text-2xl font-bold text-route-deep">
+                {{ "{:,}".format(statistics.total_views|default(0)) }}
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    {# ========================================================================
+       FILTERS
+       ======================================================================== #}
+
+    <section
+        class="
+            overflow-hidden
+            rounded-2xl
+            border
+            border-route-forest/10
+            bg-route-white
+            shadow-sm
+        "
+    >
+
+        <div class="border-b border-route-forest/10 px-5 py-5 sm:px-6">
+
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                <div>
+
+                    <h2 class="text-lg font-bold text-route-deep">
+                        Filter Posts
+                    </h2>
+
+                    <p class="mt-1 text-sm text-route-muted">
+                        Find articles by title, status, category or publishing state.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{{ url_for('admin_blog.index') }}"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-lg
+                        border
+                        border-route-forest/15
+                        px-3
+                        py-2
+                        text-sm
+                        font-semibold
+                        text-route-muted
+                        transition
+                        hover:bg-route-cream
+                        hover:text-route-deep
+                    "
+                >
+                    Reset Filters
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="p-5 sm:p-6">
+
+            <form
+                method="GET"
+                action="{{ url_for('admin_blog.index') }}"
+                class="space-y-6"
+            >
+
+                <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+
+
+                    {# Search #}
+
+                    <div class="lg:col-span-4">
+
+                        <label
+                            for="q"
+                            class="mb-2 block text-sm font-semibold text-route-deep"
+                        >
+                            Search
+                        </label>
+
+                        <div class="relative">
+
+                            <span
+                                class="
+                                    pointer-events-none
+                                    absolute
+                                    inset-y-0
+                                    left-0
+                                    flex
+                                    items-center
+                                    pl-3.5
+                                    text-route-muted
+                                "
+                            >
+                                ⌕
+                            </span>
+
+                            <input
+                                type="text"
+                                id="q"
+                                name="q"
+                                value="{{ request.args.get('q', '') }}"
+                                placeholder="Search title, content, author..."
+                                class="
+                                    w-full
+                                    rounded-xl
+                                    border
+                                    border-route-forest/15
+                                    bg-route-white
+                                    py-2.5
+                                    pl-10
+                                    pr-4
+                                    text-sm
+                                    text-route-ink
+                                    outline-none
+                                    transition
+                                    placeholder:text-route-muted/70
+                                    focus:border-route-forest
+                                    focus:ring-2
+                                    focus:ring-route-forest/10
+                                "
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    {# Status #}
+
+                    <div class="sm:col-span-1 lg:col-span-2">
+
+                        <label
+                            for="status"
+                            class="mb-2 block text-sm font-semibold text-route-deep"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            name="status"
+                            id="status"
+                            class="
+                                w-full
+                                rounded-xl
+                                border
+                                border-route-forest/15
+                                bg-route-white
+                                px-3
+                                py-2.5
+                                text-sm
+                                text-route-ink
+                                outline-none
+                                focus:border-route-forest
+                                focus:ring-2
+                                focus:ring-route-forest/10
+                            "
+                        >
+
+                            <option value="">All statuses</option>
+
+                            <option
+                                value="Draft"
+                                {% if request.args.get('status') == 'Draft' %}selected{% endif %}
+                            >
+                                Draft
+                            </option>
+
+                            <option
+                                value="Review"
+                                {% if request.args.get('status') == 'Review' %}selected{% endif %}
+                            >
+                                Review
+                            </option>
+
+                            <option
+                                value="Scheduled"
+                                {% if request.args.get('status') == 'Scheduled' %}selected{% endif %}
+                            >
+                                Scheduled
+                            </option>
+
+                            <option
+                                value="Published"
+                                {% if request.args.get('status') == 'Published' %}selected{% endif %}
+                            >
+                                Published
+                            </option>
+
+                            <option
+                                value="Archived"
+                                {% if request.args.get('status') == 'Archived' %}selected{% endif %}
+                            >
+                                Archived
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {# Category #}
+
+                    <div class="sm:col-span-1 lg:col-span-3">
+
+                        <label
+                            for="category_id"
+                            class="mb-2 block text-sm font-semibold text-route-deep"
+                        >
+                            Category
+                        </label>
+
+                        <select
+                            name="category_id"
+                            id="category_id"
+                            class="
+                                w-full
+                                rounded-xl
+                                border
+                                border-route-forest/15
+                                bg-route-white
+                                px-3
+                                py-2.5
+                                text-sm
+                                text-route-ink
+                                outline-none
+                                focus:border-route-forest
+                                focus:ring-2
+                                focus:ring-route-forest/10
+                            "
+                        >
+
+                            <option value="">
+                                All categories
+                            </option>
+
+                            {% for category in categories %}
+
+                                <option
+                                    value="{{ category.id }}"
+                                    {% if request.args.get('category_id', type=int) == category.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ category.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    {# Per Page #}
+
+                    <div class="sm:col-span-1 lg:col-span-3">
+
+                        <label
+                            for="per_page"
+                            class="mb-2 block text-sm font-semibold text-route-deep"
+                        >
+                            Posts per page
+                        </label>
+
+                        <select
+                            name="per_page"
+                            id="per_page"
+                            class="
+                                w-full
+                                rounded-xl
+                                border
+                                border-route-forest/15
+                                bg-route-white
+                                px-3
+                                py-2.5
+                                text-sm
+                                text-route-ink
+                                outline-none
+                                focus:border-route-forest
+                                focus:ring-2
+                                focus:ring-route-forest/10
+                            "
+                        >
+
+                            {% for size in [10, 15, 25, 50] %}
+
+                                <option
+                                    value="{{ size }}"
+                                    {% if request.args.get('per_page', 15, type=int) == size %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ size }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                {# Checkbox Filters #}
+
+                <div class="grid grid-cols-1 gap-3 border-t border-route-forest/10 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+
+                    <label
+                        class="
+                            flex
+                            cursor-pointer
+                            items-center
+                            gap-3
+                            rounded-xl
+                            border
+                            border-route-forest/10
+                            px-4
+                            py-3
+                            transition
+                            hover:bg-route-cream
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            value="1"
+                            id="featured"
+                            name="featured"
+                            {% if request.args.get('featured') == '1' %}checked{% endif %}
+                            class="h-4 w-4 rounded border-route-forest/30 text-route-forest focus:ring-route-forest"
+                        >
+
+                        <span class="text-sm font-medium text-route-deep">
+                            Featured only
+                        </span>
+
+                    </label>
+
+
+                    <label
+                        class="
+                            flex
+                            cursor-pointer
+                            items-center
+                            gap-3
+                            rounded-xl
+                            border
+                            border-route-forest/10
+                            px-4
+                            py-3
+                            transition
+                            hover:bg-route-cream
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            value="1"
+                            id="pinned"
+                            name="pinned"
+                            {% if request.args.get('pinned') == '1' %}checked{% endif %}
+                            class="h-4 w-4 rounded border-route-forest/30 text-route-forest focus:ring-route-forest"
+                        >
+
+                        <span class="text-sm font-medium text-route-deep">
+                            Pinned only
+                        </span>
+
+                    </label>
+
+
+                    <label
+                        class="
+                            flex
+                            cursor-pointer
+                            items-center
+                            gap-3
+                            rounded-xl
+                            border
+                            border-route-forest/10
+                            px-4
+                            py-3
+                            transition
+                            hover:bg-route-cream
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            value="1"
+                            id="newsletter_sent"
+                            name="newsletter_sent"
+                            {% if request.args.get('newsletter_sent') == '1' %}checked{% endif %}
+                            class="h-4 w-4 rounded border-route-forest/30 text-route-forest focus:ring-route-forest"
+                        >
+
+                        <span class="text-sm font-medium text-route-deep">
+                            Newsletter sent
+                        </span>
+
+                    </label>
+
+
+                    <label
+                        class="
+                            flex
+                            cursor-pointer
+                            items-center
+                            gap-3
+                            rounded-xl
+                            border
+                            border-route-forest/10
+                            px-4
+                            py-3
+                            transition
+                            hover:bg-route-cream
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            value="1"
+                            id="search_indexed"
+                            name="search_indexed"
+                            {% if request.args.get('search_indexed') == '1' %}checked{% endif %}
+                            class="h-4 w-4 rounded border-route-forest/30 text-route-forest focus:ring-route-forest"
+                        >
+
+                        <span class="text-sm font-medium text-route-deep">
+                            Search indexed
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <div>
+
+                    <button
+                        type="submit"
+                        class="
+                            inline-flex
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-xl
+                            bg-route-deep
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-white
+                            shadow-sm
+                            transition
+                            hover:bg-route-forest
+                        "
+                    >
+                        <span>⌕</span>
+                        Apply Filters
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+
+    {# ========================================================================
+       BLOG POSTS
+       ======================================================================== #}
+
+    <section
+        class="
+            overflow-visible
+            rounded-2xl
+            border
+            border-route-forest/10
+            bg-route-white
+            shadow-sm
+        "
+        x-data
+    >
+
+        <div class="border-b border-route-forest/10 px-5 py-5 sm:px-6">
+
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                <div>
+
+                    <h2 class="text-lg font-bold text-route-deep">
+                        Blog Posts
+                    </h2>
+
+                    {% if pagination %}
+
+                        <p class="mt-1 text-sm text-route-muted">
+
+                            Showing
+
+                            {{ pagination.first if pagination.first is defined else ((pagination.page - 1) * pagination.per_page + 1) }}
+
+                            –
+
+                            {{ pagination.last if pagination.last is defined else ((pagination.page - 1) * pagination.per_page + posts|length) }}
+
+                            of
+
+                            {{ pagination.total }}
+
+                        </p>
+
+                    {% else %}
+
+                        <p class="mt-1 text-sm text-route-muted">
+                            Current blog articles
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_blog.create') }}"
+                    class="
+                        inline-flex
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        bg-route-deep
+                        px-4
+                        py-2.5
+                        text-sm
+                        font-semibold
+                        text-white
+                        transition
+                        hover:bg-route-forest
+                    "
+                >
+                    <span class="text-lg leading-none">+</span>
+                    Create Post
+                </a>
+
+            </div>
+
+        </div>
+
+
+        {% if posts %}
+
+            {# =================================================================
+               DESKTOP TABLE
+               ================================================================= #}
+
+            <div class="hidden overflow-x-auto lg:block">
+
+                <table class="min-w-full divide-y divide-route-forest/10">
+
+                    <thead class="bg-route-cream/60">
+
+                        <tr>
+
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Article
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Category
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Status
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Performance
+                            </th>
+
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Published
+                            </th>
+
+                            <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody class="divide-y divide-route-forest/10">
+
+                        {% for post in posts %}
+
+                            <tr class="transition hover:bg-route-cream/30">
+
+
+                                {# Article #}
+
+                                <td class="px-6 py-5">
+
+                                    <div class="flex min-w-[320px] items-center gap-4">
+
+                                        {% if post.featured_image %}
+
+                                            <img
+                                                src="{{ post.featured_image }}"
+                                                alt="{{ post.featured_image_alt or post.title }}"
+                                                class="h-16 w-20 shrink-0 rounded-xl object-cover shadow-sm"
+                                            >
+
+                                        {% else %}
+
+                                            <div
+                                                class="
+                                                    flex
+                                                    h-16
+                                                    w-20
+                                                    shrink-0
+                                                    items-center
+                                                    justify-center
+                                                    rounded-xl
+                                                    bg-route-cream
+                                                    text-route-muted
+                                                "
+                                            >
+                                                <span class="text-2xl">▧</span>
+                                            </div>
+
+                                        {% endif %}
+
+
+                                        <div class="min-w-0">
+
+                                            <div class="mb-1 flex flex-wrap items-center gap-1.5">
+
+                                                {% if post.pinned %}
+
+                                                    <span
+                                                        class="rounded-md bg-route-gold/15 px-2 py-0.5 text-xs font-semibold text-route-deep"
+                                                        title="Pinned"
+                                                    >
+                                                        📌 Pinned
+                                                    </span>
+
+                                                {% endif %}
+
+
+                                                {% if post.featured %}
+
+                                                    <span
+                                                        class="rounded-md bg-route-forest/10 px-2 py-0.5 text-xs font-semibold text-route-forest"
+                                                        title="Featured"
+                                                    >
+                                                        ★ Featured
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <a
+                                                href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                                                class="
+                                                    block
+                                                    truncate
+                                                    text-sm
+                                                    font-bold
+                                                    text-route-deep
+                                                    transition
+                                                    hover:text-route-forest
+                                                "
+                                            >
+                                                {{ post.title }}
+                                            </a>
+
+
+                                            {% if post.subtitle %}
+
+                                                <p class="mt-1 max-w-sm truncate text-xs text-route-muted">
+                                                    {{ post.subtitle }}
+                                                </p>
+
+                                            {% endif %}
+
+
+                                            <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-route-muted">
+
+                                                <span>
+                                                    {{ post.author }}
+                                                </span>
+
+                                                {% if post.reading_time %}
+
+                                                    <span>•</span>
+
+                                                    <span>
+                                                        {{ post.reading_time }} min read
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                {# Category #}
+
+                                <td class="whitespace-nowrap px-6 py-5">
+
+                                    {% if post.category %}
+
+                                        <span
+                                            class="inline-flex rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm"
+                                            style="background-color: {{ post.category.color or '#285943' }};"
+                                        >
+                                            {{ post.category.name }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-sm text-route-muted">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                {# Status #}
+
+                                <td class="whitespace-nowrap px-6 py-5">
+
+                                    {% if post.status == "Published" %}
+
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-route-forest/10 px-3 py-1 text-xs font-semibold text-route-forest">
+                                            <span>✓</span>
+                                            Published
+                                        </span>
+
+                                    {% elif post.status == "Draft" %}
+
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                                            <span>✎</span>
+                                            Draft
+                                        </span>
+
+                                    {% elif post.status == "Review" %}
+
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                            <span>◉</span>
+                                            Review
+                                        </span>
+
+                                    {% elif post.status == "Scheduled" %}
+
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-route-gold/15 px-3 py-1 text-xs font-semibold text-route-deep">
+                                            <span>◷</span>
+                                            Scheduled
+                                        </span>
+
+                                    {% elif post.status == "Archived" %}
+
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                                            <span>▣</span>
+                                            Archived
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                                            {{ post.status }}
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if post.scheduled_for and post.status == "Scheduled" %}
+
+                                        <p class="mt-2 text-xs text-route-muted">
+                                            {{ post.scheduled_for.strftime("%d %b %Y, %H:%M") }}
+                                        </p>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                {# Performance #}
+
+                                <td class="whitespace-nowrap px-6 py-5">
+
+                                    <div class="space-y-1 text-xs">
+
+                                        <div class="font-semibold text-route-deep">
+                                            👁 {{ "{:,}".format(post.views or 0) }} views
+                                        </div>
+
+                                        <div class="text-route-muted">
+
+                                            ♥ {{ "{:,}".format(post.likes or 0) }}
+
+                                            <span class="mx-1">•</span>
+
+                                            ↗ {{ "{:,}".format(post.shares or 0) }}
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                {# Published #}
+
+                                <td class="whitespace-nowrap px-6 py-5">
+
+                                    {% if post.published_at %}
+
+                                        <p class="text-sm font-medium text-route-deep">
+                                            {{ post.published_at.strftime("%d %b %Y") }}
+                                        </p>
+
+                                        <p class="mt-1 text-xs text-route-muted">
+                                            {{ post.published_at.strftime("%H:%M") }}
+                                        </p>
+
+                                    {% else %}
+
+                                        <span class="text-sm text-route-muted">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                {# Actions #}
+
+                                <td class="relative px-6 py-5 text-right">
+
+                                    <div
+                                        class="relative inline-block text-left"
+                                        x-data="{ open: false }"
+                                        @click.outside="open = false"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="open = !open"
+                                            class="
+                                                inline-flex
+                                                h-9
+                                                w-9
+                                                items-center
+                                                justify-center
+                                                rounded-lg
+                                                border
+                                                border-route-forest/15
+                                                bg-route-white
+                                                text-route-muted
+                                                transition
+                                                hover:bg-route-cream
+                                                hover:text-route-deep
+                                            "
+                                            aria-label="Post actions"
+                                        >
+                                            ⋮
+                                        </button>
+
+
+                                        <div
+                                            x-show="open"
+                                            x-cloak
+                                            x-transition
+                                            class="
+                                                absolute
+                                                right-0
+                                                z-30
+                                                mt-2
+                                                w-56
+                                                origin-top-right
+                                                rounded-xl
+                                                border
+                                                border-route-forest/10
+                                                bg-route-white
+                                                p-1.5
+                                                text-left
+                                                shadow-route-lg
+                                            "
+                                        >
+
+                                            <a
+                                                href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-route-deep transition hover:bg-route-cream"
+                                            >
+                                                <span>◉</span>
+                                                View
+                                            </a>
+
+
+                                            <a
+                                                href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-route-deep transition hover:bg-route-cream"
+                                            >
+                                                <span>✎</span>
+                                                Edit
+                                            </a>
+
+
+                                            <div class="my-1 border-t border-route-forest/10"></div>
+
+
+                                            {% if post.status != "Published" %}
+
+                                                <a
+                                                    href="{{ url_for('admin_blog.publish', post_id=post.id) }}"
+                                                    class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-route-forest transition hover:bg-route-forest/10"
+                                                >
+                                                    <span>✓</span>
+                                                    Publish
+                                                </a>
+
+                                            {% endif %}
+
+
+                                            {% if post.status == "Draft" %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.submit_review', post_id=post.id) }}"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-deep transition hover:bg-route-cream"
+                                                    >
+                                                        <span>→</span>
+                                                        Submit for Review
+                                                    </button>
+
+                                                </form>
+
+                                            {% endif %}
+
+
+                                            <a
+                                                href="{{ url_for('admin_blog.schedule', post_id=post.id) }}"
+                                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-route-deep transition hover:bg-route-cream"
+                                            >
+                                                <span>◷</span>
+                                                Schedule
+                                            </a>
+
+
+                                            {% if post.featured %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.unfeature', post_id=post.id) }}"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-deep transition hover:bg-route-cream"
+                                                    >
+                                                        <span>☆</span>
+                                                        Remove Featured
+                                                    </button>
+
+                                                </form>
+
+                                            {% else %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.feature', post_id=post.id) }}"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-deep transition hover:bg-route-cream"
+                                                    >
+                                                        <span>★</span>
+                                                        Feature
+                                                    </button>
+
+                                                </form>
+
+                                            {% endif %}
+
+
+                                            {% if post.pinned %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.unpin', post_id=post.id) }}"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-deep transition hover:bg-route-cream"
+                                                    >
+                                                        <span>📌</span>
+                                                        Unpin
+                                                    </button>
+
+                                                </form>
+
+                                            {% else %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.pin', post_id=post.id) }}"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-deep transition hover:bg-route-cream"
+                                                    >
+                                                        <span>📌</span>
+                                                        Pin
+                                                    </button>
+
+                                                </form>
+
+                                            {% endif %}
+
+
+                                            {% if post.status != "Archived" %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.archive', post_id=post.id) }}"
+                                                    onsubmit="return confirm('Archive this blog post?');"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-gold transition hover:bg-route-gold/10"
+                                                    >
+                                                        <span>▣</span>
+                                                        Archive
+                                                    </button>
+
+                                                </form>
+
+                                            {% else %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin_blog.restore', post_id=post.id) }}"
+                                                >
+
+                                                    {% if form.csrf_token is defined %}
+                                                        {{ form.csrf_token }}
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-route-forest transition hover:bg-route-forest/10"
+                                                    >
+                                                        <span>↶</span>
+                                                        Restore
+                                                    </button>
+
+                                                </form>
+
+                                            {% endif %}
+
+
+                                            <div class="my-1 border-t border-route-forest/10"></div>
+
+
+                                            <a
+                                                href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-route-deep transition hover:bg-route-cream"
+                                            >
+                                                <span>⌕</span>
+                                                SEO
+                                            </a>
+
+
+                                            <a
+                                                href="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+                                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-route-deep transition hover:bg-route-cream"
+                                            >
+                                                <span>↗</span>
+                                                Call to Action
+                                            </a>
+
+
+                                            <div class="my-1 border-t border-route-forest/10"></div>
+
+
+                                            <button
+                                                type="button"
+                                                @click="open = false; $dispatch('open-delete-modal-{{ post.id }}')"
+                                                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-600 transition hover:bg-red-50"
+                                            >
+                                                <span>⌫</span>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+
+            {# =================================================================
+               MOBILE POST CARDS
+               ================================================================= #}
+
+            <div class="divide-y divide-route-forest/10 lg:hidden">
+
+                {% for post in posts %}
+
+                    <div
+                        class="p-5"
+                        x-data="{ open: false }"
+                    >
+
+                        <div class="flex gap-4">
+
+                            {% if post.featured_image %}
+
+                                <img
+                                    src="{{ post.featured_image }}"
+                                    alt="{{ post.featured_image_alt or post.title }}"
+                                    class="h-20 w-24 shrink-0 rounded-xl object-cover"
+                                >
+
+                            {% else %}
+
+                                <div class="flex h-20 w-24 shrink-0 items-center justify-center rounded-xl bg-route-cream text-route-muted">
+                                    <span class="text-2xl">▧</span>
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="min-w-0 flex-1">
+
+                                <div class="mb-1 flex flex-wrap gap-1.5">
+
+                                    {% if post.pinned %}
+                                        <span class="rounded-md bg-route-gold/15 px-2 py-0.5 text-[11px] font-semibold text-route-deep">
+                                            📌
+                                        </span>
+                                    {% endif %}
+
+                                    {% if post.featured %}
+                                        <span class="rounded-md bg-route-forest/10 px-2 py-0.5 text-[11px] font-semibold text-route-forest">
+                                            ★
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <a
+                                    href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                                    class="line-clamp-2 text-sm font-bold text-route-deep hover:text-route-forest"
+                                >
+                                    {{ post.title }}
+                                </a>
+
+
+                                <p class="mt-1 text-xs text-route-muted">
+                                    {{ post.author }}
+
+                                    {% if post.reading_time %}
+                                        • {{ post.reading_time }} min
+                                    {% endif %}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+
+                            {% if post.category %}
+
+                                <span
+                                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white"
+                                    style="background-color: {{ post.category.color or '#285943' }};"
+                                >
+                                    {{ post.category.name }}
+                                </span>
+
+                            {% endif %}
+
+
+                            {% if post.status == "Published" %}
+
+                                <span class="rounded-full bg-route-forest/10 px-2.5 py-1 text-[11px] font-semibold text-route-forest">
+                                    Published
+                                </span>
+
+                            {% elif post.status == "Draft" %}
+
+                                <span class="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-600">
+                                    Draft
+                                </span>
+
+                            {% elif post.status == "Review" %}
+
+                                <span class="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                                    Review
+                                </span>
+
+                            {% elif post.status == "Scheduled" %}
+
+                                <span class="rounded-full bg-route-gold/15 px-2.5 py-1 text-[11px] font-semibold text-route-deep">
+                                    Scheduled
+                                </span>
+
+                            {% elif post.status == "Archived" %}
+
+                                <span class="rounded-full bg-gray-200 px-2.5 py-1 text-[11px] font-semibold text-gray-700">
+                                    Archived
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="mt-4 flex items-center justify-between">
+
+                            <div class="text-xs text-route-muted">
+
+                                👁 {{ "{:,}".format(post.views or 0) }}
+
+                                <span class="mx-1">•</span>
+
+                                ♥ {{ "{:,}".format(post.likes or 0) }}
+
+                                <span class="mx-1">•</span>
+
+                                ↗ {{ "{:,}".format(post.shares or 0) }}
+
+                            </div>
+
+
+                            <div class="relative">
+
+                                <button
+                                    type="button"
+                                    @click="open = !open"
+                                    class="rounded-lg border border-route-forest/15 px-3 py-1.5 text-sm text-route-muted hover:bg-route-cream"
+                                >
+                                    Actions
+                                </button>
+
+
+                                <div
+                                    x-show="open"
+                                    x-cloak
+                                    @click.outside="open = false"
+                                    x-transition
+                                    class="absolute right-0 z-30 mt-2 w-52 rounded-xl border border-route-forest/10 bg-route-white p-1.5 shadow-route-lg"
+                                >
+
+                                    <a
+                                        href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                                        class="block rounded-lg px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                    >
+                                        View
+                                    </a>
+
+                                    <a
+                                        href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                                        class="block rounded-lg px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    {% if post.status != "Published" %}
+
+                                        <a
+                                            href="{{ url_for('admin_blog.publish', post_id=post.id) }}"
+                                            class="block rounded-lg px-3 py-2 text-sm text-route-forest hover:bg-route-forest/10"
+                                        >
+                                            Publish
+                                        </a>
+
+                                    {% endif %}
+
+                                    {% if post.status == "Draft" %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.submit_review', post_id=post.id) }}"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-deep hover:bg-route-cream"
+                                            >
+                                                Submit for Review
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+                                    <a
+                                        href="{{ url_for('admin_blog.schedule', post_id=post.id) }}"
+                                        class="block rounded-lg px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                    >
+                                        Schedule
+                                    </a>
+
+                                    {% if post.featured %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.unfeature', post_id=post.id) }}"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-deep hover:bg-route-cream"
+                                            >
+                                                Remove Featured
+                                            </button>
+
+                                        </form>
+
+                                    {% else %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.feature', post_id=post.id) }}"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-deep hover:bg-route-cream"
+                                            >
+                                                Feature
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+                                    {% if post.pinned %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.unpin', post_id=post.id) }}"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-deep hover:bg-route-cream"
+                                            >
+                                                Unpin
+                                            </button>
+
+                                        </form>
+
+                                    {% else %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.pin', post_id=post.id) }}"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-deep hover:bg-route-cream"
+                                            >
+                                                Pin
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+                                    {% if post.status != "Archived" %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.archive', post_id=post.id) }}"
+                                            onsubmit="return confirm('Archive this blog post?');"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-gold hover:bg-route-gold/10"
+                                            >
+                                                Archive
+                                            </button>
+
+                                        </form>
+
+                                    {% else %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_blog.restore', post_id=post.id) }}"
+                                        >
+
+                                            {% if form.csrf_token is defined %}
+                                                {{ form.csrf_token }}
+                                            {% endif %}
+
+                                            <button
+                                                type="submit"
+                                                class="w-full rounded-lg px-3 py-2 text-left text-sm text-route-forest hover:bg-route-forest/10"
+                                            >
+                                                Restore
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+                                    <div class="my-1 border-t border-route-forest/10"></div>
+
+                                    <a
+                                        href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                                        class="block rounded-lg px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                    >
+                                        SEO
+                                    </a>
+
+                                    <a
+                                        href="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+                                        class="block rounded-lg px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                    >
+                                        Call to Action
+                                    </a>
+
+                                    <div class="my-1 border-t border-route-forest/10"></div>
+
+                                    <button
+                                        type="button"
+                                        @click="open = false; $dispatch('open-delete-modal-{{ post.id }}')"
+                                        class="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {% if post.published_at %}
+
+                            <p class="mt-3 text-xs text-route-muted">
+                                Published {{ post.published_at.strftime("%d %b %Y, %H:%M") }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+
+            {# =================================================================
+               PAGINATION
+               ================================================================= #}
+
+            {% if pagination and pagination.pages > 1 %}
+
+                <div class="border-t border-route-forest/10 px-5 py-4 sm:px-6">
+
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                        <p class="text-sm text-route-muted">
+
+                            Page
+                            <span class="font-semibold text-route-deep">
+                                {{ pagination.page }}
+                            </span>
+                            of
+                            <span class="font-semibold text-route-deep">
+                                {{ pagination.pages }}
+                            </span>
+
+                        </p>
+
+
+                        <div class="flex items-center gap-1">
+
+
+                            {% if pagination.has_prev %}
+
+                                <a
+                                    href="{{ url_for('admin_blog.index',
+                                        page=pagination.prev_num,
+                                        q=request.args.get('q', ''),
+                                        status=request.args.get('status', ''),
+                                        category_id=request.args.get('category_id', ''),
+                                        featured=request.args.get('featured', ''),
+                                        pinned=request.args.get('pinned', ''),
+                                        newsletter_sent=request.args.get('newsletter_sent', ''),
+                                        search_indexed=request.args.get('search_indexed', ''),
+                                        per_page=request.args.get('per_page', 15)
+                                    ) }}"
+                                    class="rounded-lg border border-route-forest/15 px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                >
+                                    ←
+                                </a>
+
+                            {% else %}
+
+                                <span class="rounded-lg border border-route-forest/10 px-3 py-2 text-sm text-route-muted/50">
+                                    ←
+                                </span>
+
+                            {% endif %}
+
+
+                            {% for page_num in range(1, pagination.pages + 1) %}
+
+                                {% if page_num == pagination.page %}
+
+                                    <span class="rounded-lg bg-route-deep px-3 py-2 text-sm font-semibold text-white">
+                                        {{ page_num }}
+                                    </span>
+
+                                {% elif page_num <= 3
+                                      or page_num > pagination.pages - 3
+                                      or (page_num >= pagination.page - 1
+                                          and page_num <= pagination.page + 1) %}
+
+                                    <a
+                                        href="{{ url_for('admin_blog.index',
+                                            page=page_num,
+                                            q=request.args.get('q', ''),
+                                            status=request.args.get('status', ''),
+                                            category_id=request.args.get('category_id', ''),
+                                            featured=request.args.get('featured', ''),
+                                            pinned=request.args.get('pinned', ''),
+                                            newsletter_sent=request.args.get('newsletter_sent', ''),
+                                            search_indexed=request.args.get('search_indexed', ''),
+                                            per_page=request.args.get('per_page', 15)
+                                        ) }}"
+                                        class="rounded-lg border border-route-forest/15 px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                    >
+                                        {{ page_num }}
+                                    </a>
+
+                                {% elif page_num == 4
+                                      or page_num == pagination.pages - 3 %}
+
+                                    <span class="px-2 text-route-muted">
+                                        …
+                                    </span>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+
+                            {% if pagination.has_next %}
+
+                                <a
+                                    href="{{ url_for('admin_blog.index',
+                                        page=pagination.next_num,
+                                        q=request.args.get('q', ''),
+                                        status=request.args.get('status', ''),
+                                        category_id=request.args.get('category_id', ''),
+                                        featured=request.args.get('featured', ''),
+                                        pinned=request.args.get('pinned', ''),
+                                        newsletter_sent=request.args.get('newsletter_sent', ''),
+                                        search_indexed=request.args.get('search_indexed', ''),
+                                        per_page=request.args.get('per_page', 15)
+                                    ) }}"
+                                    class="rounded-lg border border-route-forest/15 px-3 py-2 text-sm text-route-deep hover:bg-route-cream"
+                                >
+                                    →
+                                </a>
+
+                            {% else %}
+
+                                <span class="rounded-lg border border-route-forest/10 px-3 py-2 text-sm text-route-muted/50">
+                                    →
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+
+        {% else %}
+
+            {# ================================================================
+               EMPTY STATE
+               ================================================================ #}
+
+            <div class="px-6 py-16 text-center">
+
+                <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-route-cream text-route-muted">
+                    <span class="text-3xl">▤</span>
+                </div>
+
+
+                {% if request.args.get('q')
+                      or request.args.get('status')
+                      or request.args.get('category_id')
+                      or request.args.get('featured')
+                      or request.args.get('pinned')
+                      or request.args.get('newsletter_sent')
+                      or request.args.get('search_indexed') %}
+
+                    <h3 class="mt-5 text-xl font-bold text-route-deep">
+                        No blog posts found
+                    </h3>
+
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-route-muted">
+                        Try changing your filters or search terms.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin_blog.index') }}"
+                        class="
+                            mt-6
+                            inline-flex
+                            items-center
+                            justify-center
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-route-deep
+                            transition
+                            hover:bg-route-cream
+                        "
+                    >
+                        Clear Filters
+                    </a>
+
+                {% else %}
+
+                    <h3 class="mt-5 text-xl font-bold text-route-deep">
+                        Your blog is empty
+                    </h3>
+
+                    <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-route-muted">
+                        Start publishing travel stories, destination guides,
+                        safari tips and inspiration.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin_blog.create') }}"
+                        class="
+                            mt-6
+                            inline-flex
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-xl
+                            bg-route-deep
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-white
+                            transition
+                            hover:bg-route-forest
+                        "
+                    >
+                        <span>+</span>
+                        Create Your First Post
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+
+    {# ========================================================================
+       QUICK GUIDANCE
+       ======================================================================== #}
+
+    <section class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+
+        {# Publishing workflow #}
+
+        <div
+            class="
+                rounded-2xl
+                border
+                border-route-forest/10
+                bg-route-white
+                p-6
+                shadow-sm
+                xl:col-span-2
+            "
+        >
+
+            <div class="mb-6">
+
+                <h2 class="text-lg font-bold text-route-deep">
+                    Blog Publishing Workflow
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    A simple workflow for preparing and publishing content.
+                </p>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+                <div class="flex gap-3">
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-600">
+                        1
+                    </div>
+
+                    <div>
+
+                        <p class="font-semibold text-route-deep">
+                            Draft
+                        </p>
+
+                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                            Write and prepare your article.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="flex gap-3">
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-700">
+                        2
+                    </div>
+
+                    <div>
+
+                        <p class="font-semibold text-route-deep">
+                            Review
+                        </p>
+
+                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                            Check quality and accuracy.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="flex gap-3">
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-route-gold/15 text-sm font-bold text-route-deep">
+                        3
+                    </div>
+
+                    <div>
+
+                        <p class="font-semibold text-route-deep">
+                            Schedule
+                        </p>
+
+                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                            Plan the publication date.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="flex gap-3">
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-route-forest/10 text-sm font-bold text-route-forest">
+                        4
+                    </div>
+
+                    <div>
+
+                        <p class="font-semibold text-route-deep">
+                            Publish
+                        </p>
+
+                        <p class="mt-1 text-xs leading-5 text-route-muted">
+                            Make the story public.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Performance #}
+
+        <div
+            class="
+                rounded-2xl
+                border
+                border-route-forest/10
+                bg-route-white
+                p-6
+                shadow-sm
+            "
+        >
+
+            <div class="mb-5">
+
+                <h2 class="text-lg font-bold text-route-deep">
+                    Content Performance
+                </h2>
+
+                <p class="mt-1 text-sm text-route-muted">
+                    Overall blog engagement.
+                </p>
+
+            </div>
+
+
+            <div class="space-y-4">
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-route-muted">
+                        Views
+                    </span>
+
+                    <strong class="text-sm text-route-deep">
+                        {{ "{:,}".format(statistics.total_views|default(0)) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-route-muted">
+                        Likes
+                    </span>
+
+                    <strong class="text-sm text-route-deep">
+                        {{ "{:,}".format(statistics.total_likes|default(0)) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="flex items-center justify-between">
+
+                    <span class="text-sm text-route-muted">
+                        Shares
+                    </span>
+
+                    <strong class="text-sm text-route-deep">
+                        {{ "{:,}".format(statistics.total_shares|default(0)) }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+{# ========================================================================
+   DELETE MODALS
+   ======================================================================== #}
+
+{% for post in posts %}
+
+    <div
+        x-data="{ open: false }"
+        @open-delete-modal-{{ post.id }}.window="open = true"
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-[100] overflow-y-auto"
+    >
+
+        <div
+            class="fixed inset-0 bg-route-deep/60 backdrop-blur-sm"
+            @click="open = false"
+        ></div>
+
+
+        <div class="relative flex min-h-screen items-center justify-center p-5">
+
+            <div
+                x-show="open"
+                x-transition
+                class="
+                    relative
+                    w-full
+                    max-w-md
+                    rounded-2xl
+                    bg-route-white
+                    p-6
+                    shadow-route-lg
+                "
+                @click.stop
+            >
+
+                <div class="text-center">
+
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600">
+                        <span class="text-2xl">!</span>
+                    </div>
+
+
+                    <h3 class="mt-5 text-xl font-bold text-route-deep">
+                        Delete Blog Post
+                    </h3>
+
+
+                    <p class="mt-3 text-sm leading-6 text-route-muted">
+
+                        Permanently delete
+
+                        <strong class="text-route-deep">
+                            {{ post.title }}
+                        </strong>?
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+
+                <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+                    <button
+                        type="button"
+                        @click="open = false"
+                        class="
+                            rounded-xl
+                            border
+                            border-route-forest/15
+                            px-4
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-route-deep
+                            transition
+                            hover:bg-route-cream
+                        "
+                    >
+                        Cancel
+                    </button>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_blog.delete', post_id=post.id) }}"
+                    >
+
+                        {% if form.csrf_token is defined %}
+                            {{ form.csrf_token }}
+                        {% endif %}
+
+                        <button
+                            type="submit"
+                            class="
+                                w-full
+                                rounded-xl
+                                bg-red-600
+                                px-4
+                                py-2.5
+                                text-sm
+                                font-semibold
+                                text-white
+                                transition
+                                hover:bg-red-700
+                                sm:w-auto
+                            "
+                        >
+                            Delete Permanently
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endfor %}
+
+{% endblock %}
+
+
+
+{# ============================================================================
+   PAGE SCRIPTS
+   IMPORTANT: admin/base.html defines "scripts", NOT "extra_js".
+   ============================================================================ #}
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const perPage = document.getElementById("per_page");
+
+    if (perPage) {
+
+        perPage.addEventListener("change", function () {
+
+            const form = this.closest("form");
+
+            if (form) {
+                form.submit();
+            }
+
+        });
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

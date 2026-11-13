@@ -1,0 +1,278 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Safari Properties | The Uncharted Route{% endblock %}
+
+{% block content %}
+{% set stats = namespace(total=0, active=0, featured=0, not_featured=0, inactive=0) %}
+{% for property in properties %}
+    {% set stats.total = stats.total + 1 %}
+    {% if property.active %}
+        {% set stats.active = stats.active + 1 %}
+    {% else %}
+        {% set stats.inactive = stats.inactive + 1 %}
+    {% endif %}
+    {% if property.featured %}
+        {% set stats.featured = stats.featured + 1 %}
+    {% else %}
+        {% set stats.not_featured = stats.not_featured + 1 %}
+    {% endif %}
+{% endfor %}
+
+<div class="route-container max-w-7xl space-y-8 py-8">
+
+    <!-- Page heading -->
+    <section class="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div>
+            <a href="{{ url_for('admin_safaris.index') }}"
+               class="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] hover:underline">
+                <span aria-hidden="true">←</span> Safari management
+            </a>
+            <p class="route-eyebrow">The Uncharted Route · Safari catalogue</p>
+            <h1 class="route-heading text-3xl md:text-4xl">Safari properties</h1>
+            <p class="mt-3 max-w-2xl text-sm leading-6 text-[#66736B]">
+                Manage your safari lodges, tented camps and accommodation partners.
+                Open any property to manage its profile, media, packages and itinerary.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_safaris.property_create') }}"
+           class="route-button-primary inline-flex shrink-0 items-center justify-center gap-2">
+            <span aria-hidden="true">+</span> Add property
+        </a>
+    </section>
+
+    {% include "admin/safaris/_messages.html" %}
+
+    <!-- Summary cards -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <article class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">All properties</p>
+            <p class="mt-3 text-3xl font-semibold text-[#12372A]">{{ stats.total }}</p>
+            <p class="mt-2 text-xs text-[#66736B]">Across all destinations</p>
+        </article>
+
+        <article class="rounded-2xl border border-[#D8E5DA] bg-[#F2F7F1] p-5">
+            <p class="text-sm font-medium text-[#1F5138]">Active</p>
+            <p class="mt-3 text-3xl font-semibold text-[#12372A]">{{ stats.active }}</p>
+            <p class="mt-2 text-xs text-[#66736B]">Currently enabled</p>
+        </article>
+
+        <article class="rounded-2xl border border-[#F0DFB6] bg-[#FBF6E9] p-5">
+            <p class="text-sm font-medium text-[#8A6115]">Featured</p>
+            <p class="mt-3 text-3xl font-semibold text-[#12372A]">{{ stats.featured }}</p>
+            <p class="mt-2 text-xs text-[#66736B]">Highlighted properties</p>
+        </article>
+
+        <article class="rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5] p-5">
+            <p class="text-sm font-medium text-[#1C2822]">Not featured</p>
+            <p class="mt-3 text-3xl font-semibold text-[#12372A]">{{ stats.not_featured }}</p>
+            <p class="mt-2 text-xs text-[#66736B]">Standard listings</p>
+        </article>
+
+        <article class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-[#66736B]">Inactive</p>
+            <p class="mt-3 text-3xl font-semibold text-[#12372A]">{{ stats.inactive }}</p>
+            <p class="mt-2 text-xs text-[#66736B]">Not currently enabled</p>
+        </article>
+    </section>
+
+    <!-- Search and filters -->
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm md:p-6">
+        <div class="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <div>
+                <h2 class="text-lg font-semibold text-[#12372A]">Property directory</h2>
+                <p class="mt-1 text-sm text-[#66736B]">Search and filter your accommodation catalogue.</p>
+            </div>
+            <p class="text-sm text-[#66736B]">
+                Showing <span id="visiblePropertyCount" class="font-semibold text-[#12372A]">{{ stats.total }}</span>
+                of {{ stats.total }} properties
+            </p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div class="xl:col-span-2">
+                <label for="propertySearch" class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                    Search properties
+                </label>
+                <input id="propertySearch" type="search"
+                       placeholder="Search by name, destination or slug…"
+                       class="route-input w-full">
+            </div>
+
+            <div>
+                <label for="destinationFilter" class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                    Destination
+                </label>
+                <select id="destinationFilter" class="route-select w-full">
+                    <option value="">All destinations</option>
+                    {% for destination in properties|map(attribute='destination')|select|unique(attribute='id')|sort(attribute='name') %}
+                    <option value="{{ destination.name|lower }}">{{ destination.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="statusFilter" class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                    Listing status
+                </label>
+                <select id="statusFilter" class="route-select w-full">
+                    <option value="">All statuses</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="featuredFilter" class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                    Featured status
+                </label>
+                <select id="featuredFilter" class="route-select w-full">
+                    <option value="">All properties</option>
+                    <option value="featured">Featured</option>
+                    <option value="not-featured">Not featured</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="button" id="resetPropertyFilters"
+                        class="route-button-outline w-full justify-center">
+                    Reset filters
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Property cards -->
+    <section id="propertyGrid" class="grid gap-5 lg:grid-cols-2">
+        {% for property in properties %}
+        <article
+            class="property-card overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            data-search="{{ (property.name ~ ' ' ~ property.slug ~ ' ' ~ property.destination.name ~ ' ' ~ property.property_type)|lower }}"
+            data-destination="{{ property.destination.name|lower }}"
+            data-status="{{ 'active' if property.active else 'inactive' }}"
+            data-featured="{{ 'featured' if property.featured else 'not-featured' }}">
+
+            <div class="h-1.5 w-full bg-[#1F5138]"></div>
+
+            <div class="space-y-5 p-5 md:p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <p class="route-eyebrow">{{ property.destination.name }}</p>
+                        <h3 class="mt-2 text-xl font-semibold text-[#12372A]">
+                            {{ property.name }}
+                        </h3>
+                        <p class="mt-1 break-all text-xs text-[#66736B]">/{{ property.slug }}</p>
+                    </div>
+
+                    <div class="flex shrink-0 flex-col items-end gap-2">
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                            {{ 'bg-[#E4EFE4] text-[#1F5138]' if property.active else 'bg-[#F1EEE8] text-[#66736B]' }}">
+                            {{ 'Active' if property.active else 'Inactive' }}
+                        </span>
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                            {{ 'bg-[#FBF0D4] text-[#805C16]' if property.featured else 'bg-[#F7F1E5] text-[#66736B]' }}">
+                            {{ 'Featured' if property.featured else 'Not featured' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="rounded-lg bg-[#F7F1E5] px-3 py-2 font-medium text-[#1C2822]">
+                        {{ property.property_type|replace('_', ' ')|title }}
+                    </span>
+                    <span class="rounded-lg bg-[#F7F1E5] px-3 py-2 font-medium text-[#1C2822]">
+                        {{ property.package_options|length }} {{ 'package' if property.package_options|length == 1 else 'packages' }}
+                    </span>
+                </div>
+
+                {% if property.short_description %}
+                <p class="text-sm leading-6 text-[#66736B]">
+                    {{ property.short_description|striptags|truncate(180) }}
+                </p>
+                {% else %}
+                <p class="text-sm italic text-[#66736B]">No short description has been added yet.</p>
+                {% endif %}
+
+                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-[#E9DDC8] pt-4">
+                    <span class="text-xs text-[#66736B]">Property ID: {{ property.id }}</span>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ url_for('admin_safaris.property_detail', property_id=property.id) }}"
+                           class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1F5138]">
+                            View property →
+                        </a>
+                        <a href="{{ url_for('admin_safaris.property_edit', property_id=property.id) }}"
+                           class="inline-flex items-center justify-center rounded-xl border border-[#D8CDB9] px-4 py-2.5 text-sm font-semibold text-[#12372A] transition hover:bg-[#F7F1E5]">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% else %}
+        <div class="rounded-2xl border border-dashed border-[#D8CDB9] bg-white px-6 py-16 text-center lg:col-span-2">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F7F1E5] text-2xl text-[#1F5138]">
+                ✦
+            </div>
+            <h3 class="mt-5 text-xl font-semibold text-[#12372A]">Your safari catalogue starts here</h3>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#66736B]">
+                Add your first lodge or camp, then manage its images, packages and itinerary from its detail page.
+            </p>
+            <a href="{{ url_for('admin_safaris.property_create') }}"
+               class="route-button-primary mt-6 inline-flex">
+                + Add your first property
+            </a>
+        </div>
+        {% endfor %}
+    </section>
+
+    <div id="noPropertyMatches"
+         class="hidden rounded-2xl border border-dashed border-[#D8CDB9] bg-white px-6 py-12 text-center">
+        <h3 class="text-lg font-semibold text-[#12372A]">No matching properties</h3>
+        <p class="mt-2 text-sm text-[#66736B]">Try a different search term or reset your filters.</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const search = document.getElementById("propertySearch");
+    const destination = document.getElementById("destinationFilter");
+    const status = document.getElementById("statusFilter");
+    const featured = document.getElementById("featuredFilter");
+    const reset = document.getElementById("resetPropertyFilters");
+    const cards = Array.from(document.querySelectorAll(".property-card"));
+    const count = document.getElementById("visiblePropertyCount");
+    const empty = document.getElementById("noPropertyMatches");
+
+    function filterProperties() {
+        const query = search.value.trim().toLowerCase();
+        let visible = 0;
+
+        cards.forEach(function (card) {
+            const matches =
+                (!query || card.dataset.search.includes(query)) &&
+                (!destination.value || card.dataset.destination === destination.value) &&
+                (!status.value || card.dataset.status === status.value) &&
+                (!featured.value || card.dataset.featured === featured.value);
+
+            card.classList.toggle("hidden", !matches);
+            if (matches) visible++;
+        });
+
+        count.textContent = visible;
+        empty.classList.toggle("hidden", visible !== 0);
+    }
+
+    [search, destination, status, featured].forEach(function (control) {
+        control.addEventListener(control === search ? "input" : "change", filterProperties);
+    });
+
+    reset.addEventListener("click", function () {
+        search.value = "";
+        destination.value = "";
+        status.value = "";
+        featured.value = "";
+        filterProperties();
+    });
+});
+</script>
+{% endblock %}

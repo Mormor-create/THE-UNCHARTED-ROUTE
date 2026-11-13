@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% block title %}Stay Bookings | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">Booking Management</p>
+            <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Stay Bookings</h1>
+            <p class="mt-2 text-sm text-[#66736B]">Manage accommodation reservations, guests, rooms and stay dates.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ url_for('admin_stay_bookings.archived') }}" class="rounded-xl border border-[#E9DDC8] px-4 py-3 font-semibold text-[#12372A]">Archived</a>
+            <a href="{{ url_for('admin_stay_bookings.create') }}" class="rounded-xl bg-[#12372A] px-5 py-3 font-semibold text-white hover:bg-[#1F5138]">+ Create Booking</a>
+        </div>
+    </div>
+
+    <form method="get" class="grid gap-3 rounded-2xl border border-[#E9DDC8] bg-white p-4 md:grid-cols-[1fr_220px_auto]">
+        <input type="search" name="q" value="{{ search }}" placeholder="Search reference, guest, email or phone" class="rounded-xl border border-[#E9DDC8] px-4 py-3 focus:border-[#1F5138] focus:outline-none">
+        <select name="status" class="rounded-xl border border-[#E9DDC8] px-4 py-3">
+            {% for value, label in [('all','All statuses'),('pending','Pending'),('awaiting_payment','Awaiting payment'),('confirmed','Confirmed'),('in_progress','In progress'),('completed','Completed'),('cancelled','Cancelled')] %}
+            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="rounded-xl bg-[#D89B24] px-5 py-3 font-semibold text-[#1C2822]">Filter</button>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#E9DDC8]">
+                <thead class="bg-[#F7F1E5] text-left text-xs uppercase tracking-wider text-[#66736B]">
+                    <tr><th class="px-5 py-4">Reference</th><th class="px-5 py-4">Guest</th><th class="px-5 py-4">Accommodation</th><th class="px-5 py-4">Check-in / Check-out</th><th class="px-5 py-4">Guests / Rooms</th><th class="px-5 py-4">Total</th><th class="px-5 py-4">Status</th><th class="px-5 py-4">Action</th></tr>
+                </thead>
+                <tbody class="divide-y divide-[#E9DDC8]">
+                {% for booking in bookings %}
+                    {% set stay = booking.stay_booking %}
+                    <tr class="hover:bg-[#F7F1E5]/60">
+                        <td class="whitespace-nowrap px-5 py-4">
+                            <a href="{{ url_for('admin_stay_bookings.detail', booking_id=booking.id) }}" class="font-semibold text-[#12372A] hover:underline">{{ booking.booking_reference }}</a>
+                            <p class="mt-1 text-xs text-[#66736B]">{{ booking.created_at.strftime('%d %b %Y') if booking.created_at else '—' }}</p>
+                        </td>
+                        <td class="px-5 py-4"><p class="font-semibold">{{ booking.full_name }}</p><p class="text-sm text-[#66736B]">{{ booking.email }}</p></td>
+                        <td class="px-5 py-4 text-sm">{{ stay.stay_name_snapshot if stay else 'Details unavailable' }}{% if stay and stay.room_name_snapshot %}<p class="text-[#66736B]">{{ stay.room_name_snapshot }}</p>{% endif %}</td>
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-[#66736B]">{% if stay %}{{ stay.check_in.strftime('%d %b %Y') }}<br>{{ stay.check_out.strftime('%d %b %Y') }}{% else %}—{% endif %}</td>
+                        <td class="px-5 py-4 text-sm">{% if stay %}{{ stay.adults + stay.children + stay.infants }} guests<p class="text-[#66736B]">{{ stay.rooms_count }} room(s) · {{ stay.nights }} night(s)</p>{% else %}—{% endif %}</td>
+                        <td class="whitespace-nowrap px-5 py-4 font-semibold text-[#12372A]">{{ booking.currency }} {{ '{:,.2f}'.format(booking.total_amount or 0) }}</td>
+                        <td class="px-5 py-4"><span class="rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-semibold text-[#12372A]">{{ booking.status|replace('_',' ')|title }}</span></td>
+                        <td class="whitespace-nowrap px-5 py-4"><a href="{{ url_for('admin_stay_bookings.detail', booking_id=booking.id) }}" class="font-semibold text-[#1F5138] hover:underline">View →</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8" class="px-5 py-14 text-center"><p class="font-semibold text-[#12372A]">No stay bookings found</p><p class="mt-2 text-sm text-[#66736B]">Try another filter or create a booking.</p></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends "admin/base.html" %}
+{% block title %}
+    Admin Login · {{ company_name }}
+{% endblock %}
+{% block admin_title %}
+    Admin Login
+{% endblock %}
+{% block admin_heading %}
+    Administrator Login
+{% endblock %}
+{% block admin_content %}
+
+<div class="mx-auto max-w-md">
+    <!-- ================================================================
+         Header
+         ================================================================ -->
+    <div class="mb-8 text-center">
+        <div
+            class="mx-auto mb-5 flex h-16 w-16 items-center justify-center
+                   rounded-2xl bg-route-deep text-route-gold shadow-route"
+        >
+            <span class="font-display text-xl font-bold">
+                TUR
+            </span>
+        </div>
+
+        <h2
+            class="font-display text-3xl font-semibold text-route-ink"
+        >
+            Welcome Back
+        </h2>
+
+        <p class="mt-2 text-sm text-route-muted">
+            Sign in to the administrative portal.
+        </p>
+
+    </div>
+
+
+    <!-- ================================================================
+         Login Card
+         ================================================================ -->
+
+    <div
+        class="rounded-2xl border border-route-forest/10
+               bg-route-white p-6 shadow-route sm:p-8"
+    >
+
+        <form
+            method="POST"
+            action="{{ url_for('admin.login') }}"
+            novalidate
+            class="space-y-6"
+        >
+
+            {{ form.hidden_tag() }}
+
+
+            <!-- Identity -->
+
+            <div>
+
+                {{ form.identity.label(
+                    class="mb-2 block text-sm font-semibold text-route-ink"
+                ) }}
+
+                {{ form.identity(
+                    class="
+                        block w-full rounded-xl
+                        border border-route-forest/15
+                        bg-route-cream px-4 py-3
+                        text-sm text-route-ink
+                        placeholder:text-route-muted/70
+                        outline-none
+                        transition
+                        focus:border-route-gold
+                        focus:ring-2
+                        focus:ring-route-gold/20
+                    ",
+                    placeholder="Username or email address",
+                    autocomplete="username",
+                ) }}
+
+                {% if form.identity.errors %}
+
+                    <div class="mt-2 space-y-1">
+
+                        {% for error in form.identity.errors %}
+
+                            <p class="text-xs text-red-600">
+                                {{ error }}
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Password -->
+
+            <div
+                x-data="{ showPassword: false }"
+            >
+
+                <div class="mb-2 flex items-center justify-between">
+
+                    {{ form.password.label(
+                        class="block text-sm font-semibold text-route-ink"
+                    ) }}
+
+                    <a
+                        href="{{ url_for('admin.forgot_password') }}"
+                        class="
+                            text-xs font-semibold
+                            text-route-safari
+                            transition
+                            hover:text-route-terracotta
+                        "
+                    >
+                        Forgot password?
+                    </a>
+
+                </div>
+
+
+<div class="relative">
+    <input
+        type="password"
+        id="{{ form.password.id }}"
+        name="{{ form.password.name }}"
+        required
+        autocomplete="current-password"
+        placeholder="Enter your password"
+        x-bind:type="showPassword ? 'text' : 'password'"
+        class="block w-full rounded-xl border border-route-forest/15 bg-route-cream px-4 py-3 pr-12 text-sm text-route-ink placeholder:text-route-muted/70 outline-none transition focus:border-route-gold focus:ring-2 focus:ring-route-gold/20"
+    >
+
+    <button
+        type="button"
+        class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-route-muted transition hover:text-route-forest"
+        @click="showPassword = !showPassword"
+        x-bind:aria-label="showPassword ? 'Hide password' : 'Show password'"
+    >
+        <span x-show="!showPassword" x-cloak>◉</span>
+        <span x-show="showPassword" x-cloak>◌</span>
+    </button>
+</div>
+
+
+                {% if form.password.errors %}
+
+                    <div class="mt-2 space-y-1">
+
+                        {% for error in form.password.errors %}
+
+                            <p class="text-xs text-red-600">
+                                {{ error }}
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <!-- Submit -->
+            <button
+                type="submit"
+                class="
+                    flex w-full items-center justify-center
+                    rounded-xl bg-route-deep
+                    px-5 py-3
+                    text-sm font-bold text-route-cream
+                    shadow-sm
+                    transition
+                    hover:bg-route-forest
+                    hover:shadow-route
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-route-gold
+                    focus:ring-offset-2
+                "
+            >
+                {{ form.submit.label.text }}
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- ================================================================
+         Security Notice
+         ================================================================ -->
+
+    <div
+        class="
+            mt-5 flex items-start gap-3
+            rounded-xl border border-route-forest/10
+            bg-route-white/70 p-4
+        "
+    >
+
+        <span class="mt-0.5 text-route-gold">
+            ◆
+        </span>
+
+        <p class="text-xs leading-5 text-route-muted">
+            This area is restricted to authorized administrative users.
+            Unauthorized access is not permitted.
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

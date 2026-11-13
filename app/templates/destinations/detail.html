@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ destination.meta_title or destination.name ~ " | " ~ config.COMPANY_NAME }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ destination.meta_description or destination.short_description or destination.description }}
+{% endblock %}
+
+{% block og_title %}
+    {{ destination.meta_title or destination.name }}
+{% endblock %}
+
+{% block og_description %}
+    {{ destination.meta_description or destination.short_description or destination.description }}
+{% endblock %}
+
+{% block content %}
+
+<!-- =====================================================================
+     Destination Hero
+     ===================================================================== -->
+
+<section class="relative overflow-hidden bg-route-deep text-route-white">
+
+    {% if destination.banner_image_asset or destination.featured_image_asset %}
+
+    <div class="absolute inset-0">
+
+        {% set hero_image = destination.banner_image_asset or destination.featured_image_asset %}
+
+        <img
+            src="{{ hero_image.file_url or url_for('media.serve', filename=hero_image.filename) }}"
+            alt="{{ hero_image.alt_text or destination.name }}"
+            class="h-full w-full object-cover"
+        >
+
+        <div class="absolute inset-0 bg-route-deep/75"></div>
+
+        <div class="absolute inset-0 bg-gradient-to-t from-route-deep via-route-deep/60 to-transparent"></div>
+
+    </div>
+
+    {% endif %}
+
+
+    <div class="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+
+        <div class="max-w-4xl">
+
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-route-gold">
+                {{ destination.region or destination.county or destination.country }}
+            </p>
+
+
+            <h1 class="mt-4 font-display text-5xl font-semibold tracking-tight text-route-white sm:text-6xl lg:text-7xl">
+                {{ destination.name }}
+            </h1>
+
+
+            {% if destination.short_description %}
+
+            <p class="mt-6 max-w-3xl text-lg leading-8 text-route-white/85 sm:text-xl">
+                {{ destination.short_description }}
+            </p>
+
+            {% endif %}
+
+
+            <div class="mt-8 flex flex-wrap gap-3">
+
+                {% if destination.country %}
+
+                <span class="rounded-full border border-route-white/20 bg-route-white/10 px-4 py-2 text-sm text-route-white backdrop-blur-sm">
+                    {{ destination.country }}
+                </span>
+
+                {% endif %}
+
+
+                {% if destination.county %}
+
+                <span class="rounded-full border border-route-white/20 bg-route-white/10 px-4 py-2 text-sm text-route-white backdrop-blur-sm">
+                    {{ destination.county }}
+                </span>
+
+                {% endif %}
+
+
+                {% if destination.region %}
+
+                <span class="rounded-full border border-route-white/20 bg-route-white/10 px-4 py-2 text-sm text-route-white backdrop-blur-sm">
+                    {{ destination.region }}
+                </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================================
+     Destination Overview
+     ===================================================================== -->
+
+<section class="bg-route-white">
+
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+        <div class="grid gap-12 lg:grid-cols-[1fr_320px]">
+
+            <div class="max-w-3xl">
+
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-route-safari">
+                    About {{ destination.name }}
+                </p>
+
+
+                <h2 class="mt-3 font-display text-3xl font-semibold text-route-ink sm:text-4xl">
+                    Discover the Destination
+                </h2>
+
+
+                {% if destination.description %}
+
+                <div class="mt-6 space-y-5 text-base leading-8 text-route-muted">
+
+                    {% for paragraph in destination.description.split('\n') %}
+
+                        {% if paragraph.strip() %}
+
+                        <p>
+                            {{ paragraph }}
+                        </p>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+
+                {% elif destination.short_description %}
+
+                <p class="mt-6 text-base leading-8 text-route-muted">
+                    {{ destination.short_description }}
+                </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Destination Facts -->
+
+            <aside>
+
+                <div class="rounded-route bg-route-cream p-6 shadow-route ring-1 ring-route-sand">
+
+                    <h3 class="font-display text-xl font-semibold text-route-ink">
+                        Destination Details
+                    </h3>
+
+
+                    <dl class="mt-6 divide-y divide-route-sand">
+
+                        {% if destination.country %}
+                        <div class="flex items-start justify-between gap-4 py-4">
+                            <dt class="text-sm text-route-muted">
+                                Country
+                            </dt>
+                            <dd class="text-right text-sm font-semibold text-route-ink">
+                                {{ destination.country }}
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        {% if destination.county %}
+                        <div class="flex items-start justify-between gap-4 py-4">
+                            <dt class="text-sm text-route-muted">
+                                County
+                            </dt>
+                            <dd class="text-right text-sm font-semibold text-route-ink">
+                                {{ destination.county }}
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        {% if destination.region %}
+                        <div class="flex items-start justify-between gap-4 py-4">
+                            <dt class="text-sm text-route-muted">
+                                Region
+                            </dt>
+                            <dd class="text-right text-sm font-semibold text-route-ink">
+                                {{ destination.region }}
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex items-start justify-between gap-4 py-4">
+                            <dt class="text-sm text-route-muted">
+                                Experiences
+                            </dt>
+                            <dd class="text-right text-sm font-semibold text-route-forest">
+                                {{ experiences|length }}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     Experiences
+     ===================================================================== -->
+<section class="bg-route-cream">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="mb-10 max-w-3xl">
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-route-safari">
+                Experiences
+            </p>
+            <h2 class="mt-3 font-display text-3xl font-semibold text-route-ink sm:text-4xl">
+                Experience {{ destination.name }}
+            </h2>
+            <p class="mt-4 text-base leading-7 text-route-muted">
+                Explore the experiences available in {{ destination.name }}.
+            </p>
+        </div>
+
+        {% if experiences %}
+
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+
+            {% for experience in experiences %}
+
+            <article
+                class="group overflow-hidden rounded-route bg-route-white shadow-route ring-1 ring-route-sand transition duration-300 hover:-translate-y-1 hover:shadow-route-lg"
+            >
+
+                <a
+                    href="{{ url_for('experiences.detail', slug=experience.slug) }}"
+                    class="block"
+                >
+
+                    <div class="relative aspect-[16/10] overflow-hidden bg-route-sand">
+
+    {% if experience.primary_image_url %}
+
+        <img
+            src="{{ experience.primary_image_url }}"
+            alt="{{ experience.title }}"
+            class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            loading="lazy"
+        >
+
+    {% else %}
+
+        <div class="flex h-full w-full items-center justify-center">
+            <span class="text-sm text-route-muted">
+                {{ experience.title }}
+            </span>
+        </div>
+
+    {% endif %}
+
+    {% if experience.featured %}
+        <div class="absolute left-4 top-4">
+            <span class="rounded-full bg-route-gold px-3 py-1.5 text-xs font-bold text-route-deep shadow-sm">
+                Featured
+            </span>
+        </div>
+    {% endif %}
+
+</div>
+
+                    <div class="p-6">
+
+                        <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-route-muted">
+
+                            {% if experience.category %}
+
+                            <span>
+                                {{ experience.category.name }}
+                            </span>
+
+                            {% endif %}
+
+
+                            {% if experience.duration %}
+
+                            <span
+                                aria-hidden="true"
+                                class="text-route-gold"
+                            >
+                                •
+                            </span>
+
+                            <span>
+                                {{ experience.duration }}
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <h3 class="mt-3 font-display text-2xl font-semibold text-route-ink">
+                            {{ experience.title }}
+                        </h3>
+
+                        {% if experience.short_description %}
+                        <p class="mt-3 line-clamp-3 text-sm leading-6 text-route-muted">
+                            {{ experience.short_description }}
+                        </p>
+                        {% endif %}
+
+                        <div class="mt-6 flex items-center justify-between gap-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-wider text-route-muted">
+                                    From
+                                </p>
+                                <p class="mt-1 text-base font-bold text-route-forest">
+                                    {{ experience.formatted_price }}
+                                </p>
+
+                            </div>
+
+
+                            <span class="inline-flex items-center text-sm font-semibold text-route-forest">
+
+                                Explore
+                                <span
+                                    aria-hidden="true"
+                                    class="ml-2 transition-transform group-hover:translate-x-1"
+                                >
+                                    →
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="rounded-route border border-dashed border-route-sand bg-route-white px-6 py-16 text-center shadow-route">
+            <h3 class="font-display text-2xl font-semibold text-route-ink">
+                Experiences coming soon
+            </h3>
+            <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-route-muted">
+                We're currently preparing experiences for this destination.
+                Check back soon for the full collection.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- =====================================================================
+     Back to Destinations
+     ===================================================================== -->
+<section class="bg-route-white">
+    <div class="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8">
+        <a
+            href="{{ url_for('destinations.index') }}"
+            class="inline-flex items-center rounded-full border border-route-forest px-6 py-3 text-sm font-semibold text-route-forest transition hover:bg-route-forest hover:text-route-white"
+        >
+            ← Back to all destinations
+        </a>
+    </div>
+</section>
+
+{% endblock %}

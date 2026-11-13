@@ -1,0 +1,320 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Photography Spots — {{ experience.title }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8">
+
+    <!-- Header -->
+    <div>
+        <nav class="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#66736B]">
+            <a href="{{ url_for('admin_experiences.index') }}" class="transition hover:text-[#1F5138]">
+                Experiences
+            </a>
+            <span>/</span>
+            <span>{{ experience.title }}</span>
+            <span>/</span>
+            <span class="font-medium text-[#1C2822]">Photography Spots</span>
+        </nav>
+
+        <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span>
+            Back to {{ experience.title }}
+        </a>
+
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E9DDC8] text-2xl">
+                    📷
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-[#12372A]">
+                        Photography Spots
+                    </h1>
+                    <p class="mt-1 max-w-2xl text-sm leading-6 text-[#66736B]">
+                        Manage photography locations, scenic stops, and photo opportunities for {{ experience.title }}.
+                    </p>
+                </div>
+            </div>
+
+            <a href="{{ url_for('admin_experience_photography.create', experience_id=experience.id) }}"
+               class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30 focus:ring-offset-2">
+                <span class="text-lg leading-none">+</span>
+                Add Photography Spot
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-[#66736B]">Total Stops</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E9DDC8]">📍</span>
+            </div>
+            <p class="mt-3 text-3xl font-bold text-[#12372A]">{{ total_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">All linked photography stops</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-[#66736B]">Active</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-green-50 text-green-700">✓</span>
+            </div>
+            <p class="mt-3 text-3xl font-bold text-[#1F5138]">{{ active_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">Currently enabled</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-[#66736B]">Featured</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-[#D89B24]">★</span>
+            </div>
+            <p class="mt-3 text-3xl font-bold text-[#D89B24]">{{ featured_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">Highlighted stops</p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-[#66736B]">Inactive</p>
+                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">○</span>
+            </div>
+            <p class="mt-3 text-3xl font-bold text-[#66736B]">{{ inactive_count }}</p>
+            <p class="mt-1 text-xs text-[#66736B]">Currently disabled</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <section class="rounded-2xl border border-[#E9DDC8] bg-white p-5 shadow-sm">
+        <div class="mb-5">
+            <h2 class="font-semibold text-[#12372A]">Filter photography stops</h2>
+            <p class="mt-1 text-sm text-[#66736B]">Narrow the list by status or featured setting.</p>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+              class="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div>
+                <label for="status" class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                    Status
+                </label>
+                <select id="status" name="status"
+                        class="w-full rounded-xl border border-[#D8DCCF] bg-white px-3 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+                    <option value="active" {% if selected_status == "active" %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+                    <option value="all" {% if selected_status == "all" %}selected{% endif %}>All statuses</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="featured" class="mb-2 block text-sm font-semibold text-[#1C2822]">
+                    Featured
+                </label>
+                <select id="featured" name="featured"
+                        class="w-full rounded-xl border border-[#D8DCCF] bg-white px-3 py-3 text-sm text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+                    <option value="" {% if not selected_featured %}selected{% endif %}>All stops</option>
+                    <option value="yes" {% if selected_featured == "yes" %}selected{% endif %}>Featured only</option>
+                    <option value="no" {% if selected_featured == "no" %}selected{% endif %}>Not featured</option>
+                </select>
+            </div>
+
+            <div class="flex flex-wrap gap-2 lg:col-span-2">
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                    Apply Filters
+                </button>
+                <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <!-- Photography stops -->
+    <section class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+        <div class="flex flex-col gap-2 border-b border-[#E9DDC8] bg-[#F7F1E5] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="font-semibold text-[#12372A]">Experience Photography</h2>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    {{ spots|length }} stop{{ '' if spots|length == 1 else 's' }} shown
+                </p>
+            </div>
+            <span class="text-xs text-[#66736B]">Experience: {{ experience.title }}</span>
+        </div>
+
+        {% if spots %}
+
+        <!-- This form contains only the bulk-reorder CSRF token.
+             Reorder controls below reference it using form="reorderForm".
+             Individual action forms remain independent. -->
+        <form id="reorderForm"
+              method="POST"
+              action="{{ url_for('admin_experience_photography.reorder_bulk', experience_id=experience.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
+
+        <div class="divide-y divide-[#E9DDC8]">
+            {% for item in spots %}
+            <article class="p-5 transition hover:bg-[#F7F1E5]/40 sm:p-6">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+
+                    <!-- Order and spot details -->
+                    <div class="flex min-w-0 flex-1 gap-4">
+                        <div class="shrink-0">
+                            <label for="stop-order-{{ item.id }}"
+                                   class="mb-2 block text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                                Order
+                            </label>
+                            <input id="stop-order-{{ item.id }}"
+                                   type="number"
+                                   name="stop_orders[]"
+                                   form="reorderForm"
+                                   value="{{ item.stop_order }}"
+                                   min="0"
+                                   aria-label="Stop order for {{ item.spot.name if item.spot else 'photography stop' }}"
+                                   class="w-20 rounded-xl border border-[#D8DCCF] bg-white px-3 py-2.5 text-center text-sm font-semibold text-[#1C2822] outline-none focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15">
+
+                            <input type="hidden"
+                                   name="spot_ids[]"
+                                   form="reorderForm"
+                                   value="{{ item.id }}">
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="text-base font-semibold text-[#12372A]">
+                                    {{ item.spot.name if item.spot else 'Photography location unavailable' }}
+                                </h3>
+
+                                {% if item.featured %}
+                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                    <span aria-hidden="true">★</span> Featured
+                                </span>
+                                {% endif %}
+
+                                {% if item.active %}
+                                <span class="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-800">
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                                    Inactive
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            {% if item.spot and item.spot.description %}
+                            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#66736B]">
+                                {{ item.spot.description }}
+                            </p>
+                            {% endif %}
+
+                            {% if item.notes %}
+                            <div class="mt-4 rounded-xl border border-[#E9DDC8] bg-[#F7F1E5]/70 p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-[#66736B]">
+                                    Experience Notes
+                                </p>
+                                <p class="mt-1 text-sm leading-6 text-[#1C2822]">{{ item.notes }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Independent action forms -->
+                    <div class="flex shrink-0 flex-wrap items-center gap-2 xl:justify-end">
+
+                        <a href="{{ url_for('admin_experience_photography.edit', experience_id=experience.id, photography_id=item.id) }}"
+                           class="inline-flex items-center justify-center rounded-lg border border-[#D8DCCF] px-3.5 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]">
+                            Edit
+                        </a>
+
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_photography.toggle', experience_id=experience.id, photography_id=item.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="inline-flex items-center justify-center rounded-lg border border-[#D8DCCF] px-3.5 py-2.5 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                                {{ "Deactivate" if item.active else "Activate" }}
+                            </button>
+                        </form>
+
+                        <form method="POST"
+                              action="{{ url_for('admin_experience_photography.delete', experience_id=experience.id, photography_id=item.id) }}"
+                              onsubmit="return confirm('Delete this photography stop permanently?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="inline-flex items-center justify-center rounded-lg border border-red-200 px-3.5 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50">
+                                Delete
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        <!-- Bulk reorder footer -->
+        <div class="flex flex-col gap-4 border-t border-[#E9DDC8] bg-[#F7F1E5]/70 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+                <p class="text-sm font-semibold text-[#12372A]">Reorder photography stops</p>
+                <p class="mt-1 text-xs leading-5 text-[#66736B]">
+                    Change the order numbers above, then save. Other actions are handled separately.
+                </p>
+            </div>
+
+            <button type="submit"
+                    form="reorderForm"
+                    class="inline-flex items-center justify-center rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30 focus:ring-offset-2">
+                Save Order
+            </button>
+        </div>
+
+        {% else %}
+
+        <!-- Empty state -->
+        <div class="px-6 py-16 text-center sm:px-10">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F1E5] text-3xl">
+                📷
+            </div>
+
+            <h3 class="mt-5 text-lg font-semibold text-[#12372A]">
+                No photography spots found
+            </h3>
+
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#66736B]">
+                {% if selected_status != 'all' or selected_featured %}
+                No photography stops match these filters. Try resetting the filters or add a new location.
+                {% else %}
+                Start building the photography experience by connecting locations where guests can capture memorable moments.
+                {% endif %}
+            </p>
+
+            <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                {% if selected_status != 'all' or selected_featured %}
+                <a href="{{ url_for('admin_experience_photography.index', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center rounded-xl border border-[#D8DCCF] px-5 py-3 text-sm font-semibold text-[#1C2822] transition hover:bg-[#F7F1E5]">
+                    Reset Filters
+                </a>
+                {% endif %}
+
+                <a href="{{ url_for('admin_experience_photography.create', experience_id=experience.id) }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F5138] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#12372A]">
+                    <span class="text-lg leading-none">+</span>
+                    Add Photography Spot
+                </a>
+            </div>
+        </div>
+
+        {% endif %}
+    </section>
+
+    <p class="text-center text-xs text-[#66736B]">
+        The Uncharted Route · Explore. Experience. Remember.
+    </p>
+
+</div>
+{% endblock %}

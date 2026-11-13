@@ -1,0 +1,215 @@
+{% extends "admin/base.html" %}
+{% block title %}Experience Media | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            <a
+                href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+                class="text-sm font-medium text-emerald-800 hover:underline"
+            >
+                ← Back to Experience
+            </a>
+
+            <p class="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+                Experience Media
+            </p>
+
+            <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+                {{ experience.title }}
+            </h1>
+
+            <p class="mt-2 text-sm text-slate-500">
+                Manage hero images, banners, gallery items, thumbnails and video assignments.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <a
+                href="{{ url_for('admin_media.index') }}"
+                class="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+                Media Library
+            </a>
+
+            <a
+                href="{{ url_for('admin_experience_media.create', experience_id=experience.id) }}"
+                class="rounded-xl bg-emerald-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800"
+            >
+                + Assign Media
+            </a>
+        </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Total Assignments</p>
+            <p class="mt-2 text-3xl font-semibold text-slate-900">
+                {{ assignments|length }}
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Active Assignments</p>
+            <p class="mt-2 text-3xl font-semibold text-emerald-800">
+                {{ assignments|selectattr('active')|list|length }}
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Active Hero</p>
+            <p class="mt-2 text-lg font-semibold text-slate-900">
+                {% if assignments|selectattr('usage', 'equalto', 'hero')|selectattr('active')|list %}
+                    Assigned
+                {% else %}
+                    Not assigned
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if assignments %}
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Asset
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Usage
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Order
+                            </th>
+                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Status
+                            </th>
+                            <th class="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-slate-100">
+                        {% for assignment in assignments %}
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-5 py-4">
+                                    <div class="flex min-w-64 items-center gap-4">
+                                        {% if assignment.media_asset and assignment.media_asset.is_image and assignment.media_asset.browser_url %}
+                                            <img
+                                                src="{{ assignment.media_asset.browser_url }}"
+                                                alt="{{ assignment.media_asset.alt_text or assignment.title or assignment.media_asset.title or 'Experience media' }}"
+                                                class="h-16 w-20 rounded-xl border border-slate-200 object-cover"
+                                            >
+                                        {% elif assignment.media_asset and assignment.media_asset.is_video %}
+                                            <div class="flex h-16 w-20 items-center justify-center rounded-xl bg-slate-100 text-xs font-semibold text-slate-600">
+                                                VIDEO
+                                            </div>
+                                        {% else %}
+                                            <div class="flex h-16 w-20 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-500">
+                                                MEDIA
+                                            </div>
+                                        {% endif %}
+
+                                        <div>
+                                            <p class="font-medium text-slate-900">
+                                                {{ assignment.title or (assignment.media_asset.title if assignment.media_asset else None) or (assignment.media_asset.original_filename if assignment.media_asset else 'Missing asset') }}
+                                            </p>
+                                            <p class="mt-1 text-xs text-slate-500">
+                                                Asset ID:
+                                                {{ assignment.media_asset_id }}
+                                            </p>
+                                            {% if assignment.featured %}
+                                                <span class="mt-2 inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800">
+                                                    Featured assignment
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                                        {{ assignment.usage|replace('_', ' ')|title }}
+                                    </span>
+                                </td>
+
+                                <td class="px-5 py-4 text-sm text-slate-700">
+                                    {{ assignment.display_order }}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    {% if assignment.active %}
+                                        <span class="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <div class="flex flex-wrap justify-end gap-3 text-sm font-medium">
+                                        <a
+                                            href="{{ url_for('admin_experience_media.detail', experience_id=experience.id, media_id=assignment.id) }}"
+                                            class="text-emerald-800 hover:underline"
+                                        >
+                                            View
+                                        </a>
+
+                                        <a
+                                            href="{{ url_for('admin_experience_media.edit', experience_id=experience.id, media_id=assignment.id) }}"
+                                            class="text-slate-700 hover:underline"
+                                        >
+                                            Edit
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('admin_experience_media.delete', experience_id=experience.id, media_id=assignment.id) }}"
+                                            onsubmit="return confirm('Remove this assignment from the experience? The central media asset will not be deleted.');"
+                                        >
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button
+                                                type="submit"
+                                                class="text-red-700 hover:underline"
+                                            >
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+            <h2 class="text-xl font-semibold text-slate-900">
+                No media assigned yet
+            </h2>
+
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                Start by selecting images or videos from the central Media Library.
+                You can reuse the same asset on other experiences.
+            </p>
+
+            <a
+                href="{{ url_for('admin_experience_media.create', experience_id=experience.id) }}"
+                class="mt-6 inline-flex rounded-xl bg-emerald-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800"
+            >
+                Assign the First Asset
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

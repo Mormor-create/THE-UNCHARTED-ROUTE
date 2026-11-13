@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Update Booking Status | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl space-y-6">
+    <a href="{{ url_for('admin_destination_bookings.detail', booking_id=booking.id) }}"
+       class="text-sm font-semibold text-route-forest">← Back to booking</a>
+
+    <div>
+        <h1 class="text-3xl font-bold text-route-deep">Update booking status</h1>
+        <p class="mt-2 text-sm text-route-muted">{{ booking.booking_reference }}</p>
+    </div>
+
+    <form method="POST" class="space-y-5 rounded-2xl border border-route-sand bg-white p-6">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.status.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+            {{ form.status(class="w-full rounded-xl border border-route-sand px-4 py-3 text-sm") }}
+            {% for error in form.status.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.internal_notes.label(class="mb-2 block text-sm font-semibold text-route-deep") }}
+            {{ form.internal_notes(class="min-h-28 w-full rounded-xl border border-route-sand px-4 py-3 text-sm", rows="4") }}
+        </div>
+
+        <div class="flex justify-end">
+            {{ form.submit(class="cursor-pointer rounded-xl bg-route-forest px-6 py-3 text-sm font-semibold text-white") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

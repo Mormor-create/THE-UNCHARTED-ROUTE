@@ -1,0 +1,524 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ 'Edit' if property else 'Add' }} Property | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F7F1E5] py-8 text-[#1C2822]">
+
+    <div class="route-container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+
+        <!-- ============================================================
+             NAVIGATION
+        ============================================================ -->
+
+        <a
+            href="{% if destination %}
+                       {{ url_for('admin_safaris.destination_detail', destination_id=destination.id) }}
+                   {% else %}
+                       {{ url_for('admin_safaris.properties') }}
+                   {% endif %}"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]"
+        >
+            <span aria-hidden="true">←</span>
+
+            {% if destination %}
+                Back to {{ destination.name }}
+            {% else %}
+                Back to safari properties
+            {% endif %}
+        </a>
+
+
+        <!-- ============================================================
+             PAGE HEADING
+        ============================================================ -->
+
+        <header class="mb-8 mt-5">
+
+            <p class="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-[#C96A2C]">
+                The Uncharted Route · Safari Collection
+            </p>
+
+            <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+
+                <div>
+
+                    <h1 class="font-display text-3xl font-semibold leading-tight text-[#12372A] sm:text-4xl">
+                        {{ 'Edit property' if property else 'Add a safari stay' }}
+                    </h1>
+
+                    <p class="mt-3 max-w-2xl text-sm leading-7 text-[#66736B] sm:text-base">
+
+                        {% if destination %}
+                            {% if property %}
+                                Update the property profile for
+                                <span class="font-semibold text-[#12372A]">
+                                    {{ destination.name }}
+                                </span>.
+                            {% else %}
+                                Add a new safari stay to
+                                <span class="font-semibold text-[#12372A]">
+                                    {{ destination.name }}
+                                </span>.
+                            {% endif %}
+                        {% else %}
+                            Build a considered property profile that helps guests understand
+                            the setting, accommodation, experiences and practical details
+                            of their stay.
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+                <span class="inline-flex w-fit items-center rounded-full border border-[#D89B24]/40 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#5C6B32]">
+
+                    {{ 'Property editor' if property else 'New property' }}
+
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- ============================================================
+             MESSAGES
+        ============================================================ -->
+
+        {% include "admin/safaris/_messages.html" %}
+
+
+        <!-- ============================================================
+             VALIDATION SUMMARY
+        ============================================================ -->
+
+        {% if form.errors %}
+
+        <div class="mb-6 rounded-2xl border border-red-200 bg-white p-5 shadow-sm">
+
+            <h2 class="font-semibold text-red-800">
+                Please review the following fields
+            </h2>
+
+            <ul class="mt-3 list-inside list-disc space-y-1 text-sm text-red-700">
+
+                {% for field_name, errors in form.errors.items() %}
+
+                    {% for error in errors %}
+
+                    <li>
+
+                        {{ form[field_name].label.text
+                           if form[field_name] is defined
+                           else field_name }}:
+
+                        {{ error }}
+
+                    </li>
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ============================================================
+             FORM
+        ============================================================ -->
+
+        <form
+            method="post"
+            class="overflow-hidden rounded-3xl border border-[#E9DDC8] bg-white shadow-sm"
+        >
+
+            {{ form.hidden_tag() }}
+
+
+            {% set groups = [
+
+                {
+                    'eyebrow': '01 · Identification',
+                    'heading': 'Property identity',
+                    'description': 'The essential details used to organise and display this property.',
+                    'fields': [
+                        'destination_id',
+                        'name',
+                        'slug',
+                        'property_type',
+                        'short_description',
+                        'location_name',
+                        'location_description',
+                        'display_order',
+                        'active',
+                        'featured'
+                    ]
+                },
+
+                {
+                    'eyebrow': '02 · The stay',
+                    'heading': 'Story and accommodation',
+                    'description': 'Describe the property accurately and give guests a feel for the stay.',
+                    'fields': [
+                        'overview',
+                        'property_story',
+                        'accommodation_details',
+                        'facilities',
+                        'dining_information'
+                    ]
+                },
+
+                {
+                    'eyebrow': '03 · The experience',
+                    'heading': 'Safari and activities',
+                    'description': 'Explain the experiences available and how guests can explore the destination.',
+                    'fields': [
+                        'activities',
+                        'wildlife_experience',
+                        'transport_information'
+                    ]
+                },
+
+                {
+                    'eyebrow': '04 · Before arrival',
+                    'heading': 'Guest information',
+                    'description': 'Help guests understand practical arrangements before they travel.',
+                    'fields': [
+                        'check_in_information',
+                        'check_out_information',
+                        'child_policy',
+                        'accessibility_information',
+                        'booking_conditions',
+                        'official_website_url'
+                    ]
+                },
+
+                {
+                    'eyebrow': '05 · Digital assets',
+                    'heading': 'Media library',
+                    'description': 'Connect this property to the appropriate folder in the Safari Media Library.',
+                    'fields': [
+                        'media_folder_id'
+                    ]
+                }
+
+            ] %}
+
+
+            {% for group in groups %}
+
+            <section class="border-b border-[#E9DDC8] px-5 py-7 sm:px-8 sm:py-9">
+
+                <div class="mb-6 max-w-3xl">
+
+                    <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C96A2C]">
+                        {{ group.eyebrow }}
+                    </p>
+
+                    <h2 class="font-display text-2xl font-semibold text-[#12372A]">
+                        {{ group.heading }}
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-[#66736B]">
+                        {{ group.description }}
+                    </p>
+
+                </div>
+
+
+                <div class="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+
+                    {% for name in group.fields %}
+
+                        {% if form[name] is defined %}
+
+                            {% set field = form[name] %}
+
+                            {% set wide_fields = [
+                                'short_description',
+                                'overview',
+                                'property_story',
+                                'location_description',
+                                'accommodation_details',
+                                'facilities',
+                                'dining_information',
+                                'activities',
+                                'wildlife_experience',
+                                'transport_information',
+                                'check_in_information',
+                                'check_out_information',
+                                'child_policy',
+                                'accessibility_information',
+                                'booking_conditions'
+                            ] %}
+
+
+                            <div class="{% if name in wide_fields %}md:col-span-2{% endif %}">
+
+
+                                <!-- ====================================================
+                                     DESTINATION CONTEXT
+                                ==================================================== -->
+
+                                {% if name == 'destination_id' %}
+
+                                    <label
+                                        class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                                    >
+                                        Safari destination
+                                    </label>
+
+                                    {% if destination %}
+
+                                        <!--
+                                            The actual WTForms field is submitted
+                                            through this hidden input.
+
+                                            The visible destination is intentionally
+                                            read-only. A property cannot be moved to
+                                            another Safari destination from this form.
+                                        -->
+                                        <input
+                                            type="hidden"
+                                            name="{{ field.name }}"
+                                            value="{{ destination.id }}"
+                                        >
+
+                                        <div
+                                            class="flex min-h-[48px] w-full items-center justify-between rounded-xl border border-[#D89B24]/40 bg-[#F7F1E5]/70 px-4 py-3"
+                                        >
+
+                                            <div class="flex items-center gap-3">
+
+                                                <span
+                                                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#12372A] text-sm font-bold text-white"
+                                                >
+                                                    ↗
+                                                </span>
+
+                                                <div>
+
+                                                    <p class="text-sm font-semibold text-[#12372A]">
+                                                        {{ destination.name }}
+                                                    </p>
+
+                                                    <p class="text-xs text-[#66736B]">
+                                                        Safari destination
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+                                            <span
+                                                class="rounded-full bg-[#E9DDC8] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#5C6B32]"
+                                            >
+                                                Fixed
+                                            </span>
+
+                                        </div>
+
+                                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">
+                                            This property belongs to
+                                            <strong>{{ destination.name }}</strong>.
+                                            The destination is fixed from the Safari
+                                            destination workspace.
+                                        </p>
+
+                                    {% else %}
+
+                                        {{ field(
+                                            class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20"
+                                        ) }}
+
+                                    {% endif %}
+
+
+                                <!-- ====================================================
+                                     BOOLEAN
+                                ==================================================== -->
+
+                                {% elif field.type == 'BooleanField' %}
+
+                                    <label
+                                        class="flex cursor-pointer items-start gap-3 rounded-2xl border border-[#E9DDC8] bg-[#F7F1E5]/60 p-4 transition hover:border-[#D89B24]"
+                                    >
+
+                                        <span class="mt-0.5">
+
+                                            {{ field(
+                                                class_="h-4 w-4 rounded border-[#66736B] text-[#1F5138] focus:ring-[#D89B24]"
+                                            ) }}
+
+                                        </span>
+
+                                        <span>
+
+                                            <span class="block text-sm font-semibold text-[#12372A]">
+                                                {{ field.label.text }}
+                                            </span>
+
+                                            <span class="mt-1 block text-xs leading-5 text-[#66736B]">
+
+                                                {% if name == 'active' %}
+
+                                                    Allow this property to appear in public
+                                                    listings when the relevant catalogue is active.
+
+                                                {% elif name == 'featured' %}
+
+                                                    Mark this property as a featured stay
+                                                    where the public page supports featured properties.
+
+                                                {% endif %}
+
+                                            </span>
+
+                                        </span>
+
+                                    </label>
+
+
+                                <!-- ====================================================
+                                     NORMAL FIELD
+                                ==================================================== -->
+
+                                {% else %}
+
+                                    <label
+                                        for="{{ field.id }}"
+                                        class="mb-2 block text-sm font-semibold text-[#1C2822]"
+                                    >
+
+                                        {{ field.label.text }}
+
+                                        {% if field.flags.required %}
+                                            <span class="text-[#C96A2C]">*</span>
+                                        {% endif %}
+
+                                    </label>
+
+
+                                    {% if field.type == 'TextAreaField' %}
+
+                                        {{ field(
+                                            class_="min-h-[120px] w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20",
+                                            rows=4,
+                                            placeholder="Write clear, guest-friendly information..."
+                                        ) }}
+
+
+                                    {% elif field.type == 'SelectField' %}
+
+                                        {{ field(
+                                            class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20"
+                                        ) }}
+
+
+                                    {% elif name == 'display_order' %}
+
+                                        {{ field(
+                                            class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20",
+                                            min="0"
+                                        ) }}
+
+
+                                    {% else %}
+
+                                        {{ field(
+                                            class_="w-full rounded-xl border border-[#E9DDC8] bg-white px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#66736B]/70 focus:border-[#D89B24] focus:ring-2 focus:ring-[#D89B24]/20",
+                                            placeholder="Enter " ~ field.label.text|lower
+                                        ) }}
+
+                                    {% endif %}
+
+
+                                    {% if field.description %}
+
+                                        <p class="mt-1.5 text-xs leading-5 text-[#66736B]">
+                                            {{ field.description }}
+                                        </p>
+
+                                    {% endif %}
+
+                                {% endif %}
+
+
+                                {% for error in field.errors %}
+
+                                    <p class="mt-2 text-sm text-red-700">
+                                        {{ error }}
+                                    </p>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+            {% endfor %}
+
+
+            <!-- ============================================================
+                 FORM ACTIONS
+            ============================================================ -->
+
+            <div class="flex flex-col-reverse gap-3 bg-[#F7F1E5]/70 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+
+                <p class="text-xs leading-5 text-[#66736B]">
+
+                    Save the property profile first.
+                    Gallery images, packages, itineraries and rates
+                    can be managed separately.
+
+                </p>
+
+
+                <div class="flex flex-wrap gap-3">
+
+                    <a
+                        href="{% if destination %}
+                                   {{ url_for('admin_safaris.destination_detail', destination_id=destination.id) }}
+                               {% else %}
+                                   {{ url_for('admin_safaris.properties') }}
+                               {% endif %}"
+                        class="inline-flex items-center justify-center rounded-xl border border-[#1F5138] px-5 py-3 text-sm font-semibold text-[#1F5138] transition hover:bg-[#E9DDC8]"
+                    >
+                        Cancel
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F5138] focus:outline-none focus:ring-2 focus:ring-[#D89B24] focus:ring-offset-2"
+                    >
+
+                        {{ 'Save property changes' if property else 'Create property' }}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

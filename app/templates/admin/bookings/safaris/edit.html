@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% block title %}Edit Safari Booking | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+    <a href="{{ url_for('admin_safari_bookings.detail', booking_id=booking.id) }}" class="text-sm font-semibold text-[#1F5138] hover:underline">← Back to Booking</a>
+    <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">{{ booking.booking_reference }}</p>
+        <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Edit Safari Booking</h1>
+    </div>
+    <form method="post" class="space-y-6">
+        {{ form.hidden_tag() }}
+        {% include "admin/bookings/safaris/_form_fields.html" %}
+        <div class="flex justify-end gap-3">
+            <a href="{{ url_for('admin_safari_bookings.detail', booking_id=booking.id) }}" class="rounded-xl border border-[#E9DDC8] px-5 py-3 font-semibold text-[#12372A]">Cancel</a>
+            {{ form.submit(class="cursor-pointer rounded-xl bg-[#12372A] px-6 py-3 font-semibold text-white hover:bg-[#1F5138]") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

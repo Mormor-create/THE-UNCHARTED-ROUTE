@@ -1,0 +1,1141 @@
+{# =============================================================================
+   The Uncharted Route
+   Admin — Staff Detail
+   templates/admin/staff/detail.html
+   ============================================================================= #}
+
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ staff.full_name }} — Staff Management
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-route-sand">
+
+    {# =========================================================================
+       PAGE HEADER
+       ========================================================================= #}
+    <div class="mb-8">
+
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+            <div>
+                <a
+                    href="{{ url_for('admin_staff.index') }}"
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-route-muted transition hover:text-route-forest"
+                >
+                    <span aria-hidden="true">←</span>
+                    Back to Staff Management
+                </a>
+
+                <div class="mt-5 flex items-start gap-4">
+
+                    <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-route-forest text-xl font-bold text-route-cream shadow-sm">
+                        {% if staff.user %}
+                            {{ (staff.user.first_name or '')[:1] }}{{ (staff.user.last_name or '')[:1] }}
+                        {% else %}
+                            {{ (staff.first_name or '')[:1] }}{{ (staff.last_name or '')[:1] }}
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <div class="flex flex-wrap items-center gap-3">
+
+                            <h1 class="text-3xl font-bold tracking-tight text-route-deep">
+                                {{ staff.full_name }}
+                            </h1>
+
+                            {% if staff.is_active %}
+                                <span class="inline-flex items-center rounded-full bg-route-forest px-3 py-1 text-xs font-bold text-white">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center rounded-full bg-route-terracotta px-3 py-1 text-xs font-bold text-white">
+                                    Inactive
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-route-muted">
+
+                            {% if staff.job_title %}
+                                <span>{{ staff.job_title }}</span>
+                            {% endif %}
+
+                            {% if staff.department %}
+                                <span class="text-route-gold">•</span>
+                                <span>{{ staff.department }}</span>
+                            {% endif %}
+
+                            {% if staff.employee_number %}
+                                <span class="text-route-gold">•</span>
+                                <span>Employee #{{ staff.employee_number }}</span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            {# Header actions #}
+            <div class="flex flex-wrap gap-3">
+
+                <a
+                    href="{{ url_for('admin_staff.edit', staff_id=staff.id) }}"
+                    class="inline-flex items-center gap-2 rounded-xl bg-route-gold px-5 py-2.5 text-sm font-bold text-route-deep shadow-sm transition hover:bg-route-terracotta hover:text-white"
+                >
+                    <span aria-hidden="true">✎</span>
+                    Edit Staff
+                </a>
+
+                {% if staff.is_active %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_staff.deactivate', staff_id=staff.id) }}"
+                        class="inline"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="inline-flex items-center gap-2 rounded-xl border border-route-terracotta bg-white px-5 py-2.5 text-sm font-bold text-route-terracotta transition hover:bg-route-terracotta hover:text-white"
+                            onclick="return confirm('Deactivate this staff account?')"
+                        >
+                            Deactivate
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_staff.activate', staff_id=staff.id) }}"
+                        class="inline"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="inline-flex items-center gap-2 rounded-xl border border-route-forest bg-white px-5 py-2.5 text-sm font-bold text-route-forest transition hover:bg-route-forest hover:text-white"
+                        >
+                            Activate
+                        </button>
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+    </div>
+
+
+    {# =========================================================================
+       FLASH MESSAGES
+       ========================================================================= #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="mb-8 space-y-3">
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="rounded-2xl border px-5 py-4 text-sm font-medium
+                        {% if category == 'success' %}
+                            border-route-forest/20 bg-route-forest/10 text-route-forest
+                        {% elif category in ['danger', 'error'] %}
+                            border-route-terracotta/20 bg-route-terracotta/10 text-route-terracotta
+                        {% elif category == 'warning' %}
+                            border-route-gold/30 bg-route-gold/10 text-route-deep
+                        {% else %}
+                            border-route-muted/20 bg-white text-route-deep
+                        {% endif %}"
+                    >
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    {# =========================================================================
+       SUMMARY CARDS
+       ========================================================================= #}
+    <div class="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+
+        {# Account Status #}
+        <div class="rounded-2xl border border-route-cream bg-white p-5 shadow-sm">
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-muted">
+                        Account Status
+                    </p>
+
+                    <p class="mt-2 text-xl font-bold text-route-deep">
+                        {% if staff.is_active %}
+                            Active
+                        {% else %}
+                            Inactive
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div
+                    class="flex h-11 w-11 items-center justify-center rounded-xl
+                    {% if staff.is_active %}
+                        bg-route-forest/10 text-route-forest
+                    {% else %}
+                        bg-route-terracotta/10 text-route-terracotta
+                    {% endif %}"
+                >
+                    {% if staff.is_active %}
+                        ✓
+                    {% else %}
+                        !
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Staff Role #}
+        <div class="rounded-2xl border border-route-cream bg-white p-5 shadow-sm">
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-muted">
+                        Staff Role
+                    </p>
+
+                    <p class="mt-2 text-xl font-bold text-route-deep">
+                        {{ staff.staff_type|replace('_', ' ')|title if staff.staff_type else '—' }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-gold/15 text-route-deep">
+                    ★
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Department #}
+        <div class="rounded-2xl border border-route-cream bg-white p-5 shadow-sm">
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-muted">
+                        Department
+                    </p>
+
+                    <p class="mt-2 text-xl font-bold text-route-deep">
+                        {{ staff.department or '—' }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-safari/10 text-route-safari">
+                    ◈
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# Employment #}
+        <div class="rounded-2xl border border-route-cream bg-white p-5 shadow-sm">
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-muted">
+                        Employment
+                    </p>
+
+                    <p class="mt-2 text-xl font-bold text-route-deep">
+                        {{ staff.employment_type|replace('_', ' ')|title if staff.employment_type else '—' }}
+                    </p>
+                </div>
+
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-route-terracotta/10 text-route-terracotta">
+                    ◆
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       MAIN CONTENT
+       ========================================================================= #}
+    <div class="grid grid-cols-1 gap-8 xl:grid-cols-3">
+
+        {# =====================================================================
+           MAIN COLUMN
+           ===================================================================== #}
+        <div class="space-y-8 xl:col-span-2">
+
+
+            {# -----------------------------------------------------------------
+               PERSONAL INFORMATION
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="border-b border-route-cream bg-route-forest px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-gold">
+                        Staff Profile
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-white">
+                        Personal Information
+                    </h2>
+
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Full Name
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.full_name }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Employee Number
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.employee_number or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Phone
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.phone or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Job Title
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.job_title or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Department
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.department or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Employment Type
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.employment_type|replace('_', ' ')|title if staff.employment_type else '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Hire Date
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+
+                            {% if staff.hire_date %}
+                                {{ staff.hire_date.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            End Date
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+
+                            {% if staff.end_date %}
+                                {{ staff.end_date.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </p>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               PROFESSIONAL PROFILE
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="border-b border-route-cream px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-safari">
+                        Professional Profile
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-route-deep">
+                        Skills & Qualifications
+                    </h2>
+
+                </div>
+
+                <div class="space-y-6 p-6">
+
+                    {% if staff.skills %}
+
+                        <div>
+
+                            <p class="mb-3 text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Skills
+                            </p>
+
+                            <div class="rounded-xl bg-route-sand p-4 text-sm leading-7 text-route-deep">
+                                {{ staff.skills }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if staff.languages %}
+
+                        <div>
+
+                            <p class="mb-3 text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Languages
+                            </p>
+
+                            <div class="rounded-xl bg-route-sand p-4 text-sm leading-7 text-route-deep">
+                                {{ staff.languages }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if staff.qualifications %}
+
+                        <div>
+
+                            <p class="mb-3 text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Qualifications
+                            </p>
+
+                            <div class="rounded-xl bg-route-sand p-4 text-sm leading-7 text-route-deep">
+                                {{ staff.qualifications }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if staff.certifications %}
+
+                        <div>
+
+                            <p class="mb-3 text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Certifications
+                            </p>
+
+                            <div class="rounded-xl bg-route-sand p-4 text-sm leading-7 text-route-deep">
+                                {{ staff.certifications }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if not staff.skills
+                          and not staff.languages
+                          and not staff.qualifications
+                          and not staff.certifications %}
+
+                        <div class="rounded-xl border border-dashed border-route-cream bg-route-sand/50 p-6 text-center">
+
+                            <p class="text-sm font-medium text-route-muted">
+                                No professional information has been added yet.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               EMERGENCY CONTACT
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="border-b border-route-cream px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-terracotta">
+                        Emergency Information
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-route-deep">
+                        Emergency Contact
+                    </h2>
+
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Name
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.emergency_contact_name or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Relationship
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.emergency_contact_relationship or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Phone
+                        </p>
+
+                        <p class="mt-1 text-base font-semibold text-route-deep">
+                            {{ staff.emergency_contact_phone or '—' }}
+                        </p>
+                    </div>
+
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Email
+                        </p>
+
+                        <p class="mt-1 break-words text-base font-semibold text-route-deep">
+                            {{ staff.emergency_contact_email or '—' }}
+                        </p>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               NOTES
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="border-b border-route-cream px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-terracotta">
+                        Internal Record
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-route-deep">
+                        Notes
+                    </h2>
+
+                </div>
+
+                <div class="space-y-6 p-6">
+
+                    <div>
+
+                        <p class="mb-3 text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Staff Notes
+                        </p>
+
+                        {% if staff.notes %}
+
+                            <div class="rounded-xl bg-route-sand p-4 text-sm leading-7 text-route-deep">
+                                {{ staff.notes }}
+                            </div>
+
+                        {% else %}
+
+                            <p class="text-sm text-route-muted">
+                                No staff notes recorded.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="mb-3 text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Internal Notes
+                        </p>
+
+                        {% if staff.internal_notes %}
+
+                            <div class="rounded-xl bg-route-cream/60 p-4 text-sm leading-7 text-route-deep">
+                                {{ staff.internal_notes }}
+                            </div>
+
+                        {% else %}
+
+                            <p class="text-sm text-route-muted">
+                                No internal notes recorded.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        {# =====================================================================
+           SIDEBAR
+           ===================================================================== #}
+        <div class="space-y-8">
+
+
+            {# -----------------------------------------------------------------
+               STAFF ACCOUNT
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="rounded-t-2xl bg-route-deep px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-gold">
+                        Account
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-white">
+                        User Account
+                    </h2>
+
+                </div>
+
+                <div class="space-y-5 p-6">
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Username
+                        </p>
+
+                        <p class="mt-1 break-words text-sm font-semibold text-route-deep">
+
+                            {% if staff.user %}
+                                {{ staff.user.username or '—' }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Email
+                        </p>
+
+                        <p class="mt-1 break-words text-sm font-semibold text-route-deep">
+
+                            {% if staff.user %}
+                                {{ staff.user.email or '—' }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Verification
+                        </p>
+
+                        {% if staff.user and staff.user.is_verified %}
+
+                            <span class="mt-2 inline-flex rounded-full bg-route-forest/10 px-3 py-1 text-xs font-bold text-route-forest">
+                                Verified
+                            </span>
+
+                        {% else %}
+
+                            <span class="mt-2 inline-flex rounded-full bg-route-gold/15 px-3 py-1 text-xs font-bold text-route-deep">
+                                Not Verified
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               STAFF OPERATIONS
+               ----------------------------------------------------------------- #}
+            <section class="overflow-hidden rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="bg-route-forest px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-gold">
+                        Staff Operations
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-white">
+                        Manage {{ staff.full_name }}
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-route-cream/80">
+                        Manage this staff member's operational records and performance.
+                    </p>
+
+                </div>
+
+                <div class="space-y-3 p-5">
+
+                    {# Assignments #}
+                    <a
+                        href="{{ url_for('admin_staff.assignments', staff_id=staff.id) }}"
+                        class="group flex items-center gap-4 rounded-xl border border-route-cream bg-route-sand/50 p-4 transition hover:border-route-gold hover:bg-route-gold/10"
+                    >
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-gold/15 text-lg text-route-deep transition group-hover:bg-route-gold">
+                            ✓
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <p class="text-sm font-bold text-route-deep">
+                                Assignments
+                            </p>
+
+                            <p class="mt-1 text-xs leading-5 text-route-muted">
+                                View and manage booking assignments.
+                            </p>
+
+                        </div>
+
+                        <span class="text-lg font-bold text-route-muted transition group-hover:translate-x-1 group-hover:text-route-gold">
+                            →
+                        </span>
+
+                    </a>
+
+
+                    {# Availability #}
+                    <a
+                        href="{{ url_for('admin_staff.availability', staff_id=staff.id) }}"
+                        class="group flex items-center gap-4 rounded-xl border border-route-cream bg-route-sand/50 p-4 transition hover:border-route-safari hover:bg-route-safari/10"
+                    >
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-safari/15 text-lg text-route-safari transition group-hover:bg-route-safari/20">
+                            ◷
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <p class="text-sm font-bold text-route-deep">
+                                Availability
+                            </p>
+
+                            <p class="mt-1 text-xs leading-5 text-route-muted">
+                                Manage working availability and availability records.
+                            </p>
+
+                        </div>
+
+                        <span class="text-lg font-bold text-route-muted transition group-hover:translate-x-1 group-hover:text-route-safari">
+                            →
+                        </span>
+
+                    </a>
+
+
+                    {# Schedule #}
+                    <a
+                        href="{{ url_for('admin_staff.schedule', staff_id=staff.id) }}"
+                        class="group flex items-center gap-4 rounded-xl border border-route-cream bg-route-sand/50 p-4 transition hover:border-route-forest hover:bg-route-forest/10"
+                    >
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-forest/10 text-lg text-route-forest transition group-hover:bg-route-forest/20">
+                            ◫
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <p class="text-sm font-bold text-route-deep">
+                                Schedule
+                            </p>
+
+                            <p class="mt-1 text-xs leading-5 text-route-muted">
+                                View and manage internal staff schedules.
+                            </p>
+
+                        </div>
+
+                        <span class="text-lg font-bold text-route-muted transition group-hover:translate-x-1 group-hover:text-route-forest">
+                            →
+                        </span>
+
+                    </a>
+
+
+                    {# Performance #}
+                    <a
+                        href="{{ url_for('admin_staff.performance', staff_id=staff.id) }}"
+                        class="group flex items-center gap-4 rounded-xl border border-route-cream bg-route-sand/50 p-4 transition hover:border-route-terracotta hover:bg-route-terracotta/10"
+                    >
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-route-terracotta/10 text-lg text-route-terracotta transition group-hover:bg-route-terracotta/20">
+                            ★
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <p class="text-sm font-bold text-route-deep">
+                                Performance
+                            </p>
+
+                            <p class="mt-1 text-xs leading-5 text-route-muted">
+                                Review assignments, completion and performance.
+                            </p>
+
+                        </div>
+
+                        <span class="text-lg font-bold text-route-muted transition group-hover:translate-x-1 group-hover:text-route-terracotta">
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               EMPLOYMENT SUMMARY
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="border-b border-route-cream px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-safari">
+                        Employment
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-route-deep">
+                        Staff Information
+                    </h2>
+
+                </div>
+
+                <div class="divide-y divide-route-cream">
+
+                    <div class="px-6 py-4">
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Staff Type
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-route-deep">
+                            {{ staff.staff_type|replace('_', ' ')|title if staff.staff_type else '—' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-6 py-4">
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Department
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-route-deep">
+                            {{ staff.department or '—' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-6 py-4">
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Job Title
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-route-deep">
+                            {{ staff.job_title or '—' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-6 py-4">
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Employment Type
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-route-deep">
+                            {{ staff.employment_type|replace('_', ' ')|title if staff.employment_type else '—' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="px-6 py-4">
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Hire Date
+                        </p>
+
+                        <p class="mt-1 text-sm font-semibold text-route-deep">
+
+                            {% if staff.hire_date %}
+                                {{ staff.hire_date.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    {% if staff.end_date %}
+
+                        <div class="px-6 py-4">
+
+                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                End Date
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-route-deep">
+                                {{ staff.end_date.strftime('%d %b %Y') }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               RECORD INFORMATION
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-cream bg-white shadow-sm">
+
+                <div class="border-b border-route-cream px-6 py-5">
+
+                    <p class="text-xs font-bold uppercase tracking-widest text-route-muted">
+                        Record Information
+                    </p>
+
+                    <h2 class="mt-1 text-xl font-bold text-route-deep">
+                        Audit Information
+                    </h2>
+
+                </div>
+
+                <div class="space-y-5 p-6">
+
+                    <div>
+
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Staff ID
+                        </p>
+
+                        <p class="mt-1 font-mono text-sm font-semibold text-route-deep">
+                            #{{ staff.id }}
+                        </p>
+
+                    </div>
+
+
+                    {% if staff.created_at %}
+
+                        <div>
+
+                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Created
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-route-deep">
+                                {{ staff.created_at.strftime('%d %b %Y, %H:%M') }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if staff.updated_at %}
+
+                        <div>
+
+                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Last Updated
+                            </p>
+
+                            <p class="mt-1 text-sm font-semibold text-route-deep">
+                                {{ staff.updated_at.strftime('%d %b %Y, %H:%M') }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            {# -----------------------------------------------------------------
+               MANAGEMENT ACTION
+               ----------------------------------------------------------------- #}
+            <section class="rounded-2xl border border-route-gold/30 bg-route-cream/40 p-6">
+
+                <p class="text-xs font-bold uppercase tracking-widest text-route-terracotta">
+                    Staff Management
+                </p>
+
+                <h2 class="mt-1 text-lg font-bold text-route-deep">
+                    Update this staff member
+                </h2>
+
+                <p class="mt-2 text-sm leading-6 text-route-muted">
+                    Edit the staff profile, role, employment information,
+                    account status, or professional details.
+                </p>
+
+                <a
+                    href="{{ url_for('admin_staff.edit', staff_id=staff.id) }}"
+                    class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-route-forest px-5 py-3 text-sm font-bold text-white transition hover:bg-route-deep"
+                >
+                    Edit Staff Member
+                </a>
+
+            </section>
+
+        </div>
+
+    </div>
+
+
+    {# =========================================================================
+       FOOTER NAVIGATION
+       ========================================================================= #}
+    <div class="mt-8 flex flex-col gap-3 border-t border-route-cream pt-6 sm:flex-row sm:items-center sm:justify-between">
+
+        <a
+            href="{{ url_for('admin_staff.index') }}"
+            class="inline-flex items-center gap-2 text-sm font-bold text-route-muted transition hover:text-route-forest"
+        >
+            <span aria-hidden="true">←</span>
+            Back to Staff Management
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

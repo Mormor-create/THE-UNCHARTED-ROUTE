@@ -1,0 +1,155 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {{ heading }} | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="mx-auto max-w-4xl px-6 py-10">
+
+    <div class="mb-8">
+
+        <a
+            href="{{ url_for('admin_legal_help.index') }}"
+            class="text-sm font-bold text-route-forest hover:text-route-deep"
+        >
+            ← Back to Legal & Help
+        </a>
+
+        <p class="mt-6 text-sm font-bold uppercase tracking-[0.3em] text-route-gold">
+            Legal & Help CMS
+        </p>
+
+        <h1 class="mt-2 font-display text-4xl font-semibold text-route-ink">
+            {{ heading }}
+        </h1>
+
+    </div>
+
+
+    <form
+        method="POST"
+        class="rounded-2xl border border-route-sand bg-route-white p-6 shadow-route sm:p-8"
+    >
+
+        {{ form.hidden_tag() }}
+
+        <div class="grid gap-6 md:grid-cols-2">
+
+            <div>
+                {{ form.slug.label(class="block text-sm font-bold text-route-ink") }}
+                {{ form.slug(
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink outline-none focus:border-route-gold"
+                ) }}
+
+                {% for error in form.slug.errors %}
+                    <p class="mt-1 text-xs text-route-terracotta">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+
+            <div>
+                {{ form.page_type.label(class="block text-sm font-bold text-route-ink") }}
+                {{ form.page_type(
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink outline-none focus:border-route-gold"
+                ) }}
+            </div>
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.eyebrow.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.eyebrow(
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink outline-none focus:border-route-gold"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.title.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.title(
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink outline-none focus:border-route-gold"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-6">
+
+            {{ form.intro.label(class="block text-sm font-bold text-route-ink") }}
+
+            {{ form.intro(
+                rows="5",
+                class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm leading-7 text-route-ink outline-none focus:border-route-gold"
+            ) }}
+
+        </div>
+
+
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+
+            <div>
+
+                {{ form.meta_title.label(class="block text-sm font-bold text-route-ink") }}
+
+                {{ form.meta_title(
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm text-route-ink outline-none focus:border-route-gold"
+                ) }}
+
+            </div>
+
+            <div>
+
+                {{ form.meta_description.label(class="block text-sm font-bold text-route-ink") }}
+
+                {{ form.meta_description(
+                    rows="4",
+                    class="mt-2 w-full rounded-xl border border-route-sand bg-route-cream px-4 py-3 text-sm leading-6 text-route-ink outline-none focus:border-route-gold"
+                ) }}
+
+            </div>
+
+        </div>
+
+
+        <div class="mt-6 flex items-center gap-3">
+
+            {{ form.active(
+                class="h-4 w-4 rounded border-route-sand text-route-forest focus:ring-route-gold"
+            ) }}
+
+            {{ form.active.label(class="text-sm font-semibold text-route-ink") }}
+
+        </div>
+
+
+        <div class="mt-8 flex flex-wrap gap-3">
+
+            <button
+                type="submit"
+                class="rounded-full bg-route-forest px-7 py-3 text-sm font-bold text-route-white transition hover:bg-route-deep"
+            >
+                {{ form.submit.label.text }}
+            </button>
+
+            <a
+                href="{{ url_for('admin_legal_help.index') }}"
+                class="rounded-full bg-route-cream px-7 py-3 text-sm font-bold text-route-forest transition hover:bg-route-sand"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

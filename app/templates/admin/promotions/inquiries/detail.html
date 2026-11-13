@@ -1,0 +1,457 @@
+{% extends "admin/base.html" %}
+{% block title %}Inquiry Details | The Uncharted Route{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- ============================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ============================================================= -->
+    <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
+
+        <div>
+            <a href="{{ url_for('admin_promotions.inquiries') }}"
+               class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-route-muted transition hover:text-route-forest">
+                <i class="bi bi-arrow-left"></i>
+                Back to inquiries
+            </a>
+
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-terracotta">
+                Customer Inquiry
+            </p>
+
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-route-ink">
+                Inquiry #{{ inquiry.id }}
+            </h1>
+
+            <p class="mt-2 text-sm text-route-muted">
+                Submitted
+                {{ inquiry.submitted_at.strftime('%d %B %Y at %I:%M %p') if inquiry.submitted_at else 'Date unavailable' }}
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <span class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold
+                {% if inquiry.status == 'new' %}
+                    bg-blue-100 text-blue-800
+                {% elif inquiry.status == 'in_progress' %}
+                    bg-amber-100 text-amber-800
+                {% elif inquiry.status == 'contacted' %}
+                    bg-purple-100 text-purple-800
+                {% elif inquiry.status == 'converted' %}
+                    bg-green-100 text-green-800
+                {% else %}
+                    bg-route-sand text-route-ink
+                {% endif %}">
+                <span class="h-2 w-2 rounded-full
+                    {% if inquiry.status == 'new' %}
+                        bg-blue-600
+                    {% elif inquiry.status == 'in_progress' %}
+                        bg-amber-600
+                    {% elif inquiry.status == 'contacted' %}
+                        bg-purple-600
+                    {% elif inquiry.status == 'converted' %}
+                        bg-green-600
+                    {% else %}
+                        bg-route-muted
+                    {% endif %}">
+                </span>
+                {{ inquiry.display_status }}
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="space-y-3">
+                {% for category, message in messages %}
+                    <div class="rounded-xl border px-4 py-3 text-sm
+                        {% if category == 'success' %}
+                            border-green-200 bg-green-50 text-green-800
+                        {% elif category == 'danger' or category == 'error' %}
+                            border-red-200 bg-red-50 text-red-800
+                        {% else %}
+                            border-route-sand bg-route-cream text-route-ink
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- MAIN CONTENT -->
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+
+        <!-- ========================================================= -->
+        <!-- LEFT: CUSTOMER AND INQUIRY INFORMATION -->
+        <!-- ========================================================= -->
+        <div class="space-y-6 lg:col-span-2">
+
+            <!-- CUSTOMER INFORMATION -->
+            <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+                <div class="flex items-center gap-3 border-b border-route-sand px-5 py-5 sm:px-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+                        <i class="bi bi-person text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-bold text-route-ink">Customer Information</h2>
+                        <p class="mt-0.5 text-xs text-route-muted">
+                            Customer contact and location details
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 p-5 sm:grid-cols-2 sm:p-6">
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Full name
+                        </p>
+                        <p class="mt-2 font-semibold text-route-ink">
+                            {{ inquiry.customer_name }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Email address
+                        </p>
+                        <a href="mailto:{{ inquiry.email }}"
+                           class="mt-2 inline-flex items-center gap-2 break-all font-medium text-route-forest hover:text-route-terracotta">
+                            <i class="bi bi-envelope"></i>
+                            {{ inquiry.email }}
+                        </a>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Phone number
+                        </p>
+
+                        {% if inquiry.phone %}
+                            <a href="tel:{{ inquiry.phone }}"
+                               class="mt-2 inline-flex items-center gap-2 font-medium text-route-forest hover:text-route-terracotta">
+                                <i class="bi bi-telephone"></i>
+                                {{ inquiry.phone }}
+                            </a>
+                        {% else %}
+                            <p class="mt-2 text-sm text-route-muted">Not provided</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Country
+                        </p>
+                        <p class="mt-2 font-medium text-route-ink">
+                            {{ inquiry.country or 'Not provided' }}
+                        </p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Preferred contact method
+                        </p>
+
+                        <div class="mt-2 inline-flex items-center gap-2 rounded-xl bg-route-cream px-4 py-3 text-sm font-semibold text-route-forest">
+                            {% if inquiry.contact_method == 'whatsapp' %}
+                                <i class="bi bi-whatsapp text-lg"></i>
+                            {% elif inquiry.contact_method == 'phone' %}
+                                <i class="bi bi-telephone text-lg"></i>
+                            {% else %}
+                                <i class="bi bi-envelope text-lg"></i>
+                            {% endif %}
+
+                            {{ inquiry.preferred_contact_method }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- QUICK CONTACT ACTIONS -->
+                <div class="flex flex-wrap gap-3 border-t border-route-sand bg-route-cream/40 px-5 py-4 sm:px-6">
+
+                    <a href="mailto:{{ inquiry.email }}"
+                       class="inline-flex items-center gap-2 rounded-lg bg-route-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-route-deep">
+                        <i class="bi bi-envelope"></i>
+                        Send email
+                    </a>
+
+                    {% if inquiry.phone %}
+                        <a href="tel:{{ inquiry.phone }}"
+                           class="inline-flex items-center gap-2 rounded-lg border border-route-sand bg-white px-4 py-2.5 text-sm font-semibold text-route-forest transition hover:bg-route-cream">
+                            <i class="bi bi-telephone"></i>
+                            Call customer
+                        </a>
+
+                        <a href="https://wa.me/{{ inquiry.phone|replace('+', '')|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-semibold text-green-800 transition hover:bg-green-100">
+                            <i class="bi bi-whatsapp"></i>
+                            WhatsApp
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- PROMOTION INFORMATION -->
+            <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+                <div class="flex items-center gap-3 border-b border-route-sand px-5 py-5 sm:px-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-cream text-route-terracotta">
+                        <i class="bi bi-megaphone text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-bold text-route-ink">Promotion Details</h2>
+                        <p class="mt-0.5 text-xs text-route-muted">
+                            The offer the customer is interested in
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-5 p-5 sm:flex-row sm:p-6">
+
+                    {% if inquiry.promotion and inquiry.promotion.poster_url %}
+                        <img
+                            src="{{ inquiry.promotion.poster_url }}"
+                            alt="{{ inquiry.promotion.poster_alt }}"
+                            class="h-44 w-32 shrink-0 rounded-xl border border-route-sand bg-route-cream object-cover"
+                        >
+                    {% else %}
+                        <div class="flex h-44 w-32 shrink-0 items-center justify-center rounded-xl bg-route-cream text-route-muted">
+                            <i class="bi bi-image text-3xl"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                            Promotion
+                        </p>
+
+                        <h3 class="mt-2 text-lg font-bold text-route-ink">
+                            {{ inquiry.promotion_title }}
+                        </h3>
+
+                        {% if inquiry.promotion %}
+                            <p class="mt-2 text-sm leading-6 text-route-muted">
+                                {{ inquiry.promotion.description|striptags|truncate(220) if inquiry.promotion.description else 'No promotion description available.' }}
+                            </p>
+
+                            <p class="mt-3 text-xs text-route-muted">
+                                Promotion status:
+                                <span class="font-semibold text-route-ink">
+                                    {{ inquiry.promotion.display_status|title }}
+                                </span>
+                            </p>
+
+                            <a href="{{ url_for('admin_promotions.edit', promotion_id=inquiry.promotion.id) }}"
+                               class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-route-forest hover:text-route-terracotta">
+                                View promotion record
+                                <i class="bi bi-arrow-up-right"></i>
+                            </a>
+                        {% else %}
+                            <p class="mt-2 text-sm leading-6 text-route-muted">
+                                This promotion has since been deleted. The original
+                                promotion title has been retained with this inquiry.
+                            </p>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- CUSTOMER MESSAGE -->
+            <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+                <div class="flex items-center gap-3 border-b border-route-sand px-5 py-5 sm:px-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+                        <i class="bi bi-chat-left-text text-xl"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="font-bold text-route-ink">Customer Message</h2>
+                        <p class="mt-0.5 text-xs text-route-muted">
+                            Original inquiry submitted by the customer
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+                    <div class="rounded-xl border border-route-sand bg-route-cream/50 p-5">
+                        <p class="whitespace-pre-line text-sm leading-7 text-route-ink">{{ inquiry.message }}</p>
+                    </div>
+
+                    <p class="mt-4 text-xs text-route-muted">
+                        Received
+                        {{ inquiry.submitted_at.strftime('%d %B %Y at %I:%M %p') if inquiry.submitted_at else 'at an unknown time' }}
+                    </p>
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- RIGHT: INQUIRY MANAGEMENT -->
+        <!-- ========================================================= -->
+        <aside class="space-y-6 lg:sticky lg:top-6">
+
+            <!-- UPDATE INQUIRY -->
+            <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+                <div class="border-b border-route-sand px-5 py-5">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-route-cream text-route-forest">
+                            <i class="bi bi-sliders text-xl"></i>
+                        </div>
+
+                        <div>
+                            <h2 class="font-bold text-route-ink">Manage Inquiry</h2>
+                            <p class="mt-0.5 text-xs text-route-muted">
+                                Update follow-up progress
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST"
+                      action="{{ url_for('admin_promotions.inquiry_detail', inquiry_id=inquiry.id) }}"
+                      class="space-y-5 p-5">
+
+                    {{ form.hidden_tag() }}
+
+                    <div>
+                        {{ form.status.label(class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted") }}
+
+                        {{ form.status(class="w-full rounded-xl border border-route-sand bg-white px-4 py-3 text-sm text-route-ink outline-none transition focus:border-route-forest focus:ring-2 focus:ring-route-forest/10") }}
+
+                        {% for error in form.status.errors %}
+                            <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.admin_notes.label(class="mb-2 block text-xs font-bold uppercase tracking-wider text-route-muted") }}
+
+                        {{ form.admin_notes(
+                            rows="7",
+                            placeholder="Record contact attempts, customer feedback, follow-up dates or other internal notes...",
+                            class="w-full resize-y rounded-xl border border-route-sand bg-white px-4 py-3 text-sm leading-6 text-route-ink outline-none transition placeholder:text-route-muted focus:border-route-forest focus:ring-2 focus:ring-route-forest/10"
+                        ) }}
+
+                        {% for error in form.admin_notes.errors %}
+                            <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                        {% endfor %}
+
+                        <p class="mt-2 text-xs leading-5 text-route-muted">
+                            These notes are internal and are not displayed to the customer.
+                        </p>
+                    </div>
+
+                    <button type="submit"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-route-forest px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-route-deep">
+                        <i class="bi bi-check2-circle"></i>
+                        Save Changes
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- INQUIRY TIMELINE / RECORD INFORMATION -->
+            <section class="overflow-hidden rounded-2xl border border-route-sand bg-white shadow-sm">
+
+                <div class="border-b border-route-sand px-5 py-4">
+                    <h2 class="font-bold text-route-ink">Record Information</h2>
+                </div>
+
+                <div class="space-y-5 p-5">
+
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-route-cream text-route-forest">
+                            <i class="bi bi-hash"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-route-muted">Inquiry reference</p>
+                            <p class="mt-1 text-sm font-semibold text-route-ink">
+                                #{{ inquiry.id }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-route-cream text-route-forest">
+                            <i class="bi bi-calendar-plus"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-route-muted">Date submitted</p>
+                            <p class="mt-1 text-sm font-semibold text-route-ink">
+                                {{ inquiry.submitted_at.strftime('%d %b %Y') if inquiry.submitted_at else '—' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-route-cream text-route-forest">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-route-muted">Last updated</p>
+                            <p class="mt-1 text-sm font-semibold text-route-ink">
+                                {{ inquiry.updated_at.strftime('%d %b %Y at %I:%M %p') if inquiry.updated_at else 'Not updated' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-route-cream text-route-forest">
+                            <i class="bi bi-flag"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-route-muted">Current status</p>
+                            <p class="mt-1 text-sm font-semibold text-route-ink">
+                                {{ inquiry.display_status }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- INTERNAL NOTES PREVIEW -->
+            {% if inquiry.admin_notes %}
+                <section class="rounded-2xl border border-route-sand bg-route-cream p-5">
+                    <div class="flex items-center gap-2">
+                        <i class="bi bi-lock-fill text-route-terracotta"></i>
+                        <h2 class="text-sm font-bold text-route-ink">
+                            Saved internal notes
+                        </h2>
+                    </div>
+
+                    <p class="mt-3 whitespace-pre-line text-sm leading-6 text-route-muted">{{ inquiry.admin_notes }}</p>
+                </section>
+            {% endif %}
+
+        </aside>
+
+    </div>
+
+</div>
+{% endblock %}

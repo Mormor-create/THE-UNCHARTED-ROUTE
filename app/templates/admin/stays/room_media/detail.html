@@ -1,0 +1,369 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Room Media{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <!-- Breadcrumbs -->
+    <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+
+        <a href="{{ url_for('admin_stay.index') }}"
+           class="hover:text-purple-600">
+            Stays
+        </a>
+
+        <span>/</span>
+
+        <a href="{{ url_for('admin_stay_room.index') }}"
+           class="hover:text-purple-600">
+            Rooms
+        </a>
+
+        <span>/</span>
+
+        <span class="text-gray-700">
+            {{ room_media.room.name }}
+        </span>
+
+        <span>/</span>
+
+        <span class="text-gray-900 font-medium">
+            Room Media
+        </span>
+
+    </div>
+
+
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+
+        <div>
+
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+
+                {% if room_media.active %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                                 text-xs font-semibold bg-green-100 text-green-700">
+                        Active
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                                 text-xs font-semibold bg-gray-100 text-gray-600">
+                        Inactive
+                    </span>
+                {% endif %}
+
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                             text-xs font-semibold bg-purple-100 text-purple-700">
+                    {{ room_media.usage|replace('_', ' ')|title }}
+                </span>
+
+            </div>
+
+            <h1 class="text-2xl font-bold text-gray-900">
+                Room Media
+            </h1>
+
+            <p class="text-sm text-gray-500 mt-1">
+                Media assignment for
+                <span class="font-medium text-gray-700">
+                    {{ room_media.room.name }}
+                </span>
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-2">
+
+            <a href="{{ url_for('admin_stay_room_media.edit', media_id=room_media.id) }}"
+               class="inline-flex items-center justify-center px-4 py-2.5
+                      rounded-lg bg-purple-600 text-white
+                      text-sm font-medium hover:bg-purple-700 transition">
+                Edit
+            </a>
+
+            <a href="{{ url_for('admin_stay_room.detail', room_id=room_media.room_id) }}"
+               class="inline-flex items-center justify-center px-4 py-2.5
+                      rounded-lg border border-gray-300 bg-white
+                      text-sm font-medium text-gray-700
+                      hover:bg-gray-50 transition">
+                Back to Room
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Information -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        <!-- Media Information -->
+        <div class="xl:col-span-2 bg-white border border-gray-200
+                    rounded-xl shadow-sm overflow-hidden">
+
+            <div class="px-6 py-5 border-b border-gray-200">
+
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Media Information
+                </h2>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Details of the asset assigned to this room.
+                </p>
+
+            </div>
+
+
+            <div class="p-6">
+
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+
+                    <div>
+                        <dt class="text-xs font-semibold uppercase
+                                   tracking-wider text-gray-500">
+                            Room
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium text-gray-900">
+                            {{ room_media.room.name }}
+                        </dd>
+                    </div>
+
+
+                    <div>
+                        <dt class="text-xs font-semibold uppercase
+                                   tracking-wider text-gray-500">
+                            Media Asset
+                        </dt>
+
+                        <dd class="mt-1 text-sm font-medium text-gray-900">
+                            {% if room_media.media_asset %}
+                                {{ room_media.media_asset.title
+                                   if room_media.media_asset.title
+                                   else 'Media Asset #' ~ room_media.media_asset_id }}
+                            {% else %}
+                                Media Asset #{{ room_media.media_asset_id }}
+                            {% endif %}
+                        </dd>
+                    </div>
+
+
+                    <div>
+                        <dt class="text-xs font-semibold uppercase
+                                   tracking-wider text-gray-500">
+                            Usage
+                        </dt>
+
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {{ room_media.usage|replace('_', ' ')|title }}
+                        </dd>
+                    </div>
+
+
+                    <div>
+                        <dt class="text-xs font-semibold uppercase
+                                   tracking-wider text-gray-500">
+                            Display Order
+                        </dt>
+
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {{ room_media.display_order }}
+                        </dd>
+                    </div>
+
+
+                    <div class="md:col-span-2">
+
+                        <dt class="text-xs font-semibold uppercase
+                                   tracking-wider text-gray-500">
+                            Caption
+                        </dt>
+
+                        <dd class="mt-2 text-sm text-gray-700 whitespace-pre-line">
+                            {{ room_media.caption or 'No caption provided.' }}
+                        </dd>
+
+                    </div>
+
+                </dl>
+
+            </div>
+
+        </div>
+
+
+        <!-- Status -->
+        <div class="bg-white border border-gray-200
+                    rounded-xl shadow-sm overflow-hidden">
+
+            <div class="px-6 py-5 border-b border-gray-200">
+
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Status
+                </h2>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Manage this room media assignment.
+                </p>
+
+            </div>
+
+
+            <div class="p-6 space-y-4">
+
+                {% if room_media.active %}
+
+                    <form method="POST"
+                          action="{{ url_for(
+                              'admin_stay_room_media.deactivate',
+                              media_id=room_media.id
+                          ) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full px-4 py-2.5 rounded-lg
+                                       border border-amber-300
+                                       bg-amber-50 text-amber-700
+                                       text-sm font-medium
+                                       hover:bg-amber-100 transition">
+                            Deactivate Media
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <form method="POST"
+                          action="{{ url_for(
+                              'admin_stay_room_media.activate',
+                              media_id=room_media.id
+                          ) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <button type="submit"
+                                class="w-full px-4 py-2.5 rounded-lg
+                                       bg-green-600 text-white
+                                       text-sm font-medium
+                                       hover:bg-green-700 transition">
+                            Activate Media
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+
+                <form method="POST"
+                      action="{{ url_for(
+                          'admin_stay_room_media.delete',
+                          media_id=room_media.id
+                      ) }}"
+                      onsubmit="return confirm(
+                          'Delete this room media assignment? The original Media Library asset will remain unchanged.'
+                      );">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit"
+                            class="w-full px-4 py-2.5 rounded-lg
+                                   border border-red-300
+                                   bg-red-50 text-red-700
+                                   text-sm font-medium
+                                   hover:bg-red-100 transition">
+                        Delete Assignment
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Media Preview -->
+    {% if room_media.media_asset %}
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+
+        <div class="px-6 py-5 border-b border-gray-200">
+
+            <h2 class="text-lg font-semibold text-gray-900">
+                Media Preview
+            </h2>
+
+            <p class="text-sm text-gray-500 mt-1">
+                Central Media Library asset associated with this room.
+            </p>
+
+        </div>
+
+
+        <div class="p-6">
+
+            {% if room_media.media_asset.file_url %}
+
+                {% if room_media.media_asset.media_type == 'video' %}
+
+                    <video controls
+                           class="w-full max-h-[520px] rounded-xl bg-gray-900">
+                        <source src="{{ room_media.media_asset.file_url }}">
+                        Your browser does not support video playback.
+                    </video>
+
+                {% else %}
+
+                    <img src="{{ room_media.media_asset.file_url }}"
+                         alt="{{ room_media.caption or room_media.room.name }}"
+                         class="w-full max-h-[520px] object-contain rounded-xl bg-gray-50">
+
+                {% endif %}
+
+            {% elif room_media.media_asset.filename %}
+
+                <div class="rounded-xl border border-dashed border-gray-300
+                            bg-gray-50 p-10 text-center">
+
+                    <p class="text-sm font-medium text-gray-700">
+                        {{ room_media.media_asset.filename }}
+                    </p>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        No preview URL is currently available.
+                    </p>
+
+                </div>
+
+            {% else %}
+
+                <div class="rounded-xl border border-dashed border-gray-300
+                            bg-gray-50 p-10 text-center">
+
+                    <p class="text-sm text-gray-500">
+                        Preview unavailable for this media asset.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

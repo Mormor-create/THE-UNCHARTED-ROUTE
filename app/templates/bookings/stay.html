@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Book {{ room.name if room else stay.property_name }} | The Uncharted Route
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-slate-50">
+
+    <!-- HERO -->
+
+    <section class="relative overflow-hidden bg-slate-950">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950"></div>
+
+        <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+
+            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
+                Stay With The Uncharted Route
+            </p>
+
+            <h1 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                {{ room.name if room else "Book Your Stay" }}
+            </h1>
+
+            <p class="mt-4 text-lg text-slate-300">
+                {{ stay.property_name }}
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+
+        <form
+            method="POST"
+            action="
+                {% if room %}
+                    {{ url_for('bookings.stay_room_create', stay_id=stay.id, room_id=room.id) }}
+                {% else %}
+                    {{ url_for('bookings.stay_create', stay_id=stay.id) }}
+                {% endif %}
+            "
+            novalidate
+        >
+
+            {{ form.hidden_tag() }}
+
+            <div class="grid gap-8 lg:grid-cols-3">
+
+
+                <!-- FORM -->
+
+                <div class="space-y-8 lg:col-span-2">
+
+
+                    <!-- ROOM / DATES -->
+
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                            01 · Your Stay
+                        </p>
+
+                        <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                            Choose your dates
+                        </h2>
+
+                        <div class="mt-6 grid gap-6 sm:grid-cols-2">
+
+
+                            {% if not room %}
+
+                                <div class="sm:col-span-2">
+
+                                    {{ form.room_id.label(
+                                        class="mb-2 block text-sm font-semibold text-slate-700"
+                                    ) }}
+
+                                    {{ form.room_id(
+                                        class="
+                                            block w-full rounded-xl border border-slate-300
+                                            bg-white px-4 py-3 text-sm
+                                            focus:border-emerald-500 focus:ring-2
+                                            focus:ring-emerald-500/20
+                                        "
+                                    ) }}
+
+                                    {% for error in form.room_id.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <div>
+
+                                {{ form.check_in.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.check_in(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm
+                                        focus:border-emerald-500 focus:ring-2
+                                        focus:ring-emerald-500/20
+                                    "
+                                ) }}
+
+                                {% for error in form.check_in.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div>
+
+                                {{ form.check_out.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.check_out(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm
+                                        focus:border-emerald-500 focus:ring-2
+                                        focus:ring-emerald-500/20
+                                    "
+                                ) }}
+
+                                {% for error in form.check_out.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div>
+
+                                {{ form.rooms.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.rooms(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        px-4 py-3 text-sm
+                                        focus:border-emerald-500 focus:ring-2
+                                        focus:ring-emerald-500/20
+                                    ",
+                                    min="1"
+                                ) }}
+
+                                {% for error in form.rooms.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div>
+
+                                {{ form.meal_plan.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.meal_plan(
+                                    class="
+                                        block w-full rounded-xl border border-slate-300
+                                        bg-white px-4 py-3 text-sm
+                                        focus:border-emerald-500 focus:ring-2
+                                        focus:ring-emerald-500/20
+                                    "
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- GUESTS -->
+
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                            02 · Guests
+                        </p>
+
+                        <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                            Who is staying?
+                        </h2>
+
+                        <div class="mt-6 grid gap-5 sm:grid-cols-3">
+
+                            {% for field in [
+                                form.adults,
+                                form.children,
+                                form.infants
+                            ] %}
+
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+
+                                    {{ field.label(
+                                        class="mb-2 block text-sm font-semibold text-slate-700"
+                                    ) }}
+
+                                    {{ field(
+                                        class="
+                                            block w-full rounded-lg border border-slate-300
+                                            bg-white px-3 py-2.5 text-sm
+                                        ",
+                                        min="0"
+                                    ) }}
+
+                                    {% for error in field.errors %}
+                                        <p class="mt-2 text-xs text-red-600">{{ error }}</p>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- LEAD GUEST -->
+
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                            03 · Lead Guest
+                        </p>
+
+                        <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                            Your contact details
+                        </h2>
+
+                        <div class="mt-6 grid gap-6 sm:grid-cols-2">
+
+                            {% for field in [
+                                form.first_name,
+                                form.last_name,
+                                form.email,
+                                form.phone
+                            ] %}
+
+                                <div>
+
+                                    {{ field.label(
+                                        class="mb-2 block text-sm font-semibold text-slate-700"
+                                    ) }}
+
+                                    {{ field(
+                                        class="
+                                            block w-full rounded-xl border border-slate-300
+                                            px-4 py-3 text-sm
+                                            focus:border-emerald-500
+                                            focus:ring-2 focus:ring-emerald-500/20
+                                        "
+                                    ) }}
+
+                                    {% for error in field.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- REQUESTS -->
+
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+
+                        <p class="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                            04 · Special Requests
+                        </p>
+
+                        <div class="mt-6 space-y-6">
+
+                            <div>
+
+                                {{ form.special_requests.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.special_requests(
+                                    class="
+                                        block min-h-32 w-full rounded-xl border
+                                        border-slate-300 px-4 py-3 text-sm
+                                    ",
+                                    placeholder="Let us know about preferences, celebrations, accessibility needs or anything else..."
+                                ) }}
+
+                            </div>
+
+
+                            <div>
+
+                                {{ form.customer_notes.label(
+                                    class="mb-2 block text-sm font-semibold text-slate-700"
+                                ) }}
+
+                                {{ form.customer_notes(
+                                    class="
+                                        block min-h-28 w-full rounded-xl border
+                                        border-slate-300 px-4 py-3 text-sm
+                                    ",
+                                    placeholder="Anything else you'd like our team to know?"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- TERMS -->
+
+                    <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+
+                        <label class="flex items-start gap-3">
+
+                            {{ form.agree_to_terms(
+                                class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600"
+                            ) }}
+
+                            <span class="text-sm leading-6 text-slate-600">
+                                I agree to The Uncharted Route's booking terms
+                                and understand that this reservation is subject
+                                to availability and confirmation.
+                            </span>
+
+                        </label>
+
+                        {% for error in form.agree_to_terms.errors %}
+                            <p class="mt-3 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+
+                    </section>
+
+
+                    <div class="flex justify-end">
+
+                        {{ form.submit(
+                            class="
+                                inline-flex w-full cursor-pointer justify-center
+                                rounded-xl bg-emerald-700 px-8 py-4 text-sm
+                                font-bold text-white transition hover:bg-emerald-800
+                                sm:w-auto
+                            "
+                        ) }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- SUMMARY -->
+
+                <aside>
+
+                    <div class="sticky top-8 overflow-hidden rounded-2xl bg-slate-950 shadow-xl">
+
+                        <div class="p-6">
+
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-400">
+                                Your Stay
+                            </p>
+
+                            <h2 class="mt-2 text-2xl font-bold text-white">
+                                {{ stay.property_name }}
+                            </h2>
+
+                        </div>
+
+
+                        <div class="space-y-6 border-t border-white/10 p-6">
+
+                            {% if room %}
+
+                                <div>
+
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                        Room
+                                    </p>
+
+                                    <p class="mt-1 font-semibold text-white">
+                                        {{ room.name }}
+                                    </p>
+
+                                </div>
+
+
+                                <div>
+
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                        From
+                                    </p>
+
+                                    <p class="mt-1 text-2xl font-bold text-white">
+
+                                        {{ room.currency or "KES" }}
+
+                                        {{ "{:,.0f}".format(room.nightly_rate or 0) }}
+
+                                    </p>
+
+                                    <p class="mt-1 text-xs text-slate-400">
+                                        per room / night
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="rounded-xl bg-white/5 p-4">
+
+                                <p class="text-sm leading-6 text-slate-300">
+                                    Availability is checked against the selected
+                                    room and requested dates before your booking
+                                    is confirmed.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </form>
+
+    </main>
+
+</div>
+
+{% endblock %}

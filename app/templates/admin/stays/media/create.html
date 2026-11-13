@@ -1,0 +1,317 @@
+{% extends "admin/base.html" %}
+{% block title %}Add Stay Media{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-6">
+
+    <div>
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+            <a href="{{ url_for('admin_stay.index') }}"
+               class="hover:text-gray-900">
+                Stays
+            </a>
+
+            <span>/</span>
+
+            <a href="{{ url_for('admin_stay.detail', stay_id=stay.id) }}"
+               class="hover:text-gray-900">
+                {{ stay.property_name }}
+            </a>
+
+            <span>/</span>
+
+            <a href="{{ url_for('admin_stay_media.index', stay_id=stay.id) }}"
+               class="hover:text-gray-900">
+                Media
+            </a>
+
+            <span>/</span>
+            <span>Add</span>
+        </div>
+
+        <h1 class="mt-2 text-2xl font-semibold text-gray-900">
+            Add Stay Media
+        </h1>
+
+        <p class="mt-1 text-sm text-gray-500">
+            Add a media asset from this stay's assigned media folder and
+            define how it should be used.
+        </p>
+    </div>
+
+    <form method="POST"
+          class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+        {{ form.hidden_tag() }}
+
+        <div class="space-y-8 p-6">
+
+            <section>
+                <h2 class="text-base font-semibold text-gray-900">
+                    Media Asset
+                </h2>
+
+                <p class="mt-1 text-sm text-gray-500">
+                    Select an existing image or video from this stay's
+                    assigned Media Library folder.
+                </p>
+
+                <div class="mt-5">
+
+                    {{ form.media_asset_id.label(
+                        class="mb-2 block text-sm font-medium text-gray-700"
+                    ) }}
+
+                    {{ form.media_asset_id(
+                        id="media_asset_id",
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+                               focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                    ) }}
+
+                    {% for error in form.media_asset_id.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                    {% if not stay.media_folder_id %}
+                        <p class="mt-2 text-sm text-amber-600">
+                            This stay does not have a media folder assigned yet.
+                        </p>
+                    {% endif %}
+
+                </div>
+
+                <!-- Media Preview -->
+                <div id="media-preview"
+                     class="mt-5 hidden overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+
+                    <div class="border-b border-gray-200 bg-white px-4 py-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">
+                                    Media Preview
+                                </p>
+
+                                <p id="media-preview-title"
+                                   class="mt-0.5 text-xs text-gray-500">
+                                </p>
+                            </div>
+
+                            <span id="media-preview-type"
+                                  class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 p-4">
+                        <img id="media-preview-image"
+                             src=""
+                             alt=""
+                             class="mx-auto hidden max-h-[28rem] w-auto max-w-full rounded-lg object-contain">
+
+                        <video id="media-preview-video"
+                               controls
+                               playsinline
+                               class="mx-auto hidden max-h-[28rem] w-full rounded-lg">
+                        </video>
+
+                        <div id="media-preview-empty"
+                             class="hidden py-12 text-center">
+                            <p class="text-sm text-gray-500">
+                                Preview unavailable for this media asset.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Display Settings
+                </h2>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                    <div>
+                        {{ form.usage.label(
+                            class="mb-2 block text-sm font-medium text-gray-700"
+                        ) }}
+
+                        {{ form.usage(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+                                   focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+
+                        {% for error in form.usage.errors %}
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        {{ form.display_order.label(
+                            class="mb-2 block text-sm font-medium text-gray-700"
+                        ) }}
+
+                        {{ form.display_order(
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+                                   focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                        ) }}
+
+                        {% for error in form.display_order.errors %}
+                            <p class="mt-1 text-sm text-red-600">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <h2 class="text-base font-semibold text-gray-900">
+                    Caption
+                </h2>
+
+                <div class="mt-5">
+
+                    {{ form.caption.label(
+                        class="mb-2 block text-sm font-medium text-gray-700"
+                    ) }}
+
+                    {{ form.caption(
+                        rows="4",
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm
+                               focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                    ) }}
+
+                    {% for error in form.caption.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+            </section>
+
+            <section class="border-t border-gray-100 pt-8">
+
+                <label class="flex items-center gap-3">
+
+                    {{ form.active(
+                        class="h-4 w-4 rounded border-gray-300 text-gray-900
+                               focus:ring-gray-900"
+                    ) }}
+
+                    <span>
+                        <span class="block text-sm font-medium text-gray-900">
+                            Active media
+                        </span>
+
+                        <span class="block text-sm text-gray-500">
+                            Allow this media item to be displayed publicly.
+                        </span>
+                    </span>
+
+                </label>
+
+            </section>
+
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
+
+            <a href="{{ url_for('admin_stay_media.index', stay_id=stay.id) }}"
+               class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Cancel
+            </a>
+
+            {{ form.submit(
+                class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white
+                       hover:bg-gray-800"
+            ) }}
+
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("media_asset_id");
+    const preview = document.getElementById("media-preview");
+    const image = document.getElementById("media-preview-image");
+    const video = document.getElementById("media-preview-video");
+    const empty = document.getElementById("media-preview-empty");
+    const title = document.getElementById("media-preview-title");
+    const type = document.getElementById("media-preview-type");
+
+    const previewMap = {{ media_asset_preview_map|default({})|tojson }};
+
+    function clearPreview() {
+        preview.classList.add("hidden");
+
+        image.classList.add("hidden");
+        image.removeAttribute("src");
+        image.removeAttribute("alt");
+
+        video.classList.add("hidden");
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+
+        empty.classList.add("hidden");
+
+        title.textContent = "";
+        type.textContent = "";
+    }
+
+    function updatePreview() {
+        const assetId = select.value;
+
+        clearPreview();
+
+        if (!assetId || assetId === "0") {
+            return;
+        }
+
+        const asset = previewMap[assetId];
+
+        if (!asset || !asset.url) {
+            preview.classList.remove("hidden");
+            empty.classList.remove("hidden");
+            return;
+        }
+
+        preview.classList.remove("hidden");
+
+        title.textContent = asset.title || "Media Asset";
+        type.textContent = asset.media_type
+            ? asset.media_type.charAt(0).toUpperCase() + asset.media_type.slice(1)
+            : "Media";
+
+        if (asset.media_type === "image") {
+            image.src = asset.url;
+            image.alt = asset.title || "Stay media preview";
+            image.classList.remove("hidden");
+        } else if (asset.media_type === "video") {
+            video.src = asset.url;
+            video.classList.remove("hidden");
+        } else {
+            empty.classList.remove("hidden");
+        }
+    }
+
+    select.addEventListener("change", updatePreview);
+
+    updatePreview();
+});
+</script>
+
+{% endblock %}

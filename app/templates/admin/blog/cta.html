@@ -1,0 +1,985 @@
+{% extends "admin/base.html" %}
+
+{% block title %}CTA Settings — {{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('admin_blog.index') }}">Blog</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}">
+                    {{ post.title|truncate(45) }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                CTA
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary-subtle text-primary">
+                    <i class="bi bi-megaphone me-1"></i>
+                    Call to Action
+                </span>
+
+                {% if post.is_published %}
+                    <span class="badge bg-success-subtle text-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Published
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary">
+                        {{ post.status }}
+                    </span>
+                {% endif %}
+            </div>
+
+            <h1 class="h3 fw-bold mb-1">Call-to-Action Settings</h1>
+
+            <p class="text-muted mb-0">
+                Add a compelling call-to-action to guide readers toward their next step.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Article
+            </a>
+
+            <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+               class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i>
+                Edit Article
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+                     role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form Errors -->
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <div class="fw-semibold mb-2">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Please correct the following errors:
+            </div>
+
+            <ul class="mb-0">
+                {% for field_name, errors in form.errors.items() %}
+                    {% for error in errors %}
+                        <li>
+                            <strong>
+                                {{ field_name|replace('_', ' ')|title }}:
+                            </strong>
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="POST"
+          action="{{ url_for('admin_blog.cta', post_id=post.id) }}"
+          id="ctaForm"
+          novalidate>
+
+        {{ form.hidden_tag() }}
+
+        <div class="row g-4">
+
+            <!-- Main -->
+            <div class="col-xl-8">
+
+                <!-- CTA Content -->
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-white border-bottom py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-3 bg-primary-subtle text-primary p-2 me-3">
+                                <i class="bi bi-megaphone fs-5"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="h5 mb-1">CTA Content</h2>
+                                <p class="small text-muted mb-0">
+                                    Create the message readers will see at the end of the article.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <!-- CTA Title -->
+                        <div class="mb-4">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label for="{{ form.cta_title.id }}"
+                                       class="form-label fw-semibold mb-0">
+                                    CTA Title
+                                </label>
+
+                                <span class="small text-muted">
+                                    <span id="ctaTitleCount">0</span>/100
+                                </span>
+                            </div>
+
+                            {{ form.cta_title(
+                                class="form-control",
+                                id="ctaTitleInput",
+                                maxlength="255",
+                                placeholder="Ready to explore Kenya differently?"
+                            ) }}
+
+                            <div class="form-text">
+                                Use a short, memorable headline that naturally follows the article.
+                            </div>
+
+                            {% if form.cta_title.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.cta_title.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- CTA Text -->
+                        <div class="mb-4">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label for="{{ form.cta_text.id }}"
+                                       class="form-label fw-semibold mb-0">
+                                    CTA Message
+                                </label>
+
+                                <span class="small text-muted">
+                                    <span id="ctaTextCount">0</span>/300
+                                </span>
+                            </div>
+
+                            {{ form.cta_text(
+                                class="form-control",
+                                id="ctaTextInput",
+                                rows="5",
+                                maxlength="1000",
+                                placeholder="Turn inspiration into your next unforgettable journey with The Uncharted Route."
+                            ) }}
+
+                            <div class="form-text">
+                                Explain what readers should do next and why it is worth doing.
+                            </div>
+
+                            {% if form.cta_text.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.cta_text.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Button -->
+                        <div class="mb-4">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label for="{{ form.cta_button_text.id }}"
+                                       class="form-label fw-semibold mb-0">
+                                    Button Text
+                                </label>
+
+                                <span class="small text-muted">
+                                    <span id="ctaButtonCount">0</span>/40
+                                </span>
+                            </div>
+
+                            {{ form.cta_button_text(
+                                class="form-control",
+                                id="ctaButtonTextInput",
+                                maxlength="100",
+                                placeholder="Explore Our Experiences"
+                            ) }}
+
+                            <div class="form-text">
+                                Keep the button action-oriented and concise.
+                            </div>
+
+                            {% if form.cta_button_text.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.cta_button_text.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Button URL -->
+                        <div class="mb-0">
+
+                            <label for="{{ form.cta_button_url.id }}"
+                                   class="form-label fw-semibold">
+                                Button URL
+                            </label>
+
+                            {{ form.cta_button_url(
+                                class="form-control",
+                                id="ctaButtonUrlInput",
+                                type="url",
+                                placeholder="https://theunchartedroute.com/experiences"
+                            ) }}
+
+                            <div class="form-text">
+                                Enter the destination visitors should reach when they click the CTA.
+                            </div>
+
+                            {% if form.cta_button_url.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.cta_button_url.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h5 mb-1">
+                            <i class="bi bi-eye me-2 text-primary"></i>
+                            Live Preview
+                        </h2>
+
+                        <p class="small text-muted mb-0">
+                            Preview how the CTA may appear to visitors.
+                        </p>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="cta-preview rounded-4 p-4 p-md-5 text-center">
+
+                            <div class="mb-3">
+                                <span class="badge bg-white text-primary border">
+                                    <i class="bi bi-compass me-1"></i>
+                                    The Uncharted Route
+                                </span>
+                            </div>
+
+                            <h3 id="ctaPreviewTitle"
+                                class="fw-bold mb-3">
+                                {{ post.cta_title or "Ready for your next adventure?" }}
+                            </h3>
+
+                            <p id="ctaPreviewText"
+                               class="text-muted mx-auto mb-4"
+                               style="max-width: 650px;">
+                                {{ post.cta_text or
+                                   "Turn inspiration into your next unforgettable journey with The Uncharted Route." }}
+                            </p>
+
+                            <a href="{{ post.cta_button_url or '#' }}"
+                               id="ctaPreviewButton"
+                               class="btn btn-primary btn-lg px-4"
+                               {% if not post.cta_button_url %}aria-disabled="true"{% endif %}>
+                                <span id="ctaPreviewButtonText">
+                                    {{ post.cta_button_text or "Explore Our Experiences" }}
+                                </span>
+                                <i class="bi bi-arrow-right ms-2"></i>
+                            </a>
+
+                        </div>
+
+                        <div class="alert alert-info mt-4 mb-0 small">
+                            <i class="bi bi-info-circle me-2"></i>
+                            This is an administrative preview. The final appearance may vary slightly
+                            depending on the public website layout.
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-xl-4">
+
+                <!-- CTA Status -->
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h6 fw-bold mb-0">
+                            <i class="bi bi-check2-circle me-2 text-primary"></i>
+                            CTA Status
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="text-center mb-4">
+
+                            <div id="ctaStatusIcon"
+                                 class="cta-status-icon mx-auto mb-3">
+                                <i class="bi bi-megaphone"></i>
+                            </div>
+
+                            <h3 id="ctaStatusTitle"
+                                class="h6 fw-bold mb-1">
+                                CTA not configured
+                            </h3>
+
+                            <p id="ctaStatusText"
+                               class="small text-muted mb-0">
+                                Add CTA content to encourage the reader's next step.
+                            </p>
+
+                        </div>
+
+                        <hr>
+
+                        <div class="small">
+
+                            <div class="d-flex align-items-center mb-3"
+                                 id="statusTitle">
+                                <i class="bi bi-circle me-2"></i>
+                                <span>CTA title</span>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3"
+                                 id="statusText">
+                                <i class="bi bi-circle me-2"></i>
+                                <span>CTA message</span>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3"
+                                 id="statusButton">
+                                <i class="bi bi-circle me-2"></i>
+                                <span>Button text</span>
+                            </div>
+
+                            <div class="d-flex align-items-center"
+                                 id="statusUrl">
+                                <i class="bi bi-circle me-2"></i>
+                                <span>Button destination</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Article Information -->
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h6 fw-bold mb-0">
+                            <i class="bi bi-file-text me-2 text-primary"></i>
+                            Article Information
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <div class="small text-muted mb-1">Title</div>
+                            <div class="fw-semibold">
+                                {{ post.title }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="small text-muted mb-1">Category</div>
+
+                            {% if post.category %}
+                                <span class="badge"
+                                      style="background-color: {{ post.category.color or '#14B8A6' }};">
+                                    {{ post.category.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">
+                                    Uncategorized
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <div class="small text-muted mb-1">Status</div>
+
+                            {% if post.status == 'Published' %}
+                                <span class="badge bg-success">
+                                    Published
+                                </span>
+                            {% elif post.status == 'Draft' %}
+                                <span class="badge bg-secondary">
+                                    Draft
+                                </span>
+                            {% elif post.status == 'Review' %}
+                                <span class="badge bg-warning text-dark">
+                                    Review
+                                </span>
+                            {% elif post.status == 'Scheduled' %}
+                                <span class="badge bg-info text-dark">
+                                    Scheduled
+                                </span>
+                            {% elif post.status == 'Archived' %}
+                                <span class="badge bg-dark">
+                                    Archived
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    {{ post.status }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- CTA Guidelines -->
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h6 fw-bold mb-0">
+                            <i class="bi bi-lightbulb me-2 text-warning"></i>
+                            CTA Guidelines
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="d-flex mb-3">
+                            <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                            <div class="small">
+                                <strong>Keep it relevant.</strong>
+                                The CTA should naturally connect to the article topic.
+                            </div>
+                        </div>
+
+                        <div class="d-flex mb-3">
+                            <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                            <div class="small">
+                                <strong>Use clear language.</strong>
+                                Visitors should immediately understand the next step.
+                            </div>
+                        </div>
+
+                        <div class="d-flex mb-3">
+                            <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                            <div class="small">
+                                <strong>Focus on one action.</strong>
+                                Avoid competing calls-to-action in the same block.
+                            </div>
+                        </div>
+
+                        <div class="d-flex">
+                            <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                            <div class="small">
+                                <strong>Deliver on the promise.</strong>
+                                The button should lead to a useful, relevant destination.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h6 fw-bold mb-0">
+                            <i class="bi bi-lightning-charge me-2 text-primary"></i>
+                            Quick Actions
+                        </h2>
+                    </div>
+
+                    <div class="list-group list-group-flush">
+
+                        <a href="{{ url_for('admin_blog.edit', post_id=post.id) }}"
+                           class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="bi bi-pencil-square text-primary me-3"></i>
+                            <div>
+                                <div class="fw-semibold">Edit Article</div>
+                                <div class="small text-muted">
+                                    Update article content
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="{{ url_for('admin_blog.seo', post_id=post.id) }}"
+                           class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="bi bi-search text-info me-3"></i>
+                            <div>
+                                <div class="fw-semibold">SEO Settings</div>
+                                <div class="small text-muted">
+                                    Optimize search metadata
+                                </div>
+                            </div>
+                        </a>
+
+                        {% if post.is_published %}
+                            <a href="{{ url_for('blog.detail', slug=post.slug) }}"
+                               target="_blank"
+                               rel="noopener"
+                               class="list-group-item list-group-item-action d-flex align-items-center">
+                                <i class="bi bi-box-arrow-up-right text-secondary me-3"></i>
+                                <div>
+                                    <div class="fw-semibold">View Public Article</div>
+                                    <div class="small text-muted">
+                                        Open the live article
+                                    </div>
+                                </div>
+                            </a>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Save Bar -->
+        <div class="card border-0 shadow-sm mt-4">
+
+            <div class="card-body p-3">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div class="small text-muted">
+                        <i class="bi bi-shield-check me-1 text-success"></i>
+                        CTA settings are saved with this article.
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <a href="{{ url_for('admin_blog.detail', post_id=post.id) }}"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                id="saveCtaButton">
+                            <i class="bi bi-check-lg me-1"></i>
+                            Save CTA Settings
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 0.75rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+    }
+
+    .cta-preview {
+        background: linear-gradient(
+            135deg,
+            rgba(13, 110, 253, 0.08),
+            rgba(20, 184, 166, 0.08)
+        );
+        border: 1px solid rgba(13, 110, 253, 0.12);
+    }
+
+    .cta-preview h3 {
+        line-height: 1.3;
+    }
+
+    .cta-status-icon {
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        font-size: 1.5rem;
+    }
+
+    .cta-status-icon.complete {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+    }
+
+    .cta-status-icon.partial {
+        background-color: rgba(255, 193, 7, 0.12);
+        color: #997404;
+    }
+
+    .status-good {
+        color: #198754;
+    }
+
+    .status-warning {
+        color: #fd7e14;
+    }
+
+    .status-bad {
+        color: #dc3545;
+    }
+
+    @media (max-width: 767.98px) {
+        .container-fluid {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("ctaForm");
+    const saveButton = document.getElementById("saveCtaButton");
+
+    const titleInput = document.getElementById("ctaTitleInput");
+    const textInput = document.getElementById("ctaTextInput");
+    const buttonTextInput = document.getElementById("ctaButtonTextInput");
+    const buttonUrlInput = document.getElementById("ctaButtonUrlInput");
+
+    const titleCount = document.getElementById("ctaTitleCount");
+    const textCount = document.getElementById("ctaTextCount");
+    const buttonCount = document.getElementById("ctaButtonCount");
+
+    const previewTitle = document.getElementById("ctaPreviewTitle");
+    const previewText = document.getElementById("ctaPreviewText");
+    const previewButton = document.getElementById("ctaPreviewButton");
+    const previewButtonText = document.getElementById("ctaPreviewButtonText");
+
+    const statusIcon = document.getElementById("ctaStatusIcon");
+    const statusTitle = document.getElementById("ctaStatusTitle");
+    const statusText = document.getElementById("ctaStatusText");
+
+    function updateCounter(input, counter, idealLength) {
+        if (!input || !counter) {
+            return;
+        }
+
+        const length = input.value.length;
+
+        counter.textContent = length;
+
+        counter.classList.remove(
+            "text-success",
+            "text-warning",
+            "text-danger",
+            "text-muted"
+        );
+
+        if (length === 0) {
+            counter.classList.add("text-muted");
+            return;
+        }
+
+        if (length <= idealLength && length >= idealLength * 0.5) {
+            counter.classList.add("text-success");
+        } else if (length <= idealLength * 1.2) {
+            counter.classList.add("text-warning");
+        } else {
+            counter.classList.add("text-danger");
+        }
+    }
+
+    function updatePreview() {
+
+        const title = titleInput && titleInput.value.trim()
+            ? titleInput.value.trim()
+            : "Ready for your next adventure?";
+
+        const text = textInput && textInput.value.trim()
+            ? textInput.value.trim()
+            : "Turn inspiration into your next unforgettable journey with The Uncharted Route.";
+
+        const buttonText = buttonTextInput && buttonTextInput.value.trim()
+            ? buttonTextInput.value.trim()
+            : "Explore Our Experiences";
+
+        const buttonUrl = buttonUrlInput
+            ? buttonUrlInput.value.trim()
+            : "";
+
+        if (previewTitle) {
+            previewTitle.textContent = title;
+        }
+
+        if (previewText) {
+            previewText.textContent = text;
+        }
+
+        if (previewButtonText) {
+            previewButtonText.textContent = buttonText;
+        }
+
+        if (previewButton) {
+
+            if (buttonUrl) {
+                previewButton.href = buttonUrl;
+                previewButton.removeAttribute("aria-disabled");
+            } else {
+                previewButton.href = "#";
+                previewButton.setAttribute("aria-disabled", "true");
+            }
+        }
+    }
+
+    function setStatus(elementId, state) {
+
+        const element = document.getElementById(elementId);
+
+        if (!element) {
+            return;
+        }
+
+        const icon = element.querySelector("i");
+
+        if (!icon) {
+            return;
+        }
+
+        icon.className = "bi me-2";
+
+        element.classList.remove(
+            "status-good",
+            "status-warning",
+            "status-bad"
+        );
+
+        if (state === "good") {
+            icon.classList.add(
+                "bi-check-circle-fill",
+                "status-good"
+            );
+        } else if (state === "warning") {
+            icon.classList.add(
+                "bi-exclamation-circle-fill",
+                "status-warning"
+            );
+        } else {
+            icon.classList.add(
+                "bi-x-circle-fill",
+                "status-bad"
+            );
+        }
+    }
+
+    function updateStatus() {
+
+        const title = titleInput
+            ? titleInput.value.trim()
+            : "";
+
+        const text = textInput
+            ? textInput.value.trim()
+            : "";
+
+        const buttonText = buttonTextInput
+            ? buttonTextInput.value.trim()
+            : "";
+
+        const buttonUrl = buttonUrlInput
+            ? buttonUrlInput.value.trim()
+            : "";
+
+        const complete =
+            title &&
+            text &&
+            buttonText &&
+            buttonUrl;
+
+        const partial =
+            title ||
+            text ||
+            buttonText ||
+            buttonUrl;
+
+        if (statusIcon) {
+            statusIcon.classList.remove(
+                "complete",
+                "partial"
+            );
+        }
+
+        if (complete) {
+
+            statusIcon.classList.add("complete");
+
+            statusTitle.textContent = "CTA configured";
+            statusText.textContent =
+                "All essential CTA fields are ready.";
+
+        } else if (partial) {
+
+            statusIcon.classList.add("partial");
+
+            statusTitle.textContent = "CTA partially configured";
+            statusText.textContent =
+                "Complete the remaining fields before publishing.";
+
+        } else {
+
+            statusTitle.textContent = "CTA not configured";
+            statusText.textContent =
+                "Add CTA content to encourage the reader's next step.";
+        }
+
+        setStatus(
+            "statusTitle",
+            title ? "good" : "bad"
+        );
+
+        setStatus(
+            "statusText",
+            text ? "good" : "bad"
+        );
+
+        setStatus(
+            "statusButton",
+            buttonText ? "good" : "bad"
+        );
+
+        setStatus(
+            "statusUrl",
+            buttonUrl ? "good" : "bad"
+        );
+    }
+
+    function updateAll() {
+
+        updateCounter(
+            titleInput,
+            titleCount,
+            100
+        );
+
+        updateCounter(
+            textInput,
+            textCount,
+            300
+        );
+
+        updateCounter(
+            buttonTextInput,
+            buttonCount,
+            40
+        );
+
+        updatePreview();
+        updateStatus();
+    }
+
+    [
+        titleInput,
+        textInput,
+        buttonTextInput,
+        buttonUrlInput
+    ].forEach(function (input) {
+
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener("input", updateAll);
+        input.addEventListener("change", updateAll);
+
+    });
+
+    if (form && saveButton) {
+
+        form.addEventListener("submit", function () {
+
+            if (form.dataset.submitted === "true") {
+                return;
+            }
+
+            form.dataset.submitted = "true";
+
+            saveButton.disabled = true;
+
+            saveButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1"
+                      role="status"
+                      aria-hidden="true"></span>
+                Saving...
+            `;
+        });
+
+    }
+
+    /*
+     * Prevent the administrative preview button from accidentally
+     * navigating away when no destination has been configured.
+     */
+    if (previewButton) {
+
+        previewButton.addEventListener("click", function (event) {
+
+            if (
+                !buttonUrlInput ||
+                !buttonUrlInput.value.trim()
+            ) {
+                event.preventDefault();
+            }
+
+        });
+
+    }
+
+    updateAll();
+
+});
+</script>
+{% endblock %}

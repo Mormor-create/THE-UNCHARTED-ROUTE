@@ -1,0 +1,145 @@
+{% extends "admin/base.html" %}
+{% block title %}Compose Newsletter | The Uncharted Route{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+            <a href="{{ url_for('admin_newsletter.index') }}"
+               class="text-sm font-semibold text-[#1F5138] hover:text-[#C96A2C]">
+                &larr; Back to newsletter dashboard
+            </a>
+            <p class="mt-4 text-xs font-bold uppercase tracking-[0.25em] text-[#C96A2C]">
+                Campaign studio
+            </p>
+            <h1 class="mt-2 text-3xl font-bold text-[#12372A]">Compose newsletter</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#66736B]">
+                Prepare an update for your The Uncharted Route mailing list.
+                Review the content carefully before sending.
+            </p>
+        </div>
+    </div>
+
+    <!-- Recipient summary -->
+    <section class="rounded-2xl border border-[#D7E5D9] bg-[#F1F7F1] p-5 sm:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-semibold text-[#1F5138]">Current recipient count</p>
+                <p class="mt-2 text-3xl font-bold text-[#12372A]">{{ eligible_count }}</p>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Subscribers who are subscribed, email-verified, and have recorded
+                      marketing consent.
+                </p>
+            </div>
+            <div class="rounded-xl bg-white p-4 text-sm leading-6 text-[#66736B] sm:max-w-xs">
+                <strong class="text-[#12372A]">Before sending</strong><br>
+                Confirm that recipients have the required marketing consent and
+                that your email contains an appropriate unsubscribe mechanism.
+            </div>
+        </div>
+    </section>
+
+    <!-- Compose form -->
+    <form method="POST" class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+        {{ form.hidden_tag() }}
+
+        <div class="space-y-7 p-6 sm:p-8">
+
+            <div>
+                <h2 class="text-lg font-bold text-[#12372A]">Message details</h2>
+                <p class="mt-1 text-sm text-[#66736B]">
+                    Write the plain-text message and optionally provide an HTML version.
+                </p>
+            </div>
+
+            <div>
+                {{ form.subject.label(class="mb-2 block text-sm font-semibold text-[#12372A]") }}
+                {{ form.subject(
+                    class="w-full rounded-xl border border-[#D8DCCF] bg-[#FCFAF6] px-4 py-3 text-sm text-[#1C2822] outline-none transition placeholder:text-[#8A948B] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                    placeholder="Your next adventure starts here"
+                ) }}
+                {% for error in form.subject.errors %}
+                <p class="mt-2 text-sm text-[#A9432C]">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.body.label(class="mb-2 block text-sm font-semibold text-[#12372A]") }}
+                {{ form.body(
+                    class="w-full rounded-xl border border-[#D8DCCF] bg-[#FCFAF6] px-4 py-3 text-sm leading-6 text-[#1C2822] outline-none transition placeholder:text-[#8A948B] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                    rows="12",
+                    placeholder="Hello,\n\nDiscover what's new at The Uncharted Route...\n\nExplore. Experience. Remember."
+                ) }}
+                <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                    This is the plain-text message body. Keep it readable and include
+                    a way for recipients to manage or end their subscription.
+                </p>
+                {% for error in form.body.errors %}
+                <p class="mt-2 text-sm text-[#A9432C]">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.html_body.label(class="mb-2 block text-sm font-semibold text-[#12372A]") }}
+                {{ form.html_body(
+                    class="w-full rounded-xl border border-[#D8DCCF] bg-[#FCFAF6] px-4 py-3 font-mono text-sm leading-6 text-[#1C2822] outline-none transition placeholder:text-[#8A948B] focus:border-[#1F5138] focus:ring-2 focus:ring-[#1F5138]/15",
+                    rows="10",
+                    placeholder="<p>Hello,</p>\n<p>Discover your next adventure with The Uncharted Route.</p>"
+                ) }}
+                <p class="mt-2 text-xs leading-5 text-[#66736B]">
+                    Optional HTML version for email clients that support formatted
+                    messages. Only enter trusted HTML; do not include scripts.
+                </p>
+                {% for error in form.html_body.errors %}
+                <p class="mt-2 text-sm text-[#A9432C]">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <!-- Send confirmation -->
+            <div class="rounded-xl border border-[#F0D9A7] bg-[#FFFAED] p-5">
+                <h3 class="text-sm font-bold text-[#805B14]">Confirm campaign delivery</h3>
+                <p class="mt-1 text-sm leading-6 text-[#806B43]">
+                    Submitting this form attempts to send the newsletter to every
+                    recipient returned by the current eligibility query. Review the
+                    subject and message before confirming.
+                </p>
+
+                <label class="mt-4 flex cursor-pointer items-start gap-3">
+                    {{ form.confirm_send(class="mt-1 h-4 w-4 rounded border-[#CDB779] text-[#1F5138] focus:ring-[#1F5138]") }}
+                    <span class="text-sm font-semibold leading-6 text-[#5E4A25]">
+                        I have reviewed this newsletter and confirm that I want to
+                        attempt delivery to {{ eligible_count }} eligible subscriber(s).
+                    </span>
+                </label>
+
+                {% for error in form.confirm_send.errors %}
+                <p class="mt-2 text-sm text-[#A9432C]">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div class="flex flex-col-reverse gap-3 border-t border-[#E9DDC8] bg-[#FCFAF6] px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <a href="{{ url_for('admin_newsletter.index') }}"
+               class="inline-flex items-center justify-center rounded-xl border border-[#E9DDC8] bg-white px-5 py-3 text-sm font-semibold text-[#66736B] hover:bg-[#F7F1E5]">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    {% if eligible_count == 0 %}disabled{% endif %}
+                    onclick="return confirm('Are you sure you want to submit this newsletter for delivery?');"
+                    class="inline-flex items-center justify-center rounded-xl bg-[#12372A] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#1F5138] disabled:cursor-not-allowed disabled:opacity-50">
+                Send newsletter
+            </button>
+        </div>
+    </form>
+
+    <p class="text-xs leading-5 text-[#66736B]">
+        Delivery is performed by your configured email service. A successful
+        submission does not necessarily mean every recipient received the email.
+        Review the application logs if the route reports failed delivery attempts.
+    </p>
+
+</div>
+{% endblock %}

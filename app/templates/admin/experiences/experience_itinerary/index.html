@@ -1,0 +1,270 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    Itinerary — {{ experience.title }}
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-[#F7F1E5]/50 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
+
+        <!-- Back Navigation -->
+        <div class="mb-6">
+            <a href="{{ url_for('admin_experiences.detail', experience_id=experience.id) }}"
+           class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1F5138] transition hover:text-[#D89B24]">
+            <span aria-hidden="true">←</span> Back to {{ experience.title }}
+        </a>
+        </div>
+
+        <!-- Page Header -->
+        <div class="mb-8 overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+            <div class="flex flex-col gap-6 bg-[#12372A] px-6 py-7 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+
+                <div>
+                    <div class="mb-3 flex flex-wrap items-center gap-3">
+                        <span class="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-[#F7F1E5]">
+                            {{ experience.experience_code }}
+                        </span>
+
+                        <span class="text-sm text-[#E9DDC8]">
+                            Experience Management
+                        </span>
+                    </div>
+
+                    <h1 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                        Experience Itinerary
+                    </h1>
+
+                    <p class="mt-2 text-sm leading-6 text-[#E9DDC8] sm:text-base">
+                        Manage the daily schedule and activities for
+                        <span class="font-semibold text-white">{{ experience.title }}</span>.
+                    </p>
+                </div>
+
+                <a
+                    href="{{ url_for('experience_itinerary_admin.create', experience_id=experience.id) }}"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#D89B24] bg-[#D89B24] px-5 py-3 text-sm font-bold text-[#1C2822] shadow-sm transition hover:border-[#E9DDC8] hover:bg-[#E9DDC8] focus:outline-none focus:ring-2 focus:ring-white/40 focus:ring-offset-2 focus:ring-offset-[#12372A]"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add Itinerary Item
+                </a>
+
+            </div>
+
+            <div class="grid grid-cols-1 divide-y divide-[#E9DDC8] bg-[#F7F1E5] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+
+                <div class="flex items-center gap-3 px-6 py-4 sm:px-8">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#1F5138] shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <rect x="3" y="4" width="18" height="17" rx="2"/>
+                            <path d="M16 2v4M8 2v4M3 10h18"/>
+                        </svg>
+                    </span>
+
+                    <div>
+                        <p class="text-sm font-semibold text-[#1C2822]">Daily Schedule</p>
+                        <p class="text-xs text-[#66736B]">Organise activities by day and time.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 px-6 py-4 sm:px-8">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#1F5138] shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                            <circle cx="8" cy="6" r="1"/>
+                            <circle cx="8" cy="12" r="1"/>
+                            <circle cx="8" cy="18" r="1"/>
+                        </svg>
+                    </span>
+
+                    <div>
+                        <p class="text-sm font-semibold text-[#1C2822]">Activity Ordering</p>
+                        <p class="text-xs text-[#66736B]">Keep the experience sequence organised.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Itinerary Content -->
+        {% if itinerary %}
+
+            <div class="space-y-7">
+
+                {% set current_day = namespace(value=None) %}
+
+                {% for item in itinerary %}
+
+                    {% if current_day.value != item.day_number %}
+
+                        {% if current_day.value is not none %}
+                            </div>
+                            </div>
+                        {% endif %}
+
+                        {% set current_day.value = item.day_number %}
+
+                        <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                            <!-- Day Header -->
+                            <div class="flex items-center gap-4 border-b border-[#E9DDC8] bg-[#E9DDC8]/50 px-5 py-4 sm:px-7">
+
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#12372A] text-lg font-bold text-white shadow-sm">
+                                    {{ item.day_number }}
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-semibold uppercase tracking-widest text-[#66736B]">
+                                        Itinerary Schedule
+                                    </p>
+                                    <h2 class="mt-1 text-lg font-bold text-[#12372A]">
+                                        Day {{ item.day_number }}
+                                    </h2>
+                                </div>
+
+                                <span class="hidden rounded-full border border-[#E9DDC8] bg-white px-3 py-1 text-xs font-semibold text-[#5C6B32] sm:inline-flex">
+                                    Daily Plan
+                                </span>
+
+                            </div>
+
+                            <!-- Activities -->
+                            <div class="divide-y divide-[#E9DDC8]/80">
+
+                    {% endif %}
+
+                        <div class="px-5 py-6 transition hover:bg-[#F7F1E5]/40 sm:px-7">
+
+                            <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+                                <!-- Activity Details -->
+                                <div class="min-w-0 flex-1">
+
+                                    <div class="mb-3 flex flex-wrap items-center gap-2">
+
+                                        {% if item.activity_time %}
+                                            <span class="inline-flex items-center gap-2 rounded-lg border border-[#D89B24]/30 bg-[#D89B24]/10 px-3 py-1.5 text-sm font-semibold text-[#5C6B32]">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                    <circle cx="12" cy="12" r="9"/>
+                                                    <path d="M12 7v5l3 2"/>
+                                                </svg>
+                                                {{ item.activity_time }}
+                                            </span>
+                                        {% endif %}
+
+                                        <span class="inline-flex items-center rounded-lg bg-[#F7F1E5] px-3 py-1.5 text-xs font-medium text-[#66736B]">
+                                            Order {{ item.display_order }}
+                                        </span>
+
+                                    </div>
+
+                                    <h3 class="text-lg font-bold leading-snug text-[#12372A] sm:text-xl">
+                                        {{ item.title }}
+                                    </h3>
+
+                                    <p class="mt-3 whitespace-pre-line text-sm leading-7 text-[#66736B]">
+                                        {{ item.description }}
+                                    </p>
+
+                                </div>
+
+                                <!-- Activity Actions -->
+                                <div class="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
+
+                                    <a
+                                        href="{{ url_for('experience_itinerary_admin.edit', experience_id=experience.id, item_id=item.id) }}"
+                                        class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E9DDC8] bg-white px-4 py-2.5 text-sm font-semibold text-[#1F5138] transition hover:border-[#1F5138] hover:bg-[#F7F1E5]"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <path d="M12 20h9"/>
+                                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+                                        </svg>
+                                        Edit
+                                    </a>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('experience_itinerary_admin.delete', experience_id=experience.id, item_id=item.id) }}"
+                                        onsubmit="return confirm('Delete this itinerary item?');"
+                                    >
+
+                                        <input
+                                            type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                <path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 10v6m4-6v6"/>
+                                            </svg>
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                {% endfor %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <!-- Empty State -->
+            <div class="overflow-hidden rounded-2xl border border-[#E9DDC8] bg-white shadow-sm">
+
+                <div class="flex flex-col items-center px-6 py-14 text-center sm:px-12 sm:py-16">
+
+                    <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F1E5] text-[#1F5138]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <rect x="3" y="4" width="18" height="17" rx="2"/>
+                            <path d="M16 2v4M8 2v4M3 10h18M12 13v5m-2.5-2.5h5"/>
+                        </svg>
+                    </div>
+
+                    <span class="mb-3 inline-flex rounded-full bg-[#F7F1E5] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#5C6B32]">
+                        Getting Started
+                    </span>
+
+                    <h2 class="text-xl font-bold text-[#12372A] sm:text-2xl">
+                        No itinerary items yet
+                    </h2>
+
+                    <p class="mt-3 max-w-md text-sm leading-7 text-[#66736B]">
+                        Start building the itinerary for this experience by adding its first activity, schedule and description.
+                    </p>
+
+                    <a
+                        href="{{ url_for('experience_itinerary_admin.create', experience_id=experience.id) }}"
+                        class="mt-7 inline-flex items-center justify-center gap-2 rounded-xl border border-[#1F5138] bg-[#1F5138] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:border-[#12372A] hover:bg-[#12372A] focus:outline-none focus:ring-2 focus:ring-[#1F5138]/30 focus:ring-offset-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add First Itinerary Item
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

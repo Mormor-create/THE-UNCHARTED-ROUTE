@@ -1,0 +1,1817 @@
+ {% extends "base.html" %}
+{% block title %}
+    {{ experience.meta_title or experience.title }} | The Uncharted Route
+{% endblock %}
+
+{% block meta_description %}
+    {{ experience.meta_description or experience.short_description or experience.title }}
+{% endblock %}
+
+{% block content %}
+
+ {# ==========================================================================
+   EXPERIENCE TAG ICONS
+   Inline SVG icons — no external icon library required.
+   Supported values include both spaced labels and kebab-case identifiers.
+   ========================================================================== #}
+{% macro render_experience_tag_icon(icon_name) %}
+    {% set icon_key = (
+        icon_name
+        | lower
+        | trim
+        | replace('_', '-')
+        | replace(' ', '-')
+    ) %}
+
+    {% if icon_key == 'paw-print' %}
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 shrink-0"
+            aria-hidden="true"
+        >
+            <circle cx="7.5" cy="8" r="2"/>
+            <circle cx="16.5" cy="8" r="2"/>
+            <circle cx="5" cy="14" r="1.7"/>
+            <circle cx="19" cy="14" r="1.7"/>
+            <path d="M12 12c-3.2 0-6 3.1-6 6a3 3 0 0 0 3 3c1.1 0 2-.6 3-1.1 1 .5 1.9 1.1 3 1.1a3 3 0 0 0 3-3c0-2.9-2.8-6-6-6Z"/>
+        </svg>
+
+    {% elif icon_key == 'binoculars' %}
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 shrink-0"
+            aria-hidden="true"
+        >
+            <path d="M10 10h4"/>
+            <path d="M4 10h2l2 10H4a2 2 0 0 1-2-2v-4a4 4 0 0 1 4-4Z"/>
+            <path d="M18 10h2a4 4 0 0 1 4 4v4a2 2 0 0 1-2 2h-4l2-10Z"/>
+            <path d="M8 10V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4"/>
+            <circle cx="6" cy="16" r="2"/>
+            <circle cx="18" cy="16" r="2"/>
+        </svg>
+
+    {% elif icon_key == 'camera' %}
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 shrink-0"
+            aria-hidden="true"
+        >
+            <path d="M14 4H9l-2 3H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-3-3Z"/>
+            <circle cx="12" cy="13" r="3.5"/>
+        </svg>
+
+    {% elif icon_key == 'map-pin' %}
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 shrink-0"
+            aria-hidden="true"
+        >
+            <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/>
+            <circle cx="12" cy="10" r="2.5"/>
+        </svg>
+
+    {% elif icon_key == 'sunrise' %}
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 shrink-0"
+            aria-hidden="true"
+        >
+            <path d="M12 2v2"/>
+            <path d="m4.93 10.93 1.42 1.42"/>
+            <path d="M2 18h2"/>
+            <path d="M20 18h2"/>
+            <path d="m17.65 12.35 1.42-1.42"/>
+            <path d="M22 22H2"/>
+            <path d="M8 6.1a7 7 0 0 1 8 0"/>
+            <path d="M12 10a5 5 0 0 0-5 5h10a5 5 0 0 0-5-5Z"/>
+        </svg>
+
+    {% else %}
+        {# Generic tag icon for unsupported or empty icon identifiers. #}
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 shrink-0"
+            aria-hidden="true"
+        >
+            <path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3H4a1 1 0 0 0-1 1v5.59A2 2 0 0 0 3.59 11l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.59Z"/>
+            <circle cx="7.5" cy="7.5" r=".8"/>
+        </svg>
+    {% endif %}
+{% endmacro %}
+
+{# ==========================================================================
+   EXPERIENCE HERO
+   ========================================================================== #}
+<section class="relative isolate overflow-hidden bg-route-deep text-white">
+    {% if primary_image_url %}
+        <div class="absolute inset-0 -z-20">
+            <img
+                src="{{ primary_image_url }}"
+                alt="{{ experience.title }}"
+                class="h-full w-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+                onerror="this.style.display='none';"
+            >
+        </div>
+    {% endif %}
+
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-route-deep/95 via-route-deep/80 to-route-deep/45"></div>
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-route-deep/80 via-transparent to-route-deep/20"></div>
+
+    <div class="mx-auto max-w-7xl px-6 py-20 sm:py-24 lg:px-8 lg:py-32">
+        <div class="max-w-4xl">
+
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                {% if experience.category %}
+                    <span class="inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
+                        {{ experience.category.name }}
+                    </span>
+                {% endif %}
+
+                {% if experience.featured %}
+                    <span class="inline-flex rounded-full bg-route-gold px-4 py-2 text-sm font-bold text-route-deep shadow-md">
+                        Featured Experience
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if experience.experience_code %}
+                <p class="mb-4 text-sm font-bold uppercase tracking-[0.25em] text-route-gold">
+                    {{ experience.experience_code }}
+                </p>
+            {% endif %}
+
+            <h1 class="max-w-4xl font-display text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-7xl">
+                {{ experience.title }}
+            </h1>
+
+            {% if experience.short_description %}
+                <p class="mt-6 max-w-3xl text-lg leading-8 text-white sm:text-xl">
+                    {{ experience.short_description }}
+                </p>
+            {% endif %}
+
+            <div class="mt-8 flex flex-wrap gap-3">
+                {% if experience.location %}
+                    <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-route-deep/70 px-4 py-3 text-sm font-medium text-white backdrop-blur-sm">
+                        <span class="text-route-gold" aria-hidden="true">●</span>
+                        {{ experience.location }}
+                    </span>
+                {% endif %}
+
+                {% if experience.duration %}
+                    <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-route-deep/70 px-4 py-3 text-sm font-medium text-white backdrop-blur-sm">
+                        <span class="text-route-gold" aria-hidden="true">◷</span>
+                        {{ experience.duration }}
+                    </span>
+                {% endif %}
+
+                {% if experience.difficulty %}
+                    <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-route-deep/70 px-4 py-3 text-sm font-medium text-white backdrop-blur-sm">
+                        <span class="text-route-gold" aria-hidden="true">◆</span>
+                        {{ experience.difficulty }}
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+                {% if booking_enabled %}
+                    <a
+                        href="{{ url_for('experience_bookings.create', slug=experience.slug) }}"
+                        class="inline-flex items-center justify-center rounded-full bg-route-forest px-7 py-4 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-route-gold hover:text-route-deep focus:outline-none focus:ring-4 focus:ring-route-gold/50"
+                    >
+                        Book This Experience
+                        <span class="ml-2" aria-hidden="true">→</span>
+                    </a>
+                {% else %}
+                    <a
+                        href="{{ url_for('experience_inquiries.enquire', slug=experience.slug) }}"
+                        class="inline-flex items-center justify-center rounded-full bg-route-gold px-8 py-4 text-base font-bold text-route-deep shadow-lg transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-4 focus:ring-route-gold/50"
+                    >
+                        Enquire About This Experience
+                        <span class="ml-2" aria-hidden="true">→</span>
+                    </a>
+                {% endif %}
+
+                <a
+                    href="{{ url_for('experiences.index') }}"
+                    class="inline-flex items-center justify-center rounded-full border-2 border-white/60 bg-route-deep/40 px-8 py-4 text-base font-semibold text-white transition hover:border-route-gold hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/30"
+                >
+                    Explore More Experiences
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{# ==========================================================================
+   EXPERIENCE OVERVIEW AND QUICK FACTS
+   ========================================================================== #}
+<section class="bg-white py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="grid items-start gap-10 lg:grid-cols-3 lg:gap-14">
+
+            <div class="lg:col-span-2">
+                <p class="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+                    The Experience
+                </p>
+
+                <h2 class="font-display text-3xl font-bold leading-tight text-route-deep sm:text-4xl">
+                    Discover {{ experience.title }}
+                </h2>
+
+                <div class="mt-7 space-y-5 text-base leading-8 text-route-ink sm:text-lg [&_a]:font-semibold [&_a]:text-route-forest [&_a]:underline [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-route-deep [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:font-bold [&_h3]:text-route-deep [&_li]:ml-5 [&_li]:list-disc">
+                    {% if experience.description %}
+                        {{ experience.description | safe }}
+                    {% else %}
+                        <p>
+                            Discover this experience with The Uncharted Route.
+                            Contact our team to learn more about the details
+                            and plan your visit.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <aside class="rounded-2xl border border-route-deep/15 bg-route-cream p-7 shadow-lg sm:p-8">
+                <p class="text-sm font-bold uppercase tracking-[0.18em] text-route-forest">
+                    At a Glance
+                </p>
+
+                <h2 class="mt-2 font-display text-2xl font-bold text-route-deep">
+                    Experience Details
+                </h2>
+
+                <dl class="mt-7 divide-y divide-route-deep/15">
+                    {% if experience.location %}
+                        <div class="py-4 first:pt-0">
+                            <dt class="text-sm font-semibold text-route-muted">Location</dt>
+                            <dd class="mt-1 text-base font-bold leading-6 text-route-ink">
+                                {{ experience.location }}
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if experience.duration %}
+                        <div class="py-4">
+                            <dt class="text-sm font-semibold text-route-muted">Duration</dt>
+                            <dd class="mt-1 text-base font-bold text-route-ink">
+                                {{ experience.duration }}
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if experience.meeting_point %}
+                        <div class="py-4">
+                            <dt class="text-sm font-semibold text-route-muted">Meeting Point</dt>
+                            <dd class="mt-1 text-base font-bold leading-6 text-route-ink">
+                                {{ experience.meeting_point }}
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if experience.minimum_people is not none %}
+                        <div class="py-4">
+                            <dt class="text-sm font-semibold text-route-muted">Minimum Group</dt>
+                            <dd class="mt-1 text-base font-bold text-route-ink">
+                                {{ experience.minimum_people }}
+                                {{ 'person' if experience.minimum_people == 1 else 'people' }}
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if experience.maximum_people is not none %}
+                        <div class="py-4">
+                            <dt class="text-sm font-semibold text-route-muted">Maximum Group</dt>
+                            <dd class="mt-1 text-base font-bold text-route-ink">
+                                {{ experience.maximum_people }}
+                                {{ 'person' if experience.maximum_people == 1 else 'people' }}
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if experience.minimum_age is not none %}
+                        <div class="py-4 last:pb-0">
+                            <dt class="text-sm font-semibold text-route-muted">Minimum Age</dt>
+                            <dd class="mt-1 text-base font-bold text-route-ink">
+                                {{ experience.minimum_age }}+
+                            </dd>
+                        </div>
+                    {% endif %}
+                </dl>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{# ==========================================================================
+   EXPERIENCE TAGS
+   Centrally managed reusable Experience Tags.
+   ========================================================================== #}
+
+{% if experience_tags %}
+<section class="border-y border-route-deep/10 bg-route-cream py-8">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="flex flex-wrap items-center gap-3">
+
+            <span class="mr-2 text-sm font-bold uppercase tracking-wider text-route-forest">
+                Experience Themes
+            </span>
+
+            {% for tag in experience_tags %}
+                <span
+                    class="inline-flex items-center gap-2 rounded-full border border-route-forest/20 bg-white px-4 py-2 text-sm font-semibold text-route-deep shadow-sm transition hover:border-route-gold/60 hover:shadow-md"
+                    title="{{ tag.name }}"
+                >
+                    {{ render_experience_tag_icon(tag.icon) }}
+
+                    <span>{{ tag.name }}</span>
+                </span>
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   MEDIA GALLERY
+   Uses MediaAsset.browser_url from the central Media Library.
+   ========================================================================== #}
+{% set gallery_assets = experience.gallery_media | selectattr('browser_url') | list %}
+
+{% if gallery_assets %}
+<section class="bg-route-sand/50 py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+            Gallery
+        </p>
+
+        <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+            Experience the Journey
+        </h2>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {% for media in gallery_assets %}
+                <figure class="group overflow-hidden rounded-2xl border border-route-deep/10 bg-white shadow-md">
+                    <img
+                        src="{{ media.browser_url }}"
+                        alt="{{ media.alt_text or experience.title }}"
+                        class="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
+                        loading="lazy"
+                    >
+                </figure>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ==========================================================================
+   HIGHLIGHTS
+   ========================================================================== #}
+{% if experience.highlights.count() > 0 %}
+<section class="bg-route-sand/50 py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="max-w-3xl">
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">Highlights</p>
+            <h2 class="mt-3 font-display text-3xl font-bold leading-tight text-route-deep sm:text-4xl">
+                What Makes This Experience Special
+            </h2>
+            <p class="mt-4 text-base leading-7 text-route-muted">
+                Explore the moments and details that make this experience memorable.
+            </p>
+        </div>
+
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for highlight in experience.highlights %}
+                <article class="rounded-2xl border border-route-deep/10 bg-white p-7 shadow-md transition hover:-translate-y-1 hover:shadow-xl">
+                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-route-forest text-xl font-bold text-white" aria-hidden="true">
+                        ✓
+                    </span>
+
+                    {% if highlight.title %}
+                        <h3 class="mt-5 font-display text-xl font-bold text-route-deep">
+                            {{ highlight.title }}
+                        </h3>
+                    {% endif %}
+
+                    {% if highlight.description %}
+                        <p class="mt-3 text-base leading-7 text-route-ink">
+                            {{ highlight.description }}
+                        </p>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   ITINERARY
+   ========================================================================== #}
+{% if experience.itinerary.count() > 0 %}
+<section class="bg-white py-16 sm:py-20">
+    <div class="mx-auto max-w-5xl px-6 lg:px-8">
+        <div class="text-center">
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">Your Journey</p>
+            <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                Your Itinerary
+            </h2>
+            <p class="mx-auto mt-4 max-w-2xl text-base leading-7 text-route-muted">
+                A closer look at what your experience may include.
+            </p>
+        </div>
+
+        <div class="mt-12 space-y-6">
+            {% for item in experience.itinerary %}
+                <article class="rounded-2xl border border-route-deep/15 bg-route-cream p-6 shadow-md sm:p-8">
+                    <div class="flex items-start gap-5">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-route-forest text-lg font-bold text-white shadow-md">
+                            {{ loop.index }}
+                        </span>
+
+                        <div class="min-w-0 flex-1">
+                            {% if item.title %}
+                                <h3 class="font-display text-xl font-bold text-route-deep sm:text-2xl">
+                                    {{ item.title }}
+                                </h3>
+                            {% endif %}
+
+                            {% if item.description %}
+                                <p class="mt-3 text-base leading-8 text-route-ink">
+                                    {{ item.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   INCLUSIONS AND EXCLUSIONS
+   ========================================================================== #}
+{% if experience.inclusions.count() > 0 or experience.exclusions.count() > 0 %}
+<section class="bg-route-sand/50 py-16 sm:py-20">
+    <div class="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-2 lg:px-8">
+
+        {% if experience.inclusions.count() > 0 %}
+            <div class="rounded-2xl border border-route-forest/20 bg-white p-7 shadow-lg sm:p-9">
+                <span class="inline-flex rounded-full bg-route-forest/10 px-4 py-2 text-sm font-bold text-route-forest">
+                    Included
+                </span>
+
+                <h2 class="mt-4 font-display text-2xl font-bold text-route-deep sm:text-3xl">
+                    What's Included
+                </h2>
+
+                <ul class="mt-7 space-y-4">
+                    {% for item in experience.inclusions %}
+                        <li class="flex items-start gap-3 text-base leading-7 text-route-ink">
+                            <span class="mt-0.5 font-bold text-route-forest" aria-hidden="true">✓</span>
+                            <span>{{ item.description or item.title }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if experience.exclusions.count() > 0 %}
+            <div class="rounded-2xl border border-route-terracotta/25 bg-white p-7 shadow-lg sm:p-9">
+                <span class="inline-flex rounded-full bg-route-terracotta/10 px-4 py-2 text-sm font-bold text-route-terracotta">
+                    Not Included
+                </span>
+
+                <h2 class="mt-4 font-display text-2xl font-bold text-route-deep sm:text-3xl">
+                    What's Not Included
+                </h2>
+
+                <ul class="mt-7 space-y-4">
+                    {% for item in experience.exclusions %}
+                        <li class="flex items-start gap-3 text-base leading-7 text-route-ink">
+                            <span class="mt-0.5 font-bold text-route-terracotta" aria-hidden="true">×</span>
+                            <span>{{ item.description or item.title }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   PRICING — EXPERIENCE PRICING OPTIONS
+   Uses ExperiencePricing:
+   experience_level, minimum_people, maximum_people, price, currency, notes.
+   ========================================================================== #}
+<section id="pricing" class="bg-white py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="mx-auto max-w-3xl text-center">
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+                Transparent Pricing
+            </p>
+
+            <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                Choose Your Experience Level
+            </h2>
+
+            <p class="mt-4 text-base leading-7 text-route-muted sm:text-lg">
+                Explore the available pricing options for {{ experience.title }}.
+                Each option specifies its own group-size range and price.
+            </p>
+        </div>
+
+        {# Use the experience's pricing relationship, but display only active options. #}
+        {% set active_pricing_options = experience.pricing | selectattr('active') | list %}
+
+        {% if active_pricing_options %}
+            <div class="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+
+                {% for pricing in active_pricing_options %}
+                    <article class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-route-deep/15 bg-route-cream shadow-md transition duration-300 hover:-translate-y-1 hover:border-route-forest/40 hover:shadow-xl">
+
+                        <div class="h-1.5 bg-route-forest"></div>
+
+                        <div class="flex flex-1 flex-col p-6 sm:p-7">
+
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-route-muted">
+                                        Experience Level
+                                    </p>
+
+                                    <h3 class="mt-2 font-display text-2xl font-bold text-route-deep">
+                                        {{ pricing.experience_level }}
+                                    </h3>
+                                </div>
+
+                                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-route-forest/10 text-lg font-bold text-route-forest" aria-hidden="true">
+                                    {% if pricing.experience_level == 'Explorer' %}
+                                        E
+                                    {% elif pricing.experience_level == 'Signature' %}
+                                        S
+                                    {% elif pricing.experience_level == 'Luxury' %}
+                                        L
+                                    {% elif pricing.experience_level == 'Bespoke' %}
+                                        B
+                                    {% else %}
+                                        ✓
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="mt-6 rounded-xl border border-route-forest/15 bg-white p-4">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                                    Group Size
+                                </p>
+
+                                <p class="mt-2 text-lg font-bold text-route-forest">
+                                    {% if pricing.maximum_people is none %}
+                                        {{ pricing.minimum_people }}+ people
+                                    {% elif pricing.minimum_people == pricing.maximum_people %}
+                                        {{ pricing.minimum_people }}
+                                        {{ 'person' if pricing.minimum_people == 1 else 'people' }}
+                                    {% else %}
+                                        {{ pricing.minimum_people }}–{{ pricing.maximum_people }} people
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <div class="mt-6">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-route-muted">
+                                    Listed Price
+                                </p>
+
+                                <p class="mt-2 break-words font-display text-3xl font-bold text-route-forest">
+                                    {{ pricing.currency }}
+                                    {{ "{:,.2f}".format(pricing.price) }}
+                                </p>
+                            </div>
+
+                            {% if pricing.notes %}
+                                <div class="mt-5 flex-1 border-t border-route-deep/10 pt-4">
+                                    <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                        Additional Details
+                                    </p>
+                                    <p class="mt-2 text-sm leading-6 text-route-ink">
+                                        {{ pricing.notes }}
+                                    </p>
+                                </div>
+                            {% else %}
+                                <div class="flex-1"></div>
+                            {% endif %}
+
+                            <div class="mt-7">
+                                {% if booking_enabled %}
+                                    <a
+                                        href="{{ url_for('experience_bookings.create', slug=experience.slug, pricing_id=pricing.id) }}"
+                                        class="inline-flex w-full items-center justify-center rounded-full bg-route-forest px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-route-deep focus:outline-none focus:ring-4 focus:ring-route-forest/25"
+                                    >
+                                        Select This Option
+                                        <span class="ml-2" aria-hidden="true">→</span>
+                                    </a>
+                                {% else %}
+                                    <a
+                                        href="{{ url_for('experience_inquiries.enquire', slug=experience.slug) }}"
+                                        class="inline-flex w-full items-center justify-center rounded-full border border-route-forest px-5 py-3 text-center text-sm font-bold text-route-forest transition hover:bg-route-forest hover:text-white focus:outline-none focus:ring-4 focus:ring-route-forest/25"
+                                    >
+                                        Enquire About This Option
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <p class="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-route-muted">
+                Select a pricing option that accommodates your group size. The selected option and your traveller details will be checked when you submit your booking request. Your booking is not confirmed until the team confirms it.
+            </p>
+
+        {% else %}
+            <div class="mx-auto mt-10 max-w-2xl rounded-2xl border border-route-deep/10 bg-route-cream p-8 text-center">
+                <span class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-route-forest/10 text-xl font-bold text-route-forest" aria-hidden="true">
+                    i
+                </span>
+
+                <h3 class="mt-4 font-display text-xl font-bold text-route-deep">
+                    Pricing is available on request
+                </h3>
+
+                <p class="mt-3 text-base leading-7 text-route-muted">
+                    Our team can help you find a suitable option for your group.
+                    Contact us for current pricing and availability.
+                </p>
+
+                <a
+                    href="{{ url_for('experience_inquiries.enquire', slug=experience.slug) }}"
+                    class="mt-6 inline-flex items-center justify-center rounded-full bg-route-forest px-7 py-3 font-bold text-white transition hover:bg-route-deep focus:outline-none focus:ring-4 focus:ring-route-forest/25"
+                >
+                    Request Pricing
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+
+
+{# ==========================================================================
+   OPTIONAL ADD-ONS
+   ========================================================================== #}
+{% if experience.addons.count() > 0 %}
+<section class="bg-route-sand/50 py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">Enhance Your Journey</p>
+
+        <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+            Optional Add-ons
+        </h2>
+
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for addon in experience.addons %}
+                <article class="rounded-2xl border border-route-deep/10 bg-white p-7 shadow-md">
+                    {% if addon.title %}
+                        <h3 class="font-display text-xl font-bold text-route-deep">
+                            {{ addon.title }}
+                        </h3>
+                    {% endif %}
+
+                    {% if addon.description %}
+                        <p class="mt-3 text-base leading-7 text-route-ink">
+                            {{ addon.description }}
+                        </p>
+                    {% endif %}
+
+                    {% if addon.price is defined and addon.price is not none %}
+                        <p class="mt-5 text-lg font-bold text-route-forest">
+                            {{ addon.currency or experience.currency }}
+                            {{ "{:,.2f}".format(addon.price) }}
+                        </p>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   PACKING LIST
+   ========================================================================== #}
+{% if experience.packing_items.count() > 0 %}
+<section class="bg-white py-16 sm:py-20">
+    <div class="mx-auto max-w-5xl px-6 lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">Get Prepared</p>
+
+        <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+            What to Pack
+        </h2>
+
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            {% for item in experience.packing_items %}
+                <div class="flex items-start gap-3 rounded-xl border border-route-deep/10 bg-route-cream p-5 text-base font-medium leading-7 text-route-ink">
+                    <span class="mt-0.5 font-bold text-route-forest" aria-hidden="true">✓</span>
+                    <span>{{ item.description or item.name or item.title }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   SAFETY AND REQUIREMENTS
+   ========================================================================== #}
+{% if experience.safety_rules.count() > 0 or experience.requirements.count() > 0 %}
+<section class="bg-route-sand/50 py-16 sm:py-20">
+    <div class="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-2 lg:px-8">
+
+        {% if experience.safety_rules.count() > 0 %}
+            <div class="rounded-2xl border border-route-deep/10 bg-white p-7 shadow-lg sm:p-8">
+                <h2 class="font-display text-2xl font-bold text-route-deep sm:text-3xl">
+                    Safety Information
+                </h2>
+
+                <div class="mt-7 space-y-6">
+                    {% for rule in experience.safety_rules %}
+                        <article class="border-l-4 border-route-gold pl-5">
+                            {% if rule.title %}
+                                <h3 class="font-bold text-route-deep">{{ rule.title }}</h3>
+                            {% endif %}
+
+                            {% if rule.description %}
+                                <p class="mt-2 text-base leading-7 text-route-ink">
+                                    {{ rule.description }}
+                                </p>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if experience.requirements.count() > 0 %}
+            <div class="rounded-2xl border border-route-deep/10 bg-white p-7 shadow-lg sm:p-8">
+                <h2 class="font-display text-2xl font-bold text-route-deep sm:text-3xl">
+                    Experience Requirements
+                </h2>
+
+                <div class="mt-7 space-y-6">
+                    {% for requirement in experience.requirements %}
+                        <article class="border-l-4 border-route-forest pl-5">
+                            {% if requirement.title %}
+                                <h3 class="font-bold text-route-deep">{{ requirement.title }}</h3>
+                            {% endif %}
+
+                            {% if requirement.description %}
+                                <p class="mt-2 text-base leading-7 text-route-ink">
+                                    {{ requirement.description }}
+                                </p>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{# ==========================================================================
+   WILDLIFE
+   ========================================================================== #}
+{% if wildlife_records %}
+<section class="bg-white py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="max-w-3xl">
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+                Wildlife
+            </p>
+
+            <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                Wildlife You May Encounter
+            </h2>
+
+            <p class="mt-4 text-base leading-7 text-route-muted">
+                Discover some of the wildlife that may be encountered during this experience.
+            </p>
+        </div>
+
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for animal in wildlife_records %}
+                {% set species = animal.species %}
+
+                <article class="rounded-2xl border border-route-deep/10 bg-route-cream p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <h3 class="font-display text-xl font-bold text-route-deep">
+                                {{ species.common_name }}
+                            </h3>
+
+                            {% if species.scientific_name %}
+                                <p class="mt-1 text-sm italic text-route-muted">
+                                    {{ species.scientific_name }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        {% if species.category == "Big Five" %}
+                            <span class="rounded-full bg-route-gold/15 px-3 py-1 text-xs font-bold text-route-deep">
+                                Big Five
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if species.description %}
+                        <p class="mt-4 text-sm leading-7 text-route-ink">
+                            {{ species.description }}
+                        </p>
+                    {% endif %}
+
+                    <div class="mt-5 space-y-3 border-t border-route-deep/10 pt-5">
+                        {% if animal.sighting_probability %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Sighting Probability
+                                </p>
+                                <p class="mt-1 text-sm font-semibold text-route-forest">
+                                    {{ animal.sighting_probability }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if animal.best_season %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Best Season
+                                </p>
+                                <p class="mt-1 text-sm text-route-ink">
+                                    {{ animal.best_season }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if animal.best_time_of_day %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Best Time
+                                </p>
+                                <p class="mt-1 text-sm text-route-ink">
+                                    {{ animal.best_time_of_day }}
+                                </p>
+                            </div>
+                        {% elif species.best_viewing_time %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Best Viewing Time
+                                </p>
+                                <p class="mt-1 text-sm text-route-ink">
+                                    {{ species.best_viewing_time }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if species.habitat %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Habitat
+                                </p>
+                                <p class="mt-1 text-sm text-route-ink">
+                                    {{ species.habitat }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if species.conservation_status %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                    Conservation Status
+                                </p>
+                                <p class="mt-1 text-sm text-route-ink">
+                                    {{ species.conservation_status }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if species.interesting_fact %}
+                        <div class="mt-5 rounded-xl border border-route-gold/20 bg-white p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-route-gold">
+                                Did You Know?
+                            </p>
+                            <p class="mt-2 text-sm leading-6 text-route-ink">
+                                {{ species.interesting_fact }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {% if animal.guide_notes %}
+                        <div class="mt-5">
+                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Guide Notes
+                            </p>
+                            <p class="mt-2 text-sm leading-6 text-route-ink">
+                                {{ animal.guide_notes }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {% if animal.photography_notes %}
+                        <div class="mt-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                Photography Opportunities
+                            </p>
+                            <p class="mt-2 text-sm leading-6 text-route-ink">
+                                {{ animal.photography_notes }}
+                            </p>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{# ==========================================================================
+   PHOTOGRAPHY
+   ========================================================================== #}
+
+{% if photography_records %}
+<section class="relative overflow-hidden bg-route-sand/50 py-20 sm:py-24">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
+        <!-- SECTION INTRODUCTION -->
+        <div class="mx-auto mb-12 max-w-3xl text-center">
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-route-forest">
+                Through the Lens
+            </p>
+
+            <h2 class="mt-4 font-display text-3xl font-bold tracking-tight text-route-deep sm:text-4xl lg:text-5xl">
+                Photography Opportunities
+            </h2>
+
+            <p class="mx-auto mt-5 max-w-2xl text-base leading-8 text-route-muted">
+                Discover remarkable photography locations, ideal shooting
+                conditions and practical insights to help you capture the
+                character of every destination.
+            </p>
+        </div>
+
+        <!-- PHOTOGRAPHY SPOTS -->
+        <div class="grid gap-8 lg:grid-cols-2">
+
+            {% for photo in photography_records %}
+                {% set spot = photo.spot %}
+
+                <article class="group flex flex-col overflow-hidden rounded-3xl border border-route-deep/10 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+                    <!-- CARD HEADER -->
+                    <div class="relative bg-route-forest px-7 py-7 sm:px-8">
+                        <div class="absolute inset-0 bg-gradient-to-br from-route-forest via-route-deep to-route-forest opacity-95"></div>
+
+                        <div class="relative">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+
+                                <p class="text-xs font-bold uppercase tracking-[0.2em] text-route-gold">
+                                    Photography Location
+                                </p>
+
+                                {% if photo.featured %}
+                                    <span class="rounded-full border border-route-gold/30 bg-route-gold/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-route-gold">
+                                        Featured Spot
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="mt-4 font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
+                                {{ spot.name }}
+                            </h3>
+
+                            {% if spot.location %}
+                                <div class="mt-3 flex items-center gap-2 text-sm text-white/75">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span>{{ spot.location }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- CARD CONTENT -->
+                    <div class="flex flex-1 flex-col p-7 sm:p-8">
+
+                        {% if spot.description %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-[0.18em] text-route-forest">
+                                    About This Location
+                                </p>
+
+                                <p class="mt-3 text-sm leading-7 text-route-muted">
+                                    {{ spot.description }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <!-- PHOTOGRAPHY CHARACTERISTICS -->
+                        {% if spot.photography_type or spot.difficulty or spot.accessibility %}
+                            <div class="mt-6 flex flex-wrap gap-2">
+
+                                {% if spot.photography_type %}
+                                    <span class="rounded-full bg-route-forest/10 px-3 py-2 text-xs font-semibold text-route-forest">
+                                        <i class="bi bi-camera mr-1"></i>
+                                        {{ spot.photography_type }}
+                                    </span>
+                                {% endif %}
+
+                                {% if spot.difficulty %}
+                                    <span class="rounded-full bg-route-sand px-3 py-2 text-xs font-semibold text-route-deep">
+                                        <i class="bi bi-signpost-split mr-1"></i>
+                                        {{ spot.difficulty }}
+                                    </span>
+                                {% endif %}
+
+                                {% if spot.accessibility %}
+                                    <span class="rounded-full bg-route-sand px-3 py-2 text-xs font-semibold text-route-deep">
+                                        <i class="bi bi-person-wheelchair mr-1"></i>
+                                        {{ spot.accessibility }}
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                        {% endif %}
+
+                        <!-- SHOOTING CONDITIONS -->
+                        {% if spot.best_time or spot.best_time_to_visit or spot.best_time_to_photograph or spot.best_season %}
+                            <div class="mt-7 rounded-2xl border border-route-deep/10 bg-route-cream/70 p-5">
+
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-sunrise text-lg text-route-terracotta"></i>
+                                    <h4 class="text-sm font-bold uppercase tracking-wider text-route-deep">
+                                        When to Photograph
+                                    </h4>
+                                </div>
+
+                                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+
+                                    {% if spot.best_time %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Best Time
+                                            </p>
+                                            <p class="mt-1.5 text-sm leading-6 text-route-ink">
+                                                {{ spot.best_time }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if spot.best_time_to_visit %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Best Time to Visit
+                                            </p>
+                                            <p class="mt-1.5 text-sm leading-6 text-route-ink">
+                                                {{ spot.best_time_to_visit }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if spot.best_time_to_photograph %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Ideal Shooting Time
+                                            </p>
+                                            <p class="mt-1.5 text-sm leading-6 text-route-ink">
+                                                {{ spot.best_time_to_photograph }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if spot.best_season %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Best Season
+                                            </p>
+                                            <p class="mt-1.5 text-sm leading-6 text-route-ink">
+                                                {{ spot.best_season }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- CAMERA AND EQUIPMENT -->
+                        {% if spot.recommended_lens or spot.recommended_lenses or spot.recommended_equipment %}
+                            <div class="mt-7">
+
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-camera text-lg text-route-forest"></i>
+                                    <h4 class="text-sm font-bold uppercase tracking-wider text-route-deep">
+                                        Camera & Equipment
+                                    </h4>
+                                </div>
+
+                                <div class="mt-4 space-y-4">
+
+                                    {% if spot.recommended_lenses %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Recommended Lenses
+                                            </p>
+                                            <p class="mt-1.5 whitespace-pre-line text-sm leading-7 text-route-ink">
+                                                {{ spot.recommended_lenses }}
+                                            </p>
+                                        </div>
+                                    {% elif spot.recommended_lens %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Recommended Lens
+                                            </p>
+                                            <p class="mt-1.5 text-sm leading-7 text-route-ink">
+                                                {{ spot.recommended_lens }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if spot.recommended_equipment %}
+                                        <div>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Additional Equipment
+                                            </p>
+                                            <p class="mt-1.5 whitespace-pre-line text-sm leading-7 text-route-ink">
+                                                {{ spot.recommended_equipment }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- LIGHTING AND WEATHER -->
+                        {% if spot.lighting_conditions or spot.weather_conditions %}
+                            <div class="mt-7 grid gap-5 sm:grid-cols-2">
+
+                                {% if spot.lighting_conditions %}
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="bi bi-brightness-high text-route-gold"></i>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Lighting Conditions
+                                            </p>
+                                        </div>
+                                        <p class="mt-2 text-sm leading-7 text-route-ink">
+                                            {{ spot.lighting_conditions }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+
+                                {% if spot.weather_conditions %}
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="bi bi-cloud-sun text-route-terracotta"></i>
+                                            <p class="text-xs font-bold uppercase tracking-wider text-route-muted">
+                                                Weather Conditions
+                                            </p>
+                                        </div>
+                                        <p class="mt-2 text-sm leading-7 text-route-ink">
+                                            {{ spot.weather_conditions }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+                        {% endif %}
+
+                        <!-- EXPERIENCE-SPECIFIC NOTES -->
+                        {% if photo.notes %}
+                            <div class="mt-7 rounded-2xl border border-route-gold/25 bg-route-gold/10 p-5">
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-compass text-route-terracotta"></i>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-route-deep">
+                                        Experience-Specific Notes
+                                    </h4>
+                                </div>
+
+                                <p class="mt-3 text-sm leading-7 text-route-ink">
+                                    {{ photo.notes }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <!-- PHOTOGRAPHY TIPS -->
+                        {% if spot.photography_tips %}
+                            <div class="mt-7">
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-lightbulb text-route-gold"></i>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-route-deep">
+                                        Photography Tips
+                                    </h4>
+                                </div>
+
+                                <p class="mt-3 text-sm leading-7 text-route-muted">
+                                    {{ spot.photography_tips }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <!-- CAMERA SETTINGS -->
+                        {% if spot.camera_settings %}
+                            <details class="group/settings mt-6 rounded-2xl border border-route-deep/10 bg-white">
+
+                                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-4">
+                                    <span class="flex items-center gap-2 text-sm font-bold text-route-deep">
+                                        <i class="bi bi-sliders text-route-forest"></i>
+                                        Suggested Camera Settings
+                                    </span>
+
+                                    <i class="bi bi-chevron-down text-route-muted transition group-open/settings:rotate-180"></i>
+                                </summary>
+
+                                <div class="border-t border-route-deep/10 px-4 py-4">
+                                    <p class="whitespace-pre-line text-sm leading-7 text-route-muted">
+                                        {{ spot.camera_settings }}
+                                    </p>
+                                </div>
+                            </details>
+                        {% endif %}
+
+                        <!-- SAFETY NOTES -->
+                        {% if spot.safety_notes %}
+                            <div class="mt-6 rounded-2xl border border-route-terracotta/20 bg-route-terracotta/5 p-5">
+
+                                <div class="flex items-center gap-2">
+                                    <i class="bi bi-shield-check text-route-terracotta"></i>
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-route-deep">
+                                        Safety & Considerations
+                                    </h4>
+                                </div>
+
+                                <p class="mt-3 text-sm leading-7 text-route-muted">
+                                    {{ spot.safety_notes }}
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        <!-- LOCATION DETAILS -->
+                        {% if spot.altitude or (spot.latitude is not none and spot.longitude is not none) %}
+                            <div class="mt-auto border-t border-route-deep/10 pt-6 mt-7">
+
+                                <div class="flex flex-wrap items-center justify-between gap-4">
+
+                                    {% if spot.altitude %}
+                                        <div>
+                                            <p class="text-[10px] font-bold uppercase tracking-wider text-route-muted">
+                                                Elevation
+                                            </p>
+                                            <p class="mt-1 text-sm font-semibold text-route-deep">
+                                                {{ "{:,}".format(spot.altitude) }} m
+                                            </p>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if spot.latitude is not none and spot.longitude is not none %}
+                                        <a
+                                            href="https://www.google.com/maps?q={{ spot.latitude }},{{ spot.longitude }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center gap-2 rounded-full bg-route-forest px-5 py-2.5 text-xs font-bold text-white transition hover:bg-route-deep"
+                                        >
+                                            <i class="bi bi-geo-alt"></i>
+                                            View Location
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        </a>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </article>
+
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ==========================================================================
+   SIGNATURE MOMENTS
+   ========================================================================== #}
+{% if signature_moments %}
+<section class="relative overflow-hidden bg-route-deep py-16 text-white sm:py-20">
+
+    <div class="absolute inset-0 bg-gradient-to-br from-route-forest/60 via-route-deep to-route-deep"></div>
+
+    <div class="relative mx-auto max-w-7xl px-6 lg:px-8">
+
+        <div class="mx-auto max-w-3xl text-center">
+            <p class="text-sm font-bold uppercase tracking-[0.25em] text-route-gold">
+                The Uncharted Moment
+            </p>
+
+            <h2 class="mt-3 font-display text-3xl font-bold text-white sm:text-4xl">
+                Signature Moments
+            </h2>
+
+            <p class="mt-4 text-base leading-7 text-white/75">
+                Discover the defining moments that make this experience
+                worth remembering.
+            </p>
+        </div>
+
+        <div class="mt-12 grid gap-8 md:grid-cols-2">
+
+            {% for moment in signature_moments %}
+
+                <article class="group overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-xl backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:bg-white/15">
+
+                    {% if moment.hero_media and moment.hero_media.browser_url %}
+                        <div class="aspect-[16/9] overflow-hidden">
+                            <img
+                                src="{{ moment.hero_media.browser_url }}"
+                                alt="{{ moment.title }}"
+                                class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                                loading="lazy"
+                            >
+                        </div>
+                    {% endif %}
+
+                    <div class="p-7 sm:p-8">
+
+                        <div class="flex flex-wrap items-center gap-2">
+
+                            {% if moment.moment_type %}
+                                <span class="rounded-full bg-route-gold/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-route-gold">
+                                    {{ moment.moment_type }}
+                                </span>
+                            {% endif %}
+
+                            {% if moment.featured %}
+                                <span class="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-white">
+                                    Featured Moment
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                        {% if moment.title %}
+                            <h3 class="mt-5 font-display text-2xl font-bold text-route-gold">
+                                {{ moment.title }}
+                            </h3>
+                        {% endif %}
+
+                        {% if moment.short_description %}
+                            <p class="mt-3 text-base font-medium leading-7 text-white">
+                                {{ moment.short_description }}
+                            </p>
+                        {% endif %}
+
+                        {% if moment.full_description %}
+                            <div class="mt-4 text-sm leading-7 text-white/80">
+                                {{ moment.full_description | safe }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-6 grid gap-4 border-t border-white/15 pt-5 sm:grid-cols-2">
+
+                            {% if moment.expected_time %}
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-route-gold">
+                                        Expected Time
+                                    </p>
+                                    <p class="mt-1 text-sm text-white/90">
+                                        {{ moment.expected_time }}
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            {% if moment.estimated_duration %}
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-route-gold">
+                                        Duration
+                                    </p>
+                                    <p class="mt-1 text-sm text-white/90">
+                                        {{ moment.estimated_duration }} minutes
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            {% if moment.best_season %}
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-route-gold">
+                                        Best Season
+                                    </p>
+                                    <p class="mt-1 text-sm text-white/90">
+                                        {{ moment.best_season }}
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            {% if moment.emotional_impact %}
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-route-gold">
+                                        Experience Impact
+                                    </p>
+                                    <p class="mt-1 text-sm text-white/90">
+                                        {{ moment.emotional_impact }}
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        {% if moment.photography_recommended %}
+                            <p class="mt-5 flex items-center gap-2 text-sm font-semibold text-route-gold">
+                                <span aria-hidden="true">📷</span>
+                                Photography recommended
+                            </p>
+                        {% endif %}
+
+                    </div>
+                </article>
+
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+{% endif %}
+{# ==========================================================================
+   CONSERVATION STORY
+   ========================================================================== #}
+{% if experience.conservation_story %}
+<section class="bg-route-forest py-16 text-white sm:py-20">
+    <div class="mx-auto max-w-4xl px-6 lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-gold">
+            Conservation
+        </p>
+
+        {% if experience.conservation_story.title %}
+            <h2 class="mt-3 font-display text-3xl font-bold text-white sm:text-4xl">
+                {{ experience.conservation_story.title }}
+            </h2>
+        {% endif %}
+
+        {% if experience.conservation_story.description %}
+            <div class="mt-6 space-y-5 text-base leading-8 text-white sm:text-lg [&_a]:font-semibold [&_a]:text-route-gold [&_a]:underline [&_h2]:mt-6 [&_h2]:font-bold [&_h3]:mt-5 [&_h3]:font-bold [&_li]:ml-5 [&_li]:list-disc">
+                {{ experience.conservation_story.description | safe }}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{# ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== #}
+{% if experience.accessibility_profile %}
+    {% set accessibility = experience.accessibility_profile %}
+
+    <section class="bg-white py-16 sm:py-20">
+        <div class="mx-auto max-w-4xl px-6 lg:px-8">
+
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+                Accessibility
+            </p>
+
+            <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                Accessibility Information
+            </h2>
+
+            {% if accessibility.name %}
+                <h3 class="mt-6 font-display text-xl font-bold text-route-deep">
+                    {{ accessibility.name }}
+                </h3>
+            {% endif %}
+
+            {% if accessibility.summary %}
+                <p class="mt-4 text-base leading-8 text-route-ink">
+                    {{ accessibility.summary }}
+                </p>
+            {% endif %}
+
+            <div class="mt-8 grid gap-4 sm:grid-cols-2">
+
+                {% set accessibility_features = [
+                    ('Wheelchair Accessible', accessibility.wheelchair_accessible),
+                    ('Stroller Friendly', accessibility.stroller_friendly),
+                    ('Child Friendly', accessibility.child_friendly),
+                    ('Elderly Friendly', accessibility.elderly_friendly),
+                    ('Pregnancy Friendly', accessibility.pregnancy_friendly),
+                    ('Walking Required', accessibility.walking_required),
+                    ('Hiking Required', accessibility.hiking_required),
+                    ('Uneven Terrain', accessibility.uneven_terrain),
+                    ('Stairs Required', accessibility.stairs_required),
+                    ('Accessible Restrooms', accessibility.accessible_restrooms),
+                    ('Medical Support Available', accessibility.medical_support_available),
+                    ('Vegetarian Options', accessibility.vegetarian_available),
+                    ('Vegan Options', accessibility.vegan_available),
+                    ('Halal Options', accessibility.halal_available),
+                    ('Gluten-Free Options', accessibility.gluten_free_available),
+                    ('Multilingual Guides', accessibility.multilingual_guides),
+                    ('Sign Language Available', accessibility.sign_language_available),
+                    ('Audio Guides', accessibility.audio_guides)
+                ] %}
+
+                {% for label, available in accessibility_features %}
+                    {% if available %}
+                        <div class="flex items-center gap-3 rounded-xl bg-route-cream p-4">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-route-forest/10 text-route-forest">
+                                ✓
+                            </span>
+                            <span class="text-sm font-medium text-route-deep">
+                                {{ label }}
+                            </span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+
+            {% if accessibility.minimum_fitness_level or accessibility.maximum_altitude_meters %}
+                <div class="mt-8 rounded-2xl bg-route-sand/50 p-6">
+                    <h3 class="font-bold text-route-deep">
+                        Additional Requirements
+                    </h3>
+
+                    {% if accessibility.minimum_fitness_level %}
+                        <p class="mt-3 text-sm text-route-ink">
+                            Minimum fitness level:
+                            {{ accessibility.minimum_fitness_level }}
+                        </p>
+                    {% endif %}
+
+                    {% if accessibility.maximum_altitude_meters %}
+                        <p class="mt-2 text-sm text-route-ink">
+                            Maximum altitude:
+                            {{ accessibility.maximum_altitude_meters }} metres
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if accessibility.notes %}
+                <div class="mt-8 text-base leading-8 text-route-ink">
+                    {{ accessibility.notes | safe }}
+                </div>
+            {% endif %}
+
+        </div>
+    </section>
+{% endif %}
+
+ {# ==========================================================================
+   CANCELLATION POLICY
+   ========================================================================== #}
+{% if experience.cancellation_policy %}
+    {% set policy = experience.cancellation_policy %}
+
+    <section class="bg-route-sand/50 py-16 sm:py-20">
+        <div class="mx-auto max-w-4xl px-6 lg:px-8">
+
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+                Booking Information
+            </p>
+
+            <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                Cancellation Policy
+            </h2>
+
+            {% if policy.name %}
+                <h3 class="mt-6 font-display text-xl font-bold text-route-deep">
+                    {{ policy.name }}
+                </h3>
+            {% endif %}
+
+            {% if policy.short_description %}
+                <p class="mt-4 text-base leading-8 text-route-ink">
+                    {{ policy.short_description }}
+                </p>
+            {% endif %}
+
+            {% if policy.full_policy %}
+                <div class="mt-6 space-y-4 text-base leading-8 text-route-ink
+                            [&_a]:font-semibold [&_a]:text-route-forest
+                            [&_a]:underline [&_h3]:font-bold
+                            [&_li]:ml-5 [&_li]:list-disc">
+                    {{ policy.full_policy | safe }}
+                </div>
+            {% endif %}
+
+            <div class="mt-8 grid gap-4 sm:grid-cols-2">
+
+                {% if policy.full_refund_days is not none %}
+                    <div class="rounded-xl bg-white p-5">
+                        <p class="text-sm text-route-muted">
+                            Full Refund
+                        </p>
+                        <p class="mt-2 font-semibold text-route-deep">
+                            {{ policy.full_refund_days }} days before departure
+                        </p>
+                    </div>
+                {% endif %}
+
+                {% if policy.partial_refund_days is not none %}
+                    <div class="rounded-xl bg-white p-5">
+                        <p class="text-sm text-route-muted">
+                            Partial Refund
+                        </p>
+                        <p class="mt-2 font-semibold text-route-deep">
+                            {{ policy.partial_refund_percentage }}%
+                            {{ policy.partial_refund_days }} days before departure
+                        </p>
+                    </div>
+                {% endif %}
+
+                {% if policy.no_refund_days is not none %}
+                    <div class="rounded-xl bg-white p-5">
+                        <p class="text-sm text-route-muted">
+                            No Refund
+                        </p>
+                        <p class="mt-2 font-semibold text-route-deep">
+                            {{ policy.no_refund_days }} days before departure
+                        </p>
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+
+                {% if policy.date_changes_allowed %}
+                    <span class="rounded-full bg-route-forest/10 px-4 py-2 text-sm font-medium text-route-forest">
+                        Date changes allowed
+                    </span>
+                {% endif %}
+
+                {% if policy.name_changes_allowed %}
+                    <span class="rounded-full bg-route-forest/10 px-4 py-2 text-sm font-medium text-route-forest">
+                        Name changes allowed
+                    </span>
+                {% endif %}
+
+                {% if policy.transferable_booking %}
+                    <span class="rounded-full bg-route-forest/10 px-4 py-2 text-sm font-medium text-route-forest">
+                        Booking transferable
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </section>
+{% endif %}
+
+{# ==========================================================================
+   FREQUENTLY ASKED QUESTIONS
+   ========================================================================== #}
+{% if experience.faqs.count() > 0 %}
+<section class="bg-white py-16 sm:py-20">
+    <div class="mx-auto max-w-4xl px-6 lg:px-8">
+        <div class="text-center">
+            <p class="text-sm font-bold uppercase tracking-[0.2em] text-route-forest">
+                Questions
+            </p>
+
+            <h2 class="mt-3 font-display text-3xl font-bold text-route-deep sm:text-4xl">
+                Frequently Asked Questions
+            </h2>
+        </div>
+
+        <div class="mt-10 divide-y divide-route-deep/15 rounded-2xl border border-route-deep/10 bg-route-cream px-6 sm:px-8">
+            {% for faq in experience.faqs %}
+                <details class="group py-6">
+                    <summary class="flex cursor-pointer list-none items-start justify-between gap-6 text-left text-base font-bold leading-7 text-route-deep marker:content-none focus:outline-none focus-visible:ring-2 focus-visible:ring-route-forest">
+                        <span>{{ faq.question }}</span>
+                        <span class="shrink-0 text-2xl font-normal text-route-forest transition group-open:rotate-45" aria-hidden="true">
+                            +
+                        </span>
+                    </summary>
+
+                    {% if faq.answer %}
+                        <div class="mt-4 space-y-3 pr-8 text-base leading-8 text-route-ink [&_a]:font-semibold [&_a]:text-route-forest [&_a]:underline [&_li]:ml-5 [&_li]:list-disc">
+                            {{ faq.answer | safe }}
+                        </div>
+                    {% endif %}
+                </details>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ==========================================================================
+   FINAL BOOKING / ENQUIRY CTA
+   ========================================================================== #}
+<section class="relative overflow-hidden bg-route-deep py-20 text-white sm:py-24">
+    <div class="absolute inset-0 bg-gradient-to-br from-route-forest via-route-deep to-route-deep"></div>
+
+    <div class="relative mx-auto max-w-5xl px-6 text-center lg:px-8">
+        <p class="text-sm font-bold uppercase tracking-[0.25em] text-route-gold">
+            Ready to Explore?
+        </p>
+
+        <h2 class="mt-4 font-display text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
+            Make This Experience Yours.
+        </h2>
+
+        <p class="mx-auto mt-6 max-w-2xl text-base leading-8 text-white sm:text-lg">
+            {% if booking_enabled %}
+                Ready to get started? Book your experience with The Uncharted Route and begin planning your journey.
+            {% else %}
+                Interested in this experience? Send us an enquiry and our team will help you plan the details.
+            {% endif %}
+        </p>
+
+        <div class="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
+            {% if booking_enabled %}
+                <a
+                    href="{{ url_for('experience_bookings.create', slug=experience.slug) }}"
+                    class="inline-flex items-center justify-center rounded-full bg-route-gold px-9 py-4 text-base font-bold text-route-deep shadow-lg transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-4 focus:ring-route-gold/50"
+                >
+                    Book This Experience
+                    <span class="ml-2" aria-hidden="true">→</span>
+                </a>
+            {% else %}
+                <a
+                    href="{{ url_for('experience_inquiries.enquire', slug=experience.slug) }}"
+                    class="inline-flex items-center justify-center rounded-full bg-route-gold px-9 py-4 text-base font-bold text-route-deep shadow-lg transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-4 focus:ring-route-gold/50"
+                >
+                    Enquire About This Experience
+                    <span class="ml-2" aria-hidden="true">→</span>
+                </a>
+            {% endif %}
+
+            <a
+                href="{{ url_for('experiences.index') }}"
+                class="inline-flex items-center justify-center rounded-full border-2 border-white/60 px-9 py-4 text-base font-semibold text-white transition hover:border-route-gold hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/30"
+            >
+                Explore More Experiences
+            </a>
+        </div>
+
+        <p class="mt-8 text-sm font-medium text-white/80">
+            Explore. Experience. Remember.
+        </p>
+    </div>
+</section>
+
+{% endblock %}
