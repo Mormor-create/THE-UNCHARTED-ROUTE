@@ -96,6 +96,33 @@ def _foreign_key_exists(
 
     return False
 
+def _foreign_key_name(
+    table_name,
+    constrained_columns,
+    referred_table,
+    fallback_name,
+):
+    """
+    Return the actual database constraint name for a foreign key.
+
+    PostgreSQL may have an automatically generated constraint name,
+    while SQLite may report legacy foreign keys without a name.
+
+    When the database reports no name, fall back to the deterministic
+    Alembic naming-convention name used by this migration.
+    """
+    if not _table_exists(table_name):
+        return None
+
+    constrained_columns = list(constrained_columns)
+    for foreign_key in _inspector().get_foreign_keys(table_name):
+        if (
+            foreign_key.get("referred_table") == referred_table
+            and list(foreign_key.get("constrained_columns") or [])
+            == constrained_columns
+        ):
+            return foreign_key.get("name") or fallback_name
+    return None
 
 # =============================================================================
 # Upgrade
@@ -223,23 +250,25 @@ def upgrade():
         # We determine whether the relationships already exist by their
         # columns/tables rather than relying on their constraint names.
         # ---------------------------------------------------------------------
-
-        has_category_fk = _foreign_key_exists(
+        category_fk_name = _foreign_key_name(
             "blog_posts",
             ["category_id"],
             "blog_categories",
+            "fk_blog_posts_category_id_blog_categories",
         )
 
-        has_destination_fk = _foreign_key_exists(
+        destination_fk_name = _foreign_key_name(
             "blog_posts",
             ["related_destination_id"],
             "destinations",
+            "fk_blog_posts_related_destination_id_destinations",
         )
 
-        has_experience_fk = _foreign_key_exists(
+        experience_fk_name = _foreign_key_name(
             "blog_posts",
             ["related_experience_id"],
             "experiences",
+            "fk_blog_posts_related_experience_id_experiences",
         )
 
         with op.batch_alter_table(
@@ -381,22 +410,21 @@ def upgrade():
             #
             # This prevents duplicate foreign keys.
             # -------------------------------------------------------------
-
-            if has_experience_fk:
+            if experience_fk_name:
                 batch_op.drop_constraint(
-                    "fk_blog_posts_related_experience_id_experiences",
+                    experience_fk_name,
                     type_="foreignkey",
                 )
 
-            if has_destination_fk:
+            if destination_fk_name:
                 batch_op.drop_constraint(
-                    "fk_blog_posts_related_destination_id_destinations",
+                    destination_fk_name,
                     type_="foreignkey",
                 )
 
-            if has_category_fk:
+            if category_fk_name:
                 batch_op.drop_constraint(
-                    "fk_blog_posts_category_id_blog_categories",
+                    category_fk_name,
                     type_="foreignkey",
                 )
 
@@ -508,37 +536,35 @@ def upgrade():
         # The current contacts table has none of the new user-related
         # foreign keys, but this makes the migration safer if it is ever
         # encountered in a partially upgraded state.
-
-        has_resolved_by_fk = _foreign_key_exists(
+        resolved_by_fk_name = _foreign_key_name(
             "contacts",
             ["resolved_by_id"],
             "users",
-        )
+            "fk_contacts_resolved_by_id_users",)
 
-        has_closed_by_fk = _foreign_key_exists(
+        closed_by_fk_name = _foreign_key_name(
             "contacts",
             ["closed_by_id"],
             "users",
-        )
+            "fk_contacts_closed_by_id_users",)
 
-        has_archived_by_fk = _foreign_key_exists(
+        archived_by_fk_name = _foreign_key_name(
             "contacts",
             ["archived_by_id"],
             "users",
-        )
+            "fk_contacts_archived_by_id_users",)
 
-        has_user_fk = _foreign_key_exists(
+        user_fk_name = _foreign_key_name(
             "contacts",
             ["user_id"],
             "users",
-        )
+            "fk_contacts_user_id_users",)
 
-        has_assigned_user_fk = _foreign_key_exists(
+        assigned_user_fk_name = _foreign_key_name(
             "contacts",
             ["assigned_user_id"],
             "users",
-        )
-
+            "fk_contacts_assigned_user_id_users",)
         with op.batch_alter_table(
             "contacts",
             schema=None,
@@ -706,34 +732,33 @@ def upgrade():
             # that is valid because Alembic's batch operation reconstructs the
             # table as a whole.
             # -------------------------------------------------------------
-
-            if has_resolved_by_fk:
+            if resolved_by_fk_name:
                 batch_op.drop_constraint(
-                    "fk_contacts_resolved_by_id_users",
+                    resolved_by_fk_name,
                     type_="foreignkey",
                 )
 
-            if has_closed_by_fk:
+            if closed_by_fk_name:
                 batch_op.drop_constraint(
-                    "fk_contacts_closed_by_id_users",
+                    closed_by_fk_name,
                     type_="foreignkey",
                 )
 
-            if has_archived_by_fk:
+            if archived_by_fk_name:
                 batch_op.drop_constraint(
-                    "fk_contacts_archived_by_id_users",
+                    archived_by_fk_name,
                     type_="foreignkey",
                 )
 
-            if has_user_fk:
+            if user_fk_name:
                 batch_op.drop_constraint(
-                    "fk_contacts_user_id_users",
+                    user_fk_name,
                     type_="foreignkey",
                 )
 
-            if has_assigned_user_fk:
+            if assigned_user_fk_name:
                 batch_op.drop_constraint(
-                    "fk_contacts_assigned_user_id_users",
+                    assigned_user_fk_name,
                     type_="foreignkey",
                 )
 
