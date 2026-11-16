@@ -34,13 +34,12 @@ FK_NAMING_CONVENTION = {
 def upgrade():
     connection = op.get_bind()
 
+    # This migration repairs the historical SQLite schema only.
+    # PostgreSQL does not need this SQLite-specific M2M rebuild.
     if connection.dialect.name != "sqlite":
-        raise RuntimeError(
-            "This migration currently supports SQLite only."
-        )
+        return
 
     inspector = sa.inspect(connection)
-
     if not inspector.has_table("signature_moments"):
         raise RuntimeError(
             "Required table signature_moments does not exist."
