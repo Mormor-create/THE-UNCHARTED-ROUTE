@@ -6,8 +6,8 @@ Create Date: 2026-11-12
 """
 
 from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "d8c251c8e0ab"
@@ -432,6 +432,11 @@ def upgrade():
     """
 
     bind = op.get_bind()
+
+    # This migration repairs the historical SQLite staff FK schema only.
+    # PostgreSQL does not need this SQLite-specific table rebuild.
+    if bind.dialect.name != "sqlite":
+        return
 
     # SQLite's table-rebuild workflow requires foreign-key enforcement
     # to be disabled while referenced tables are replaced.
