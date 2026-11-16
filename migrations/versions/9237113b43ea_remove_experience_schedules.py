@@ -71,7 +71,7 @@ def upgrade():
                 "booking_id",
                 sa.Integer(),
                 sa.ForeignKey(
-                    "bookings.id",
+                    "booking.id",
                     ondelete="CASCADE",
                 ),
                 nullable=False,
