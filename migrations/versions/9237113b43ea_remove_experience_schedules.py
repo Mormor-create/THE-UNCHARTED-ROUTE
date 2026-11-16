@@ -53,8 +53,8 @@ def upgrade():
     #
     # Use an Alembic autocommit block so the SQLite PRAGMA is actually applied.
     with op.get_context().autocommit_block():
-        op.execute("PRAGMA foreign_keys=OFF")
-
+        if op.get_bind().dialect.name == "sqlite":
+            op.execute("PRAGMA foreign_keys=OFF")
         # ------------------------------------------------------------------
         # Create replacement table.
         # ------------------------------------------------------------------
@@ -311,9 +311,8 @@ def upgrade():
         # ------------------------------------------------------------------
         # Restore SQLite foreign-key enforcement.
         # ------------------------------------------------------------------
-        op.execute("PRAGMA foreign_keys=ON")
-
-
+        if op.get_bind().dialect.name == "sqlite":
+            op.execute("PRAGMA foreign_keys=ON")
 def downgrade():
     raise RuntimeError(
         "The Experience Schedule architecture was intentionally removed. "
