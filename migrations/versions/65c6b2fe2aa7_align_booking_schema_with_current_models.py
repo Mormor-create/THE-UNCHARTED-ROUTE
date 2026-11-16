@@ -375,6 +375,12 @@ def _verify_indexes(connection, tables):
 def upgrade():
 
     connection = op.get_bind()
+
+    # This migration repairs the historical SQLite schema only.
+    # PostgreSQL follows the subsequent booking-architecture migrations.
+    if connection.dialect.name != "sqlite":
+        return
+
     _validate_environment(connection)
     metadata = _get_model_metadata()
     tables = _get_tables(metadata)
